@@ -1,0 +1,25 @@
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{HTTP_HOST} ^www\.jquery\.com$ [NC]
+RewriteRule ^(.*)$ http://jquery.com/$1 [R=301,L]
+
+RewriteRule ^404.shtml/$ /docs/Error/ [R=permanent,QSA]
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [S=51]
+
+RewriteRule discuss/feed/ discuss/feed.xml [L,QSA]
+RewriteRule discuss/([^/]+)/([^/]+)/ discuss/?d=$1&m=$2 [L,QSA]
+RewriteRule discuss/([^/]+)/ discuss/?d=$1 [L,QSA]
+
+#RewriteRule ^(.*[^/])$  http://jquery.com/$1/ [QSA,L,R=permanent]
+
+#RewriteRule ^docs/([^/]+)/edit/$ docs/index.cgi?action=edit&page_name=$1 [L,QSA]
+#RewriteRule ^docs/([^/]+)/$ docs/index.cgi?$1 [L,QSA]
+
+#RewriteRule ^src/$ /docs/SourceCode/ [L,QSA]
+#RewriteRule ^src/(.*)$ code/$1 [L,QSA]
+#RewriteRule ^src/([^/]+)/$ src/browse.cgi?v=$1 [L,QSA]
+#RewriteRule ^src/([^/]+)/([a-z0-9]{32})/?$ src/browse.cgi?v=$1&custom=$2 [L,QSA]

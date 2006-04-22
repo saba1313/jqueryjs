@@ -1,5 +1,0 @@
-[24-Jan-2006 23:25:49] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/jquery/public_html/blog/wp-admin/setup-config.php:22) in /home/jquery/public_html/blog/wp-includes/wp-db.php on line 308
-[24-Jan-2006 23:26:08] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/jquery/public_html/blog/wp-admin/setup-config.php:22) in /home/jquery/public_html/blog/wp-includes/wp-db.php on line 308
-[07-Feb-2006 17:10:09] not well-formed (invalid token) at line 187, column 29
-[15-Feb-2006 18:01:57] not well-formed (invalid token) at line 454, column 29
-[23-Feb-2006 00:45:36] not well-formed (invalid token) at line 590, column 29

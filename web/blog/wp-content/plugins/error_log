@@ -1,9 +1,0 @@
-[26-Jan-2006 18:21:01] PHP Fatal error:  Call to undefined function:  add_action() in /home/jquery/public_html/blog/wp-content/plugins/live-comment-preview.php on line 189
-[26-Jan-2006 21:03:55] PHP Fatal error:  Call to undefined function:  add_action() in /home/jquery/public_html/blog/wp-content/plugins/live-comment-preview.php on line 189
-[26-Jan-2006 21:03:56] PHP Fatal error:  Call to undefined function:  add_action() in /home/jquery/public_html/blog/wp-content/plugins/live-comment-preview.php on line 189
-[27-Jan-2006 06:23:54] PHP Fatal error:  Call to undefined function:  add_action() in /home/jquery/public_html/blog/wp-content/plugins/live-comment-preview.php on line 189
-[03-Feb-2006 20:01:00] PHP Fatal error:  Call to undefined function:  add_action() in /home/jquery/public_html/blog/wp-content/plugins/live-comment-preview.php on line 189
-[07-Feb-2006 18:51:30] PHP Fatal error:  Call to undefined function:  add_action() in /home/jquery/public_html/blog/wp-content/plugins/live-comment-preview.php on line 189
-[10-Feb-2006 11:08:18] PHP Fatal error:  Call to undefined function:  add_action() in /home/jquery/public_html/blog/wp-content/plugins/live-comment-preview.php on line 189
-[10-Feb-2006 11:08:18] PHP Fatal error:  Call to undefined function:  add_action() in /home/jquery/public_html/blog/wp-content/plugins/live-comment-preview.php on line 189
-[11-Mar-2006 18:02:12] PHP Fatal error:  Call to undefined function:  add_action() in /home/jquery/public_html/blog/wp-content/plugins/live-comment-preview.php on line 189

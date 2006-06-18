@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <script type="text/javascript" src="lib/Test/Builder.js"></script>
+		<script type="text/javascript" src="lib/Test/More.js"></script>
+		<script type="text/javascript" src="test.js"></script>
+    <script type="text/javascript" src="/src/latest/"></script>
+  </head>
+  <body>
+		<h1>Test for Prerequisites</h1>
+    <pre id="test"><script>
+			plan({tests: 10});
+			
+			ok( Array.prototype.push, "Array.push()" );
+			ok( Function.prototype.apply, "Function.apply()" );
+			ok( document.getElementById, "getElementById" );
+			ok( document.getElementsByTagName, "getElementsByTagName" );
+			ok( RegExp, "RegExp" );
+			
+			ok( $, "$()" );
+			ok( $.Select, "Select" );
+			ok( $.filter, "filter()" );
+			
+			ok( addEvent, "addEvent" );
+			ok( removeEvent, "removeEvent" );
+    </script></pre>
+  </body>
+</html>

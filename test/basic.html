@@ -1,0 +1,95 @@
+<html id="html">
+  <head>
+    <script type="text/javascript" src="lib/Test/Builder.js"></script>
+		<script type="text/javascript" src="lib/Test/More.js"></script>
+		<script type="text/javascript" src="test.js"></script>
+    <script type="text/javascript" src="/src/latest/"></script>
+  </head>
+  <body id="body">
+		<h1>Basic Usage</h1>
+		<!-- Test HTML -->
+		<div id="main" style="display: none;"></div>
+		<div id="foo" style="display: none;"></div>
+    <pre id="test"><script>
+			//plan({tests: 3});
+			var div = $("div");
+
+			diag( "Getters" );
+			
+			cmpOK( div.size(), "==", 2, "Get Number of Elements Found" );
+			
+			isSet( div.get(), q("main","foo"), "Get All Elements" );
+			cmpOK( div.get(0), "==", document.getElementById("main"), 
+				"Get A Single Element" );
+			
+			var Prototype = true;
+			cmpOK( $("main"), "==", document.getElementById("main"), 
+				"Prototype Support $('main')" );
+			cmpOK( $(document.getElementById("main")), "==", 
+				document.getElementById("main"), "Prototype Support $(Object)" );
+			Prototype = null;
+			
+			diag( "Setters" );
+			
+			div.exec(function(){this.foo = 'zoo';});
+			var pass = true;
+			for ( var i = 0; i < div.size(); i++ ) {
+				if ( div.get(i).foo != "zoo" ) pass = false;
+			}
+			ok( pass, "Execute, Relative" );
+			
+			div.addClass("test");
+			var pass = true;
+			for ( var i = 0; i < div.size(); i++ ) {
+				if ( div.get(i).className.indexOf("test") == -1 ) pass = false;
+			}
+			ok( pass, "Add Class" );
+			
+			div.removeClass("test");
+			var pass = true;
+			for ( var i = 0; i < div.size(); i++ ) {
+				if ( div.get(i).className.indexOf("test") != -1 ) pass = false;
+			}
+			ok( pass, "Remove Class" );
+			
+			div.html("<b>test</b>");
+			var pass = true;
+			for ( var i = 0; i < div.size(); i++ ) {
+				if ( div.get(i).childNodes.length == 0 ) pass = false;
+			}
+			ok( pass, "Set HTML" );
+			
+			div.set("foo", "bar");
+			var pass = true;
+			for ( var i = 0; i < div.size(); i++ ) {
+				if ( div.get(i).foo != "bar" ) pass = false;
+			}
+			ok( pass, "Set Attribute" );
+			
+			div.set({foo: 'baz', zoo: 'ping'});
+			var pass = true;
+			for ( var i = 0; i < div.size(); i++ ) {
+				if ( div.get(i).foo != "baz" && div.get(i).zoo != "ping" ) pass = false;
+			}
+			ok( pass, "Set Multiple Attributes" );
+			
+			div.show();
+			var pass = true;
+			for ( var i = 0; i < div.size(); i++ ) {
+				if ( div.get(i).style.display != "block" ) pass = false;
+			}
+			ok( pass, "Show" );
+			
+			div.hide();
+			var pass = true;
+			for ( var i = 0; i < div.size(); i++ ) {
+				if ( div.get(i).style.display != "none" ) pass = false;
+			}
+			ok( pass, "Hide" );
+			
+			
+			
+			// Test.More.Test.beginAsync(4000);
+    </script></pre>
+  </body>
+</html>

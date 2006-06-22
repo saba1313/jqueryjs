@@ -3,7 +3,7 @@
     <script type="text/javascript" src="lib/Test/Builder.js"></script>
 		<script type="text/javascript" src="lib/Test/More.js"></script>
 		<script type="text/javascript" src="test.js"></script>
-    <script type="text/javascript" src="/src/latest/"></script>
+    <script type="text/javascript" src="../jquery/jquery-svn.js"></script>
   </head>
   <body id="body">
 		<h1>Basic Usage</h1>
@@ -22,16 +22,18 @@
 			cmpOK( div.get(0), "==", document.getElementById("main"), 
 				"Get A Single Element" );
 			
+			/* Phased out
 			var Prototype = true;
 			cmpOK( $("main"), "==", document.getElementById("main"), 
 				"Prototype Support $('main')" );
 			cmpOK( $(document.getElementById("main")), "==", 
 				document.getElementById("main"), "Prototype Support $(Object)" );
 			Prototype = null;
+			*/
 			
 			diag( "Setters" );
 			
-			div.exec(function(){this.foo = 'zoo';});
+			div.each(function(){this.foo = 'zoo';});
 			var pass = true;
 			for ( var i = 0; i < div.size(); i++ ) {
 				if ( div.get(i).foo != "zoo" ) pass = false;
@@ -73,18 +75,16 @@
 			}
 			ok( pass, "Set Multiple Attributes" );
 			
-			div.show();
 			var pass = true;
-			for ( var i = 0; i < div.size(); i++ ) {
-				if ( div.get(i).style.display != "block" ) pass = false;
-			}
+			div.show().each(function(){
+				if ( this.style.display == "none" ) pass = false;
+			});
 			ok( pass, "Show" );
 			
-			div.hide();
 			var pass = true;
-			for ( var i = 0; i < div.size(); i++ ) {
-				if ( div.get(i).style.display != "none" ) pass = false;
-			}
+			div.hide().each(function(){
+				if ( this.style.display != "none" ) pass = false;
+			});
 			ok( pass, "Hide" );
 			
 			

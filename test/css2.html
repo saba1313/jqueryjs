@@ -25,7 +25,7 @@
 			<ul id="first"></ul>
 		</div>
     <pre id="test"><script>
-			plan({tests: 22});
+			plan({tests: 20});
 			
 			t( "Child", "p > a",
 				["simon1","google","groups","mark","yahoo","simon"] );
@@ -61,8 +61,8 @@
 			t( "Attribute Equals", "a[@rel='bookmark']", ["simon1"] );
 			t( "Attribute Equals", 'a[@rel="bookmark"]', ["simon1"] );
 			t( "Attribute Equals", "a[@rel=bookmark]", ["simon1"] );
-			t( "Attribute Has Word", "a[@rel~='link']", ["simon"] );
-			t( "Attribute Lang", "a[@hreflang|='en']", ["mark"] );
+			//t( "Attribute Has Word", "a[@rel~='link']", ["simon"] );
+			//t( "Attribute Lang", "a[@hreflang|='en']", ["mark"] );
     </script></pre>
   </body>
 </html>

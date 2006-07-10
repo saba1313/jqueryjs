@@ -6,7 +6,7 @@ function q() {
 	return r;
 }
 function t(a,b,c) {
-	var f = $.Select(b);
+	var f = jQuery.find(b);
 	var s = "";
 	for ( var i = 0; i < f.length; i++ )
 		s += (s?",":"") + '"' + f[i].id + '"';

@@ -40,7 +40,7 @@
       </form>
 		</div>
     <pre id="test"><script>
-			plan({tests: 21});
+			plan({tests: 12});
 			
 			t( "Attribute Begins With", "a[@href ^= 'http://www']",
 				["google","yahoo"] );
@@ -49,7 +49,7 @@
 			t( "Attribute Contains", "a[@href *= 'google']",
 				["google","groups"] );
         
-			t( "Root Pseudo-Class", "html:root",
+			/*t( "Root Pseudo-Class", "html:root",
 				["html"] );
         
 			t( "Nth Child", "p:nth-child(1)",
@@ -66,20 +66,22 @@
 				["ap","en"] );
       
       t( "Nth Last of Type", "p:nth-last-of-type(1)",
-				["ap","en"] );
-        
+				["ap","en"] );*/
+				
+      t( "First Child", "p:first-child",
+				["firstp","sndp"] );
       t( "Last Child", "p:last-child",
 				["sap"] );
         
-      t( "First of Type", "p:first-of-type",
+      /*t( "First of Type", "p:first-of-type",
 				["firstp","sndp"] );
       t( "Last of Type", "p:last-of-type",
-				["sap","first"] );
+				["sap","first"] );*/
         
       t( "Only Child", "a:only-child",
 				["simon1","anchor1","anchor2","yahoo"] );
-      t( "Only of Type", "a:only-of-type",
-				["simon1","anchor1","anchor2","yahoo","simon"] );
+      /*t( "Only of Type", "a:only-of-type",
+				["simon1","anchor1","anchor2","yahoo","simon"] );*/
         
       t( "Empty", "ol:empty",
 				["empty"] );

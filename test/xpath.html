@@ -40,7 +40,7 @@
 		</div>
     <pre id="test"><script>
 			plan({tests: 14});
-			cmpOK( $.Select("//*").length, ">=", 30, "All Elements (//*)" );
+			cmpOK( $.find("//*").length, ">=", 30, "All Elements (//*)" );
 			t( "All Div Elements", "//div", ["main","foo"] );
 			
 			t( "Absolute Path", "/html/body", ["body"] );

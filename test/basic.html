@@ -11,7 +11,7 @@
 		<div id="main" style="display: none;"></div>
 		<div id="foo" style="display: none;"></div>
     <pre id="test"><script>
-			//plan({tests: 3});
+			plan({tests: 11});
 			var div = $("div");
 
 			diag( "Getters" );
@@ -61,14 +61,14 @@
 			}
 			ok( pass, "Set HTML" );
 			
-			div.set("foo", "bar");
+			div.attr("foo", "bar");
 			var pass = true;
 			for ( var i = 0; i < div.size(); i++ ) {
 				if ( div.get(i).foo != "bar" ) pass = false;
 			}
 			ok( pass, "Set Attribute" );
 			
-			div.set({foo: 'baz', zoo: 'ping'});
+			div.attr({foo: 'baz', zoo: 'ping'});
 			var pass = true;
 			for ( var i = 0; i < div.size(); i++ ) {
 				if ( div.get(i).foo != "baz" && div.get(i).zoo != "ping" ) pass = false;

@@ -1,29 +1,21 @@
 <html>
 <head>
 	<script type="text/javascript" src="lib/Test/Harness.js"></script>
-  <script type="text/javascript" src="lib/Test/Harness/Browser.js"></script>
-	<style>
-	pre {
-		font-size: 1.5em;
-	}
-	</style>
+	<script type="text/javascript" src="lib/Test/Harness/Browser.js"></script>
 </head>
 <body>
-<h1>JQuery Test Suite</h1>
+	<h1>jQuery - Test Suite</h1>
 
-<div style="margin:0 auto;text-align:left;width:300px;">
-<script type="text/javascript">
-	//harness.args.verbose = true;
-	new Test.Harness.Browser().runTests(
-		"prereq.html",
-		"css1.html",
-		"css2.html",
-		"css3.html",
-		"xpath.html",
-		"custom.html",
-		"basic.html"
-	);
-</script>
-</div>
+	<script type="text/javascript">
+		new Test.Harness.Browser().runTests(
+			"tests/prereq.html",
+			"tests/css1.html",
+			"tests/css2.html",
+			"tests/css3.html",
+			"tests/xpath.html",
+			"tests/custom.html",
+			"tests/basic.html"
+		);
+	</script>
 </body>
 </html>

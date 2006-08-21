@@ -192,7 +192,7 @@ $.fn.serialize = function() {
 			);
 
 		a.push({name: n, value: this.value});
-	}).end();
+	});
 	
 	this.vars = a;
 

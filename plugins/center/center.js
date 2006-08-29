@@ -15,7 +15,17 @@ $.fn.center = function(f) {
 
 		var s = this.style;
 		s.position = 'absolute';
-		s.left = ((parseInt($.css(p,"width")) - parseInt($.css(this,"width")))/2) + "px";
-		s.top = ((parseInt($.css(p,"height")) - parseInt($.css(this,"height")))/2) + "px";
+		if(!f || f == "horizontal") { 
+			if(((parseInt($.css(p,"width")) - parseInt($.css(this,"width")))/2) > 0)
+				s.left = ((parseInt($.css(p,"width")) - parseInt($.css(this,"width")))/2) + "px";
+			else
+				s.left = "0px";
+		}
+		if(!f || f == "vertical") {	
+			if(((parseInt($.css(p,"height")) - parseInt($.css(this,"height")))/2) > 0)						
+				s.top = ((parseInt($.css(p,"height")) - parseInt($.css(this,"height")))/2) + "px";
+			else
+				s.top = "0px";
+		}
 	});
 };

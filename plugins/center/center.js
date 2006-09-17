@@ -1,6 +1,6 @@
 /**
- * Takes all matched elements and centers them, absolutely, 
- * within the context of their parent element. Great for 
+ * Takes all matched elements and centers them, absolutely,
+ * within the context of their parent element. Great for
  * doing slideshows.
  *
  * @example $("div img").center();
@@ -15,29 +15,29 @@ $.fn.center = function(f) {
 
 		var s = this.style;
 		s.position = 'absolute';
-		if(!f || f == "horizontal") { 
+		if(!f || f == "horizontal") {
 			if(((parseInt($.css(p,"width")) - parseInt($.css(this,"width")))/2) > 0)
 				s.left = ((parseInt($.css(p,"width")) - parseInt($.css(this,"width")))/2) + "px";
 			else
-				s.left = "0px";
+				s.left = "0";
 		}
-		if(!f || f == "vertical") {	
+		if(!f || f == "vertical") {
 			if(((parseInt($.css(p,"height")) - parseInt($.css(this,"height")))/2) > 0)
-			{						
+			{
 				s.top = ((parseInt($.css(p,"height")) - parseInt($.css(this,"height")))/2) + "px";
 			} else {
-				if(p.nodeName == "BODY") {
+				if(p.nodeName.toLowerCase() == "body") {
 
 				if (window.innerHeight)
     				var clientHeight = window.innerHeight;
   			 	else if(document.body && document.body.offsetHeight)
     				var clientHeight = document.body.offsetHeight;
-				
+
 					s.top = ((clientHeight - parseInt($.css(this,"height")))/2) + "px";
 				} else {
-					s.top = "0px";
+					s.top = "0";
 				}
 			}
-		}		
+		}
 	});
 };

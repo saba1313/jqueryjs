@@ -1,40 +1,50 @@
+// Cookie Plugin
+
 /**
  * Sets/gets a cookie with the given name and value and other optional parameters.
  *
- * @param name the name of the cookie
- * @param value the value of the cookie
- * @return the value of the cookie
- * @example $.cookie('the_cookie');
- * @example $.cookie('the_cookie', 'the_value');
- * @example $.cookie('the_cookie', 'the_value', {expires: , path: '/', domain: 'jquery.com', secure: true});
- * @name cookie
+ * @param String Name The name of the cookie.
+ * @param String value The value of the cookie.
+ * @param Hash options A set of key/value pairs for optional cookie parameters.
+ *
+ * These are all the key/values that can be passed in to 'options':
+ *
+ * (Integer|Date) expires - Either an integer specifying the expiration date from now on in days or a Date object.
+ *
+ * (String) path - Path where the cookie is valid (default: path of calling document).
+ * 
+ * (String) domain - Domain where the cookie is valid (default: domain of calling document).
+ *
+ * (Boolean) secure - Boolean value indicating if the cookie transmission requires a secure transmission.
+ *
+ * @return The value of the cookie.
+ * @name $.cookie
  * @type jQuery
- * @author Klaus Hartl (16.09.2006)
+ * @author Klaus Hartl/klaus.hartl@stilbuero.de
  *
- * @param expires an integer specifying the expiration date from now on
- *                in days. If you set the number of days to 0 the cookie
- *                is trashed when the user closes the browser.
- * @param path    path where the cookie is valid (default: path of
- *                calling document).
- * @param domain  domain where the cookie is valid (default: domain of
- *                calling document).
- * @param secure  boolean value indicating if the cookie transmission
- *                requires a secure transmission.
+ * @example $.cookie('the_cookie');
+ * @desc Get the value of a cookie.
+ * @example $.cookie('the_cookie', 'the_value');
+ * @desc Set the value of a cookie.
+ * @example $.cookie('the_cookie', 'the_value', {expires: 7, path: '/', domain: 'jquery.com', secure: true});
+ * @desc Create a cookie with all available options.
+ * @example $.cookie('the_cookie', 'the_value', {expires: 0});
+ * @desc Create a cookie that is trashed if the browser is closed (session cookie).
+ * @example $.cookie('the_cookie', '', {expires: -1});
+ * @desc Delete a cookie by setting the expiry date in the past.
  */
-
-/**
- * Deletes a cookie by setting the expiry date in the past.
- *
- * @example $.cookie('name', '', -1);
- */
-
 $.cookie = function(name, value, options) {
-    if (typeof value == 'string') { // // name and value given, set cookie
+    if (typeof value == 'string') { // name and value given, set cookie
         options = options || {};
         var expires = '';
-        if (typeof options.expires == 'number') {
-            var date = new Date();
-            date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
+        if (options.expires && (typeof options.expires == 'number' || options.expires.toGMTString)) {
+            var date;
+            if (typeof options.expires == 'number') {
+                date = new Date();
+                date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
+            } else {
+                date = options.expires;
+            }
             expires = '; expires=' + date.toGMTString();
         }
         var path = options.path ? '; path=' + options.path : '';

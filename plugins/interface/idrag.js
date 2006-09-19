@@ -62,8 +62,6 @@ jQuery.iDrag =	{
 			x : parseInt($.css(elm,'left')) || 0,
 			y : parseInt($.css(elm,'top')) || 0
 		};
-		elm.dragCfg.nx = elm.dragCfg.oR.x;
-		elm.dragCfg.ny = elm.dragCfg.oR.y;
 		
 		elm.dragCfg.diffX = 0;
 		elm.dragCfg.diffY = 0;
@@ -80,6 +78,27 @@ jQuery.iDrag =	{
 		if (elm.dragCfg.oP != 'relative' && elm.dragCfg.oP != 'absolute') {
 			dEs.position = 'relative';
 		}
+		if (elm.dragCfg.cursorAt) {
+			if (elm.dragCfg.cursorAt.left && elm.dragCfg.cursorAt.left != false) {
+				elm.dragCfg.oR.x += elm.dragCfg.pointer.x - elm.dragCfg.oC.x - elm.dragCfg.cursorAt.left;
+				elm.dragCfg.oC.x = elm.dragCfg.pointer.x - elm.dragCfg.cursorAt.left;
+			}
+			if (elm.dragCfg.cursorAt.top && elm.dragCfg.cursorAt.top != false) {
+				elm.dragCfg.oR.y += elm.dragCfg.pointer.y - elm.dragCfg.oC.y - elm.dragCfg.cursorAt.top;
+				elm.dragCfg.oC.y = elm.dragCfg.pointer.y - elm.dragCfg.cursorAt.top;
+			}
+			if (elm.dragCfg.cursorAt.right && elm.dragCfg.cursorAt.right != false) {
+				elm.dragCfg.oR.x += elm.dragCfg.pointer.x - elm.dragCfg.oC.x -elm.dragCfg.oC.hb + elm.dragCfg.cursorAt.right;
+				elm.dragCfg.oC.x = elm.dragCfg.pointer.x - elm.dragCfg.oC.wb + elm.dragCfg.cursorAt.right;
+			}
+			if (elm.dragCfg.cursorAt.bottom && elm.dragCfg.cursorAt.bottom != false) {
+				elm.dragCfg.oR.y += elm.dragCfg.pointer.y - elm.dragCfg.oC.y - elm.dragCfg.oC.hb + elm.dragCfg.cursorAt.bottom;
+				elm.dragCfg.oC.y = elm.dragCfg.pointer.y - elm.dragCfg.oC.hb + elm.dragCfg.cursorAt.bottom;
+			}
+		}
+		elm.dragCfg.nx = elm.dragCfg.oR.x;
+		elm.dragCfg.ny = elm.dragCfg.oR.y;
+		
 		if (elm.dragCfg.insideParent || elm.dragCfg.containment == 'parent') {
 			parentBorders = jQuery.iUtil.getBorder(elm.parentNode, true);
 			elm.dragCfg.oC.x = elm.offsetLeft + (jQuery.browser.msie ? 0 : jQuery.browser.opera ? -parentBorders.l : parentBorders.l);
@@ -432,7 +451,8 @@ jQuery.iDrag =	{
 					onStop : o.onStop && o.onStop.constructor == Function ? o.onStop : false,
 					onChange : o.onChange && o.onChange.constructor == Function ? o.onChange : false,
 					axis : /vertically|horizontally/.test(o.axis) ? o.axis : false,
-					snapDistance : o.snapDistance ? parseInt(o.snapDistance)||0 : 0
+					snapDistance : o.snapDistance ? parseInt(o.snapDistance)||0 : 0,
+					cursorAt: o.cursorAt ? o.cursorAt : false
 				};
 				if (o.onDrag && o.onDrag.constructor == Function)
 					this.dragCfg.onDrag.user = o.onDrag;

@@ -52,6 +52,7 @@ $.cookie = function(name, value, options) {
         var secure = options.secure ? '; secure' : '';
         document.cookie = [name, '=', value, expires, path, domain, secure].join('');
     } else { // only name given, get cookie
+        var cookie = null;
         var nameEQ = name + '=';
         var ca = document.cookie.split(';');
         for (var i = 0; i < ca.length; i++) {
@@ -60,8 +61,10 @@ $.cookie = function(name, value, options) {
                 c = c.substring(1, c.length);
             }
             if (c.indexOf(nameEQ) == 0) {
-                return c.substring(nameEQ.length, c.length);
+                cookie = c.substring(nameEQ.length, c.length);
+                break;
             }
         }
+        return cookie;
     }
 };

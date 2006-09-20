@@ -79,19 +79,19 @@ jQuery.iDrag =	{
 			dEs.position = 'relative';
 		}
 		if (elm.dragCfg.cursorAt) {
-			if (elm.dragCfg.cursorAt.left && elm.dragCfg.cursorAt.left != false) {
+			if (elm.dragCfg.cursorAt.left) {
 				elm.dragCfg.oR.x += elm.dragCfg.pointer.x - elm.dragCfg.oC.x - elm.dragCfg.cursorAt.left;
 				elm.dragCfg.oC.x = elm.dragCfg.pointer.x - elm.dragCfg.cursorAt.left;
 			}
-			if (elm.dragCfg.cursorAt.top && elm.dragCfg.cursorAt.top != false) {
+			if (elm.dragCfg.cursorAt.top) {
 				elm.dragCfg.oR.y += elm.dragCfg.pointer.y - elm.dragCfg.oC.y - elm.dragCfg.cursorAt.top;
 				elm.dragCfg.oC.y = elm.dragCfg.pointer.y - elm.dragCfg.cursorAt.top;
 			}
-			if (elm.dragCfg.cursorAt.right && elm.dragCfg.cursorAt.right != false) {
+			if (elm.dragCfg.cursorAt.right) {
 				elm.dragCfg.oR.x += elm.dragCfg.pointer.x - elm.dragCfg.oC.x -elm.dragCfg.oC.hb + elm.dragCfg.cursorAt.right;
 				elm.dragCfg.oC.x = elm.dragCfg.pointer.x - elm.dragCfg.oC.wb + elm.dragCfg.cursorAt.right;
 			}
-			if (elm.dragCfg.cursorAt.bottom && elm.dragCfg.cursorAt.bottom != false) {
+			if (elm.dragCfg.cursorAt.bottom) {
 				elm.dragCfg.oR.y += elm.dragCfg.pointer.y - elm.dragCfg.oC.y - elm.dragCfg.oC.hb + elm.dragCfg.cursorAt.bottom;
 				elm.dragCfg.oC.y = elm.dragCfg.pointer.y - elm.dragCfg.oC.hb + elm.dragCfg.cursorAt.bottom;
 			}

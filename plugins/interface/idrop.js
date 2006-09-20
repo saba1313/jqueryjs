@@ -82,7 +82,7 @@ jQuery.iDrop = {
 		}
 	},
 	
-	checkhover : function ()
+	checkhover : function (e)
 	{
 		if (jQuery.iDrag.dragged == null) {
 			return;
@@ -113,12 +113,20 @@ jQuery.iDrop = {
 					jQuery.iSort.helper.get(0).className = iEL.dropCfg.shc;
 					jQuery.iSort.checkhover(iEL);
 				}
+				//onHover function
+				if (iEL.dropCfg.onhover) {
+					iEL.dropCfg.onhover.apply(iEL, [e, iEL.dropCfg.fx]);
+				}
 			} else {
 				if (iEL.dropCfg.hc) {
 					jQuery.iDrop.highlighted[i].removeClass(iEL.dropCfg.hc);
 					jQuery.iDrop.highlighted[i].addClass(iEL.dropCfg.ac);
 				}
 				iEL.dropCfg.h = false;
+				//onOut function
+				if (iEL.dropCfg.onout) {
+					iEL.dropCfg.onout.apply(iEL, [e, iEL.dropCfg.fx]);
+				}
 			}
 		}
 		if (jQuery.iSort && jQuery.iDrop.overzone == false) {
@@ -182,6 +190,8 @@ jQuery.iDrop = {
 					hc:	o.hoverclass,
 					shc: o.helperclass,
 					ondrop:	o.ondrop,
+					onhover: o.onhover,
+					onout: o.onout,
 					t: o.tolerance && ( o.tolerance == 'fit' || o.tolerance == 'intersect') ? o.tolerance : 'pointer',
 					fx: o.fx ? o.fx : false,
 					m: false,

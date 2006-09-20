@@ -115,7 +115,7 @@ jQuery.iDrop = {
 				}
 				//onHover function
 				if (iEL.dropCfg.onhover) {
-					iEL.dropCfg.onhover.apply(iEL, [e, iEL.dropCfg.fx]);
+					iEL.dropCfg.onhover.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
 				}
 			} else {
 				if (iEL.dropCfg.hc) {
@@ -125,7 +125,7 @@ jQuery.iDrop = {
 				iEL.dropCfg.h = false;
 				//onOut function
 				if (iEL.dropCfg.onout) {
-					iEL.dropCfg.onout.apply(iEL, [e, iEL.dropCfg.fx]);
+					iEL.dropCfg.onout.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
 				}
 			}
 		}

@@ -106,6 +106,10 @@ jQuery.iDrop = {
 					jQuery.iDrop.highlighted[i].addClass(iEL.dropCfg.hc);
 					jQuery.iDrop.highlighted[i].removeClass(iEL.dropCfg.ac);
 				}
+				//onHover function
+				if (iEL.dropCfg.onhover) {
+					iEL.dropCfg.onhover.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
+				}
 				iEL.dropCfg.h = true;
 				jQuery.iDrop.overzone = iEL;
 				//if(jQuery.iSort && jQuery.iDrag.dragged.dragCfg.so) {
@@ -113,20 +117,16 @@ jQuery.iDrop = {
 					jQuery.iSort.helper.get(0).className = iEL.dropCfg.shc;
 					jQuery.iSort.checkhover(iEL);
 				}
-				//onHover function
-				if (iEL.dropCfg.onhover) {
-					iEL.dropCfg.onhover.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
-				}
 			} else {
+				//onOut function
+				if (iEL.dropCfg.onout && iEL.dropCfg.h == true) {
+					iEL.dropCfg.onout.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
+				}
 				if (iEL.dropCfg.hc) {
 					jQuery.iDrop.highlighted[i].removeClass(iEL.dropCfg.hc);
 					jQuery.iDrop.highlighted[i].addClass(iEL.dropCfg.ac);
 				}
 				iEL.dropCfg.h = false;
-				//onOut function
-				if (iEL.dropCfg.onout) {
-					iEL.dropCfg.onout.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
-				}
 			}
 		}
 		if (jQuery.iSort && jQuery.iDrop.overzone == false) {

@@ -373,7 +373,7 @@ jQuery.iDrag =	{
 		}
 			
 		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
-			jQuery.iDrop.checkhover();
+			jQuery.iDrop.checkhover(dragged);
 		}
 		return false;
 	},

@@ -51,14 +51,14 @@ jQuery.iDrag =	{
 		
 		dEs = elm.style;
 		
-		elm.dragCfg.oD = $.css(elm,'display');
-		elm.dragCfg.oP = $.css(elm,'position');
+		elm.dragCfg.oD = jQuery.css(elm,'display');
+		elm.dragCfg.oP = jQuery.css(elm,'position');
 		if (!elm.dragCfg.initialPosition)
 			elm.dragCfg.initialPosition = elm.dragCfg.oP;
 
 		elm.dragCfg.oR = {
-			x : parseInt($.css(elm,'left')) || 0,
-			y : parseInt($.css(elm,'top')) || 0
+			x : parseInt(jQuery.css(elm,'left')) || 0,
+			y : parseInt(jQuery.css(elm,'top')) || 0
 		};
 		
 		elm.dragCfg.diffX = 0;
@@ -76,6 +76,44 @@ jQuery.iDrag =	{
 		if (elm.dragCfg.oP != 'relative' && elm.dragCfg.oP != 'absolute') {
 			dEs.position = 'relative';
 		}
+				
+		jQuery.iDrag.helper.empty();
+		
+		clonedEl = elm.cloneNode(true);
+	
+		jQuery(clonedEl).css(
+			{
+				display:	'block',
+				left:		'0px',
+				top: 		'0px'
+			}
+		);
+		clonedEl.style.marginTop = '0';
+		clonedEl.style.marginRight = '0';
+		clonedEl.style.marginBottom = '0';
+		clonedEl.style.marginLeft = '0';
+		jQuery.iDrag.helper.append(clonedEl);
+		
+		if (elm.dragCfg.onStart)
+			elm.dragCfg.onStart.apply(elm, [clonedEl]);
+		
+		dhs = jQuery.iDrag.helper.get(0).style;
+		
+		dhs.width = elm.dragCfg.oC.wb + 'px';
+		dhs.height = elm.dragCfg.oC.hb + 'px';
+		
+		dhs.display = 'block';
+		dhs.marginTop = '0px';
+		dhs.marginRight = '0px';
+		dhs.marginBottom = '0px';
+		dhs.marginLeft = '0px';
+		
+		//remeasure the clone to check if the size was changed by user's functions
+		jQuery.extend(
+			elm.dragCfg.oC,
+			jQuery.iUtil.getSize(clonedEl)
+		);
+		
 		if (elm.dragCfg.cursorAt) {
 			if (elm.dragCfg.cursorAt.left) {
 				elm.dragCfg.oR.x += elm.dragCfg.pointer.x - elm.dragCfg.oC.x - elm.dragCfg.cursorAt.left;
@@ -111,39 +149,12 @@ jQuery.iDrag =	{
 		if (elm.dragCfg.si) {
 			jQuery.iSlider.modifyContainer(elm);
 		}
-				
-		jQuery.iDrag.helper.empty();
-		
-		clonedEl = elm.cloneNode(true);
-		
-		if (elm.dragCfg.onStart)
-			elm.dragCfg.onStart.apply(elm, [clonedEl]);
-	
-		jQuery(clonedEl).css(
-			{
-				display:	'block',
-				left:		'0px',
-				top: 		'0px'
-			}
-		);
-		clonedEl.style.marginTop = '0';
-		clonedEl.style.marginRight = '0';
-		clonedEl.style.marginBottom = '0';
-		clonedEl.style.marginLeft = '0';
-		jQuery.iDrag.helper.append(clonedEl);
-		
-		dhs = jQuery.iDrag.helper.get(0).style;
-		
+			
 		dhs.left = elm.dragCfg.oC.x - elm.dragCfg.diffX + 'px';
 		dhs.top = elm.dragCfg.oC.y - elm.dragCfg.diffY + 'px';
+		//resize the helper to fit the clone
 		dhs.width = elm.dragCfg.oC.wb + 'px';
 		dhs.height = elm.dragCfg.oC.hb + 'px';
-		
-		dhs.display = 'block';
-		dhs.marginTop = '0px';
-		dhs.marginRight = '0px';
-		dhs.marginBottom = '0px';
-		dhs.marginLeft = '0px';
 		
 		jQuery.iDrag.dragged.dragCfg.prot = false;
 		

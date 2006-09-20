@@ -48,8 +48,6 @@ jQuery.iDrag =	{
 	{
 		elm = jQuery.iDrag.dragged;
 		elm.dragCfg.init = true;
-		if (elm.dragCfg.onStart)
-			elm.dragCfg.onStart.apply(elm);
 		
 		dEs = elm.style;
 		
@@ -117,6 +115,9 @@ jQuery.iDrag =	{
 		jQuery.iDrag.helper.empty();
 		
 		clonedEl = elm.cloneNode(true);
+		
+		if (elm.dragCfg.onStart)
+			elm.dragCfg.onStart.apply(elm, [clonedEl]);
 	
 		jQuery(clonedEl).css(
 			{

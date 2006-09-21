@@ -30,10 +30,10 @@ jQuery.iDrop = {
 	},
 	pointer : function (zonex, zoney, zonew, zoneh)
 	{
-		return	zonex < jQuery.iDrag.dragged.dragCfg.pointer.x
-				&& (zonex + zonew) > jQuery.iDrag.dragged.dragCfg.pointer.x 
-				&& zoney < jQuery.iDrag.dragged.dragCfg.pointer.y 
-				&& (zoney + zoneh) > jQuery.iDrag.dragged.dragCfg.pointer.y
+		return	zonex < jQuery.iDrag.dragged.dragCfg.currentPointer.x
+				&& (zonex + zonew) > jQuery.iDrag.dragged.dragCfg.currentPointer.x 
+				&& zoney < jQuery.iDrag.dragged.dragCfg.currentPointer.y 
+				&& (zoney + zoneh) > jQuery.iDrag.dragged.dragCfg.currentPointer.y
 				? true :false;
 	},
 	overzone : false,
@@ -89,6 +89,7 @@ jQuery.iDrop = {
 		}
 		jQuery.iDrop.overzone = false;
 		var i;
+		applyOnHover = false;
 		for (i in jQuery.iDrop.highlighted)
 		{
 			iEL = jQuery.iDrop.highlighted[i].get(0);
@@ -106,9 +107,9 @@ jQuery.iDrop = {
 					jQuery.iDrop.highlighted[i].addClass(iEL.dropCfg.hc);
 					jQuery.iDrop.highlighted[i].removeClass(iEL.dropCfg.ac);
 				}
-				//onHover function
+				//chec if onHover function has to be called
 				if (iEL.dropCfg.h == false &&iEL.dropCfg.onhover) {
-					iEL.dropCfg.onhover.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
+					applyOnHover = true;
 				}
 				iEL.dropCfg.h = true;
 				jQuery.iDrop.overzone = iEL;
@@ -132,6 +133,10 @@ jQuery.iDrop = {
 		if (jQuery.iSort && jQuery.iDrop.overzone == false) {
 			jQuery.iSort.helper.get(0).style.display = 'none';
 			jQuery('body').append(jQuery.iSort.helper.get(0));
+		}
+		//call onhover
+		if(applyOnHover) {
+			jQuery.iDrop.overzone.dropCfg.onhover.apply(jQuery.iDrop.overzone, [e, clonedEl]);
 		}
 	},
 	checkdrop : function (e)

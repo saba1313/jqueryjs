@@ -75,7 +75,7 @@ jQuery.fx.BlindDirection = function (e, speed, callback, direction, transition)
 	} else if (direction == 'togglehor') {
 		direction = z.el.css('display') == 'none' ? 'right' : 'left';
 	}
-	
+	z.el.show();
 	z.speed = speed;
 	z.callback = callback;
 	z.fx = jQuery.fx.buildWrapper(e);

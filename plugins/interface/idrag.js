@@ -38,7 +38,7 @@ jQuery.iDrag =	{
 			.bind('mousemove', jQuery.iDrag.dragmove)
 			.bind('mouseup', jQuery.iDrag.dragstop);
 		elm.dragCfg.pointer = jQuery.iUtil.getPointer(e);
-		elm.dragCfg.curPointer = elm.dragCfg.pointer;
+		elm.dragCfg.currentPointer = elm.dragCfg.pointer;
 		elm.dragCfg.init = false;
 		jQuery.iDrag.dragged = elm;
 		return false;

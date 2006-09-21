@@ -107,7 +107,7 @@ jQuery.iDrop = {
 					jQuery.iDrop.highlighted[i].removeClass(iEL.dropCfg.ac);
 				}
 				//onHover function
-				if (iEL.dropCfg.onhover) {
+				if (iEL.dropCfg.h == false &&iEL.dropCfg.onhover) {
 					iEL.dropCfg.onhover.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
 				}
 				iEL.dropCfg.h = true;

@@ -124,12 +124,14 @@ jQuery.fx.slide = function(e, speed, callback, direction, type, transition)
 	z.direction = direction;
 	z.complete = function()
 	{
-		z.el.hide();
+		if(z.type == 'out')
+			z.el.css('visibility', 'hidden');
 		jQuery.fx.destroyWrapper(z.fx.wrapper.get(0), z.fx.oldStyle);
 		if(z.type == 'in'){
 			z.el.css('display', z.el.get(0).ifxFirstDisplay == 'none' ? 'block' : z.el.get(0).ifxFirstDisplay);
 		} else {
 			z.el.css('display', 'none');
+			z.el.css('visibility', 'visible');
 		}
 		if (z.callback && z.callback.constructor == Function) {
 			z.callback.apply(z.el.get(0));
@@ -147,10 +149,20 @@ jQuery.fx.slide = function(e, speed, callback, direction, type, transition)
 				'top',
 				z.transition
 			);
+			z.efx = new jQuery.fx(
+				z.fx.wrapper.get(0), 
+				jQuery.speed(
+					z.speed
+				),
+				'height',
+				z.transition
+			);
 			if (z.type == 'in') {
 				z.ef.custom (-z.fx.oldStyle.sizes.hb, 0);
+				z.efx.custom(0, z.fx.oldStyle.sizes.hb);
 			} else {
 				z.ef.custom (0, -z.fx.oldStyle.sizes.hb);
+				z.efx.custom (z.fx.oldStyle.sizes.hb, 0);
 			}
 		break;
 		case 'down':
@@ -179,10 +191,20 @@ jQuery.fx.slide = function(e, speed, callback, direction, type, transition)
 				'left',
 				z.transition
 			);
+			z.efx = new jQuery.fx(
+				z.fx.wrapper.get(0), 
+				jQuery.speed(
+					z.speed
+				),
+				'width',
+				z.transition
+			);
 			if (z.type == 'in') {
 				z.ef.custom (-z.fx.oldStyle.sizes.wb, 0);
+				z.efx.custom (0, z.fx.oldStyle.sizes.wb);
 			} else {
 				z.ef.custom (0, -z.fx.oldStyle.sizes.wb);
+				z.efx.custom (z.fx.oldStyle.sizes.wb, 0);
 			}
 		break;
 		case 'right':

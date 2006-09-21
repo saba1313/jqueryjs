@@ -43,7 +43,6 @@ jQuery.iUtil = {
 		var x = 0;
 		var y = 0;
 		var restoreStyle = false;
-		var lastElement = jQuery.browser.msie ? 'HTML' : 'BODY';
 		es = e.style;
 		if (jQuery(e).css('display') == 'none') {
 			oldVisibility = es.visibility;
@@ -54,13 +53,13 @@ jQuery.iUtil = {
 			restoreStyle = true;
 		}
 		el = e;
-		while (el && el.tagName != lastElement){
+		while (el){
 			x += el.offsetLeft + (el.currentStyle && !jQuery.browser.opera ?parseInt(el.currentStyle.borderLeftWidth)||0:0);
 			y += el.offsetTop + (el.currentStyle && !jQuery.browser.opera ?parseInt(el.currentStyle.borderTopWidth)||0:0);
 			el = el.offsetParent;
 		}
 		el = e;
-		while (el && el.tagName != lastElement)
+		while (el && el.tagName.toLowerCase() != 'body')
 		{
 			x -= el.scrollLeft||0;
 			y -= el.scrollTop||0;

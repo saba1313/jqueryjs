@@ -9,13 +9,17 @@
  *
  * These are all the key/values that can be passed in to 'options':
  *
- * (Integer|Date) expires - Either an integer specifying the expiration date from now on in days or a Date object.
+ * (Integer|Date) expires - Either an integer specifying the expiration date from now on in days or a Date object. 
+ *                          If you set this to zero, the cookie will be deleted. If you set it to null, or omit,
+ *                          this option, the cookie will be a session cookie and will not be retained when the 
+ *                          the browser exits. This option is used to set the max-age attribute of the cookie.
  *
- * (String) path - Path where the cookie is valid (default: path of calling document).
+ * (String) path - The value of the path atribute of the cookie (default: path of page that created the cookie).
  * 
- * (String) domain - Domain where the cookie is valid (default: domain of calling document).
+ * (String) domain - The value of the domain attribute of the cookie (default: domain of page that created the cookie).
  *
- * (Boolean) secure - Boolean value indicating if the cookie transmission requires a secure transmission.
+ * (Boolean) secure - If true, the secure attribute of the cookie will be set and the cookie transmission will
+ *                    require a secure protocol (like HTTPS).
  *
  * @return The value of the cookie.
  * @name $.cookie
@@ -28,43 +32,49 @@
  * @desc Set the value of a cookie.
  * @example $.cookie('the_cookie', 'the_value', {expires: 7, path: '/', domain: 'jquery.com', secure: true});
  * @desc Create a cookie with all available options.
- * @example $.cookie('the_cookie', 'the_value', {expires: 0});
- * @desc Create a cookie that is trashed if the browser is closed (session cookie).
- * @example $.cookie('the_cookie', '', {expires: -1});
- * @desc Delete a cookie by setting the expiry date in the past.
+ * @example $.cookie('the_cookie', 'the_value');
+ * @desc Create a session cookie.
+ * @example $.cookie('the_cookie', '', {expires: 0});
+ * @desc Delete a cookie.
  */
 $.cookie = function(name, value, options) {
     if (typeof value != 'undefined') { // name and value given, set cookie
         options = options || {};
         var expires = '';
-        if (options.expires && (typeof options.expires == 'number' || options.expires.toGMTString)) {
-            var date;
+        if (typeof options.expires == 'number' || (options.expires  && options.expires.getTime)) {
+            var maxAge;
             if (typeof options.expires == 'number') {
-                date = new Date();
-                date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
+                maxAge = options.expires * 24 * 60 * 60; // seconds
             } else {
-                date = options.expires;
+                var now = new Date();
+                maxAge = parseInt((options.expires.getTime() - now.getTime()) / 1000); // seconds
+                if (maxAge > 0 && maxAge < 1) {
+                    maxAge = 1;
+                }
             }
-            expires = '; expires=' + date.toGMTString();
+            if (maxAge <= 0) {
+                expires = '; expires=' + new Date(0).toGMTString(); // max-age=0 will not immediatly delete cookie in some browsers
+            } else {
+                expires = '; max-age=' + maxAge;
+            }
         }
         var path = options.path ? '; path=' + options.path : '';
         var domain = options.domain ? '; domain=' + options.domain : '';
         var secure = options.secure ? '; secure' : '';
-        document.cookie = [name, '=', value, expires, path, domain, secure].join('');
+        document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
     } else { // only name given, get cookie
-        var cookie = null;
-        var nameEQ = name + '=';
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1, c.length);
-            }
-            if (c.indexOf(nameEQ) == 0) {
-                cookie = c.substring(nameEQ.length, c.length);
-                break;
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i];
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
-        return cookie;
+        return cookieValue;
     }
 };

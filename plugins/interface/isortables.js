@@ -261,7 +261,8 @@ jQuery.iSort = {
 						onStart : o.onStart && o.onStart.constructor == Function ? o.onStart : false,
 						onStop : o.onStop && o.onStop.constructor == Function ? o.onStop : false,
 						axis : /vertically|horizontally/.test(o.axis) ? o.axis : false,
-						snapDistance : o.snapDistance ? parseInt(o.snapDistance)||0 : false
+						snapDistance : o.snapDistance ? parseInt(o.snapDistance)||0 : false,
+						cursorAt: o.cursorAt ? o.cursorAt : false
 					};
 					jQuery('.' + o.accept, this).Draggable(dragCfg);
 					this.isSortable = true;

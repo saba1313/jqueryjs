@@ -63,7 +63,6 @@ jQuery.iDrop = {
 					if (iEL.dropCfg.ac) {
 						jQuery.iDrop.zones[i].addClass(iEL.dropCfg.ac);
 					}
-					iEL.dropCfg.drug = true;
 					jQuery.iDrop.highlighted[i] = jQuery.iDrop.zones[i];
 					//if (jQuery.iSort && jQuery.iDrag.dragged.dragCfg.so) {
 					if (jQuery.iSort && iEL.dropCfg.s == true) {
@@ -79,6 +78,42 @@ jQuery.iDrop = {
 		//if (jQuery.iSort && jQuery.iDrag.dragged.dragCfg.so) {
 		if (oneIsSortable) {
 			jQuery.iSort.start();
+		}
+	},
+	/**
+	 * remeasure the droppable
+	 * 
+	 * useful when the positions/dimensions for droppables 
+	 * are changed while dragging a element
+	 * 
+	 * this works for sortables too but with a greate processor 
+	 * penality because remeasures each sort items too
+	 */
+	remeasure : function()
+	{
+		jQuery.iDrop.highlighted = {};
+		for (i in jQuery.iDrop.zones) {
+			if (jQuery.iDrop.zones[i] != null) {
+				iEL = jQuery.iDrop.zones[i].get(0);
+				if (jQuery.className.has(jQuery.iDrag.dragged,iEL.dropCfg.a)) {
+					iEL.dropCfg.p = jQuery.extend(
+						jQuery.iUtil.getPosition(iEL),
+						jQuery.iUtil.getSize(iEL)
+					);
+					if (iEL.dropCfg.ac) {
+						jQuery.iDrop.zones[i].addClass(iEL.dropCfg.ac);
+					}
+					jQuery.iDrop.highlighted[i] = jQuery.iDrop.zones[i];
+					
+					if (jQuery.iSort && iEL.dropCfg.s == true) {
+						iEL.dropCfg.el = jQuery('.' + iEL.dropCfg.a, iEL);
+						elm.style.display = 'none';
+						jQuery.iSort.measure(iEL);
+						elm.style.display = elm.dragCfg.oD;
+						oneIsSortable = true;
+					}
+				}
+			}
 		}
 	},
 	
@@ -157,7 +192,6 @@ jQuery.iDrop = {
 				iEL.dropCfg.h = false;
 				iEL.dropCfg.ondrop.apply(iEL, [e, iEL.dropCfg.fx]);
 			}
-			iEL.dropCfg.drug = false;
 			iEL.dropCfg.m = false;
 			iEL.dropCfg.h  = false;
 		}
@@ -226,3 +260,4 @@ jQuery.fn.extend(
 		Droppable : jQuery.iDrop.build
 	}
 );
+jQuery.reamesureDroppables = jQuery.iDrop.remeasure;

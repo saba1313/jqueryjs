@@ -260,4 +260,4 @@ jQuery.fn.extend(
 		Droppable : jQuery.iDrop.build
 	}
 );
-jQuery.reamesureDroppables = jQuery.iDrop.remeasure;
+jQuery.recallDroppables = jQuery.iDrop.remeasure;

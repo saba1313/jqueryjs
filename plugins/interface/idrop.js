@@ -138,9 +138,9 @@ jQuery.iDrop = {
 						iEL.dropCfg.p.hb
 					) 
 				) {
-				if (iEL.dropCfg.hc) {
-					jQuery.iDrop.highlighted[i].addClass(iEL.dropCfg.hc);
+				if (iEL.dropCfg.hc && iEL.dropCfg.h == false) {
 					jQuery.iDrop.highlighted[i].removeClass(iEL.dropCfg.ac);
+					jQuery.iDrop.highlighted[i].addClass(iEL.dropCfg.hc);
 				}
 				//chec if onHover function has to be called
 				if (iEL.dropCfg.h == false &&iEL.dropCfg.onhover) {

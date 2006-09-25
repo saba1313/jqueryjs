@@ -60,7 +60,6 @@ jQuery.iDrag =	{
 			x : parseInt(jQuery.css(elm,'left')) || 0,
 			y : parseInt(jQuery.css(elm,'top')) || 0
 		};
-		
 		elm.dragCfg.diffX = 0;
 		elm.dragCfg.diffY = 0;
 		if (jQuery.browser.msie) {
@@ -98,9 +97,14 @@ jQuery.iDrag =	{
 			elm.dragCfg.onStart.apply(elm, [clonedEl]);
 		
 		dhs = jQuery.iDrag.helper.get(0).style;
-		
-		dhs.width = elm.dragCfg.oC.wb + 'px';
-		dhs.height = elm.dragCfg.oC.hb + 'px';
+
+		if(dEs.width && dEs.width != 'auto') {
+			dhs.width = elm.dragCfg.oC.wb + 'px';
+			dhs.height = elm.dragCfg.oC.hb + 'px';
+		} else {
+			dhs.width = 'auto';
+			dhs.height = 'auto';
+		}
 		
 		dhs.display = 'block';
 		dhs.marginTop = '0px';
@@ -161,9 +165,6 @@ jQuery.iDrag =	{
 		if (elm.dragCfg.gx) {
 			elm.dragCfg.onDrag.grid = jQuery.iDrag.snapToGrid;
 		}
-		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
-			jQuery.iDrop.highlight(elm);
-		}
 		if (elm.dragCfg.zIndex != false) {
 			jQuery.iDrag.helper.css('zIndex', elm.dragCfg.zIndex);
 		}
@@ -175,6 +176,9 @@ jQuery.iDrag =	{
 		}
 		if (elm.dragCfg.ghosting == false) {
 			dEs.display = 'none';
+		}
+		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
+			jQuery.iDrop.highlight(elm);
 		}
 		return false;
 	},

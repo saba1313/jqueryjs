@@ -8,7 +8,6 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt) 
  * and GPL (GPL-LICENSE.txt) licenses.
  *   
- * $Revision: 1.9 $
  *
  */
 

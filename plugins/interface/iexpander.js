@@ -8,20 +8,6 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt) 
  * and GPL (GPL-LICENSE.txt) licenses.
  *   
- * $Revision: 1.4 $
- * $Log: iexpander.js,v $
- * Revision 1.4  2006/08/31 16:08:15  Stef
- * Added dual licencing
- *
- * Revision 1.3  2006/08/26 09:26:25  Stef
- * *** empty log message ***
- *
- * Revision 1.2  2006/08/26 07:53:52  Stef
- * *** empty log message ***
- *
- * Revision 1.1  2006/08/24 20:42:18  Stef
- * Added Autoexpand plugin
- *
  *
  */
 

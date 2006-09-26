@@ -8,21 +8,6 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt) 
  * and GPL (GPL-LICENSE.txt) licenses.
  *   
- * $Revision: 1.4 $
- * $Log: ilogger.js,v $
- * Revision 1.4  2006/09/16 06:04:50  Stef
- * *** empty log message ***
- *
- * Revision 1.3  2006/09/09 18:48:14  Stef
- * The logger builds itself on load
- * Parameter 'type' for log function is not mandatory anymore
- *
- * Revision 1.2  2006/09/07 05:19:03  Stef
- * *** empty log message ***
- *
- * Revision 1.1  2006/09/07 05:18:04  Stef
- * *** empty log message ***
- *
  * 
  */
 

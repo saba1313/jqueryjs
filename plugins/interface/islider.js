@@ -8,7 +8,6 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt) 
  * and GPL (GPL-LICENSE.txt) licenses.
  *   
- * $Revision: 1.15 $
  *
  */
 
@@ -32,6 +31,28 @@ jQuery.iSlider = {
 	
 	modifyContainer : function (elm)
 	{
+		//find if the slider is moved by the container body and move the slider to pointer
+		parentPosition = jQuery.iUtil.getPosition(elm.parentNode);
+		parentPosition.x -= elm.dragCfg.oC.x; 
+		parentPosition.y -= elm.dragCfg.oC.y; 
+		if (
+			elm.dragCfg.currentPointer
+			&& 
+			Math.min(
+				Math.max(parentPosition.x, elm.dragCfg.currentPointer.x),
+				parentPosition.x + elm.dragCfg.oC.wb
+			) != elm.dragCfg.currentPointer.x 
+			&& 
+			Math.min(
+				Math.max(parentPosition.y, elm.dragCfg.currentPointer.y),
+				parentPosition.y + elm.dragCfg.oC.hb
+			) != elm.dragCfg.currentPointer.y 
+		) {
+			elm.dragCfg.oC.x = elm.dragCfg.currentPointer.x - elm.dragCfg.oC.wb/2;
+			elm.dragCfg.oC.y = elm.dragCfg.currentPointer.y - elm.dragCfg.oC.hb/2;
+			elm.dragCfg.oR.x = elm.dragCfg.oC.x;
+			elm.dragCfg.oR.y = elm.dragCfg.oC.y;
+		}
 		if (elm.SliderContainer.slideCfg.restricted ) {
 			next = elm.SliderContainer.slideCfg.sliders.get(elm.SliderIteration+1);
 			if (next) {
@@ -58,6 +79,7 @@ jQuery.iSlider = {
 		}
 		elm.dragCfg.cont.dx = elm.dragCfg.cont.x - elm.dragCfg.oR.x;
 		elm.dragCfg.cont.dy = elm.dragCfg.cont.y - elm.dragCfg.oR.y;
+		
 		jQuery.iDrag.helper.css('cursor', 'default');
 	},
 	

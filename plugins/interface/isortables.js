@@ -229,15 +229,17 @@ jQuery.iSort = {
 					activeclass : o.activeclass ? o.activeclass : false,
 					hoverclass : o.hoverclass ? o.hoverclass : false,
 					helperclass : o.helperclass ? o.helperclass : false,
-					ondrop: function (drag, fx) 
+					onDrop: function (drag, fx) 
 							{
 								jQuery.iSort.helper.after(drag);
 								if (fx > 0) {
 									jQuery(drag).fadeIn(fx);
 								}
 							},
+					onHover: o.onHover||o.onhover,
+					onOut: o.onOut||o.onout,
 					sortable : true,
-					onchange : 	o.onchange ? o.onchange : false,
+					onChange : 	o.onChange||o.onchange,
 					fx : o.fx ? o.fx : false,
 					ghosting : o.ghosting ? true : false,
 					tolerance: o.tolerance ? o.tolerance : 'pointer'

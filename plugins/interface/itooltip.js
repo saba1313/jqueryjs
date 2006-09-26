@@ -155,7 +155,7 @@ jQuery.iTooltip = {
 						delay		: options.delay ? options.delay : false,
 						onShow		: options.onShow && options.onShow.constructor == Function ? options.onShow : false,
 						onHide		: options.onHide && options.onHide.constructor == Function ? options.onHide : false
-					}
+					};
 					var el = jQuery(this);
 					el.bind('mouseover',jQuery.iTooltip.show);
 					el.bind('focus',jQuery.iTooltip.focus);

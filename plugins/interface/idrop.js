@@ -142,7 +142,7 @@ jQuery.iDrop = {
 					jQuery.iDrop.highlighted[i].addClass(iEL.dropCfg.hc);
 				}
 				//chec if onHover function has to be called
-				if (iEL.dropCfg.h == false &&iEL.dropCfg.onhover) {
+				if (iEL.dropCfg.h == false &&iEL.dropCfg.onHover) {
 					applyOnHover = true;
 				}
 				iEL.dropCfg.h = true;
@@ -154,8 +154,8 @@ jQuery.iDrop = {
 				}
 			} else {
 				//onOut function
-				if (iEL.dropCfg.onout && iEL.dropCfg.h == true) {
-					iEL.dropCfg.onout.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
+				if (iEL.dropCfg.onOut && iEL.dropCfg.h == true) {
+					iEL.dropCfg.onOut.apply(iEL, [e, clonedEl, iEL.dropCfg.fx]);
 				}
 				if (iEL.dropCfg.hc) {
 					jQuery.iDrop.highlighted[i].removeClass(iEL.dropCfg.hc);
@@ -170,7 +170,7 @@ jQuery.iDrop = {
 		}
 		//call onhover
 		if(applyOnHover) {
-			jQuery.iDrop.overzone.dropCfg.onhover.apply(jQuery.iDrop.overzone, [e, clonedEl]);
+			jQuery.iDrop.overzone.dropCfg.onHover.apply(jQuery.iDrop.overzone, [e, clonedEl]);
 		}
 	},
 	checkdrop : function (e)
@@ -187,9 +187,9 @@ jQuery.iDrop = {
 			if(iEL.dropCfg.s) {
 				jQuery.iSort.changed[jQuery.iSort.changed.length] = i;
 			}
-			if (iEL.dropCfg.ondrop && iEL.dropCfg.h == true) {
+			if (iEL.dropCfg.onDrop && iEL.dropCfg.h == true) {
 				iEL.dropCfg.h = false;
-				iEL.dropCfg.ondrop.apply(iEL, [e, iEL.dropCfg.fx]);
+				iEL.dropCfg.onDrop.apply(iEL, [e, iEL.dropCfg.fx]);
 			}
 			iEL.dropCfg.m = false;
 			iEL.dropCfg.h  = false;
@@ -227,9 +227,9 @@ jQuery.iDrop = {
 					ac: o.activeclass, 
 					hc:	o.hoverclass,
 					shc: o.helperclass,
-					ondrop:	o.ondrop,
-					onhover: o.onhover,
-					onout: o.onout,
+					onDrop:	o.ondrop||o.onDrop,
+					onHover: o.onHover||o.onhover,
+					onOut: o.onOut||o.onout,
 					t: o.tolerance && ( o.tolerance == 'fit' || o.tolerance == 'intersect') ? o.tolerance : 'pointer',
 					fx: o.fx ? o.fx : false,
 					m: false,

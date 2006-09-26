@@ -100,12 +100,15 @@ jQuery.iDrag =	{
 
 		if(dEs.width && dEs.width != 'auto') {
 			dhs.width = elm.dragCfg.oC.wb + 'px';
-			dhs.height = elm.dragCfg.oC.hb + 'px';
 		} else {
 			dhs.width = 'auto';
-			dhs.height = 'auto';
 		}
 		
+		if(dEs.height && dEs.height != 'auto') {
+			dhs.height = elm.dragCfg.oC.hb + 'px';
+		} else {
+			dhs.height = 'auto';
+		}
 		dhs.display = 'block';
 		dhs.marginTop = '0px';
 		dhs.marginRight = '0px';

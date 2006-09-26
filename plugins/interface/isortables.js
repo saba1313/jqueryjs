@@ -54,7 +54,7 @@ jQuery.iSort = {
 	
 	check : function (e)
 	{
-		if (!e.dragCfg.so) {
+		if (!e.dragCfg.so && jQuery.iDrop.overzone.sortable) {
 			if (e.dragCfg.onStop)
 				e.dragCfg.onStop.apply(dragged);
 			jQuery(e).css('position', e.dragCfg.initialPosition || e.dragCfg.oP);
@@ -208,7 +208,7 @@ jQuery.iSort = {
 		return this.each(
 			function ()
 			{
-				if(!jQuery.className.has(e, this.sortCfg.accept))
+				if(!this.sortCfg || !jQuery.className.has(e, this.sortCfg.accept))
 					jQuery(e).addClass(this.sortCfg.accept);
 				jQuery(e).Draggable(this.sortCfg.dragCfg);
 			}

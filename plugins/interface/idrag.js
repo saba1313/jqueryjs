@@ -97,17 +97,13 @@ jQuery.iDrag =	{
 		
 		dhs = jQuery.iDrag.helper.get(0).style;
 
-		/*if(dEs.width && dEs.width != 'auto') {
-			dhs.width = elm.dragCfg.oC.wb + 'px';
-		} else {
+		if (elm.dragCfg.autoSize) {
 			dhs.width = 'auto';
-		}
-		
-		if(dEs.height && dEs.height != 'auto') {
-			dhs.height = elm.dragCfg.oC.hb + 'px';
-		} else {
 			dhs.height = 'auto';
-		}*/
+		} else {
+			dhs.height = elm.dragCfg.oC.hb + 'px';
+			dhs.width = elm.dragCfg.oC.wb + 'px';
+		}
 		
 		dhs.display = 'block';
 		dhs.marginTop = '0px';
@@ -471,7 +467,8 @@ jQuery.iDrag =	{
 					onChange : o.onChange && o.onChange.constructor == Function ? o.onChange : false,
 					axis : /vertically|horizontally/.test(o.axis) ? o.axis : false,
 					snapDistance : o.snapDistance ? parseInt(o.snapDistance)||0 : 0,
-					cursorAt: o.cursorAt ? o.cursorAt : false
+					cursorAt: o.cursorAt ? o.cursorAt : false,
+					autoSize : o.autoSize ? true : false
 				};
 				if (o.onDrag && o.onDrag.constructor == Function)
 					this.dragCfg.onDrag.user = o.onDrag;

@@ -1,31 +1,31 @@
 // tabs - jQuery plugin for accessible, unobtrusive tabs by Klaus Hartl
-// v 1.3
+// v 1.4
 // http://stilbuero.de/tabs/
 // Free beer and free speech. Enjoy!
 $.fn.tabs = function(options) {
-    // basic stuff
+    // configuration
     var ON_CLASS = 'on';
     var OFF_CLASS = 'tabs-hide';
     // options
-    var on = (options && options.on && (typeof options.on == 'number' && options.on > 0)) ? options.on - 1 : 0;
-    if (options && (options.fxSlide || options.fxFade) && !options.fxSpeed) {
+    options = options || {};
+    options['activeTab'] = (options.on && typeof options.on == 'number' && options.on > 0) ? options.on - 1 : 0;
+    if ((options.fxSlide || options.fxFade) && !options.fxSpeed) {
         options['fxSpeed'] = 'normal';
     }
+    var re = /([_\-\w]+$)/i;
     return this.each(function() {
-        var re = /([_\-\w]+$)/i;
         // retrieve active tab from hash in url
         if (location.hash) {
             var hashId = location.hash.replace('#', '');
             $(this).find('>ul>li>a').each(function(i) {
                 if (re.exec(this.href)[1] == hashId) {
-                    on = i;
+                    options.activeTab = i;
                     var unFocus = function() { // required to not scroll to fragment
                         scrollTo(0, 0);
-                    }
+                    };
                     // be nice to IE via Conditional Compilation
                     // this needs to preceed call to unFocus for other browsers
                     /*@cc_on
-                    //location.replace('#'); // required to not scroll to fragment
                     setTimeout(unFocus, 150); // IE needs a little timeout here
                     @*/
                     unFocus();
@@ -33,8 +33,26 @@ $.fn.tabs = function(options) {
                 }
             });
         }
-        $(this).find('>div').not(':eq(' + on + ')').addClass(OFF_CLASS);
-        $(this).find('>ul>li:eq(' + on + ')').addClass(ON_CLASS);
+        if (options.fxAutoheight) {
+            // TODO: $(window).resize();
+            var divs = $(this).find('>div');
+            var heights = [];
+            divs.each(function(i) {
+                heights.push( $(this).height() );
+                if (options.activeTab != i) {
+                    $(this).addClass(OFF_CLASS);
+                }
+            });
+            heights.sort(function(a, b) {
+                return b - a;
+            });
+            divs.each(function() {
+                $(this).css({height: heights[0] + 'px'});
+            });
+        } else {
+            $(this).find('>div').not(':eq(' + options.activeTab + ')').addClass(OFF_CLASS);
+        }
+        $(this).find('>ul>li:eq(' + options.activeTab + ')').addClass(ON_CLASS);
         var container = this;
         $(this).find('>ul>li>a').click(function() {
             if (!$(this.parentNode).is('.' + ON_CLASS)) {
@@ -43,42 +61,46 @@ $.fn.tabs = function(options) {
                     var self = this;
                     var visible = $(container).find('>div:visible');
                     var callback;
-                    if (options && options.callback && typeof options.callback == 'function') {
+                    if (options.callback && typeof options.callback == 'function') {
                         callback = function() {
                             options.callback.apply(target, [target[0], visible[0]]);
                         }
                     }
-                    var changeClass = function() {
+                    var activateTab = function() {
                         $(container).find('>ul>li').removeClass(ON_CLASS);
                         $(self.parentNode).addClass(ON_CLASS);
                     };
-                    if (options && options.fxSlide && options.fxFade) {
-                        visible.animate({height: 'hide', opacity: 'hide'}, options.slide, function() {
-                            // TODO check accessibility
-                            //$(this).addClass(OFF_CLASS).css({display: '', height: 'auto'}); // retain acccessibility for print and other media types
-                            changeClass();
-                            //target.css('display', 'none').removeClass(OFF_CLASS).animate({height: 'show', opacity: 'show'}, options.slide);
-                            target.animate({height: 'show', opacity: 'show'}, options.fxSpeed, callback);
+                    if (options.fxSlide && options.fxFade) {
+                        visible.animate({height: 'hide', opacity: 'hide'}, options.fxSpeed, function() {
+                            activateTab();
+                            target.animate({height: 'show', opacity: 'show'}, options.fxSpeed, function() {
+                                /*@cc_on visible[0].style.filter = ''; @*/ // @ IE, retain acccessibility for print
+                                visible.addClass(OFF_CLASS).css({display: '', height: 'auto'}); // retain flexible height and acccessibility for print
+                                target.addClass(OFF_CLASS).css({height: 'auto'}); // retain flexible height
+                                if (callback) callback();
+                            });
                         });
-                    } else if (options && options.fxSlide) {
-                        visible.slideUp(options.slide, function() {
-                            // TODO check accessibility
-                            //$(this).addClass(OFF_CLASS).css({display: '', height: 'auto'}); // retain acccessibility for print and other media types
-                            changeClass();
-                            //target.css('display', 'none').removeClass(OFF_CLASS).slideDown(options.slide);
-                            target.slideDown(options.fxSpeed, callback);
+                    } else if (options.fxSlide) {
+                        visible.slideUp(options.fxSpeed, function() {
+                            activateTab();
+                            target.slideDown(options.fxSpeed, function() {
+                                visible.addClass(OFF_CLASS).css({display: '', height: 'auto'}); // retain flexible height and acccessibility for print
+                                target.addClass(OFF_CLASS).css({height: 'auto'}); // retain flexible height
+                                if (callback) callback();
+                            });
                         });
-                    } else if (options && options.fxFade) {
-                        visible.fadeOut(options.fade, function() {
-                            // TODO check accessibility
-                            //$(this).addClass(OFF_CLASS).css({display: '', opacity: '1'}); // retain acccessibility for print and other media types
-                            changeClass();
-                            //target.css('display', 'none').removeClass(OFF_CLASS).fadeIn(options.fade);
-                            target.fadeIn(options.fxSpeed, callback);
+                    } else if (options.fxFade) {
+                        visible.fadeOut(options.fxSpeed, function() {
+                            activateTab();
+                            target.fadeIn(options.fxSpeed, function() {
+                                /*@cc_on visible[0].style.filter = ''; @*/ // @ IE, retain acccessibility for print
+                                visible.addClass(OFF_CLASS).css({display: ''}); // retain acccessibility for print and other media types
+                                if (callback) callback();
+                            });
                         });
                     } else {
                         visible.addClass(OFF_CLASS);
-                        changeClass();
+                        activateTab();
                         target.removeClass(OFF_CLASS);
                         if (callback) {
                             callback();

@@ -1,5 +1,5 @@
 // tabs - jQuery plugin for accessible, unobtrusive tabs by Klaus Hartl
-// v 1.2
+// v 1.3
 // http://stilbuero.de/tabs/
 // Free beer and free speech. Enjoy!
 $.fn.tabs = function(options) {
@@ -7,7 +7,10 @@ $.fn.tabs = function(options) {
     var ON_CLASS = 'on';
     var OFF_CLASS = 'tabs-hide';
     // options
-    var on = options && options.on && (typeof options.on == 'number' && options.on > 0) ? options.on - 1 : 0;
+    var on = (options && options.on && (typeof options.on == 'number' && options.on > 0)) ? options.on - 1 : 0;
+    if (options && (options.fxSlide || options.fxFade) && !options.fxSpeed) {
+        options['fxSpeed'] = 'normal';
+    }
     return this.each(function() {
         var re = /([_\-\w]+$)/i;
         // retrieve active tab from hash in url
@@ -33,44 +36,53 @@ $.fn.tabs = function(options) {
         $(this).find('>div').not(':eq(' + on + ')').addClass(OFF_CLASS);
         $(this).find('>ul>li:eq(' + on + ')').addClass(ON_CLASS);
         var container = this;
-        var undefined;
         $(this).find('>ul>li>a').click(function() {
             if (!$(this.parentNode).is('.' + ON_CLASS)) {
                 var target = $('#' + re.exec(this.href)[1]);
                 if (target.size() > 0) {
                     var self = this;
                     var visible = $(container).find('>div:visible');
-                    if (options && options.slide && options.fade) {
+                    var callback;
+                    if (options && options.callback && typeof options.callback == 'function') {
+                        callback = function() {
+                            options.callback.apply(target, [target[0], visible[0]]);
+                        }
+                    }
+                    var changeClass = function() {
+                        $(container).find('>ul>li').removeClass(ON_CLASS);
+                        $(self.parentNode).addClass(ON_CLASS);
+                    };
+                    if (options && options.fxSlide && options.fxFade) {
                         visible.animate({height: 'hide', opacity: 'hide'}, options.slide, function() {
-                            // TODO check accessibility for fade
+                            // TODO check accessibility
                             //$(this).addClass(OFF_CLASS).css({display: '', height: 'auto'}); // retain acccessibility for print and other media types
-                            $(container).find('>ul>li').removeClass(ON_CLASS);
-                            $(self.parentNode).addClass(ON_CLASS);
+                            changeClass();
                             //target.css('display', 'none').removeClass(OFF_CLASS).animate({height: 'show', opacity: 'show'}, options.slide);
-                            target.animate({height: 'show', opacity: 'show'}, options.slide);
+                            target.animate({height: 'show', opacity: 'show'}, options.fxSpeed, callback);
                         });
-                    } else if (options && options.slide) {
+                    } else if (options && options.fxSlide) {
                         visible.slideUp(options.slide, function() {
+                            // TODO check accessibility
                             //$(this).addClass(OFF_CLASS).css({display: '', height: 'auto'}); // retain acccessibility for print and other media types
-                            $(container).find('>ul>li').removeClass(ON_CLASS);
-                            $(self.parentNode).addClass(ON_CLASS);
+                            changeClass();
                             //target.css('display', 'none').removeClass(OFF_CLASS).slideDown(options.slide);
-                            target.slideDown(options.slide);
+                            target.slideDown(options.fxSpeed, callback);
                         });
-                    } else if (options && options.fade) {
+                    } else if (options && options.fxFade) {
                         visible.fadeOut(options.fade, function() {
-                            // TODO check accessibility for fade
+                            // TODO check accessibility
                             //$(this).addClass(OFF_CLASS).css({display: '', opacity: '1'}); // retain acccessibility for print and other media types
-                            $(container).find('>ul>li').removeClass(ON_CLASS);
-                            $(self.parentNode).addClass(ON_CLASS);
+                            changeClass();
                             //target.css('display', 'none').removeClass(OFF_CLASS).fadeIn(options.fade);
-                            target.fadeIn(options.fade);
+                            target.fadeIn(options.fxSpeed, callback);
                         });
                     } else {
                         visible.addClass(OFF_CLASS);
-                        $(container).find('>ul>li').removeClass(ON_CLASS);
-                        $(this.parentNode).addClass(ON_CLASS);
+                        changeClass();
                         target.removeClass(OFF_CLASS);
+                        if (callback) {
+                            callback();
+                        }
                     }
                 } else {
                     alert('There is no such container.');
@@ -78,5 +90,11 @@ $.fn.tabs = function(options) {
             }
             return false;
         });
+    });
+};
+$.fn.triggerTab = function(tabIndex) {
+    var i = tabIndex && tabIndex > 0 && tabIndex - 1 || 0;
+    return this.each(function() {
+        $(this).find('>ul>li>a').eq(i).click();
     });
 };

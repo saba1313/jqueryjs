@@ -9,17 +9,22 @@
  * v1.5
  */
 $.fn.tabs = function(options) {
+
     // configuration
     var ON_CLASS = 'on';
     var OFF_CLASS = 'tabs-hide';
+
     // options
     options = options || {};
     options['activeTab'] = (options.on && typeof options.on == 'number' && options.on > 0) ? options.on - 1 : 0;
-    if ((options.fxSlide || options.fxFade || options.fxAnimate) && !options.fxSpeed) {
-        options['fxSpeed'] = 'normal';
-    }
-    options['fxAnimate'] = options.fxAnimate || null;
+    options['fxSpeed'] = options.fxSpeed || 'normal';
+    options['fxShow'] = options.fxShow || null;
+    options['fxHide'] = options.fxHide || null;
+
+    // regex to find hash in url
     var re = /([_\-\w]+$)/i;
+
+    // initialize tabs
     return this.each(function() {
         // retrieve active tab from hash in url
         if (location.hash) {
@@ -84,10 +89,8 @@ $.fn.tabs = function(options) {
                         $(self.parentNode).addClass(ON_CLASS);
                     }
                     var showAnim = {}, hideAnim = {};
-                    if (options.fxAnimate) {
-                        showAnim = $.extend(showAnim, options.fxAnimate[0]); // copy object
-                        hideAnim = $.extend(hideAnim, options.fxAnimate[1]); // copy object
-                    } else if (options.fxSlide || options.fxFade) {
+                    var showSpeed, hideSpeed;
+                    if (options.fxSlide || options.fxFade) {
                         if (options.fxSlide) {
                             showAnim['height'] = 'show';
                             hideAnim['height'] = 'hide';
@@ -96,29 +99,34 @@ $.fn.tabs = function(options) {
                             showAnim['opacity'] = 'show';
                             hideAnim['opacity'] = 'hide';
                         }
+                        showSpeed = hideSpeed = options.fxSpeed;
                     } else {
-                        options['fxSpeed'] = 1;
-                        showAnim['opacity'] = 'show';
-                        hideAnim['opacity'] = 'hide';
+                        if (options.fxShow) {
+                            showAnim = $.extend(showAnim, options.fxShow); // copy object
+                            showSpeed = options.fxShowSpeed || options.fxSpeed;
+                        } else {
+                            showAnim['opacity'] = 'show';
+                            showSpeed = 1; // as little as this prevents browser scroll to the tab
+                        }
+                        if (options.fxHide) {
+                            hideAnim = $.extend(hideAnim, options.fxHide); // copy object
+                            hideSpeed = options.fxHideSpeed || options.fxSpeed;
+                        } else {
+                            hideAnim['opacity'] = 'hide';
+                            hideSpeed = 1; // as little as this prevents browser scroll to the tab
+                        }
                     }
-                    if (showAnim) {
-                        tabToHide.animate(hideAnim, options.fxSpeed, function() {
-                            _activateTab();
-                            tabToShow.removeClass(OFF_CLASS).animate(showAnim, options.fxSpeed, function() {
-                                /*@cc_on
-                                tabToHide[0].style.filter = '';  // @ IE, retain acccessibility for print
-                                tabToHide.addClass(OFF_CLASS).css({display: '', height: 'auto'}); // retain flexible height and acccessibility for print
-                                @*/
-                                tabToShow.css({height: 'auto'}); // retain flexible height
-                                if (callback) callback();
-                            });
-                        });
-                    } else {
-                        tabToHide.addClass(OFF_CLASS);
+                    tabToHide.animate(hideAnim, hideSpeed, function() { // animate in any case, prevents browser scroll to the fragment
                         _activateTab();
-                        tabToShow.removeClass(OFF_CLASS);
-                        if (callback) callback();
-                    }
+                        tabToShow.removeClass(OFF_CLASS).animate(showAnim, showSpeed, function() {
+                            /*@cc_on
+                            tabToHide[0].style.filter = '';  // @ IE, retain acccessibility for print
+                            tabToHide.addClass(OFF_CLASS).css({display: '', height: 'auto'}); // retain flexible height and acccessibility for print
+                            @*/
+                            tabToShow.css({height: 'auto'}); // retain flexible height
+                            if (callback) callback();
+                        });
+                    });
                 } else {
                     alert('There is no such container.');
                 }
@@ -129,7 +137,9 @@ $.fn.tabs = function(options) {
             }, 0);
         });
     });
+
 };
+
 $.fn.triggerTab = function(tabIndex) {
     var i = tabIndex && tabIndex > 0 && tabIndex - 1 || 0;
     return this.each(function() {

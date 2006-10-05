@@ -39,7 +39,21 @@ jQuery.iDrag =	{
 		elm.dragCfg.pointer = jQuery.iUtil.getPointer(e);
 		elm.dragCfg.currentPointer = elm.dragCfg.pointer;
 		elm.dragCfg.init = false;
+		elm.dragCfg.fromHandler = this != this.dragElem;
 		jQuery.iDrag.dragged = elm;
+		if (elm.dragCfg.si && this != this.dragElem) {
+				parentPos = jQuery.iUtil.getPosition(elm.parentNode);
+				sliderSize = jQuery.iUtil.getSize(elm);
+				sliderPos = {
+					x : parseInt(jQuery.css(elm,'left')) || 0,
+					y : parseInt(jQuery.css(elm,'top')) || 0
+				};
+				dx = elm.dragCfg.currentPointer.x - parentPos.x - sliderSize.wb/2 - sliderPos.x;
+				dy = elm.dragCfg.currentPointer.y - parentPos.y - sliderSize.hb/2 - sliderPos.y;
+				jQuery.iSlider.dragmoveBy(elm, [dx, dy]);
+				$.iLogger.log(dx);
+				$.iLogger.log(dy);
+		}
 		return false;
 	},
 	
@@ -74,7 +88,7 @@ jQuery.iDrag =	{
 		if (elm.dragCfg.oP != 'relative' && elm.dragCfg.oP != 'absolute') {
 			dEs.position = 'relative';
 		}
-				
+		
 		jQuery.iDrag.helper.empty();
 		
 		clonedEl = elm.cloneNode(true);
@@ -330,7 +344,7 @@ jQuery.iDrag =	{
 			);
 		dy = Math.min(
 				Math.max(dy,this.dragCfg.cont.dy),
-				(this.dragCfg.cont.h + this.dragCfg.cont.dy - this.dragCfg.oC.hb)
+				this.dragCfg.cont.h + this.dragCfg.cont.dy - this.dragCfg.oC.hb
 			);
 		
 		return {
@@ -364,7 +378,7 @@ jQuery.iDrag =	{
 		
 		for (i in dragged.dragCfg.onDrag) {
 			newCoords = dragged.dragCfg.onDrag[i].apply(dragged, [dragged.dragCfg.oR.x + dx, dragged.dragCfg.oR.y + dy, dx, dy]);
-			if (newCoords.constructor == Object) {
+			if (newCoords && newCoords.constructor == Object) {
 				dx = i != 'user' ? newCoords.dx : (newCoords.x - dragged.dragCfg.oR.x);
 				dy = i != 'user' ? newCoords.dy : (newCoords.y - dragged.dragCfg.oR.y);
 			}

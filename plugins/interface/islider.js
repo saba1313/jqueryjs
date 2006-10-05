@@ -31,28 +31,6 @@ jQuery.iSlider = {
 	
 	modifyContainer : function (elm)
 	{
-		//find if the slider is moved by the container body and move the slider to pointer
-		parentPosition = jQuery.iUtil.getPosition(elm.parentNode);
-		parentPosition.x -= elm.dragCfg.oC.x; 
-		parentPosition.y -= elm.dragCfg.oC.y; 
-		if (
-			elm.dragCfg.currentPointer
-			&& 
-			Math.min(
-				Math.max(parentPosition.x, elm.dragCfg.currentPointer.x),
-				parentPosition.x + elm.dragCfg.oC.wb
-			) != elm.dragCfg.currentPointer.x 
-			&& 
-			Math.min(
-				Math.max(parentPosition.y, elm.dragCfg.currentPointer.y),
-				parentPosition.y + elm.dragCfg.oC.hb
-			) != elm.dragCfg.currentPointer.y 
-		) {
-			elm.dragCfg.oC.x = elm.dragCfg.currentPointer.x - elm.dragCfg.oC.wb/2;
-			elm.dragCfg.oC.y = elm.dragCfg.currentPointer.y - elm.dragCfg.oC.hb/2;
-			elm.dragCfg.oR.x = elm.dragCfg.oC.x;
-			elm.dragCfg.oR.y = elm.dragCfg.oC.y;
-		}
 		if (elm.SliderContainer.slideCfg.restricted ) {
 			next = elm.SliderContainer.slideCfg.sliders.get(elm.SliderIteration+1);
 			if (next) {
@@ -67,8 +45,6 @@ jQuery.iSlider = {
 				elm.dragCfg.cont.h -= parseInt($(prev).css('top'));
 			}
 		}
-		//elm.dragCfg.pointer.x = elm.dragCfg.oC.x + elm.dragCfg.oC.wb/2;
-		//elm.dragCfg.pointer.y = elm.dragCfg.oC.y + elm.dragCfg.oC.hb/2;
 		elm.dragCfg.maxx = elm.dragCfg.cont.w - elm.dragCfg.oC.wb;
 		elm.dragCfg.maxy = elm.dragCfg.cont.h - elm.dragCfg.oC.hb;
 		if(elm.dragCfg.fractions) {
@@ -77,6 +53,7 @@ jQuery.iSlider = {
 			elm.dragCfg.fracW = elm.dragCfg.maxx / elm.dragCfg.fractions;
 			elm.dragCfg.fracH = elm.dragCfg.maxy / elm.dragCfg.fractions;
 		}
+		
 		elm.dragCfg.cont.dx = elm.dragCfg.cont.x - elm.dragCfg.oR.x;
 		elm.dragCfg.cont.dy = elm.dragCfg.cont.y - elm.dragCfg.oR.y;
 		
@@ -172,7 +149,7 @@ jQuery.iSlider = {
 		}
 		
 		newCoords = jQuery.iDrag.fitToContainer.apply(elm, [nx, ny, dx, dy]);
-		if (newCoords.constructor == Object) {
+		if (newCoords && newCoords.constructor == Object) {
 			dx = newCoords.dx;
 			dy = newCoords.dy;
 		}

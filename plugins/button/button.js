@@ -27,7 +27,7 @@
  * @author Gilles van den Hoven
  * @author John Resig
  */
-$.fn.button = function(hOptions) {
+jQuery.fn.button = function(hOptions) {
 	// Initialize option hash
 	if (!hOptions) hOptions = {};
 		

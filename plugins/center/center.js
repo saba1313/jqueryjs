@@ -7,24 +7,24 @@
  * @name center
  * @type jQuery
  */
-$.fn.center = function(f) {
+jQuery.fn.center = function(f) {
 	return this.each(function(){
 		var p = this.parentNode;
-		if ( $.css(p,"position") == 'static' )
+		if ( jQuery.css(p,"position") == 'static' )
 			p.style.position = 'relative';
 
 		var s = this.style;
 		s.position = 'absolute';
 		if(!f || f == "horizontal") {
-			if(((parseInt($.css(p,"width")) - parseInt($.css(this,"width")))/2) > 0)
-				s.left = ((parseInt($.css(p,"width")) - parseInt($.css(this,"width")))/2) + "px";
+			if(((parseInt(jQuery.css(p,"width")) - parseInt(jQuery.css(this,"width")))/2) > 0)
+				s.left = ((parseInt(jQuery.css(p,"width")) - parseInt(jQuery.css(this,"width")))/2) + "px";
 			else
 				s.left = "0";
 		}
 		if(!f || f == "vertical") {
-			if(((parseInt($.css(p,"height")) - parseInt($.css(this,"height")))/2) > 0)
+			if(((parseInt(jQuery.css(p,"height")) - parseInt(jQuery.css(this,"height")))/2) > 0)
 			{
-				s.top = ((parseInt($.css(p,"height")) - parseInt($.css(this,"height")))/2) + "px";
+				s.top = ((parseInt(jQuery.css(p,"height")) - parseInt(jQuery.css(this,"height")))/2) + "px";
 			} else {
 				if(p.nodeName.toLowerCase() == "body") {
 
@@ -33,7 +33,7 @@ $.fn.center = function(f) {
   			 	else if(document.body && document.body.offsetHeight)
     				var clientHeight = document.body.offsetHeight;
 
-					s.top = ((clientHeight - parseInt($.css(this,"height")))/2) + "px";
+					s.top = ((clientHeight - parseInt(jQuery.css(this,"height")))/2) + "px";
 				} else {
 					s.top = "0";
 				}

@@ -37,7 +37,7 @@
  * @example $.cookie('the_cookie', '', {expires: 0});
  * @desc Delete a cookie.
  */
-$.cookie = function(name, value, options) {
+jQuery.cookie = function(name, value, options) {
     if (typeof value != 'undefined') { // name and value given, set cookie
         options = options || {};
         var expires = '';

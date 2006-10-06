@@ -1,11 +1,11 @@
-$.fn.alphaPager = function(fn,type) {
+jQuery.fn.alphaPager = function(fn,type) {
   type = type || "char";
 
   if ( fn == undefined ) {
-    fn = function(a){ return _clean( $.fn.text.apply( a.childNodes ) ); };
+    fn = function(a){ return _clean( jQuery.fn.text.apply( a.childNodes ) ); };
   } else if ( fn.constructor == Number ) {
     var n = fn;
-    fn = function(a){ return _clean( $.fn.text.apply( [a.childNodes[ n ]] ) ); };
+    fn = function(a){ return _clean( jQuery.fn.text.apply( [a.childNodes[ n ]] ) ); };
   }
 
   function _clean(a){
@@ -22,7 +22,7 @@ $.fn.alphaPager = function(fn,type) {
 };
 
 
-$.fn.pager = function(step) {
+jQuery.fn.pager = function(step) {
   var types = {
     UL: "li",
     OL: "li",
@@ -32,8 +32,8 @@ $.fn.pager = function(step) {
 
   return this.each(function(){
     var type = types[this.nodeName];
-    var pagedUI = type == "tr" ? $("tbody",this) : $(this);
-    var rows = $(type, pagedUI);
+    var pagedUI = type == "tr" ? jQuery("tbody",this) : jQuery(this);
+    var rows = jQuery(type, pagedUI);
     var curPage = 0;
     var names = [], num = [];
 
@@ -62,23 +62,23 @@ $.fn.pager = function(step) {
     }
 
     if ( names.length > 1 ) {
-      var pager = $(this).prev("ul.nav-page").empty();
+      var pager = jQuery(this).prev("ul.nav-page").empty();
 
       if ( !pager.length )
-        pager = $("<ul class='nav-page'></ul>");
+        pager = jQuery("<ul class='nav-page'></ul>");
 
       for ( var i = 0; i < names.length; i++ )
-        $("<a href=''></a>").rel( i ).html( names[i] ).click(function() {
+        jQuery("<a href=''></a>").rel( i ).html( names[i] ).click(function() {
           return handleCrop( this.rel );
         }).wrap("<li></li>").parent().appendTo(pager);
 
       pager.insertBefore( this );
 
-      var prev = $("<a href=''>&laquo; Prev</a>").click(function(){
+      var prev = jQuery("<a href=''>&laquo; Prev</a>").click(function(){
         return handleCrop( --curPage );
       }).wrap("<li class='prev'></li>").parent().prependTo(pager);
 
-      var next = $("<a href=''>Next &raquo;</a>").click(function(){
+      var next = jQuery("<a href=''>Next &raquo;</a>").click(function(){
         return handleCrop( ++curPage );
       }).wrap("<li class='next'></li>").parent().appendTo(pager);
 
@@ -96,7 +96,7 @@ $.fn.pager = function(step) {
       if ( curPage == names.length - 1 ) next.hide();
       else next.show();
 
-      $("li",pager)
+      jQuery("li",pager)
         .removeClass("cur")
         .eq( curPage + 1 )
           .addClass("cur");

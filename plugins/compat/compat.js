@@ -11,7 +11,7 @@
 				}
 			}
 		} else if ( $a.constructor == Array ) {
-			return $.map( $a, function(b){
+			return jQuery.map( $a, function(b){
 				if ( b.constructor == String ) {
 					return document.getElementById(b);
 				}
@@ -21,10 +21,10 @@
 	}
 
 // TODO: Remove need to return this
-	for ( var i in $.fn ) {
+	for ( var i in jQuery.fn ) {
 		if ( self[i] !== null )
 			self["_"+i] = self[i];
-		self[i] = $.fn[i];
+		self[i] = jQuery.fn[i];
 	}
 
 	if ( typeof Prototype != "undefined" && $a.constructor != String ) {
@@ -33,7 +33,7 @@
 			try {
 				if ( !$a[j] )
 					$a[j] = function() {
-						return $.apply(self,self[j],arguments);
+						return jQuery.apply(self,self[j],arguments);
 					};
 			} catch(e) {}
 		})(k);}

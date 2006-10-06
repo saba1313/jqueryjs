@@ -40,7 +40,7 @@
  * @author Sam Collett
  * @author John Resig
  */
-$.fn.ajaxSubmit = function(target, post_cb, pre_cb, url, mth) {
+jQuery.fn.ajaxSubmit = function(target, post_cb, pre_cb, url, mth) {
 	var vars = this.serialize();
 	
 	if (pre_cb && pre_cb.constructor == Function && pre_cb(vars) === false) return;
@@ -50,12 +50,12 @@ $.fn.ajaxSubmit = function(target, post_cb, pre_cb, url, mth) {
 	var mth = mth || f.method || 'POST';
 
 	if (target && target.constructor == Function)
-		$.ajax(mth, url, $.param(vars), target);
+		jQuery.ajax(mth, url, jQuery.param(vars), target);
 	else if (target && target.constructor == String)
-		$(target).load(url, vars, post_cb);
+		jQuery(target).load(url, vars, post_cb);
 	else {
 		vars.push({name: 'evaljs', value: 1});
-		$.ajax(mth, url, $.param(vars), function(r) {
+		jQuery.ajax(mth, url, jQuery.param(vars), function(r) {
 			eval(r.responseText);
 		});
 	}
@@ -108,9 +108,9 @@ $.fn.ajaxSubmit = function(target, post_cb, pre_cb, url, mth) {
  * @author Sam Collett
  * @author John Resig
  */
-$.fn.ajaxForm = function(target, post_cb, pre_cb) {
+jQuery.fn.ajaxForm = function(target, post_cb, pre_cb) {
 	return this.each(function(){
-		$("input[@type=submit],input[@type=image]", this).click(function(ev){
+		jQuery("input[@type=submit],input[@type=image]", this).click(function(ev){
 			this.form.clicked = this;
 			if (ev.offsetX != undefined) {
 				this.form.clicked_x = ev.offsetX;
@@ -121,7 +121,7 @@ $.fn.ajaxForm = function(target, post_cb, pre_cb) {
 			}
 		});
 	}).submit(function(e){
-		$(this).ajaxSubmit(target, post_cb, pre_cb);
+		jQuery(this).ajaxSubmit(target, post_cb, pre_cb);
 		return false;
 	});
 };
@@ -151,11 +151,11 @@ $.fn.ajaxForm = function(target, post_cb, pre_cb) {
  * @author Sam Collett
  * @author John Resig
  */
-$.fn.serialize = function() {
+jQuery.fn.serialize = function() {
 	var a = [];
 	var ok = {INPUT:true, TEXTAREA:true, OPTION:true};
 
-	$('*', this).each(function() {
+	jQuery('*', this).each(function() {
 		var par = this.parentNode;
 		var p = par.nodeName.toUpperCase();
 		var n = this.name || p == 'OPTGROUP' && par.parentNode.name || p == 'SELECT' && par.name || this.id;

@@ -8,7 +8,7 @@
  *
  * v1.5
  */
-$.fn.tabs = function(options) {
+jQuery.fn.tabs = function(options) {
 
     // configuration
     var ON_CLASS = 'on';
@@ -29,7 +29,7 @@ $.fn.tabs = function(options) {
         // retrieve active tab from hash in url
         if (location.hash) {
             var hashId = location.hash.replace('#', '');
-            $(this).find('>ul>li>a').each(function(i) {
+            jQuery(this).find('>ul>li>a').each(function(i) {
                 if (re.exec(this.href)[1] == hashId) {
                     options.activeTab = i;
                     function _unFocus() { // required to not scroll to fragment
@@ -46,38 +46,38 @@ $.fn.tabs = function(options) {
             });
         }
         if (options.fxAutoheight) {
-            var divs = $(this).find('>div');
+            var divs = jQuery(this).find('>div');
             var heights = [];
             divs.each(function(i) {
                 heights.push( this.offsetHeight );
                 if (options.activeTab != i) {
-                    $(this).addClass(OFF_CLASS);
+                    jQuery(this).addClass(OFF_CLASS);
                 }
             });
             heights.sort(function(a, b) {
                 return b - a;
             });
             divs.each(function() {
-                $(this).css({minHeight: heights[0] + 'px'});
+                jQuery(this).css({minHeight: heights[0] + 'px'});
                 /*@cc_on
                 // IE 6 only...
-                if (typeof XMLHttpRequest == 'function') $(this).css({height: heights[0] + 'px'});
+                if (typeof XMLHttpRequest == 'function') jQuery(this).css({height: heights[0] + 'px'});
                 @*/
             });
         } else {
-            $(this).find('>div').not(':eq(' + options.activeTab + ')').addClass(OFF_CLASS);
+            jQuery(this).find('>div').not(':eq(' + options.activeTab + ')').addClass(OFF_CLASS);
         }
-        $(this).find('>ul>li:eq(' + options.activeTab + ')').addClass(ON_CLASS);
+        jQuery(this).find('>ul>li:eq(' + options.activeTab + ')').addClass(ON_CLASS);
         var container = this;
-        $(this).find('>ul>li>a').click(function() {
+        jQuery(this).find('>ul>li>a').click(function() {
             // save scrollbar position
             var scrollX = window.pageXOffset || document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft || 0;
             var scrollY = window.pageYOffset || document.documentElement && document.documentElement.scrollTop || document.body.scrollTop || 0;
-            if (!$(this.parentNode).is('.' + ON_CLASS)) {
-                var tabToShow = $('#' + re.exec(this.href)[1]);
+            if (!jQuery(this.parentNode).is('.' + ON_CLASS)) {
+                var tabToShow = jQuery('#' + re.exec(this.href)[1]);
                 if (tabToShow.size() > 0) {
                     var self = this;
-                    var tabToHide = $(container).find('>div:visible');
+                    var tabToHide = jQuery(container).find('>div:visible');
                     var callback;
                     if (options.callback && typeof options.callback == 'function') {
                         callback = function() {
@@ -85,8 +85,8 @@ $.fn.tabs = function(options) {
                         }
                     }
                     function _activateTab() {
-                        $(container).find('>ul>li').removeClass(ON_CLASS);
-                        $(self.parentNode).addClass(ON_CLASS);
+                        jQuery(container).find('>ul>li').removeClass(ON_CLASS);
+                        jQuery(self.parentNode).addClass(ON_CLASS);
                     }
                     var showAnim = {}, hideAnim = {};
                     var showSpeed, hideSpeed;
@@ -102,14 +102,14 @@ $.fn.tabs = function(options) {
                         showSpeed = hideSpeed = options.fxSpeed;
                     } else {
                         if (options.fxShow) {
-                            showAnim = $.extend(showAnim, options.fxShow); // copy object
+                            showAnim = jQuery.extend(showAnim, options.fxShow); // copy object
                             showSpeed = options.fxShowSpeed || options.fxSpeed;
                         } else {
                             showAnim['opacity'] = 'show';
                             showSpeed = 1; // as little as this prevents browser scroll to the tab
                         }
                         if (options.fxHide) {
-                            hideAnim = $.extend(hideAnim, options.fxHide); // copy object
+                            hideAnim = jQuery.extend(hideAnim, options.fxHide); // copy object
                             hideSpeed = options.fxHideSpeed || options.fxSpeed;
                         } else {
                             hideAnim['opacity'] = 'hide';
@@ -140,9 +140,9 @@ $.fn.tabs = function(options) {
 
 };
 
-$.fn.triggerTab = function(tabIndex) {
+jQuery.fn.triggerTab = function(tabIndex) {
     var i = tabIndex && tabIndex > 0 && tabIndex - 1 || 0;
     return this.each(function() {
-        $(this).find('>ul>li>a').eq(i).click();
+        jQuery(this).find('>ul>li>a').eq(i).click();
     });
 };

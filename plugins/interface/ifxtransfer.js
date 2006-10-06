@@ -23,8 +23,8 @@ jQuery.fx.itransferTo = function(e, o)
 	
 	if(jQuery.transferHelper == null)
 	{
-		$('body', document).append('<div id="transferHelper"></div>');
-		jQuery.transferHelper = $('#transferHelper');
+		jQuery('body', document).append('<div id="transferHelper"></div>');
+		jQuery.transferHelper = jQuery('#transferHelper');
 	}
 	jQuery.transferHelper.css('display', 'block').css('position', 'absolute');
 	

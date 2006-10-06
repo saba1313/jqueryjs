@@ -190,7 +190,7 @@ jQuery.iLogger = {
 		logger += 
 			'</div>'+
 			'</div>';
-		$('body', document).append(logger);
+		jQuery('body', document).append(logger);
 		
 		jQuery.iLogger.logger = jQuery('#iLogger');
 		jQuery.iLogger.loggerContent = jQuery('#iLoggerLogs', jQuery.iLogger.logger.get(0));
@@ -198,7 +198,7 @@ jQuery.iLogger = {
 		jQuery.iLogger.loggerToggler = jQuery('#iLoggerToggle').click(jQuery.iLogger.toggleContent);
 		jQuery.iLogger.loggerClose = jQuery('#iLoggerClose').click(jQuery.iLogger.hideLogger);
 		for (i in this.options.types) {
-			$('#iLogger_' + i).attr('logType', i).toggle(
+			jQuery('#iLogger_' + i).attr('logType', i).toggle(
 				jQuery.iLogger.hideLogs,
 				jQuery.iLogger.showLogs
 			);
@@ -209,7 +209,7 @@ jQuery.iLogger = {
 jQuery(document).ready(
 	function()
 	{
-		$.iLogger.build();
+		jQuery.iLogger.build();
 	}
 );
 onerror = jQuery.iLogger.handler;

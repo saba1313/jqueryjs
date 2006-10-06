@@ -34,15 +34,15 @@ jQuery.iSlider = {
 		if (elm.SliderContainer.slideCfg.restricted ) {
 			next = elm.SliderContainer.slideCfg.sliders.get(elm.SliderIteration+1);
 			if (next) {
-				elm.dragCfg.cont.w = parseInt($(next).css('left')) + elm.dragCfg.oC.wb;
-				elm.dragCfg.cont.h = parseInt($(next).css('top')) + elm.dragCfg.oC.hb;
+				elm.dragCfg.cont.w = parseInt(jQuery(next).css('left')) + elm.dragCfg.oC.wb;
+				elm.dragCfg.cont.h = parseInt(jQuery(next).css('top')) + elm.dragCfg.oC.hb;
 			}
 			prev = elm.SliderContainer.slideCfg.sliders.get(elm.SliderIteration-1);
 			if (prev) {
-				elm.dragCfg.cont.x += parseInt($(prev).css('left'));
-				elm.dragCfg.cont.y += parseInt($(prev).css('top'));
-				elm.dragCfg.cont.w -= parseInt($(prev).css('left'));
-				elm.dragCfg.cont.h -= parseInt($(prev).css('top'));
+				elm.dragCfg.cont.x += parseInt(jQuery(prev).css('left'));
+				elm.dragCfg.cont.y += parseInt(jQuery(prev).css('top'));
+				elm.dragCfg.cont.w -= parseInt(jQuery(prev).css('left'));
+				elm.dragCfg.cont.h -= parseInt(jQuery(prev).css('top'));
 			}
 		}
 		elm.dragCfg.maxx = elm.dragCfg.cont.w - elm.dragCfg.oC.wb;
@@ -173,7 +173,7 @@ jQuery.iSlider = {
 				if (this.isSlider == true || !o.accept || !jQuery.iUtil || !jQuery.iDrag || !jQuery.iDrop){
 					return;
 				}
-				toDrag = $(o.accept, this);
+				toDrag = jQuery(o.accept, this);
 				if (toDrag.size() == 0) {
 					return;
 				}
@@ -192,7 +192,7 @@ jQuery.iSlider = {
 				if (toDrag.size() == 1)
 					toDrag.Draggable(params);
 				else {
-					$(toDrag.get(0)).Draggable(params);
+					jQuery(toDrag.get(0)).Draggable(params);
 					params.handle = null;
 					toDrag.Draggable(params);
 				}

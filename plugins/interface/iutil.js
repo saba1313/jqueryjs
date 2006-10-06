@@ -135,7 +135,7 @@ jQuery.iUtil = {
 	},
 	getMargins : function(e, toInteger)
 	{
-		el = $(e);
+		el = jQuery(e);
 		t = el.css('marginTop') || '';
 		r = el.css('marginRight') || '';
 		b = el.css('marginBottom') || '';
@@ -152,7 +152,7 @@ jQuery.iUtil = {
 	},
 	getPadding : function(e, toInteger)
 	{
-		el = $(e);
+		el = jQuery(e);
 		t = el.css('paddingTop') || '';
 		r = el.css('paddingRight') || '';
 		b = el.css('paddingBottom') || '';
@@ -169,7 +169,7 @@ jQuery.iUtil = {
 	},
 	getBorder : function(e, toInteger)
 	{
-		el = $(e);
+		el = jQuery(e);
 		t = el.css('borderTopWidth') || '';
 		r = el.css('borderRightWidth') || '';
 		b = el.css('borderBottomWidth') || '';

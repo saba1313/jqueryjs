@@ -21,14 +21,14 @@ jQuery.iExpander =
 		if (!text)
 			return;
 		style = {
-			fontFamily: $(this).css('fontFamily')||'',
-			fontSize: $(this).css('fontSize')||'',
-			fontWeight: $(this).css('fontWeight')||'',
-			fontStyle: $(this).css('fontStyle')||'',
-			fontStretch: $(this).css('fontStretch')||'',
-			fontVariant: $(this).css('fontVariant')||'',
-			letterSpacing: $(this).css('letterSpacing')||'',
-			wordSpacing: $(this).css('wordSpacing')||''
+			fontFamily: jQuery(this).css('fontFamily')||'',
+			fontSize: jQuery(this).css('fontSize')||'',
+			fontWeight: jQuery(this).css('fontWeight')||'',
+			fontStyle: jQuery(this).css('fontStyle')||'',
+			fontStretch: jQuery(this).css('fontStretch')||'',
+			fontVariant: jQuery(this).css('fontVariant')||'',
+			letterSpacing: jQuery(this).css('letterSpacing')||'',
+			wordSpacing: jQuery(this).css('wordSpacing')||''
 		};
 		jQuery.iExpander.helper.css(style);
 		html = jQuery.iExpander.htmlEntities(text);
@@ -65,8 +65,8 @@ jQuery.iExpander =
 	build : function(limit)
 	{
 		if (jQuery.iExpander.helper == null) {
-			$('body', document).append('<div id="expanderHelper" style="position: absolute; top: 0; left: 0; visibility: hidden;"></div>');
-			jQuery.iExpander.helper = $('#expanderHelper');
+			jQuery('body', document).append('<div id="expanderHelper" style="position: absolute; top: 0; left: 0; visibility: hidden;"></div>');
+			jQuery.iExpander.helper = jQuery('#expanderHelper');
 		}
 		return this.each(
 			function()
@@ -89,7 +89,7 @@ jQuery.iExpander =
 							limit : limit
 						};
 					}
-					$(this)
+					jQuery(this)
 						.blur(jQuery.iExpander.expand)
 						.keyup(jQuery.iExpander.expand)
 						.keypress(jQuery.iExpander.expand);

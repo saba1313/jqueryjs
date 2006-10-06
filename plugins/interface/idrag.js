@@ -51,8 +51,8 @@ jQuery.iDrag =	{
 				dx = elm.dragCfg.currentPointer.x - parentPos.x - sliderSize.wb/2 - sliderPos.x;
 				dy = elm.dragCfg.currentPointer.y - parentPos.y - sliderSize.hb/2 - sliderPos.y;
 				jQuery.iSlider.dragmoveBy(elm, [dx, dy]);
-				$.iLogger.log(dx);
-				$.iLogger.log(dy);
+				jQuery.iLogger.log(dx);
+				jQuery.iLogger.log(dy);
 		}
 		return false;
 	},

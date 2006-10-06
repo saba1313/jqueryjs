@@ -342,7 +342,7 @@ jQuery.fx.transitions = function(p, n, firstNum, delta, duration, type)
 			return firstNum;
 		if ((n/=duration)==1) 
 			return firstNum+delta;
-		$('#test').html(p +'<br />'+n);
+		jQuery('#test').html(p +'<br />'+n);
 		if (p < 1)
 			return -.5*(delta*Math.pow(2,10*(n-=1)) * Math.sin( (n*duration-(duration*.45)/4)*(2*Math.PI)/(duration*.45) )) + firstNum;
 		return delta*Math.pow(2,-10*(n-=1)) * Math.sin( (n*duration-(duration*.45)/4)*(2*Math.PI)/(duration*.45) )*.5 + delta + firstNum;

@@ -77,8 +77,8 @@ jQuery.fx.itransferTo = function(e, o)
 				if(z.classname)
 					jQuery.transferHelper.removeClass(z.classname);
 				jQuery.transferHelper.css('display', 'none');
-				if (z.callback && z.callback.constructor == Function) {
-					z.callback.apply(z.el.get(0), [z.to]);
+				if (z.complete && z.complete.constructor == Function) {
+					z.complete.apply(z.el.get(0), [z.to]);
 				}
 				jQuery.dequeue(z.el.get(0), 'interfaceFX');
 			}

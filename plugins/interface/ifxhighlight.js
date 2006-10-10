@@ -32,7 +32,9 @@ jQuery.fx.Highlight = function (e, duration, color, callback, transition)
 		backgroundColor : z.el.css('backgroundColor'),
 		backgroundImage : z.el.css('backgroundImage')
 	}
-	if (typeof color == 'array') {
+	.constructor==Array
+	
+	if ((typeof color == 'object') && (color.constructor == Array)) {
 		z.endColor = jQuery.fx.parseColor(color[1] || z.oldStyle.backgroundColor);
 		z.startColor = jQuery.fx.parseColor(color[0]);
 	} else {

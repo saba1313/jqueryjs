@@ -51,8 +51,6 @@ jQuery.iDrag =	{
 				dx = elm.dragCfg.currentPointer.x - parentPos.x - sliderSize.wb/2 - sliderPos.x;
 				dy = elm.dragCfg.currentPointer.y - parentPos.y - sliderSize.hb/2 - sliderPos.y;
 				jQuery.iSlider.dragmoveBy(elm, [dx, dy]);
-				jQuery.iLogger.log(dx);
-				jQuery.iLogger.log(dy);
 		}
 		return false;
 	},
@@ -267,13 +265,19 @@ jQuery.iDrag =	{
 		
 		if (dragged.dragCfg.revert == false) {
 			if (dragged.dragCfg.fx > 0) {
-				x = new jQuery.fx(dragged,dragged.dragCfg.fx, 'left');
-				y = new jQuery.fx(dragged,dragged.dragCfg.fx, 'top');
-				x.custom(dragged.dragCfg.oR.x,dragged.dragCfg.nRx);
-				y.custom(dragged.dragCfg.oR.y,dragged.dragCfg.nRy);
+				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally') {
+					x = new jQuery.fx(dragged,dragged.dragCfg.fx, 'left');
+					x.custom(dragged.dragCfg.oR.x,dragged.dragCfg.nRx);
+				}
+				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'vertically') {
+					y = new jQuery.fx(dragged,dragged.dragCfg.fx, 'top');
+					y.custom(dragged.dragCfg.oR.y,dragged.dragCfg.nRy);
+				}
 			} else {
-				dragged.style.left = dragged.dragCfg.nRx + 'px';
-				dragged.style.top = dragged.dragCfg.nRy + 'px';
+				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally') 
+					dragged.style.left = dragged.dragCfg.nRx + 'px';
+				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'vertically')
+					dragged.style.top = dragged.dragCfg.nRy + 'px';
 			}
 			jQuery.iDrag.hidehelper(dragged);
 			if (dragged.dragCfg.ghosting == false) {
@@ -315,7 +319,7 @@ jQuery.iDrag =	{
 			jQuery.iSort.check(dragged);
 		}
 		if (dragged.dragCfg.onChange && (dragged.dragCfg.nRx != dragged.dragCfg.oR.x || dragged.dragCfg.nRy != dragged.dragCfg.oR.y)){
-			dragged.dragCfg.onChange.apply(dragged, dragged.dragCfg.lastSi);
+			dragged.dragCfg.onChange.apply(dragged, dragged.dragCfg.lastSi||[0,0,dragged.dragCfg.nRx,dragged.dragCfg.nRy]);
 		}
 		if (dragged.dragCfg.onStop)
 			dragged.dragCfg.onStop.apply(dragged);
@@ -457,7 +461,7 @@ jQuery.iDrag =	{
 		return this.each(
 			function()
 			{
-				if (this.isDraggable && !jQuery.iUtil)
+				if (this.isDraggable || !jQuery.iUtil)
 					return;
 				if (window.ActiveXObject) {
 					this.onselectstart = function(){return false;};

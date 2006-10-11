@@ -42,11 +42,11 @@ jQuery.fx.ScrollTo = function (e, o, transition)
 			z.clear();
 			setTimeout(function(){z.scroll(z.endTop, z.endLeft)},13);
 		} else {
-			st = jQuery.fx.transitions(p, n, z.startTop, (z.endTop - z.startTop), z.o.duration, z.transition);//((-Math.cos(p*Math.PI)/2) + 0.5) * (z.p.y-z.s.t) + z.s.t;
-			sl = jQuery.fx.transitions(p, n, z.startLeft, (z.endLeft - z.startLeft), z.o.duration, z.transition);//((-Math.cos(p*Math.PI)/2) + 0.5) * (z.p.x-z.s.l) + z.s.l;
+			st = jQuery.fx.transitions(p, n, z.startTop, (z.endTop - z.startTop), z.o.duration, z.transition);
+			sl = jQuery.fx.transitions(p, n, z.startLeft, (z.endLeft - z.startLeft), z.o.duration, z.transition);
 			z.scroll(st, sl);
 		}
 	};
-	z.scroll = function (t, l){window.scrollTo(l, t)};
+	z.scroll = function (t, l){window.scrollTo(l, t);};
 	z.timer=setInterval(function(){z.step();},13);
 };

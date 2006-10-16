@@ -9,13 +9,13 @@
  *
  * These are all the key/values that can be passed in to 'options':
  *
- * (Integer|Date) expires - Either an integer specifying the expiration date from now on in days or a Date object. 
+ * (Integer|Date) expires - Either an integer specifying the expiration date from now on in days or a Date object.
  *                          If you set this to zero, the cookie will be deleted. If you set it to null, or omit,
- *                          this option, the cookie will be a session cookie and will not be retained when the 
+ *                          this option, the cookie will be a session cookie and will not be retained when the
  *                          the browser exits. This option is used to set the max-age attribute of the cookie.
  *
  * (String) path - The value of the path atribute of the cookie (default: path of page that created the cookie).
- * 
+ *
  * (String) domain - The value of the domain attribute of the cookie (default: domain of page that created the cookie).
  *
  * (Boolean) secure - If true, the secure attribute of the cookie will be set and the cookie transmission will
@@ -67,7 +67,7 @@ jQuery.cookie = function(name, value, options) {
         if (document.cookie && document.cookie != '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i];
+                var cookie = $.trim(cookies[i]);
                 // Does this cookie string begin with the name we want?
                 if (cookie.substring(0, name.length + 1) == (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));

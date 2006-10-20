@@ -6,23 +6,51 @@
  *   http://www.opensource.org/licenses/mit-license.php
  *   http://www.gnu.org/licenses/gpl.html
  *
- * v1.5
+ * v2.0
  */
-jQuery.fn.tabs = function(options) {
 
-    // configuration
-    var ON_CLASS = 'on';
-    var OFF_CLASS = 'tabs-hide';
+// internal helper
+jQuery.tabs = new function() {
+    this.trigger = function(arg, context) {
+        var argType = typeof arg;
+        if (argType == 'string') { // id of associated container has been passed
+            jQuery(hash).parent('div').find('>ul>li>a').filter('[@href$=' + hash + ']').click();
+        } else if (argType == 'undefined' || argType == 'number') { // index of tab has been passed
+            var tabIndex = arg && arg > 0 && arg - 1 || 0; // falls back to index 0
+            jQuery(context).find('>ul>li>a').eq(tabIndex).click();
+        }
+    };
+};
 
-    // options
-    options = options || {};
-    options['activeTab'] = (options.on && typeof options.on == 'number' && options.on > 0) ? options.on - 1 : 0;
-    options['fxSpeed'] = options.fxSpeed || 'normal';
-    options['fxShow'] = options.fxShow || null;
-    options['fxHide'] = options.fxHide || null;
+jQuery.fn.tabs = function(initial, settings) {
+
+    // settings
+    if (typeof initial == 'object') settings = initial; // no initial tab given but a settings object
+    settings = jQuery.extend({
+        initial: (initial && typeof initial == 'number' && initial > 0) ? --initial : 0,
+        fxFade: null,
+        fxSlide: null,
+        fxShow: null,
+        fxHide: null,
+        fxSpeed: 'normal',
+        fxShowSpeed: null,
+        fxHideSpeed: null,
+        fxAutoheight: false,
+        callback: null,
+        selectedTabClass: 'selected',
+        hiddenTabContainerClass: 'tabs-hide'
+    }, settings || {});
 
     // regex to find hash in url
     var re = /([_\-\w]+$)/i;
+
+    // observer to fix back button
+    //if (jQuery.history) jQuery.history.observe();
+
+    // helper to prevent scroll to fragment
+    function _unFocus() {
+        scrollTo(0, 0);
+    }
 
     // initialize tabs
     return this.each(function() {
@@ -31,27 +59,20 @@ jQuery.fn.tabs = function(options) {
             var hashId = location.hash.replace('#', '');
             jQuery(this).find('>ul>li>a').each(function(i) {
                 if (re.exec(this.href)[1] == hashId) {
-                    options.activeTab = i;
-                    function _unFocus() { // required to not scroll to fragment
-                        scrollTo(0, 0);
-                    }
-                    // be nice to IE via Conditional Compilation
-                    // this needs to preceed call to unFocus for other browsers
-                    /*@cc_on
-                    setTimeout(_unFocus, 150); // IE needs a little timeout here
-                    @*/
+                    settings.initial = i;
+                    if (jQuery.browser.msie) setTimeout(_unFocus, 150); // be nice to IE
                     _unFocus();
-                    setTimeout(_unFocus, 100); // be nice to Opera
+                    if (jQuery.browser.opera) setTimeout(_unFocus, 100); // be nice to Opera
                 }
             });
         }
-        if (options.fxAutoheight) {
+        if (settings.fxAutoheight) {
             var divs = jQuery(this).find('>div');
             var heights = [];
             divs.each(function(i) {
                 heights.push( this.offsetHeight );
-                if (options.activeTab != i) {
-                    jQuery(this).addClass(OFF_CLASS);
+                if (settings.initial != i) {
+                    jQuery(this).addClass(settings.hiddenTabContainerClass);
                 }
             });
             heights.sort(function(a, b) {
@@ -59,58 +80,57 @@ jQuery.fn.tabs = function(options) {
             });
             divs.each(function() {
                 jQuery(this).css({minHeight: heights[0] + 'px'});
-                /*@cc_on
-                // IE 6 only...
-                if (typeof XMLHttpRequest == 'function') jQuery(this).css({height: heights[0] + 'px'});
-                @*/
+                if (jQuery.browser.msie && typeof XMLHttpRequest == 'function') jQuery(this).css({height: heights[0] + 'px'});
             });
         } else {
-            jQuery(this).find('>div').not(':eq(' + options.activeTab + ')').addClass(OFF_CLASS);
+            jQuery(this).find('>div').not(':eq(' + settings.initial + ')').addClass(settings.hiddenTabContainerClass);
         }
-        jQuery(this).find('>ul>li:eq(' + options.activeTab + ')').addClass(ON_CLASS);
+        jQuery(this).find('>ul>li:eq(' + settings.initial + ')').addClass(settings.selectedTabClass);
         var container = this;
-        jQuery(this).find('>ul>li>a').click(function() {
+        jQuery(this).find('>ul>li>a').click(function(e) {
+            // id to be shown
+            var tabToShowHash = '#' + re.exec(this.href)[1];
+            // update observer TODO: find another way to add event...
+            //if (jQuery.history) jQuery.history.setHash(tabToShowHash, e);
             // save scrollbar position
             var scrollX = window.pageXOffset || document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft || 0;
             var scrollY = window.pageYOffset || document.documentElement && document.documentElement.scrollTop || document.body.scrollTop || 0;
-            if (!jQuery(this.parentNode).is('.' + ON_CLASS)) {
-                var tabToShow = jQuery('#' + re.exec(this.href)[1]);
+            if (!jQuery(this.parentNode).is('.' + settings.selectedTabClass)) {
+                var tabToShow = jQuery(tabToShowHash);
                 if (tabToShow.size() > 0) {
                     var self = this;
                     var tabToHide = jQuery(container).find('>div:visible');
                     var callback;
-                    if (options.callback && typeof options.callback == 'function') {
-                        callback = function() {
-                            options.callback.apply(tabToShow[0], [tabToShow[0], tabToHide[0]]);
-                        }
-                    }
+                    if (settings.callback && typeof settings.callback == 'function') callback = function() {
+                        settings.callback.apply(tabToShow[0], [tabToShow[0], tabToHide[0]]);
+                    };
                     function _activateTab() {
-                        jQuery(container).find('>ul>li').removeClass(ON_CLASS);
-                        jQuery(self.parentNode).addClass(ON_CLASS);
+                        jQuery(container).find('>ul>li').removeClass(settings.selectedTabClass);
+                        jQuery(self.parentNode).addClass(settings.selectedTabClass);
                     }
                     var showAnim = {}, hideAnim = {};
                     var showSpeed, hideSpeed;
-                    if (options.fxSlide || options.fxFade) {
-                        if (options.fxSlide) {
+                    if (settings.fxSlide || settings.fxFade) {
+                        if (settings.fxSlide) {
                             showAnim['height'] = 'show';
                             hideAnim['height'] = 'hide';
                         }
-                        if (options.fxFade) {
+                        if (settings.fxFade) {
                             showAnim['opacity'] = 'show';
                             hideAnim['opacity'] = 'hide';
                         }
-                        showSpeed = hideSpeed = options.fxSpeed;
+                        showSpeed = hideSpeed = settings.fxSpeed;
                     } else {
-                        if (options.fxShow) {
-                            showAnim = jQuery.extend(showAnim, options.fxShow); // copy object
-                            showSpeed = options.fxShowSpeed || options.fxSpeed;
+                        if (settings.fxShow) {
+                            showAnim = jQuery.extend(showAnim, settings.fxShow); // copy object
+                            showSpeed = settings.fxShowSpeed || settings.fxSpeed;
                         } else {
                             showAnim['opacity'] = 'show';
                             showSpeed = 1; // as little as this prevents browser scroll to the tab
                         }
-                        if (options.fxHide) {
-                            hideAnim = jQuery.extend(hideAnim, options.fxHide); // copy object
-                            hideSpeed = options.fxHideSpeed || options.fxSpeed;
+                        if (settings.fxHide) {
+                            hideAnim = jQuery.extend(hideAnim, settings.fxHide); // copy object
+                            hideSpeed = settings.fxHideSpeed || settings.fxSpeed;
                         } else {
                             hideAnim['opacity'] = 'hide';
                             hideSpeed = 1; // as little as this prevents browser scroll to the tab
@@ -118,11 +138,11 @@ jQuery.fn.tabs = function(options) {
                     }
                     tabToHide.animate(hideAnim, hideSpeed, function() { // animate in any case, prevents browser scroll to the fragment
                         _activateTab();
-                        tabToShow.removeClass(OFF_CLASS).animate(showAnim, showSpeed, function() {
-                            /*@cc_on
-                            tabToHide[0].style.filter = '';  // @ IE, retain acccessibility for print
-                            tabToHide.addClass(OFF_CLASS).css({display: '', height: 'auto'}); // retain flexible height and acccessibility for print
-                            @*/
+                        tabToShow.removeClass(settings.hiddenTabContainerClass).animate(showAnim, showSpeed, function() {
+                            if (jQuery.browser.msie) {
+                                tabToHide[0].style.filter = '';  // @ IE, retain acccessibility for print
+                                tabToHide.addClass(settings.hiddenTabContainerClass).css({display: '', height: 'auto'}); // retain flexible height and acccessibility for print
+                            }
                             tabToShow.css({height: 'auto'}); // retain flexible height
                             if (callback) callback();
                         });
@@ -133,16 +153,17 @@ jQuery.fn.tabs = function(options) {
             }
             // Set scrollbar to saved position
             setTimeout(function() {
-                window.scrollTo(scrollX, scrollY)
+                window.scrollTo(scrollX, scrollY);
             }, 0);
         });
     });
 
 };
 
+// TODO: issue with mixing history and triggerTab
+// maybe solved with links that should trigger tab by pointing to corresponding hash
 jQuery.fn.triggerTab = function(tabIndex) {
-    var i = tabIndex && tabIndex > 0 && tabIndex - 1 || 0;
     return this.each(function() {
-        jQuery(this).find('>ul>li>a').eq(i).click();
+        jQuery.tabs.trigger(tabIndex, this);
     });
 };

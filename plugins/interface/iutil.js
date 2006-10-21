@@ -1,13 +1,13 @@
 /**
  * Interface Elements for jQuery
  * utility function
- * 
+ *
  * http://interface.eyecon.ro
- * 
+ *
  * Copyright (c) 2006 Stefan Petre
- * Dual licensed under the MIT (MIT-LICENSE.txt) 
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
- *   
+ *
  *
  */
 
@@ -107,7 +107,7 @@ jQuery.iUtil = {
 		}
 		return {w:w,h:h};
 	},
-	getScroll : function (e) 
+	getScroll : function (e)
 	{
 		if (e) {
 			t = e.scrollTop;
@@ -142,7 +142,7 @@ jQuery.iUtil = {
 		l = el.css('marginLeft') || '';
 		if (toInteger)
 			return {
-				t: parseInt(t)||0, 
+				t: parseInt(t)||0,
 				r: parseInt(r)||0,
 				b: parseInt(b)||0,
 				l: parseInt(l)
@@ -159,7 +159,7 @@ jQuery.iUtil = {
 		l = el.css('paddingLeft') || '';
 		if (toInteger)
 			return {
-				t: parseInt(t)||0, 
+				t: parseInt(t)||0,
 				r: parseInt(r)||0,
 				b: parseInt(b)||0,
 				l: parseInt(l)
@@ -176,7 +176,7 @@ jQuery.iUtil = {
 		l = el.css('borderLeftWidth') || '';
 		if (toInteger)
 			return {
-				t: parseInt(t)||0, 
+				t: parseInt(t)||0,
 				r: parseInt(r)||0,
 				b: parseInt(b)||0,
 				l: parseInt(l)||0
@@ -188,6 +188,16 @@ jQuery.iUtil = {
 	{
 		x = event.pageX || (event.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)) || 0;
 		y = event.pageY || (event.clientY + (document.documentElement.scrollTop || document.body.scrollTop)) || 0;
-		return {x:x, y:y};	
+		return {x:x, y:y};
 	}
 };
+
+// Helper function to support older browsers!
+[].indexOf || (Array.prototype.indexOf = function(v, n){
+	n = (n == null) ? 0 : n;
+	var m = this.length;
+	for (var i=n; i<m; i++)
+		if (this[i] == v)
+			return i;
+	return -1;
+});

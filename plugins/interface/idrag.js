@@ -1,13 +1,13 @@
 /**
  * Interface Elements for jQuery
  * Draggable
- * 
+ *
  * http://interface.eyecon.ro
- * 
+ *
  * Copyright (c) 2006 Stefan Petre
- * Dual licensed under the MIT (MIT-LICENSE.txt) 
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
- *   
+ *
  *
  */
 
@@ -20,8 +20,20 @@ jQuery.iDrag =	{
 			function ()
 			{
 				if (this.isDraggable) {
+					//--[OLD]
+					//this.dragElem = null;
+					//jQuery(this).unbind('mousedown', jQuery.iDrag.dragstart);
+					//--[/OLD]
+
+					// - First, unbind the mousedown code from the "dragElem" (handle or object itself).
+					// - This is NOT dragstart, but draginit
+					this.dragElem.unbind('mousedown', jQuery.iDrag.draginit);
+
+					// Next, free the dragelement
 					this.dragElem = null;
-					jQuery(this).unbind('mousedown', jQuery.iDrag.dragstart);
+
+					// And unset the "isDraggable" flag, so you can restart the drag later on.
+					this.isDraggable = false;
 				}
 			}
 		);
@@ -54,14 +66,14 @@ jQuery.iDrag =	{
 		}
 		return false;
 	},
-	
+
 	dragstart : function(e)
 	{
 		elm = jQuery.iDrag.dragged;
 		elm.dragCfg.init = true;
-		
+
 		dEs = elm.style;
-		
+
 		elm.dragCfg.oD = jQuery.css(elm,'display');
 		elm.dragCfg.oP = jQuery.css(elm,'position');
 		if (!elm.dragCfg.initialPosition)
@@ -78,7 +90,7 @@ jQuery.iDrag =	{
 			elm.dragCfg.diffX = oldBorder.l||0;
 			elm.dragCfg.diffY = oldBorder.t||0;
 		}
-		
+
 		elm.dragCfg.oC = jQuery.extend(
 			jQuery.iUtil.getPosition(elm),
 			jQuery.iUtil.getSize(elm)
@@ -86,11 +98,11 @@ jQuery.iDrag =	{
 		if (elm.dragCfg.oP != 'relative' && elm.dragCfg.oP != 'absolute') {
 			dEs.position = 'relative';
 		}
-		
+
 		jQuery.iDrag.helper.empty();
-		
+
 		clonedEl = elm.cloneNode(true);
-	
+
 		jQuery(clonedEl).css(
 			{
 				display:	'block',
@@ -103,10 +115,10 @@ jQuery.iDrag =	{
 		clonedEl.style.marginBottom = '0';
 		clonedEl.style.marginLeft = '0';
 		jQuery.iDrag.helper.append(clonedEl);
-		
+
 		if (elm.dragCfg.onStart)
 			elm.dragCfg.onStart.apply(elm, [clonedEl]);
-		
+
 		dhs = jQuery.iDrag.helper.get(0).style;
 
 		if (elm.dragCfg.autoSize) {
@@ -116,19 +128,19 @@ jQuery.iDrag =	{
 			dhs.height = elm.dragCfg.oC.hb + 'px';
 			dhs.width = elm.dragCfg.oC.wb + 'px';
 		}
-		
+
 		dhs.display = 'block';
 		dhs.marginTop = '0px';
 		dhs.marginRight = '0px';
 		dhs.marginBottom = '0px';
 		dhs.marginLeft = '0px';
-		
+
 		//remeasure the clone to check if the size was changed by user's functions
 		jQuery.extend(
 			elm.dragCfg.oC,
 			jQuery.iUtil.getSize(clonedEl)
 		);
-		
+
 		if (elm.dragCfg.cursorAt) {
 			if (elm.dragCfg.cursorAt.left) {
 				elm.dragCfg.oR.x += elm.dragCfg.pointer.x - elm.dragCfg.oC.x - elm.dragCfg.cursorAt.left;
@@ -149,7 +161,7 @@ jQuery.iDrag =	{
 		}
 		elm.dragCfg.nx = elm.dragCfg.oR.x;
 		elm.dragCfg.ny = elm.dragCfg.oR.y;
-		
+
 		if (elm.dragCfg.insideParent || elm.dragCfg.containment == 'parent') {
 			parentBorders = jQuery.iUtil.getBorder(elm.parentNode, true);
 			elm.dragCfg.oC.x = elm.offsetLeft + (jQuery.browser.msie ? 0 : jQuery.browser.opera ? -parentBorders.l : parentBorders.l);
@@ -160,19 +172,19 @@ jQuery.iDrag =	{
 			jQuery.iDrag.getContainment(elm);
 			elm.dragCfg.onDrag.containment = jQuery.iDrag.fitToContainer;
 		}
-		
+
 		if (elm.dragCfg.si) {
 			jQuery.iSlider.modifyContainer(elm);
 		}
-			
+
 		dhs.left = elm.dragCfg.oC.x - elm.dragCfg.diffX + 'px';
 		dhs.top = elm.dragCfg.oC.y - elm.dragCfg.diffY + 'px';
 		//resize the helper to fit the clone
 		dhs.width = elm.dragCfg.oC.wb + 'px';
 		dhs.height = elm.dragCfg.oC.hb + 'px';
-		
+
 		jQuery.iDrag.dragged.dragCfg.prot = false;
-		
+
 		if (elm.dragCfg.gx) {
 			elm.dragCfg.onDrag.grid = jQuery.iDrag.snapToGrid;
 		}
@@ -193,7 +205,7 @@ jQuery.iDrag =	{
 		}
 		return false;
 	},
-	
+
 	getContainment : function(elm)
 	{
 		if (elm.dragCfg.containment.constructor == String) {
@@ -225,7 +237,7 @@ jQuery.iDrag =	{
 		elm.dragCfg.cont.dx = elm.dragCfg.cont.x - elm.dragCfg.oC.x;
 		elm.dragCfg.cont.dy = elm.dragCfg.cont.y - elm.dragCfg.oC.y;
 	},
-	
+
 	hidehelper : function(dragged)
 	{
 		if (dragged.dragCfg.insideParent || dragged.dragCfg.containment == 'parent') {
@@ -236,33 +248,33 @@ jQuery.iDrag =	{
 			jQuery.iDrag.helper.css('filter', 'alpha(opacity=100)');
 		}
 	},
-	
+
 	dragstop : function(e)
 	{
-		
+
 		jQuery(document)
 			.unbind('mousemove', jQuery.iDrag.dragmove)
 			.unbind('mouseup', jQuery.iDrag.dragstop);
-			
+
 		if (jQuery.iDrag.dragged == null) {
 			return;
 		}
 		dragged = jQuery.iDrag.dragged;
-		
+
 		jQuery.iDrag.dragged = null;
 
 		if (dragged.dragCfg.init == false) {
-			return false;	
+			return false;
 		}
 		if (dragged.dragCfg.so == true) {
 			jQuery(dragged).css('position', dragged.dragCfg.oP);
 		}
 		dEs = dragged.style;
-		
+
 		if (dragged.si) {
 			jQuery.iDrag.helper.css('cursor', 'move');
 		}
-		
+
 		if (dragged.dragCfg.revert == false) {
 			if (dragged.dragCfg.fx > 0) {
 				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally') {
@@ -274,7 +286,7 @@ jQuery.iDrag =	{
 					y.custom(dragged.dragCfg.oR.y,dragged.dragCfg.nRy);
 				}
 			} else {
-				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally') 
+				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally')
 					dragged.style.left = dragged.dragCfg.nRx + 'px';
 				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'vertically')
 					dragged.style.top = dragged.dragCfg.nRy + 'px';
@@ -325,7 +337,7 @@ jQuery.iDrag =	{
 			dragged.dragCfg.onStop.apply(dragged);
 		return false;
 	},
-	
+
 	snapToGrid : function(x, y, dx, dy)
 	{
 		if (dx != 0)
@@ -339,7 +351,7 @@ jQuery.iDrag =	{
 			y: 0
 		};
 	},
-	
+
 	fitToContainer : function(x, y, dx, dy)
 	{
 		dx = Math.min(
@@ -350,7 +362,7 @@ jQuery.iDrag =	{
 				Math.max(dy,this.dragCfg.cont.dy),
 				this.dragCfg.cont.h + this.dragCfg.cont.dy - this.dragCfg.oC.hb
 			);
-		
+
 		return {
 			dx : dx,
 			dy : dy,
@@ -358,15 +370,15 @@ jQuery.iDrag =	{
 			y: 0
 		}
 	},
-	
+
 	dragmove : function(e)
 	{
 		if (jQuery.iDrag.dragged == null || jQuery.iDrag.dragged.dragCfg.prot == true) {
 			return;
 		}
-		
+
 		var dragged = jQuery.iDrag.dragged;
-		
+
 		dragged.dragCfg.currentPointer = jQuery.iUtil.getPointer(e);
 		if (dragged.dragCfg.init == false) {
 			distance = Math.sqrt(Math.pow(dragged.dragCfg.pointer.x - dragged.dragCfg.currentPointer.x, 2) + Math.pow(dragged.dragCfg.pointer.y - dragged.dragCfg.currentPointer.y, 2));
@@ -376,10 +388,10 @@ jQuery.iDrag =	{
 				jQuery.iDrag.dragstart(e);
 			}
 		}
-		
+
 		dx = dragged.dragCfg.currentPointer.x - dragged.dragCfg.pointer.x;
 		dy = dragged.dragCfg.currentPointer.y - dragged.dragCfg.pointer.y;
-		
+
 		for (i in dragged.dragCfg.onDrag) {
 			newCoords = dragged.dragCfg.onDrag[i].apply(dragged, [dragged.dragCfg.oR.x + dx, dragged.dragCfg.oR.y + dy, dx, dy]);
 			if (newCoords && newCoords.constructor == Object) {
@@ -387,14 +399,14 @@ jQuery.iDrag =	{
 				dy = i != 'user' ? newCoords.dy : (newCoords.y - dragged.dragCfg.oR.y);
 			}
 		}
-		
+
 		dragged.dragCfg.nx = dragged.dragCfg.oC.x + dx - dragged.dragCfg.diffX;
 		dragged.dragCfg.ny = dragged.dragCfg.oC.y + dy - dragged.dragCfg.diffY;
-		
+
 		if (dragged.dragCfg.si && (dragged.dragCfg.onSlide || dragged.dragCfg.onChange)) {
 			jQuery.iSlider.onSlide(dragged, dragged.dragCfg.nx, dragged.dragCfg.ny);
 		}
-		
+
 		if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally') {
 			dragged.dragCfg.nRx = dragged.dragCfg.oR.x + dx;
 			jQuery.iDrag.helper.get(0).style.left = dragged.dragCfg.nx + 'px';
@@ -403,19 +415,19 @@ jQuery.iDrag =	{
 			dragged.dragCfg.nRy = dragged.dragCfg.oR.y + dy;
 			jQuery.iDrag.helper.get(0).style.top = dragged.dragCfg.ny + 'px';
 		}
-			
+
 		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
 			jQuery.iDrop.checkhover(dragged, clonedEl);
 		}
 		return false;
 	},
-		
+
 	build : function(o)
 	{
 			/*if (jQuery.browser.msie) {
 				jQuery(window)
 					.bind(
-						'unload', 
+						'unload',
 						function()
 						{
 							jQuery('body')
@@ -508,10 +520,16 @@ jQuery.iDrag =	{
 				if (o.onSlide && o.onSlide.constructor == Function) {
 					this.dragCfg.onSlide = o.onSlide;
 				}
-				
+
 				this.isDraggable = true;
 				dhe.get(0).dragElem = this;
-				dhe.bind('mousedown', jQuery.iDrag.draginit);
+				//--[OLD]
+				//dhe.bind('mousedown', jQuery.iDrag.draginit);
+				//--[/OLD]
+
+				// This line makes sure the DraggableDestroy knows the handler (or object) to undind the event from.
+				this.dragElem = dhe;
+				this.dragElem.bind('mousedown', jQuery.iDrag.draginit);
 			}
 		)
 	}

@@ -1,36 +1,30 @@
 /**
  * Interface Elements for jQuery
  * Selectables
- * 
+ *
  * http://interface.eyecon.ro
- * 
+ *
  * Copyright (c) 2006 Stefan Petre
- * Dual licensed under the MIT (MIT-LICENSE.txt) 
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
- *   
+ *
  *
  */
 
 jQuery.selectHelper = null;
 jQuery.selectKeyHelper = null;
 jQuery.selectdrug = null;
-jQuery.selectKeyDown = function(e)
-{
-	if (window.event) {
-		code = window.event.keyCode;
-	} else {
-		code = e.which;
-	}
+jQuery.selectCurrent = [];	// For current selection
+jQuery.selectKeyDown = function(e) {
+	code = (window.event) ? window.event.keyCode : e.which;
 	if (code == 17) {
 		jQuery.selectKeyHelper = true;
 	}
 };
-jQuery.selectKeyUp = function(e)
-{
+jQuery.selectKeyUp = function(e) {
 	jQuery.selectKeyHelper = false;
 };
-jQuery.selectstart = function(e)
-{
+jQuery.selectstart = function(e) {
 	if (window.event) {
 		window.event.cancelBubble = true;
 		window.event.returnValue = false;
@@ -44,10 +38,10 @@ jQuery.selectstart = function(e)
 	}
 	this.f.pos = jQuery.iUtil.getPos(this);
 	if (
-		this.clientWidth && 
+		this.clientWidth &&
 		(
-			(this.f.pos.x + this.clientWidth) < this.f.sx 
-			|| 
+			(this.f.pos.x + this.clientWidth) < this.f.sx
+			||
 			(this.f.pos.y + this.clientHeight) < this.f.sy
 		)
 	) {
@@ -74,9 +68,10 @@ jQuery.selectstart = function(e)
 			jQuery.selectHelper.css('filter', 'alpha(opacity=' + this.f.o * 100 + ')');
 		}
 	}
-	
+
 	jQuery.selectdrug = this;
 	jQuery.selectedone = false;
+	jQuery.selectCurrent = [];	// For current selection state
 	this.f.el.each(
 		function ()
 		{
@@ -87,6 +82,9 @@ jQuery.selectstart = function(e)
 					jQuery(this).removeClass(jQuery.selectdrug.f.sc);
 				} else {
 					jQuery.selectedone = true;
+
+					// Save current state
+					jQuery.selectCurrent[jQuery.selectCurrent.length] = jQuery.attr(this,'id');
 				}
 			}
 		}
@@ -96,7 +94,7 @@ jQuery.selectstart = function(e)
 jQuery.selectcheck = function(e, nx, ny, el)
 {
 	if(!jQuery.selectdrug)
-		return; 
+		return;
 	if (e) {
 		if (window.event) {
 			window.event.cancelBubble = true;
@@ -158,7 +156,7 @@ jQuery.selectcheck = function(e, nx, ny, el)
 			el.scrollLeft = el.scrollWidth - el.f.pos.w;
 		}
 	}
-	
+
 	if (nx > el.f.sx){
 		sx = el.f.sx;
 		sw = nx - el.f.sx;
@@ -187,13 +185,16 @@ jQuery.selectcheck = function(e, nx, ny, el)
 	jQuery.selectHelper.b = jQuery.selectHelper.t + sh;
 	jQuery.selectedone = false;
 	el.f.el.each(
-		function ()
-		{
+		function () {
+			// Locate the current element in the current selection
+			iIndex = jQuery.selectCurrent.indexOf(jQuery.attr(this, 'id'));
+
+			// In case we are currently OVER an item
 			if (
 				! ( this.pos.x > jQuery.selectHelper.r
-				|| (this.pos.x + this.pos.w) < jQuery.selectHelper.l 
-				|| this.pos.y > jQuery.selectHelper.b 
-				|| (this.pos.y + this.pos.h) < jQuery.selectHelper.t 
+				|| (this.pos.x + this.pos.w) < jQuery.selectHelper.l
+				|| this.pos.y > jQuery.selectHelper.b
+				|| (this.pos.y + this.pos.h) < jQuery.selectHelper.t
 				)
 			)
 			{
@@ -202,9 +203,30 @@ jQuery.selectcheck = function(e, nx, ny, el)
 					this.s = true;
 					jQuery(this).addClass(jQuery.selectdrug.f.sc);
 				}
-			} else if (this.s == true && jQuery.selectKeyHelper != true) {
+
+				// Check to see if this item was previously selected, if so, unselect it
+				if (iIndex != -1) {
+					this.s = false;
+					jQuery(this).removeClass(jQuery.selectdrug.f.sc);
+				}
+			} else if (
+						(this.s == true) &&
+						(iIndex == -1)
+					) {
+				// If the item was marked as selected, but it was not selected when you started dragging unselect it.
 				this.s = false;
 				jQuery(this).removeClass(jQuery.selectdrug.f.sc);
+			} else if (
+						(!this.s) &&
+						(jQuery.selectKeyHelper == true) &&
+						(iIndex != -1)
+					) {
+				// Reselect the item if:
+				// - we ARE multiselecting,
+				// - dragged over an allready selected object (so it got unselected)
+				// - But then dragged the selection out of it again.
+				this.s = true;
+				jQuery(this).addClass(jQuery.selectdrug.f.sc);
 			}
 		}
 	);
@@ -212,7 +234,7 @@ jQuery.selectcheck = function(e, nx, ny, el)
 jQuery.selectstop = function(e)
 {
 	if(!jQuery.selectdrug)
-		return; 
+		return;
 	jQuery.selectHelper.css('display','none');
 	if (this.f.hc)
 		jQuery.selectHelper.removeClass(this.f.hc);
@@ -221,6 +243,8 @@ jQuery.selectstop = function(e)
 	if (jQuery.selectedone == true && this.f.onselect) {
 		this.f.onselect(jQuery.Selectserialize(jQuery.attr(this,'id')));
 	}
+	// Reset current selection
+	jQuery.selectCurrent = [];
 };
 
 jQuery.Selectserialize = function(s)
@@ -254,7 +278,7 @@ jQuery.fn.Selectable = function(o)
 				display:	'none'
 			}
 		);
-		
+
 		if (window.event) {
 			jQuery('body',document).bind('keydown', jQuery.selectKeyDown).bind('keyup', jQuery.selectKeyUp);
 		} else {

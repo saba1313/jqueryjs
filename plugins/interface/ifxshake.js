@@ -27,7 +27,7 @@ jQuery.fx.Shake = function (e, times, callback)
 	z.el = jQuery(e);
 	z.el.show();
 	z.times = parseInt(times)||3;
-	z.callback = z.callback;
+	z.callback = callback;
 	z.cnt = 1;
 	z.oldStyle = {};
 	z.oldStyle.position = z.el.css('position');

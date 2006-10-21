@@ -20,19 +20,8 @@ jQuery.iDrag =	{
 			function ()
 			{
 				if (this.isDraggable) {
-					//--[OLD]
-					//this.dragElem = null;
-					//jQuery(this).unbind('mousedown', jQuery.iDrag.dragstart);
-					//--[/OLD]
-
-					// - First, unbind the mousedown code from the "dragElem" (handle or object itself).
-					// - This is NOT dragstart, but draginit
-					this.dragElem.unbind('mousedown', jQuery.iDrag.draginit);
-
-					// Next, free the dragelement
-					this.dragElem = null;
-
-					// And unset the "isDraggable" flag, so you can restart the drag later on.
+					this.dragCfg.dhe.unbind('mousedown', jQuery.iDrag.draginit);
+					this.dragCfg = null;
 					this.isDraggable = false;
 				}
 			}
@@ -479,8 +468,10 @@ jQuery.iDrag =	{
 					this.onselectstart = function(){return false;};
 					this.ondragstart = function(){return false;};
 				}
+				var el = this;
 				var dhe = o.handle ? jQuery(this).find(o.handle) : jQuery(this);
 				this.dragCfg = {
+					dhe: dhe,
 					revert : o.revert ? true : false,
 					ghosting : o.ghosting ? true : false,
 					so : o.so ? o.so : false,
@@ -522,14 +513,12 @@ jQuery.iDrag =	{
 				}
 
 				this.isDraggable = true;
-				dhe.get(0).dragElem = this;
-				//--[OLD]
-				//dhe.bind('mousedown', jQuery.iDrag.draginit);
-				//--[/OLD]
-
-				// This line makes sure the DraggableDestroy knows the handler (or object) to undind the event from.
-				this.dragElem = dhe;
-				this.dragElem.bind('mousedown', jQuery.iDrag.draginit);
+				dhe.each(
+					function(){
+						this.dragElem = el;
+					}
+				);
+				dhe.bind('mousedown', jQuery.iDrag.draginit);
 			}
 		)
 	}

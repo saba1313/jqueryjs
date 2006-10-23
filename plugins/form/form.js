@@ -1,58 +1,137 @@
 /**
  * ajaxSubmit() provides a mechanism for submitting an HTML form using AJAX.
  *
- * All arguments are optional.
+ * Options are provided via an options object.  The following options are supported:
  *
- * If a target arg is provided, it is used to identify the element(s) to be updated with the 
- * server response.  The target argument can be a jQuery selector string, a jQuery object, or a DOM element.
+ *  target:   Identifies the element(s) in the page to be updated with the server response.  
+ *            This value may be specified as a jQuery selection string, a jQuery object, 
+ *            or a DOM element.
+ *            default value: null
  *
- * If a post-submit callback method is provided it is invoked after the response has been returned
- * from the server.  
+ *  url:      URL to which the form data will be submitted.
+ *            default value: value of form's 'action' attribute
  *
- * If neither target or post-submit arguments are provided then the data returned from the server (if any)
- * is evaluated in the global context.
+ *  method:   The method in which the form data should be submitted, 'GET' or 'POST'.
+ *            default value: value of form's 'method' attribute (or 'GET' if none found)
  *
- * The pre-submit callback can be provided as a hook for running pre-submit logic or for validating the
- * form data.  If the pre-submit callback returns false the form will not be submitted. The pre-submit callback
- * is invoked with two arguments, the form data in array format, and the jQuery object.  The form
- * data array takes the form:
+ *  before:   Callback method to be invoked before the form is submitted.
+ *            default value: null
+ *
+ *  after:    Callback method to be invoked after the form has been successfully submitted.
+ *            default value: null
+ *
+ *  dataType: Expected dataType of the response.  One of: null, 'xml', 'script', or 'json'
+ *            default value: null
+ *
+ *  semantic: Boolean flag indicating whether data must be submitted in semantic order (slower).
+ *            default value: false
+ *
+ *
+ * The 'before' callback can be provided as a hook for running pre-submit logic or for 
+ * validating the form data.  If the 'before' callback returns false then the form will 
+ * not be submitted. The 'before' callback is invoked with two arguments: the form data 
+ * in array format, and the jQuery object.  The form data array takes the following form:
  *
  *     [ { name: 'username', value: 'jresig' }, { name: 'password', value: 'secret' } ]
  *
+ * If an 'after' callback method is provided it is invoked after the response has been returned
+ * from the server.  It is passed the responseText or responseXML value (depending on dataType).
+ * See jQuery.ajax for further details.
  *
- * The url and mth arguments can also be provided to override the form defaults.  If not provided,
- * the form emement's 'action' and 'method' properties will be used.
+ * The dataType option provides a means for specifying how the server response should be handled.
+ * This maps directly to the jQuery.httpData method.  The following values are supported as of
+ * jQuery verions 1.0.2:
+ *      'xml':    if dataType == 'xml' the server response is treated as XML and the 'after'
+ *                   callback method, if specified, will be passed the responseXML value
+ *      'json':   if dataType == 'json' the server response will be evaluted and passed to 
+ *                   the 'after' callback, if specified
+ *      'script': if dataType == 'script' the server response is evaluated in the global context
  *
- * The semantic argument can be used to force form serialization in semantic order.  If your form must
- * be submitted with name/value pairs in semantic order then pass true for this arg, otherwise pass false
- * (or nothing) to avoid the overhead for this logic (which can be significant for very large forms).
+ * Note that it does not make sense to use both the 'target' and 'dataType' options.  If both
+ * are provided the target will be ignored.
  *
- * @example $("#form-id").ajaxSubmit("#destination");
- * @desc The form is submitted and the resulting HTML contents are loaded into the #destination element.
+ * The semantic argument can be used to force form serialization in semantic order.  If your 
+ * form must be submitted with name/value pairs in semantic order then pass true for this arg, 
+ * otherwise pass false (or nothing) to avoid the overhead for this logic (which can be 
+ * significant for very large forms).
  *
- * @example $("#form-id").ajaxSubmit(function(){
- *   alert("all done!");
+ * When used on its own, ajaxSubmit() is typically bound to a form's submit event like this:
+ *
+ * $("#form-id").submit(function() {
+ *     $(this).ajaxSubmit(options);
+ *     return false; // cancel conventional submit
  * });
- * @desc The form is submitted and a callback is fired, letting you know when it's done.
  *
- * @example $("#form-id").ajaxSubmit();
- * @desc The form is submitted and the results returned from the server are
- * automatically executed (useful for having the server return more Javascript commands to execute).
+ * When using ajaxForm(), however, this is done for you.
  *
- * @example $("#form-id").submit(function() {
- *     $(this).ajaxSubmit("#destination");
- *     return false;
+ *
+ * @example 
+ * var options = {
+ *     target: '#myTargetDiv'
+ * };   
+ * $('#myForm').ajaxSubmit(options);
+ * @desc Submit form and update page element with server response
+ *
+ *
+ * @example 
+ * var options = {
+ *     after: function(responseText) {
+ *         alert(responseText);
+ *     }
+ * };   
+ * $('#myForm').ajaxSubmit(options);
+ * @desc Submit form and alert the server response
+ *
+ *
+ * @example 
+ * var options = {
+ *     before: function(formArray, jqForm) {
+ *         if (formArray.length == 0) {
+ *             alert('Please enter data.');
+ *             return false;
+ *         }
+ *     }
+ * };   
+ * $('#myForm').ajaxSubmit(options);
+ * @desc Pre-submit validation which aborts the submit operation if form data is empty
+ *
+ *
+ * @example 
+ * var options = {
+ *     url: myJsonUrl.php,
+ *     dataType: 'json',
+ *     after: function(data) {
+ *        // 'data' is an object representing the the evaluated json data
+ *     }
+ * };   
+ * $('#myForm').ajaxSubmit(options);
+ * @desc json data returned and evaluated
+ *
+ *
+ * @example 
+ * var options = {
+ *     url: myXmlUrl.php,
+ *     dataType: 'xml',
+ *     after: function(responseXML) {
+ *        // responseXML is XML document object
+ *        var data = $('myElement', responseXML).text();
+ *     }
+ * };   
+ * $('#myForm').ajaxSubmit(options);
+ * @desc XML data returned from server
+ *
+ *
+ * @example
+ * $('#myForm).submit(function() {
+ *    $(this).ajaxSubmit();
+ *    return false;
  * });
- * @desc Typical way of binding this method to a form's submit event.
+ * @desc Bind form's submit event to use ajaxSubmit
+ *
  *
  * @name ajaxSubmit
  * @type jQuery
- * @param target   jQuery selector string, jQuery object or DOM element which identifies the element(s) to update with the server response
- * @param post_cb  callback to be invoked after any results are returned
- * @param pre_cb   callback to be invoked after gathering the form data but before submitting the form to the server
- * @param url      url to invoke (if provided this will override the form's 'action' attribute)
- * @param mth      method to use, 'POST' or 'GET' (if provided this will override the form's 'method' attribute)
- * @param semantic true if serialization must maintain strict semantic ordering of elements (slower)
+ * @param options  object literal containing options which control the form submission process
  * @return jQuery 
  * @see formToArray
  * @see ajaxForm
@@ -60,29 +139,40 @@
  * @see $.ajax
  * @author jQuery Community
  */
-jQuery.fn.ajaxSubmit = function(target, post_cb, pre_cb, url, mth, semantic) {
-    var a = this.formToArray(semantic);
+jQuery.fn.ajaxSubmit = function(options) {
+    options = jQuery.extend({
+        target:   null,
+        url:      this.attr('action') || '',
+        method:   this.attr('method') || 'GET',
+        before:   null,
+        after:    null,
+        dataType: null, // 'xml', 'script', or 'json' (@see jQuery.httpData)
+        semantic: false
+    }, options || {});
     
-    // give pre-callback opportunity to abort the submit
-    if (pre_cb && pre_cb.constructor == Function && pre_cb(a, this) === false) return;
+    var a = this.formToArray(options.semantic);
+    
+    // give pre-submit callback an opportunity to abort the submit
+    if (options.before && options.before(a, this) === false) return;
 
-    url = url || this.attr('action') || '';
-    mth = (mth || this.attr('method') || 'GET').toUpperCase();
     var q = jQuery.param(a);
-    var get = mth == 'GET';
+    var get = (options.method && options.method.toUpperCase() == 'GET');
 
-    if (get) url = url + '?' + q;
-    
-    // if no target or 'post' callback was provided then default to a callback
-    // that evals the response
-    var t = target || post_cb || function(r) {
-            if (r.responseText) eval.call(window, r.responseText)
-        };
+    if (get)
+        // if url already has a '?' then append args after '&'
+        options.url += (options.url.indexOf('?') >= 0 ? '&' : '?') + q;
 
-    if (t && t.constructor != Function)
-        jQuery(t).load(url, get ? null : a, post_cb);
+    // perform a load on the target only if dataType is not provided
+    if (!options.dataType && options.target) 
+        jQuery(options.target).load(options.url, get ? null : a, options.after);
     else
-        jQuery.ajax({ url: url, success: t, data: get ? null : q, type: mth });
+        jQuery.ajax({ 
+            url:      options.url, 
+            success:  options.after, 
+            type:     options.method, 
+            dataType: options.dataType,
+            data:     get ? null : q // data is null for 'get' or the query string for 'post'
+        });
     return this;
 };
 
@@ -92,66 +182,61 @@ jQuery.fn.ajaxSubmit = function(target, post_cb, pre_cb, url, mth, semantic) {
  *
  * The advantages of using this method instead of ajaxSubmit() are:
  *
- * 1: This method will include coordinates for <input type="image" /> elements (if the element is used to submit the form).
- * 2. This method will include the submit element's name/value data (for the element that was used to submit the form).
+ * 1: This method will include coordinates for <input type="image" /> elements (if the element 
+ *    is used to submit the form). 
+ * 2. This method will include the submit element's name/value data (for the element that was 
+ *    used to submit the form).
  * 3. This method binds the submit() method to the form for you.
  *
- * Note that for accurate x/y coordinates of image submit elements in ALL browsers
+ * Note that for accurate x/y coordinates of image submit elements in all browsers
  * you need to also use the "dimensions" plugin (this method will auto-detect its presence).
  *
- * All arguments are optional.
- *
- * If a target arg is provided, it is used to identify the element(s) to be updated with the 
- * server response.  The target argument can be a jQuery selector string, a jQuery object, or a DOM element.
- *
- * If a post-submit callback method is provided it is invoked after the response has been returned
- * from the server.  
- *
- * If neither target or post-submit arguments are provided then the data returned from the server (if any)
- * is evaluated in the global context.
- *
- * The pre-submit callback can be provided as a hook for running pre-submit logic or for validating the
- * form data.  If the pre-submit callback returns false the form will not be submitted. The pre-submit callback
- * is invoked with two arguments, 1) the form data in array format, and 2) the jQuery object.  The form
- * data array takes the form:
- *
- *     [ { name: 'username', value: 'jresig' }, { name: 'password', value: 'secret' } ]
+ * The options argument for ajaxForm works exactly as it does for ajaxSubmit.  ajaxForm merely
+ * passes the options argument along after properly binding events for submit elements and
+ * the form itself.  See ajaxSubmit for a full description of the options argument.
  *
  *
- * The semantic argument can be used to force form serialization in semantic order.  If your form must
- * be submitted with name/value pairs in semantic order then pass true for this arg, otherwise pass false
- * (or nothing) to avoid the overhead for this logic (which can be significant for very large forms).
+ * @example 
+ * var options = {
+ *     target: '#myTargetDiv'
+ * };   
+ * $('#myForm').ajaxSForm(options);
+ * @desc Bind form's submit event so that 'myTargetDiv' is updated with the server response
+ *       when the form is submitted.
  *
- * @example $('#form-id').ajaxForm();
- * @desc Just eval the results returned from the backend.
  *
- * @example $('#form-id').ajaxForm('#target-id');
- * @desc Render backend results directly to target ID (expects (x)HTML).
+ * @example 
+ * var options = {
+ *     after: function(responseText) {
+ *         alert(responseText);
+ *     }
+ * };   
+ * $('#myForm').ajaxSubmit(options);
+ * @desc Bind form's submit event so that server response is alerted after the form is submitted.
  *
- * @example $('#form-id').ajaxForm(post_callback);
- * @desc Submit to backend URL (form action) then call this function.
  *
- * @example $('#form-id').ajaxForm('#target-id', post_callback);
- * @desc Load target ID with backend results then call a function.
+ * @example 
+ * var options = {
+ *     before: function(formArray, jqForm) {
+ *         if (formArray.length == 0) {
+ *             alert('Please enter data.');
+ *             return false;
+ *         }
+ *     }
+ * };   
+ * $('#myForm').ajaxSubmit(options);
+ * @desc Bind form's submit event so that pre-submit callback is invoked before the form
+ *       is submitted.
  *
- * @example $('#form-id').ajaxForm('#target-id', null, pre_callback);
- * @desc Call a browser function (for validation) and then load server results to target ID.
  *
- * @example $('#form-id').ajaxForm('#target-id', post_callback, pre_callback);
- * @desc Call validation function first then load server results to target ID and then call post_callback function.
- *
- * @name ajaxForm
- * @param target   jQuery selector string, jQuery object or DOM element which identifies the element(s) to update with the server response
- * @param post_cb  callback to be invoked after any results are returned
- * @param pre_cb   callback to be invoked after gathering the form data but before submitting the form to the server
- * @param semantic true if serialization must maintain strict semantic ordering of elements (slower)
+ * @name   ajaxForm
+ * @param  options  object literal containing options which control the form submission process
  * @return jQuery
- * @type jQuery
- * @see formToArray
- * @see ajaxSubmit
+ * @type   jQuery
+ * @see    ajaxSubmit
  * @author jQuery Community
  */
-jQuery.fn.ajaxForm = function(target, post_cb, pre_cb, semantic) {
+jQuery.fn.ajaxForm = function(options) {
     return this.each(function() {
         jQuery("input[@type=submit],input[@type=image]", this).click(function(ev) {
             this.form.clk = this;
@@ -159,7 +244,7 @@ jQuery.fn.ajaxForm = function(target, post_cb, pre_cb, semantic) {
             if (ev.offsetX != undefined) {
                 this.form.clk_x = ev.offsetX;
                 this.form.clk_y = ev.offsetY;
-            } else if (typeof jQuery.fn.offset == 'function') { // use dimensions plugin if it's installed
+            } else if (typeof jQuery.fn.offset == 'function') { // try to use dimensions plugin
                 var offset = $(this).offset();
                 this.form.clk_x = ev.pageX - offset.left;
                 this.form.clk_y = ev.pageY - offset.top;
@@ -169,7 +254,7 @@ jQuery.fn.ajaxForm = function(target, post_cb, pre_cb, semantic) {
             }
         })
     }).submit(function(e) {
-        jQuery(this).ajaxSubmit(target, post_cb, pre_cb, null, null, semantic);
+        jQuery(this).ajaxSubmit(options);
         return false;
     });
 };
@@ -186,13 +271,14 @@ jQuery.fn.ajaxForm = function(target, post_cb, pre_cb, semantic) {
  * It is this array that is passed to pre-submit callback functions provided to the
  * ajaxSubmit() and ajaxForm() methods.
  *
- * The semantic argument can be used to force form serialization in semantic order.  If your form must
- * be submitted with name/value pairs in semantic order then pass true for this arg, otherwise pass false
- * (or nothing) to avoid the overhead for this logic (which can be significant for very large forms).
+ * The semantic argument can be used to force form serialization in semantic order.  
+ * If your form must be submitted with name/value pairs in semantic order then pass 
+ * true for this arg, otherwise pass false (or nothing) to avoid the overhead for 
+ * this logic (which can be significant for very large forms).
  *
  * @example var data = $("#myForm").formToArray();
  * $.post( "myscript.cgi", data );
- * @desc Collect all the data from a form and submit it to a server-side application.
+ * @desc Collect all the data from a form and submit it to the server.
  *
  * @name formToArray
  * @param semantic true if serialization must maintain strict semantic ordering of elements (slower)
@@ -236,9 +322,10 @@ jQuery.fn.formToArray = function(semantic) {
  * serializes form data into a 'submittable' string.  This method will return a string 
  * in the format: name1=value1&name2=value2
  *
- * The semantic argument can be used to force form serialization in semantic order.  If your form must
- * be submitted with name/value pairs in semantic order then pass true for this arg, otherwise pass false
- * (or nothing) to avoid the overhead for this logic (which can be significant for very large forms).
+ * The semantic argument can be used to force form serialization in semantic order.  
+ * If your form must be submitted with name/value pairs in semantic order then pass 
+ * true for this arg, otherwise pass false (or nothing) to avoid the overhead for 
+ * this logic (which can be significant for very large forms).
  *
  * @example var data = $("#myForm").serialize();
  * $.ajax('POST', "myscript.cgi", data);

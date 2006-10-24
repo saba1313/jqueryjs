@@ -69,6 +69,16 @@ jQuery.iResize = {
 						jQuery.iResize.resizeElement.resizeOptions.maxHeight
 					);
 	},
+	getHeightMinMax : function(height)
+	{
+		return Math.min(
+						Math.max(
+							height,
+							jQuery.iResize.resizeElement.resizeOptions.minHeight
+						),
+						jQuery.iResize.resizeElement.resizeOptions.maxHeight
+					);
+	},
 	move : function(e)
 	{
 		if (jQuery.iResize.resizeElement == null)
@@ -123,21 +133,71 @@ jQuery.iResize = {
 				newSizes.height = jQuery.iResize.getHeight(dy,1);
 				break;
 		}
+		if(jQuery.iResize.resizeElement.resizeOptions.ratio) {
+			nHeight = jQuery.iResize.getHeightMinMax(newSizes.width * jQuery.iResize.resizeElement.resizeOptions.ratio);
+			nWidth = nHeight / jQuery.iResize.resizeElement.resizeOptions.ratio;
+			switch(jQuery.iResize.resizeDirection){
+				case 'n':
+				case 'nw':
+				case 'ne':
+					newPosition.top += newSizes.height - nHeight;
+				break;
+			}
+			switch(jQuery.iResize.resizeDirection){
+				case 'nw':
+				case 'w':
+				case 'sw':
+					newPosition.left += newSizes.width - nWidth;
+				break;
+			}
+			newSizes.height = nHeight;
+			newSizes.width = nWidth;
+		}
 		
-		newTop = Math.max(newPosition.top, jQuery.iResize.resizeElement.resizeOptions.minTop);
-		newLeft = Math.max(newPosition.left, jQuery.iResize.resizeElement.resizeOptions.minLeft);
-		
-		newSizes.height = newSizes.height + newPosition.top - newTop;
-		newSizes.width = newSizes.width + newPosition.left - newLeft;
-		
-		newPosition.top = newTop;
-		newPosition.left = newLeft;
+		if (newPosition.top < jQuery.iResize.resizeElement.resizeOptions.minTop ) {
+			nHeight = newSizes.height + newPosition.top - jQuery.iResize.resizeElement.resizeOptions.minTop;
+			newPosition.top = jQuery.iResize.resizeElement.resizeOptions.minTop;
+			if(jQuery.iResize.resizeElement.resizeOptions.ratio) {
+				nWidth = nHeight / jQuery.iResize.resizeElement.resizeOptions.ratio;
+				switch(jQuery.iResize.resizeDirection){
+					case 'nw':
+					case 'w':
+					case 'sw':
+						newPosition.left += newSizes.width - nWidth;
+					break;
+				}
+				newSizes.width = nWidth;
+			}
+			newSizes.height = nHeight;
+		} 
+		if (newPosition.left < jQuery.iResize.resizeElement.resizeOptions.minLeft ) {
+			nWidth = newSizes.width + newPosition.left - jQuery.iResize.resizeElement.resizeOptions.minLeft;
+			newPosition.left = jQuery.iResize.resizeElement.resizeOptions.minLeft;
+			if(jQuery.iResize.resizeElement.resizeOptions.ratio) {
+				nHeight = nWidth * jQuery.iResize.resizeElement.resizeOptions.ratio;
+				switch(jQuery.iResize.resizeDirection){
+					case 'n':
+					case 'nw':
+					case 'ne':
+						newPosition.top += newSizes.height - nHeight;
+					break;
+				}
+				newSizes.height = nHeight;
+			}
+			newSizes.width = nWidth;
+		}
 		
 		if (newPosition.top + newSizes.height > jQuery.iResize.resizeElement.resizeOptions.maxBottom) {
 			newSizes.height = jQuery.iResize.resizeElement.resizeOptions.maxBottom - newPosition.top;
+			if(jQuery.iResize.resizeElement.resizeOptions.ratio) {
+				newSizes.width = newSizes.height / jQuery.iResize.resizeElement.resizeOptions.ratio;
+			}
 		}
 		if (newPosition.left + newSizes.width > jQuery.iResize.resizeElement.resizeOptions.maxRight) {
 			newSizes.width = jQuery.iResize.resizeElement.resizeOptions.maxRight - newPosition.left;
+			if(jQuery.iResize.resizeElement.resizeOptions.ratio) {
+				newSizes.height = newSizes.width *  jQuery.iResize.resizeElement.resizeOptions.ratio;
+			}
 		}
 		if (jQuery.iResize.resizeElement.resizeOptions.onResize) {
 			newDimensions = jQuery.iResize.resizeElement.resizeOptions.onResize.apply(

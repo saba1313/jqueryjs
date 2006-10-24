@@ -14,10 +14,10 @@ jQuery.tabs = new function() {
     this.trigger = function(arg, context) {
         var argType = typeof arg;
         if (argType == 'string') { // id of associated container has been passed
-            jQuery(hash).parent('div').find('>ul>li>a').filter('[@href$=' + hash + ']').click();
+            jQuery(hash).parent('div').find('>ul>li>a[@href$=' + hash + ']').click();
         } else if (argType == 'undefined' || argType == 'number') { // index of tab has been passed
             var tabIndex = arg && arg > 0 && arg - 1 || 0; // falls back to index 0
-            jQuery(context).find('>ul>li>a').eq(tabIndex).click();
+            jQuery('>ul>li>a', context).eq(tabIndex).click();
         }
     };
 };
@@ -38,7 +38,8 @@ jQuery.fn.tabs = function(initial, settings) {
         fxAutoheight: false,
         callback: null,
         selectedTabClass: 'selected',
-        hiddenTabContainerClass: 'tabs-hide'
+        hiddenTabContainerClass: 'tabs-hide',
+        tabSelector: '>div'
     }, settings || {});
 
     // regex to find hash in url
@@ -57,7 +58,7 @@ jQuery.fn.tabs = function(initial, settings) {
         // retrieve active tab from hash in url
         if (location.hash) {
             var hashId = location.hash.replace('#', '');
-            jQuery(this).find('>ul>li>a').each(function(i) {
+            jQuery('>ul:eq(0)>li>a', this).each(function(i) {
                 if (re.exec(this.href)[1] == hashId) {
                     settings.initial = i;
                     if (jQuery.browser.msie) setTimeout(_unFocus, 150); // be nice to IE
@@ -67,13 +68,11 @@ jQuery.fn.tabs = function(initial, settings) {
             });
         }
         if (settings.fxAutoheight) {
-            var divs = jQuery(this).find('>div');
+            var divs = jQuery(settings.tabSelector, this);
             var heights = [];
             divs.each(function(i) {
                 heights.push( this.offsetHeight );
-                if (settings.initial != i) {
-                    jQuery(this).addClass(settings.hiddenTabContainerClass);
-                }
+                if (settings.initial != i) jQuery(this).addClass(settings.hiddenTabContainerClass);
             });
             heights.sort(function(a, b) {
                 return b - a;
@@ -83,11 +82,11 @@ jQuery.fn.tabs = function(initial, settings) {
                 if (jQuery.browser.msie && typeof XMLHttpRequest == 'function') jQuery(this).css({height: heights[0] + 'px'});
             });
         } else {
-            jQuery(this).find('>div').not(':eq(' + settings.initial + ')').addClass(settings.hiddenTabContainerClass);
+            jQuery(settings.tabSelector, this).not(':eq(' + settings.initial + ')').addClass(settings.hiddenTabContainerClass);
         }
-        jQuery(this).find('>ul>li:eq(' + settings.initial + ')').addClass(settings.selectedTabClass);
+        jQuery('>ul>li:eq(' + settings.initial + ')', this).addClass(settings.selectedTabClass);
         var container = this;
-        jQuery(this).find('>ul>li>a').click(function(e) {
+        jQuery('>ul>li>a', this).click(function(e) {
             // id to be shown
             var tabToShowHash = '#' + re.exec(this.href)[1];
             // update observer TODO: find another way to add event...
@@ -99,13 +98,13 @@ jQuery.fn.tabs = function(initial, settings) {
                 var tabToShow = jQuery(tabToShowHash);
                 if (tabToShow.size() > 0) {
                     var self = this;
-                    var tabToHide = jQuery(container).find('>div:visible');
+                    var tabToHide = jQuery(settings.tabSelector + ':visible', container);
                     var callback;
                     if (settings.callback && typeof settings.callback == 'function') callback = function() {
                         settings.callback.apply(tabToShow[0], [tabToShow[0], tabToHide[0]]);
                     };
                     function _activateTab() {
-                        jQuery(container).find('>ul>li').removeClass(settings.selectedTabClass);
+                        jQuery('>ul>li', container).removeClass(settings.selectedTabClass);
                         jQuery(self.parentNode).addClass(settings.selectedTabClass);
                     }
                     var showAnim = {}, hideAnim = {};

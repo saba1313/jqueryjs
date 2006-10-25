@@ -14,9 +14,69 @@
 jQuery.iResize = {
 	resizeElement : null,
 	resizeDirection: null,
+	dragged : null,
 	pointer: null,
 	sizes : null,
 	position: null,
+	startDrag : function(e){
+		if (this.dragEl)
+			jQuery.iResize.dragged = this.dragEl;
+		else
+			jQuery.iResize.dragged = this;
+			
+		jQuery.iResize.pointer = jQuery.iUtil.getPointer(e);
+		jQuery.iResize.sizes = {
+			width : parseInt(jQuery(jQuery.iResize.dragged).css('width'))||0,
+			height : parseInt(jQuery(jQuery.iResize.dragged).css('height'))||0
+		};
+		jQuery.iResize.position = {
+			top : parseInt(jQuery(jQuery.iResize.dragged).css('top'))||0,
+			left : parseInt(jQuery(jQuery.iResize.dragged).css('left'))||0
+		};
+		jQuery(document)
+			.bind('mousemove', jQuery.iResize.moveDrag)
+			.bind('mouseup', jQuery.iResize.stopDrag);
+		if (typeof jQuery.iResize.dragged.resizeOptions.onDragStart === 'function')
+			jQuery.iResize.dragged.resizeOptions.onDragStart.apply(jQuery.iResize.dragged);
+	},
+	
+	stopDrag : function(e)
+	{
+		jQuery.iResize.dragged = null;
+		jQuery(document)
+			.unbind('mousemove', jQuery.iResize.moveDrag)
+			.unbind('mouseup', jQuery.iResize.stopDrag);
+		if (typeof jQuery.iResize.dragged.resizeOptions.onDragStop === 'function')
+			jQuery.iResize.dragged.resizeOptions.onDragStop.apply(jQuery.iResize.dragged);
+	},
+	moveDrag : function(e)
+	{
+		if (!jQuery.iResize.dragged)
+			return;
+		pointer = jQuery.iUtil.getPointer(e);
+		$.iLogger.log(pointer.x);
+		newTop = jQuery.iResize.position.top - jQuery.iResize.pointer.y + pointer.y;
+		newLeft = jQuery.iResize.position.left - jQuery.iResize.pointer.x + pointer.x;
+		newTop = Math.max(
+			Math.min(
+				newTop,
+				jQuery.iResize.dragged.resizeOptions.maxBottom - jQuery.iResize.sizes.height
+			),
+			jQuery.iResize.dragged.resizeOptions.minTop
+		);
+		newLeft = Math.max(
+			Math.min(
+				newLeft,
+				jQuery.iResize.dragged.resizeOptions.maxRight- jQuery.iResize.sizes.width
+			),
+			jQuery.iResize.dragged.resizeOptions.minLeft
+		);
+		if (typeof jQuery.iResize.dragged.resizeOptions.onDrag === 'function')
+			jQuery.iResize.dragged.resizeOptions.onDrag.apply(jQuery.iResize.dragged, [newLeft, newTop]);
+		jQuery.iResize.dragged.style.top = newTop + 'px';
+		jQuery.iResize.dragged.style.left = newLeft + 'px';
+		return false;
+	},
 	start : function(e)
 	{
 		jQuery(document)
@@ -82,7 +142,7 @@ jQuery.iResize = {
 	move : function(e)
 	{
 		if (jQuery.iResize.resizeElement == null)
-			return false;
+			return;
 			
 		pointer = jQuery.iUtil.getPointer(e);
 		dx = pointer.x - jQuery.iResize.pointer.x;
@@ -266,6 +326,23 @@ jQuery.iResize = {
 								jQuery.iResize.start
 							);
 						}
+					}
+				}
+				
+				if(el.resizeOptions.dragHandle) {
+					if(typeof el.resizeOptions.dragHandle === 'string') {
+						handle = jQuery(el.resizeOptions.dragHandle, this);
+						if(handle.size() > 0) {
+							handle.each(
+								function()
+								{
+									this.dragEl = el;
+								}
+							);
+							handle.bind('mousedown', jQuery.iResize.startDrag);
+						}
+					} else if(el.resizeOptions.dragHandle == true) {
+						jQuery(this).bind('mousedown', jQuery.iResize.startDrag);
 					}
 				}
 			}

@@ -42,12 +42,12 @@ jQuery.iResize = {
 	
 	stopDrag : function(e)
 	{
-		jQuery.iResize.dragged = null;
 		jQuery(document)
 			.unbind('mousemove', jQuery.iResize.moveDrag)
 			.unbind('mouseup', jQuery.iResize.stopDrag);
 		if (typeof jQuery.iResize.dragged.resizeOptions.onDragStop === 'function')
 			jQuery.iResize.dragged.resizeOptions.onDragStop.apply(jQuery.iResize.dragged);
+		jQuery.iResize.dragged = null;
 	},
 	moveDrag : function(e)
 	{

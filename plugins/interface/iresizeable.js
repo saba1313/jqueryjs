@@ -54,7 +54,6 @@ jQuery.iResize = {
 		if (!jQuery.iResize.dragged)
 			return;
 		pointer = jQuery.iUtil.getPointer(e);
-		$.iLogger.log(pointer.x);
 		newTop = jQuery.iResize.position.top - jQuery.iResize.pointer.y + pointer.y;
 		newLeft = jQuery.iResize.position.left - jQuery.iResize.pointer.x + pointer.x;
 		newTop = Math.max(

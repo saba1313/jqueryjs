@@ -189,6 +189,29 @@ jQuery.iUtil = {
 		x = event.pageX || (event.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)) || 0;
 		y = event.pageY || (event.clientY + (document.documentElement.scrollTop || document.body.scrollTop)) || 0;
 		return {x:x, y:y};
+	},
+	traverseDOM : function(nodeEl, func)
+	{
+		func(nodeEl);
+		nodeEl = nodeEl.firstChild;
+		while(nodeEl){
+			jQuery.iUtil.traverseDOM(nodeEl, func);
+			nodeEl = nodelEl.nextSibling;
+		}
+	},
+	purgeEvents : function(nodeEl)
+	{
+		jQuery.iUtil.traverseDOM(
+			nodeEl,
+			function(el)
+			{
+				for(var attr in el){
+					if(typeof el[attr] === 'function') {
+						el[attr] = null;
+					}
+				}
+			}
+		);
 	}
 };
 

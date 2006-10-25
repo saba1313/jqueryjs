@@ -1,5 +1,7 @@
-<html id="html">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 <title>jQuery form.js Unit Test</title>
 
 <!-- load latest build of jquery.js -->
@@ -11,14 +13,14 @@
 <!-- load form.js (this is what we're testing! -->
 <script type="text/javascript" src="../form.js"></script>
 
-<style>
+<style type="text/css">
 body, div, h1 { font-family: 'trebuchet ms', verdana, arial; margin: 0; padding: 0 }
 body { margin: 0; padding: 0; font-size: small; }
 h1 { padding: 15px; margin: 0; font-size: large; background-color: #06b; color: white; border-bottom: 1px solid #ccc }
 h2 { padding: 10px; background-color: #eee; color: black; margin: 0; font-size: small; font-weight: normal }
 
-.pass { color: green; }
-.fail { color: red; }
+.pass { color: green; } 
+.fail { color: red; } 
 #tests ol { display: none; }
 </style>
 
@@ -34,7 +36,7 @@ $(function() { runTest(function() {
         ok( f.attr('action').match('text.php'), "form 'action'");
         ok( f.attr('method').match('get'), "form 'method'");
     });
-
+    
     // test serialization to array
     test("formToArray: multi-select", function() {
         var a = $("#form1").formToArray();
@@ -66,19 +68,19 @@ $(function() { runTest(function() {
         ok( s.constructor == String, "type check");
         ok( s.split('&').length == 13, "string array length");
     });
-
+    
     // test support for input elements not contained within a form
     test("serialize: pseudo form", function() {
         var s = $("#pseudo").serialize();
         ok( s.constructor == String, "type check");
         ok( s.split('&').length == 3, "string array length");
     });
-
+    
     // test ajaxSubmit target update
     test("ajaxSubmit: target == String", function() {
         $('#targetDiv').empty();
         stop();
-
+        
         var opts = {
             target: '#targetDiv',
             after: function() { // post-callback
@@ -95,7 +97,7 @@ $(function() { runTest(function() {
         stop();
         var target = $('#targetDiv');
         target.empty();
-
+        
         var opts = {
             target: target,
             after: function(responseText) { // post-callback
@@ -104,7 +106,7 @@ $(function() { runTest(function() {
                 start();
             }
         };
-
+        
         $("#form2").ajaxSubmit(opts);
     });
 
@@ -113,7 +115,7 @@ $(function() { runTest(function() {
         stop();
         $('#targetDiv').empty();
         var target = $('#targetDiv')[0];
-
+        
         var opts = {
             target: target,
             after: function(responseText) { // post-callback
@@ -122,7 +124,7 @@ $(function() { runTest(function() {
                 start();
             }
         };
-
+        
         $("#form2").ajaxSubmit(opts);
     });
 
@@ -289,7 +291,7 @@ $(function() { runTest(function() {
     // test eval of json response
     test("ajaxSubmit: evaluate response", function() {
         stop();
-
+        
         var opts = {
             after: function(responseText) { // post-callback
                 ok( true, 'post-callback');
@@ -299,7 +301,7 @@ $(function() { runTest(function() {
             },
             url: 'json.txt'
         };
-
+        
         $("#form2").ajaxSubmit(opts);
     });
 
@@ -338,7 +340,7 @@ $(function() { runTest(function() {
         $("#form4").ajaxForm(opts);
         $('#submitForm4withName')[0].click();
     });
-
+    
     // test image submit support
     test("ajaxForm: capture submit image coordinates", function() {
 
@@ -381,17 +383,17 @@ $(function() { runTest(function() {
 
 })});
 
-// helper method
+// helper method   
 function arrayCount(arr, key) {
     var count=0;
     for (var i=0; i < arr.length; i++) {
-        if (arr[i].name == key)
+        if (arr[i].name == key) 
             count++;
     }
     return count;
 }
 
-// helper method
+// helper method   
 function arrayValue(arr, key) {
     for (var i=0; i < arr.length; i++) {
         if (arr[i].name == key)
@@ -403,7 +405,7 @@ function arrayValue(arr, key) {
 <body id="body">
 	<h1 id="banner">jQuery form.js - Test Suite</h1>
 	<h2 id="userAgent"></h2>
-
+    
 	<!-- Test HTML -->
 	<div id="main" style="display: none;">
 
@@ -484,9 +486,9 @@ function arrayValue(arr, key) {
         <!-- form5 -->
         <form id="form5" action="text.php?test=form" method="get"><div>
             <input name="a" type="text" />
-            <input type="submit" id="submitForm4" />
-            <input type="submit" id="submitForm4withName" name="form4inputName" />
-            <input type="image"  id="form4imageSubmit" name="myImage" src="submit.gif" />
+            <input type="submit" />
+            <input type="submit" name="form5inputName" />
+            <input type="image"  name="myImage" src="submit.gif" />
         </div></form>
 
         <!-- pseudo-form -->
@@ -498,12 +500,12 @@ function arrayValue(arr, key) {
                 <option value="opt1" />
                 <option value="opt2" selected="selected" />
             </select>
-            <input type="submit" value="button" /></button>
+            <input type="submit" value="button" />
         </div>
 
         <div id="targetDiv"></div>
 	</div>
-
+	
 	<ol id="tests"></ol>
 </body>
 </html>

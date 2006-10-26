@@ -259,7 +259,7 @@ jQuery.fn.ajaxSubmit = function(options) {
  */
 jQuery.fn.ajaxForm = function(options) {
     return this.each(function() {
-        jQuery("input[@type=submit],input[@type=image]", this).click(function(ev) {
+        jQuery("input:submit,input:image", this).click(function(ev) {
             this.form.clk = this;
             
             if (ev.offsetX != undefined) {

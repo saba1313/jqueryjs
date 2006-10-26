@@ -148,6 +148,7 @@ jQuery.fn.tableSorter = function(o) {
 					
 					jQuery(".sorter",oCell).click(function(e) {
 						sortOnColumn( jQuery(this).parent(), (jQuery(this).parent()[0].count++) % 2, jQuery(this).parent()[0].index );
+						return false;
 						//e.stopPropagation();
 					});
 					 

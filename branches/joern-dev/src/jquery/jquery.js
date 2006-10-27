@@ -2271,7 +2271,7 @@ jQuery.extend({
 		handle: function(event) {
 			if ( typeof jQuery == "undefined" ) return false;
 
-			event = jQuery.event.fix( event );
+			event = event || jQuery.event.fix( window.event );
 
 			// If no correct event was found, fail
 			if ( !event ) return false;
@@ -2295,7 +2295,9 @@ jQuery.extend({
 		},
 
 		fix: function(event) {
+			// check IE
 			if(jQuery.browser.msie) {
+				// get real event from window.event
 				event = window.event;
 				event.preventDefault = function() {
 					this.returnValue = false;
@@ -2303,9 +2305,13 @@ jQuery.extend({
 				event.stopPropagation = function() {
 					this.cancelBubble = true;
 				};
+				// fix target property
 				event.target = event.srcElement;
+			// check safari and if target is a textnode
 			} else if(jQuery.browser.safari && event.target.nodeType == 3) {
+				// target is readonly, clone the event object
 				event = jQuery.extend({}, event);
+				// get parentnode from textnode
 				event.target = event.target.parentNode;
 			}
 			return event;
@@ -3399,29 +3405,15 @@ jQuery.macros = {
 		 * } )
 		 * @desc Stop only an event from bubbling by using the stopPropagation method.
 		 *
-		 * @example $("form").bind( "submit", function(event) {
-		 *   // do something after submit
-		 * }, 1 )
-		 * @desc Executes the function only on the first submit event and removes it afterwards
-		 *
 		 * @name bind
 		 * @type jQuery
 		 * @param String type An event type
 		 * @param Function fn A function to bind to the event on each of the set of matched elements
-		 * @param Number amount An optional amount of times to execute the bound function
 		 * @cat Events
 		 */
-		bind: function( type, fn, amount ) {
+		bind: function( type, fn ) {
 			if ( fn.constructor == String )
 				fn = new Function("e", ( !fn.indexOf(".") ? "jQuery(this)" : "return " ) + fn);
-			if( amount > 0 ) {
-				var element = this, handler = fn, count = 0;
-				fn = function(e) {
-					if( ++count >= amount )
-						jQuery(element).unbind(type, fn);
-					handler.apply(element, [e]);
-				};
-			}
 			jQuery.event.add( this, type, fn );
 		},
 

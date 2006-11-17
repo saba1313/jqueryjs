@@ -43,9 +43,11 @@ function runTest(tests) {
 	synchronize(function() {
 		var runTime = new Date() - startTime;
 		var result = document.createElement("div");
-		result.innerHTML = 'Tests completed in ' + runTime + ' milliseconds.<br/>' +
-			stats.bad + ' tests of ' + stats.all + ' failed.';
+		result.innerHTML = ['<p class="result">Tests completed in ',
+			runTime, ' milliseconds.<br/>',
+			stats.bad, ' tests of ', stats.all, ' failed.</p>'].join('');
 		document.getElementsByTagName("body")[0].appendChild(result);
+		$("<div id='banner'>").addClass(stats.bad ? "fail" : "pass").insertAfter("h1");
 	});
 }
 
@@ -68,7 +70,7 @@ function test(name, callback) {
 		
 		var good = 0, bad = 0;
 		var ol = document.createElement("ol");
-	
+		ol.style.display = "none";
 		var li = "", state = "pass";
 		for ( var i = 0; i < Test.length; i++ ) {
 			var li = document.createElement("li");

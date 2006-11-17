@@ -31,7 +31,7 @@ window.undefined = window.undefined;
 var jQuery = function(a,c) {
 
 	// Shortcut for document ready (because $(document).each() is silly)
-	if ( a && typeof a == "function" && jQuery.fn.ready )
+	if ( a && typeof a == "function" && jQuery.fn.ready && !a.nodeType && a[0] == undefined ) // Safari reports typeof on DOM NodeLists as a function
 		return jQuery(document).ready(a);
 
 	// Make sure that a selection was provided
@@ -56,7 +56,7 @@ var jQuery = function(a,c) {
 	}
 
 	// Watch for when an array is passed in
-	this.get( a.constructor == Array || a.length && !a.nodeType && a[0] != undefined && a[0].nodeType ?
+	this.get( a.constructor == Array || a.length && a != window && !a.nodeType && a[0] != undefined && a[0].nodeType ?
 		// Assume that it is an array of DOM Elements
 		jQuery.merge( a, [] ) :
 
@@ -944,12 +944,15 @@ jQuery.fn = jQuery.prototype = {
 	 * @result $("p").find("span").end() == [ <p>...</p> ]
 	 *
 	 * @test ok( 'Yahoo' == $('#yahoo').parent().end().text(), 'Check for end' );
+	 * ok( $('#yahoo').end(), 'Check for end with nothing to end' );
 	 *
 	 * @name end
 	 * @type jQuery
 	 * @cat DOM/Traversing
 	 */
 	end: function() {
+		if( !(this.stack && this.stack.length) )
+			return this;
 		return this.get( this.stack.pop() );
 	},
 
@@ -1469,7 +1472,7 @@ jQuery.extend({
 		if ( p == "height" || p == "width" ) {
 			var old = {}, oHeight, oWidth, d = ["Top","Bottom","Right","Left"];
 
-			for ( var i in d ) {
+			for ( var i=0; i<d.length; i++ ) {
 				old["padding" + d[i]] = 0;
 				old["border" + d[i] + "Width"] = 0;
 			}
@@ -1565,14 +1568,12 @@ jQuery.extend({
 				// Go to html and back, then peel off extra wrappers
 				div.innerHTML = wrap[1] + s + wrap[2];
 				while ( wrap[0]-- ) div = div.firstChild;
-				
-				// Have to loop through the childNodes here to 
-				// prevent a Safari crash with text nodes and /n characters
-				for ( var j = 0; j < div.childNodes.length; j++ )
-					r.push( div.childNodes[j] );
+				arg = div.childNodes;
 			} 
-			else if ( arg.length != undefined && !arg.nodeType ) // Handles Array, jQuery, DOM NodeList collections
-				for ( var n = 0; n < arg.length; n++ )
+			
+			
+			if ( arg.length != undefined && ( (jQuery.browser.safari && typeof arg == 'function') || !arg.nodeType ) ) // Safari reports typeof on a DOM NodeList to be a function
+				for ( var n = 0; n < arg.length; n++ ) // Handles Array, jQuery, DOM NodeList collections
 					r.push(arg[n]);
 			else
 				r.push(	arg.nodeType ? arg : document.createTextNode(arg.toString()) );
@@ -1647,12 +1648,8 @@ jQuery.extend({
 		">|/", "jQuery.sibling(a.firstChild)",
 		"\\+", "jQuery.sibling(a).next",
 		"~", function(a){
-			var r = [];
 			var s = jQuery.sibling(a);
-			if ( s.n > 0 )
-				for ( var i = s.n; i < s.length; i++ )
-					r.push( s[i] );
-			return r;
+			return s.n >= 0 ? s.slice(s.n+1) : [];
 		}
 	],
 
@@ -1695,10 +1692,6 @@ jQuery.extend({
 	 * t( "Attribute Exists", "a[@title]", ["google"] );
 	 * t( "Attribute Exists", "*[@title]", ["google"] );
 	 * t( "Attribute Exists", "[@title]", ["google"] );
-	 * 
-	 * t( "Non-existing part of attribute", "[@name*=bla]", [] ); 
-	 * t( "Non-existing start of attribute", "[@name^=bla]", [] ); 
-	 * t( "Non-existing end of attribute", "[@name$=bla]", [] ); 
 	 *
 	 * t( "Attribute Equals", "a[@rel='bookmark']", ["simon1"] );
 	 * t( "Attribute Equals", 'a[@rel="bookmark"]', ["simon1"] );
@@ -1734,8 +1727,8 @@ jQuery.extend({
 	 * t( "Attribute Exists", "//a[@title]", ["google"] );
 	 * t( "Attribute Equals", "//a[@rel='bookmark']", ["simon1"] );
 	 * t( "Parent Axis", "//p/..", ["main","foo"] );
-	 * t( "Sibling Axis", "//p/../", ["firstp","ap","foo","first","firstUL","empty","form","sndp","en","sap"] );
-	 * t( "Sibling Axis", "//p/../*", ["firstp","ap","foo","first","firstUL","empty","form","sndp","en","sap"] );
+	 * t( "Sibling Axis", "//p/../", ["firstp","ap","foo","first","firstUL","empty","form","floatTest","sndp","en","sap"] );
+	 * t( "Sibling Axis", "//p/../*", ["firstp","ap","foo","first","firstUL","empty","form","floatTest","sndp","en","sap"] );
 	 * t( "Has Children", "//p[a]", ["firstp","ap","en","sap"] );
 	 *
 	 * t( "nth Element", "p:nth(1)", ["ap"] );
@@ -1906,7 +1899,7 @@ jQuery.extend({
 			return elem[fix[name]];
 		} else if( value == undefined && jQuery.browser.msie && elem.nodeName && elem.nodeName.toUpperCase() == 'FORM' && (name == 'action' || name == 'method') ) {
 			return elem.getAttributeNode(name).nodeValue;
-		} else if ( elem.getAttribute != undefined && elem.tagName ) { // IE elem.getAttribute passes even for style
+		} else if ( elem.tagName ) { // IE elem.getAttribute passes even for style
 			if ( value != undefined ) elem.setAttribute( name, value );
 			return elem.getAttribute( name );
 		} else {
@@ -2248,8 +2241,8 @@ jQuery.extend({
 		},
 
 		trigger: function(type,data,element) {
-			// Touch up the incoming data
-			data = data || [];
+			// Clone the incoming data, if any
+			data = $.merge([], data || []);
 
 			// Handle a global trigger
 			if ( !element ) {
@@ -2271,7 +2264,7 @@ jQuery.extend({
 		handle: function(event) {
 			if ( typeof jQuery == "undefined" ) return false;
 
-			event = event || jQuery.event.fix( window.event );
+			event = jQuery.event.fix( event || window.event || {} ); // Empty object is for triggered events with no data
 
 			// If no correct event was found, fail
 			if ( !event ) return false;
@@ -2291,16 +2284,18 @@ jQuery.extend({
 				}
 			}
 
+			// Clean up added properties in IE to prevent memory leak
+			if (jQuery.browser.msie) event.target = event.preventDefault = event.stopPropagation = null;
+
 			return returnValue;
 		},
 
 		fix: function(event) {
 			// check IE
 			if(jQuery.browser.msie) {
-				// get real event from window.event
-				event = window.event;
 				// fix target property
 				event.target = event.srcElement;
+				
 			// check safari and if target is a textnode
 			} else if(jQuery.browser.safari && event.target.nodeType == 3) {
 				// target is readonly, clone the event object
@@ -2308,16 +2303,20 @@ jQuery.extend({
 				// get parentnode from textnode
 				event.target = event.target.parentNode;
 			}
+			
 			// fix preventDefault and stopPropagation
-			event.preventDefault = function() {
-				this.returnValue = false;
-			};
-			event.stopPropagation = function() {
-				this.cancelBubble = true;
-			};
+			if (!event.preventDefault)
+				event.preventDefault = function() {
+					this.returnValue = false;
+				};
+				
+			if (!event.stopPropagation)
+				event.stopPropagation = function() {
+					this.cancelBubble = true;
+				};
+			
 			return event;
 		}
-
 	}
 });
 
@@ -3096,7 +3095,7 @@ jQuery.macros = {
 		 *
 		 * It only returns the immediately previous sibling, not all previous siblings.
 		 *
-		 * @example $("p").previous(".selected")
+		 * @example $("p").prev(".selected")
 		 * @before <div><span>Hello</span></div><p class="selected">Hello Again</p><p>And Again</p>
 		 * @result [ <div><span>Hello</span></div> ]
 		 *
@@ -3315,8 +3314,8 @@ jQuery.macros = {
 		},
 
 		/**
-		 * Adds the specified class if it is present, removes it if it is
-		 * not present.
+		 * Adds the specified class if it is not present, removes it if it is
+		 * present.
 		 *
 		 * @example $("p").toggleClass("selected")
 		 * @before <p>Hello</p><p class="selected">Hello Again</p>

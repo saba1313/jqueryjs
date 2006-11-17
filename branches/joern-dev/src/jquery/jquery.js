@@ -2184,7 +2184,9 @@ jQuery.extend({
 
 		// Bind an event to an element
 		// Original by Dean Edwards
-		add: function(element, type, handler) {
+		add: function(element, type, handler, data) {
+			// TODO bind data to handler
+		
 			// For whatever reason, IE has trouble passing the window object
 			// around, causing it to be cloned in the process
 			if ( jQuery.browser.msie && element.setInterval != undefined )
@@ -3384,49 +3386,70 @@ jQuery.macros = {
 		 * default behaviour. To stop both default action and event bubbling, your handler
 		 * has to return false.
 		 *
-		 * @example $("p").bind( "click", function() {
+		 * @example $("p").on( "click", function() {
 		 *   alert( $(this).text() );
 		 * } )
 		 * @before <p>Hello</p>
 		 * @result alert("Hello")
 		 *
-		 * @example $("form").bind( "submit", function() { return false; } )
+		 * @example $("form").on( "submit", function() { return false; } )
 		 * @desc Cancel a default action and prevent it from bubbling by returning false
 		 * from your function.
 		 *
-		 * @example $("form").bind( "submit", function(event) {
+		 * @example $("form").on( "submit", function(event) {
 		 *   event.preventDefault();
 		 * } );
 		 * @desc Cancel only the default action by using the preventDefault method.
 		 *
 		 *
-		 * @example $("form").bind( "submit", function(event) {
+		 * @example $("form").on( "submit", function(event) {
 		 *   event.stopPropagation();
 		 * } )
 		 * @desc Stop only an event from bubbling by using the stopPropagation method.
 		 *
-		 * @name bind
+		 * @name on
 		 * @type jQuery
+		 * @param Number amount (optional) Number of times to call this handler, before removing it
 		 * @param String type An event type
 		 * @param Function fn A function to bind to the event on each of the set of matched elements
+		 * @param Object data (optional) Additional data passed to the event handler
 		 * @cat Events
 		 */
-		bind: function( type, fn ) {
-			if ( fn.constructor == String )
-				fn = new Function("e", ( !fn.indexOf(".") ? "jQuery(this)" : "return " ) + fn);
-			jQuery.event.add( this, type, fn );
+		on: function( amount, type, fn, data ) {
+			if(typeof amount == "string")
+				jQuery.event.add( this, amount, type, fn );
+			else {
+				var count = 0;
+				var handler = function() {
+					if(++count >= amount)
+						jQuery.un( this, handler);
+					fn.apply( this, arguments );
+				};
+				jQuery.event.add( this, type, handler, data );
+			}
 		},
+		
+		/**
+		 * DEPRECATED, use on()
+		 *
+		 * @name bind
+		 * @type jQuery
+		 * @cat Events
+		 */
+		bind: function() {
+			return this.on.apply( this, arguments );
+		}
 
 		/**
 		 * The opposite of bind, removes a bound event from each of the matched
 		 * elements. You must pass the identical function that was used in the original
 		 * bind method.
 		 *
-		 * @example $("p").unbind( "click", function() { alert("Hello"); } )
+		 * @example $("p").un( "click", function() { alert("Hello"); } )
 		 * @before <p onclick="alert('Hello');">Hello</p>
 		 * @result [ <p>Hello</p> ]
 		 *
-		 * @name unbind
+		 * @name un
 		 * @type jQuery
 		 * @param String type An event type
 		 * @param Function fn A function to unbind from the event on each of the set of matched elements
@@ -3437,11 +3460,11 @@ jQuery.macros = {
 		 * Removes all bound events of a particular type from each of the matched
 		 * elements.
 		 *
-		 * @example $("p").unbind( "click" )
+		 * @example $("p").un( "click" )
 		 * @before <p onclick="alert('Hello');">Hello</p>
 		 * @result [ <p>Hello</p> ]
 		 *
-		 * @name unbind
+		 * @name un
 		 * @type jQuery
 		 * @param String type An event type
 		 * @cat Events
@@ -3450,16 +3473,27 @@ jQuery.macros = {
 		/**
 		 * Removes all bound events from each of the matched elements.
 		 *
-		 * @example $("p").unbind()
+		 * @example $("p").un()
 		 * @before <p onclick="alert('Hello');">Hello</p>
 		 * @result [ <p>Hello</p> ]
 		 *
-		 * @name unbind
+		 * @name un
 		 * @type jQuery
 		 * @cat Events
 		 */
-		unbind: function( type, fn ) {
+		un: function( type, fn ) {
 			jQuery.event.remove( this, type, fn );
+		},
+		
+		/**
+		 * DEPRECATED: Use un()
+		 *
+		 * @name un
+		 * @type jQuery
+		 * @cat Events
+		 */
+		unbind: function() {
+			return this.un.apply( this, arguments);
 		},
 
 		/**

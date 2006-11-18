@@ -3509,6 +3509,7 @@ jQuery.macros = {
 		 * @cat Events
 		 */
 		trigger: function( type, data ) {
+			// TODO: add option to bubble event
 			jQuery.event.trigger( type, data, this );
 		}
 	}

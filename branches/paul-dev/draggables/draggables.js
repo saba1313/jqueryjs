@@ -22,7 +22,7 @@
 					onStart : o.onStart && o.onStart.constructor == Function ? o.onStart : false,
 					onStop : o.onStop && o.onStop.constructor == Function ? o.onStop : false,
 					onDrag : o.onDrag && o.onDrag.constructor == Function ? o.onDrag : false,
-					helper: o.helper ? o.helper : ['',''],
+					helper: o.helper ? o.helper : "",
 					dragPrevention: o.dragPrevention ? o.dragPrevention : 0,
 					dragPreventionOn: o.dragPreventionOn ? o.dragPreventionOn.toLowerCase().split(",") : ["input","textarea","button"],
 					cursorAt: { top: ((o.cursorAt && o.cursorAt.top && o.cursorAt.top < 0) ? o.cursorAt.top : -1), left: ((o.cursorAt && o.cursorAt.left && o.cursorAt.left < 0) ? o.cursorAt.left : -1) },
@@ -75,10 +75,15 @@
 			/* Get the current mouse position */
 			f.position = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
 				
-			/* Append the helper div or clone */
-			f.helper = document.createElement("div");
-			$(f.helper).html((o.helper[1] ? o.helper[1] : '')).attr("class", o.helper[0]).css("position", "absolute").css("left", f.position[0]-(o.cursorAt.left ? o.cursorAt.left : 0)+"px").css("top", f.position[1]-(o.cursorAt.top ? o.cursorAt.top : 0)+"px").appendTo("body");
-			
+			/* Append a helper div if helper is not a function */
+			if(typeof o.helper == "function") {
+				f.helper = o.helper();
+			} else {
+				f.helper = document.createElement("div");
+				$(f.helper).attr("class", o.helper);				
+			}
+			$(f.helper).css("position", "absolute").css("left", f.position[0]-o.cursorAt.left+"px").css("top", f.position[1]-o.cursorAt.top+"px").appendTo("body");
+
 			/* Okay, initialization is done, then set it to true */
 			o.init = true;			
 			

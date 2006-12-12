@@ -67,7 +67,11 @@
 					onDrag: function(helper,x,y) {
 						$(helper).html("Position: ["+x+","+y+"]");
 					},
-					helper: ['helper', ''],
+					helper: function() {
+						var helper = document.createElement("div");
+						$(helper).css("background", "#000");
+						return helper;
+					},
 					dragPrevention: 0,
 					dragPreventionOn: "a,input",
 					cursorAt: {top: -20, left: -20 }

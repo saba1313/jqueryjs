@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Draggables Beta</title>
+		<script type="text/javascript" src="firebug/firebug.js"></script>
+		<script type="text/javascript" src="../../jquery/src/jquery/jquery.js"></script>
+		<script type="text/javascript" src="../../jquery/src/event/event.js"></script>
+		<script type="text/javascript" src="../../jquery/src/fx/fx.js"></script>
+		<script type="text/javascript" src="../../jquery/src/ajax/ajax.js"></script>
+		<style type="text/css">
+			body {
+				font-family: Arial, Helvetica, sans-serif;
+			}
+			div.content {
+				background: #eee;
+				border: 2px solid #999;
+				padding: 10px;
+				margin: 0 auto;
+				width: 500px;
+				text-align: center;
+				color: #888;
+			}
+			
+			div.area {
+				background: #C6E5FF;
+				border: 2px solid #b6d5eF;
+				padding: 10px;
+				margin: 0 auto;
+				margin-top: 10px;
+				width: 500px;
+				text-align: center;
+				color: #888;
+			}
+			
+			div.drag {
+				border: 2px solid darkgreen;
+				width: 100px;
+				background-color: lightgreen;
+				padding: 5px;
+				float: left;
+				margin: 5px;
+			}
+			
+			div.helper {
+				border: 2px solid darkblue;
+				width: 100px;
+				height: 20px;
+				z-index: 1000;
+			}
+		</style>
+		<script type="text/javascript" src="draggables.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				
+				$("div.drag").addDraggables({
+					handle: "div",
+					onStart: function(helper) {
+						$(helper).css("background", "red");
+						console.info("Drag on element "+this+" started");
+					},
+					onStop: function() {
+						console.info("Drag on element "+this+" stopped");
+					},
+					onDrag: function(helper,x,y) {
+						$(helper).html("Position: ");
+						return [x,y];
+					},
+					cursor: "move",
+					helper: ["helper", "initial <b>content</b>"],
+					dragPrevention: 0,
+					dragPreventionOn: "a,input",
+					containment: "document"
+				});
+				
+			});
+		</script>
+	</head>
+	<body>
+		<div class="content">
+			<p>This is the Faster Draggables testing area.</p>
+		</div>
+		
+		<div class="area">
+			<div class="drag" style="width: 300px;">I'm a draggable with a <a href="http://www.google.com">link</a> and a <input type="text" value="form element">.</div>
+			<div class="drag">I'm a draggable with <div style="background: blue;">handle</div>.</div>
+		</div>
+		
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		<div class="area">Filler div.</div>
+		
+	</body>
+</html>

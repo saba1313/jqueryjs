@@ -10,7 +10,7 @@
 		oldPosition: null,
 		helper: null,
 		init: function(o) {
-
+			
 			if(!o)
 				var o = {};
 

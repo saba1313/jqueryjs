@@ -43,7 +43,9 @@
 			}
 			
 			div.helper {
-				border: 2px solid darkblue;
+				border: 1px dotted black;
+				background: #eee;
+				opacity: 0.8;
 				width: 100px;
 				height: 20px;
 				z-index: 1000;
@@ -56,21 +58,19 @@
 				$("div.drag").addDraggables({
 					handle: "div",
 					onStart: function(helper) {
-						$(helper).css("background", "red");
+						$(helper).css("width", this.offsetWidth-1+"px").css("height", this.offsetHeight-1+"px");
 						console.info("Drag on element "+this+" started");
 					},
 					onStop: function() {
 						console.info("Drag on element "+this+" stopped");
 					},
 					onDrag: function(helper,x,y) {
-						$(helper).html("Position: ");
-						return [x,y];
+						$(helper).html("Position: ["+x+","+y+"]");
 					},
-					cursor: "move",
-					helper: ["helper", "initial <b>content</b>"],
+					helper: ['helper', ''],
 					dragPrevention: 0,
 					dragPreventionOn: "a,input",
-					containment: "document"
+					cursorAt: {top: -20, left: -20 }
 				});
 				
 			});

@@ -17,7 +17,8 @@
 					},
 					onHover : o.onHover && o.onHover.constructor == Function ? o.onHover : false,
 					onOut : o.onOut && o.onOut.constructor == Function ? o.onOut : function(drag,helper) {
-						$(helper).html(helper.oldContent);						
+						$(helper).html(helper.oldContent);
+						helper.oldContent = null;						
 					},
 					onDrop : o.onDrop && o.onDrop.constructor == Function ? o.onDrop : false 
 				}
@@ -85,6 +86,7 @@
 					dragPrevention: o.dragPrevention ? o.dragPrevention : 0,
 					dragPreventionOn: o.dragPreventionOn ? o.dragPreventionOn.toLowerCase().split(",") : ["input","textarea","button"],
 					cursorAt: { top: ((o.cursorAt && o.cursorAt.top && o.cursorAt.top < 0) ? o.cursorAt.top : -1), left: ((o.cursorAt && o.cursorAt.left && o.cursorAt.left < 0) ? o.cursorAt.left : -1) },
+					iframeFix: o.iframeFix ? o.iframeFix : true,
 					init: false
 				};
 
@@ -146,6 +148,14 @@
 			}
 			$(f.helper).css("position", "absolute").css("left", f.position[0]-o.cursorAt.left+"px").css("top", f.position[1]-o.cursorAt.top+"px").appendTo("body");
 
+			/* Make clones on top of iframes, if dimensions.js is loaded */
+			if($.fn.offset && o.iframeFix) {
+				$("iframe").each(function() {
+					var curOffset = $(this).offset();
+					$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", curOffset.width+"px").css("height", curOffset.height+"px").css("position", "absolute").css("opacity", "0.001").css("top", curOffset.top+"px").css("left", curOffset.left+"px").appendTo("body");
+				});				
+			}
+		
 			/* Okay, initialization is done, then set it to true */
 			o.init = true;			
 			
@@ -172,6 +182,10 @@
 				
 			/* Remove helper */
 			$("body").get(0).removeChild(f.helper);
+			
+			/* Remove frame helpers, if dimensions.js is loaded */
+			if($.fn.offset && o.iframeFix)
+				$("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			
 
 			o.init = false;
 			f.current = f.oldPosition = f.position = f.helper = null;

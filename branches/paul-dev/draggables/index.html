@@ -8,6 +8,7 @@
 		<script type="text/javascript" src="../../jquery/src/event/event.js"></script>
 		<script type="text/javascript" src="../../jquery/src/fx/fx.js"></script>
 		<script type="text/javascript" src="../../jquery/src/ajax/ajax.js"></script>
+		<script type="text/javascript" src="../../jquery_plugins/dimensions/dimensions.js"></script>
 		<style type="text/css">
 			body {
 				font-family: Arial, Helvetica, sans-serif;
@@ -28,7 +29,7 @@
 				padding: 10px;
 				margin: 0 auto;
 				margin-top: 10px;
-				width: 600px;
+				width: 90%;
 				text-align: center;
 				color: #888;
 			}
@@ -107,6 +108,7 @@
 					onOut: function(drag,helper) {
 						$(this).animate({ borderWidth: 1 }, 500);
 						$(helper).html(helper.oldContent);
+						helper.oldContent = null;
 					},
 					onDrop: function(drag) {
 						alert("dropped!");
@@ -114,6 +116,7 @@
 				});
 				
 			});
+			
 		</script>
 	</head>
 	<body>
@@ -127,8 +130,10 @@
 			<div class="drop">Im' a droppable. <div id="ddrop" style="border: 1px solid black; font-size: 10pt;">I'm a different droppable</div></div>
 		</div>
 		
-		<div class="area">Filler div.</div>
-		<div class="area">Filler div.</div>
+		<div class="area" style="position: relative; height: 320px;">
+			<input id="url" type="text" value="http://www.google.com" style="width: 80%;"><input style="width: 19%;" type="button" value="Go!" onclick="changeUrl($('#url').attr('value'))">
+			<iframe name="iframe1" style="position: absolute; top: 40px; left: 0px; border: none;" id="iframe1" width="100%" height="300" src="http://www.google.com"></iframe>
+		</div>
 		<div class="area">Filler div.</div>
 		<div class="area">Filler div.</div>
 		<div class="area">Filler div.</div>

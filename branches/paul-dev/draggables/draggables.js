@@ -3,6 +3,60 @@
  */
 
 (function($) {
+	jQuery.fDrop = {
+		manager: {},
+		init: function(o) {
+
+			if(!o)
+				var o = {};	
+			
+			return this.each(function() {
+				d.manager[this] = {
+					accept: o.accept && o.accept.constructor == Function ? o.accept : function(dragEl) {
+						return dragEl.className.match(new RegExp('(\\s|^)'+o.accept+'(\\s|$)'));	
+					},
+					onHover : o.onHover && o.onHover.constructor == Function ? o.onHover : false,
+					onOut : o.onOut && o.onOut.constructor == Function ? o.onOut : false,
+					onDrop : o.onDrop && o.onDrop.constructor == Function ? o.onDrop : false	
+				}
+
+				/* Bind the hovering events */
+				$(this).hover(d.evHover,d.evOut);
+				
+				/* Bind the Drop event */
+				$(this).bind("mouseup", d.evDrop);
+				
+			});
+		},
+		destroy: function() {
+			
+		},
+		evHover: function(e) {
+
+			var o = d.manager[this];
+			
+			/* Fire the callback if we are dragging and the accept function returns true */
+			if(f.current && o.onHover && o.accept(f.current)) o.onHover.apply(this, [f.current, f.helper]);
+
+		},
+		evOut: function(e) {
+
+			var o = d.manager[this];
+			
+			/* Fire the callback if we are dragging and the accept function returns true */
+			if(f.current && o.onOut && o.accept(f.current)) o.onOut.apply(this, [f.current, f.helper]);			
+
+		},
+		evDrop: function(e) {
+
+			var o = d.manager[this];
+			
+			/* Fire the callback if we are dragging and the accept function returns true */
+			if(f.current && o.onDrop && o.accept(f.current)) o.onDrop.apply(this, [f.current, f.helper]);			
+
+		}
+	}
+	
 	jQuery.fDrag = {
 		manager: {},
 		current: null,
@@ -32,6 +86,9 @@
 				/* Bind the mousedown event */
 				f.manager[this].handle.bind("mousedown", f.evClick);
 				
+				/* Link the original element to the handle for later reference */
+				f.manager[this].handle.get(0).dragEl = this;
+				
 				/* Prevent text selection */
 				if($.browser.mozilla){
 					this.style.MozUserSelect = "none";
@@ -46,18 +103,18 @@
 			});	
 		},
 		destroy: function() {
-			
+			/* Destroy all droppables */	
 		},
 		evClick: function(e) {
 
 			/* Prevent execution on defined elements */
 			var targetName = (e.target) ? e.target.nodeName.toLowerCase() : e.srcElement.nodeName.toLowerCase();
-			for(var i=0;i<f.manager[this].dragPreventionOn.length;i++) {
-				if(targetName == f.manager[this].dragPreventionOn[i]) return;
+			for(var i=0;i<f.manager[this.dragEl].dragPreventionOn.length;i++) {
+				if(targetName == f.manager[this.dragEl].dragPreventionOn[i]) return;
 			}
 		
 			/* Set f.current to the current element */
-			f.current = this;
+			f.current = this.dragEl;
 
 			/* Bind mouseup and mousemove events */
 			$(document).bind("mouseup", f.evStop);
@@ -142,11 +199,15 @@
 	/* Map keyword 'f' to jQuery.fDrag for convienence */
 	var f = jQuery.fDrag;
 	
+	/* Map keyword 'd' to jQuery.fDrop for convienence */
+	var d = jQuery.fDrop;
+	
 	/* Extend jQuery's methods, map two of our internals */
 	jQuery.fn.extend(
 		{
 			removeDraggables : jQuery.fDrag.destroy,
-			addDraggables : jQuery.fDrag.init
+			addDraggables : jQuery.fDrag.init,
+			addDroppables : jQuery.fDrop.init
 		}
 	);
  })(jQuery);

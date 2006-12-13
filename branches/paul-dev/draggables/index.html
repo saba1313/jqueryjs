@@ -17,7 +17,7 @@
 				border: 2px solid #999;
 				padding: 10px;
 				margin: 0 auto;
-				width: 500px;
+				width: 600px;
 				text-align: center;
 				color: #888;
 			}
@@ -28,7 +28,7 @@
 				padding: 10px;
 				margin: 0 auto;
 				margin-top: 10px;
-				width: 500px;
+				width: 600px;
 				text-align: center;
 				color: #888;
 			}
@@ -37,6 +37,15 @@
 				border: 2px solid darkgreen;
 				width: 100px;
 				background-color: lightgreen;
+				padding: 5px;
+				float: left;
+				margin: 5px;
+			}
+
+			div.drop {
+				border: 2px solid darkred;
+				width: 100px;
+				background-color: orange;
 				padding: 5px;
 				float: left;
 				margin: 5px;
@@ -77,6 +86,32 @@
 					cursorAt: {top: -20, left: -20 }
 				});
 				
+				$("div.drop").addDroppables({
+					accept: "drag",
+					onHover: function(drag, helper) {
+						$(this).css("border","5px solid black");
+					},
+					onOut: function(drag,helper) {
+						$(this).css("border","");
+					},
+					onDrop: function(drag) {
+						alert("dropped!");
+					}
+				});
+				
+				$("#ddrop").addDroppables({
+					accept: "drag",
+					onHover: function(drag, helper) {
+						$(this).css("border","5px solid blue");
+					},
+					onOut: function(drag,helper) {
+						$(this).css("border","1px solid black");
+					},
+					onDrop: function(drag) {
+						alert("dropped!");
+					}
+				});
+				
 			});
 		</script>
 	</head>
@@ -85,9 +120,10 @@
 			<p>This is the Faster Draggables testing area.</p>
 		</div>
 		
-		<div class="area">
+		<div class="area" style="height: 300px;">
 			<div class="drag" style="width: 300px;">I'm a draggable with a <a href="http://www.google.com">link</a> and a <input type="text" value="form element">.</div>
 			<div class="drag">I'm a draggable with <div style="background: blue;">handle</div>.</div>
+			<div class="drop">Im' a droppable. <div id="ddrop" style="border: 1px solid black; font-size: 10pt;">I'm a different droppable</div></div>
 		</div>
 		
 		<div class="area">Filler div.</div>

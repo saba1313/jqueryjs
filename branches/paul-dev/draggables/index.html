@@ -90,7 +90,6 @@
 				$("div.drop").addDroppables({
 					accept: "drag",
 					onHover: function(drag, helper) {
-						$(this).css("border","5px solid black");
 						$(helper).html("I'm over");
 					},
 					onDrop: function(drag) {
@@ -98,19 +97,21 @@
 					}
 				});
 				
-				/*$("#ddrop").addDroppables({
+				$("#ddrop").addDroppables({
 					accept: "drag",
 					onHover: function(drag, helper) {
 						$(this).css("border","1px solid blue");
 						$(this).animate({ borderWidth: 10 }, 500);
+						$(helper).html("I'm over inner");
 					},
 					onOut: function(drag,helper) {
 						$(this).animate({ borderWidth: 1 }, 500);
+						$(helper).html(helper.oldContent);
 					},
 					onDrop: function(drag) {
-						//alert("dropped!");
+						alert("dropped!");
 					}
-				});*/
+				});
 				
 			});
 		</script>

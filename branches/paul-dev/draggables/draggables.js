@@ -17,7 +17,6 @@
 					},
 					onHover : o.onHover && o.onHover.constructor == Function ? o.onHover : false,
 					onOut : o.onOut && o.onOut.constructor == Function ? o.onOut : function(drag,helper) {
-						console.info(helper.oldContent);
 						$(helper).html(helper.oldContent);						
 					},
 					onDrop : o.onDrop && o.onDrop.constructor == Function ? o.onDrop : false 

@@ -17,7 +17,8 @@
 					},
 					onHover : o.onHover && o.onHover.constructor == Function ? o.onHover : false,
 					onOut : o.onOut && o.onOut.constructor == Function ? o.onOut : false,
-					onDrop : o.onDrop && o.onDrop.constructor == Function ? o.onDrop : false	
+					onDrop : o.onDrop && o.onDrop.constructor == Function ? o.onDrop : false,
+					onHoverHelper : o.onHoverHelper || false 
 				}
 
 				/* Bind the hovering events */
@@ -37,6 +38,10 @@
 			
 			/* Fire the callback if we are dragging and the accept function returns true */
 			if(f.current && o.onHover && o.accept(f.current)) o.onHover.apply(this, [f.current, f.helper]);
+			if(f.current && o.onHoverHelper && o.accept(f.current)) {
+				f.helper.oldContent =$(f.helper).html();
+				$(f.helper).html(o.onHoverHelper);
+			}
 
 		},
 		evOut: function(e) {
@@ -44,7 +49,10 @@
 			var o = d.manager[this];
 			
 			/* Fire the callback if we are dragging and the accept function returns true */
-			if(f.current && o.onOut && o.accept(f.current)) o.onOut.apply(this, [f.current, f.helper]);			
+			if(f.current && o.onOut && o.accept(f.current)) o.onOut.apply(this, [f.current, f.helper]);	
+			if(f.current && o.onHoverHelper && o.accept(f.current)) {
+				$(f.helper).html(f.helper.oldContent);
+			}	
 
 		},
 		evDrop: function(e) {

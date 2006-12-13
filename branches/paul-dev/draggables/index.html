@@ -102,10 +102,11 @@
 				$("#ddrop").addDroppables({
 					accept: "drag",
 					onHover: function(drag, helper) {
-						$(this).css("border","5px solid blue");
+						$(this).css("border","1px solid blue");
+						$(this).animate({ borderWidth: 10 }, 500);
 					},
 					onOut: function(drag,helper) {
-						$(this).css("border","1px solid black");
+						$(this).animate({ borderWidth: 1 }, 500);
 					},
 					onDrop: function(drag) {
 						alert("dropped!");

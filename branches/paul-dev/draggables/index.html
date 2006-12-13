@@ -4,10 +4,10 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 		<title>Draggables Beta</title>
 		<script type="text/javascript" src="firebug/firebug.js"></script>
-		<script type="text/javascript" src="../../../trunk/jquery/src/jquery/jquery.js"></script>
-		<script type="text/javascript" src="../../../trunk/jquery/src/event/event.js"></script>
-		<script type="text/javascript" src="../../../trunk/jquery/src/fx/fx.js"></script>
-		<script type="text/javascript" src="../../../trunk/jquery/src/ajax/ajax.js"></script>
+		<script type="text/javascript" src="../../jquery/src/jquery/jquery.js"></script>
+		<script type="text/javascript" src="../../jquery/src/event/event.js"></script>
+		<script type="text/javascript" src="../../jquery/src/fx/fx.js"></script>
+		<script type="text/javascript" src="../../jquery/src/ajax/ajax.js"></script>
 		<style type="text/css">
 			body {
 				font-family: Arial, Helvetica, sans-serif;
@@ -68,7 +68,7 @@
 				$("div.drag").addDraggables({
 					handle: "div",
 					onStart: function(helper) {
-						$(helper).css("width", this.offsetWidth-1+"px").css("height", this.offsetHeight-1+"px").html('look at me');
+						$(helper).css("width", this.offsetWidth-1+"px").css("height", this.offsetHeight-1+"px");
 						console.info("Drag on element "+this+" started");
 					},
 					onStop: function() {
@@ -79,7 +79,7 @@
 					},
 					helper: function() {
 						var helper = document.createElement("div");
-						//$(helper).css("background", "#000");
+						$(helper).css("background", "#fff");
 						return helper;
 					},
 					dragPrevention: 0,
@@ -91,14 +91,11 @@
 					accept: "drag",
 					onHover: function(drag, helper) {
 						$(this).css("border","5px solid black");
-					},
-					onOut: function(drag,helper) {
-						$(this).css("border","");
+						$(helper).html("I'm over");
 					},
 					onDrop: function(drag) {
-						//alert("dropped!");
-					},
-					onHoverHelper : '<p>You can drop it here</p>'
+						alert("dropped!");
+					}
 				});
 				
 				/*$("#ddrop").addDroppables({

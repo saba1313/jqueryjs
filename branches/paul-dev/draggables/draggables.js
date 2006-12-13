@@ -11,7 +11,7 @@
 				var o = {};	
 			
 			return this.each(function() {
-				d.manager[this] = {
+				this.options = {
 					accept: o.accept && o.accept.constructor == Function ? o.accept : function(dragEl) {
 						return dragEl.className.match(new RegExp('(\\s|^)'+o.accept+'(\\s|$)'));	
 					},
@@ -34,7 +34,7 @@
 		},
 		evHover: function(e) {
 
-			var o = d.manager[this];
+			var o = this.options;
 			
 			/* Fire the callback if we are dragging and the accept function returns true */
 			if(f.current && o.onHover && o.accept(f.current)) o.onHover.apply(this, [f.current, f.helper]);
@@ -46,7 +46,7 @@
 		},
 		evOut: function(e) {
 
-			var o = d.manager[this];
+			var o = this.options;
 			
 			/* Fire the callback if we are dragging and the accept function returns true */
 			if(f.current && o.onOut && o.accept(f.current)) o.onOut.apply(this, [f.current, f.helper]);	
@@ -57,7 +57,7 @@
 		},
 		evDrop: function(e) {
 
-			var o = d.manager[this];
+			var o = this.options;
 			
 			/* Fire the callback if we are dragging and the accept function returns true */
 			if(f.current && o.onDrop && o.accept(f.current)) o.onDrop.apply(this, [f.current, f.helper]);			

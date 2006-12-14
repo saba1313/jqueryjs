@@ -95,7 +95,7 @@
 					cursorAt: { top: ((o.cursorAt && o.cursorAt.top && o.cursorAt.top < 0) ? o.cursorAt.top : -1), left: ((o.cursorAt && o.cursorAt.left && o.cursorAt.left < 0) ? o.cursorAt.left : -1) },
 					iframeFix: o.iframeFix ? o.iframeFix : true,
 					wrapHelper: o.wrapHelper ? o.wrapHelper : true,
-					scroll: o.scroll ? o.scroll : true,
+					scroll: o.scroll != undefined ? o.scroll : 20,
 					init: false
 				};
 
@@ -225,17 +225,22 @@
 			 * coming to a side of the screen.
 			 */
 			if($.fn.offset && o.wrapHelper) {
-				var xOffset = ((f.position[0]-o.cursorAt.left - $(window).width() + f.helper.offsetWidth) - (self.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft) > 0) ? (f.helper.offsetWidth - o.cursorAt.left * 2) : 0;
-				var yOffset = ((f.position[1]-o.cursorAt.top - $(window).height() + f.helper.offsetHeight) - (self.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) > 0) ? (f.helper.offsetHeight - o.cursorAt.top * 2) : 0;
+				var xOffset = ((f.position[0]-o.cursorAt.left - $(window).width() + f.helper.offsetWidth) - $(document).scrollLeft() > 0) ? (f.helper.offsetWidth - o.cursorAt.left * 2) : 0;
+				var yOffset = ((f.position[1]-o.cursorAt.top - $(window).height() + f.helper.offsetHeight) - $(document).scrollTop() > 0) ? (f.helper.offsetHeight - o.cursorAt.top * 2) : 0;
 			} else {
 				var xOffset = yOffset = 0;	
 			}
 			
 			/* Auto scrolling */
 			if($.fn.offset && o.scroll) {
-				if((f.position[1] - $(window).height()) - (self.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) > -5) {
-					console.log("scrolling..");	
-				}
+				if((f.position[1] - $(window).height()) - $(document).scrollTop() > -10)
+					window.scrollBy(0,o.scroll);
+				if(f.position[1] - $(document).scrollTop() < 10)
+					window.scrollBy(0,-o.scroll);
+				if((f.position[0] - $(window).width()) - $(document).scrollLeft() > -10)
+					window.scrollBy(o.scroll,0);
+				if(f.position[0] - $(document).scrollLeft() < 10)
+					window.scrollBy(-o.scroll,0);
 			}
 			
 			/* Stick the helper to the cursor or to modified x/y */			

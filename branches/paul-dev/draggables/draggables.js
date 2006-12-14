@@ -15,11 +15,12 @@
 					accept: o.accept && o.accept.constructor == Function ? o.accept : function(dragEl) {
 						return dragEl.className.match(new RegExp('(\\s|^)'+o.accept+'(\\s|$)'));	
 					},
-					onHover : o.onHover && o.onHover.constructor == Function ? o.onHover : false,
-					onOut : o.onOut && o.onOut.constructor == Function ? o.onOut : function(drag,helper) {
+					onHover: o.onHover && o.onHover.constructor == Function ? o.onHover : false,
+					onOut: o.onOut && o.onOut.constructor == Function ? o.onOut : function(drag,helper) {
 						$(helper).html(helper.oldContent);					
 					},
-					onDrop : o.onDrop && o.onDrop.constructor == Function ? o.onDrop : false 
+					onDrop: o.onDrop && o.onDrop.constructor == Function ? o.onDrop : false,
+					greedy: o.greedy ? o.greedy : false
 				}
 
 				/* Bind the hovering events */
@@ -35,7 +36,10 @@
 		},
 		evHover: function(e) {
 
-			var o = this.dropOptions;			
+			var o = this.dropOptions;
+			
+			/* Save current target, if no last target given */
+			if(f.current && o.accept(f.current)) f.currentTarget = this;			
 
 			/* Fire the callback if we are dragging and the accept function returns true */
 			if(f.current && o.onHover && o.accept(f.current)) o.onHover.apply(this, [f.current, f.helper]);
@@ -54,7 +58,13 @@
 			var o = this.dropOptions;
 			
 			/* Fire the callback if we are dragging and the accept function returns true */
-			if(f.current && o.onDrop && o.accept(f.current)) o.onDrop.apply(this, [f.current, f.helper]);			
+			if(f.current && o.onDrop && o.accept(f.current)) {
+				if(o.greedy) {
+					if(f.currentTarget == this) o.onDrop.apply(this, [f.current, f.helper]);
+				} else {
+					o.onDrop.apply(this, [f.current, f.helper]);	
+				}
+			}			
 
 		}
 	}
@@ -64,6 +74,7 @@
 		current: null,
 		position: null,
 		oldPosition: null,
+		currentTarget: null,
 		helper: null,
 		init: function(o) {
 

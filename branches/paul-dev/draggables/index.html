@@ -94,8 +94,9 @@
 						$(helper).html("I'm over");
 					},
 					onDrop: function(drag) {
-						alert("dropped!");
-					}
+						alert("dropped on outer!");
+					},
+					greedy: true
 				});
 				
 				$("#ddrop").addDroppables({
@@ -110,7 +111,7 @@
 						$(helper).html(helper.oldContent);
 					},
 					onDrop: function(drag) {
-						alert("dropped!");
+						alert("dropped on inner!");
 					}
 				});
 				

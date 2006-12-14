@@ -17,8 +17,7 @@
 					},
 					onHover : o.onHover && o.onHover.constructor == Function ? o.onHover : false,
 					onOut : o.onOut && o.onOut.constructor == Function ? o.onOut : function(drag,helper) {
-						$(helper).html(helper.oldContent);
-						helper.oldContent = null;						
+						$(helper).html(helper.oldContent);					
 					},
 					onDrop : o.onDrop && o.onDrop.constructor == Function ? o.onDrop : false 
 				}
@@ -36,10 +35,7 @@
 		},
 		evHover: function(e) {
 
-			var o = this.dropOptions;
-
-			/* Save the old content of the helper */
-			if(f.current && o.accept(f.current)) f.helper.oldContent = $(f.helper).html();			
+			var o = this.dropOptions;			
 
 			/* Fire the callback if we are dragging and the accept function returns true */
 			if(f.current && o.onHover && o.accept(f.current)) o.onHover.apply(this, [f.current, f.helper]);
@@ -87,6 +83,7 @@
 					dragPreventionOn: o.dragPreventionOn ? o.dragPreventionOn.toLowerCase().split(",") : ["input","textarea","button"],
 					cursorAt: { top: ((o.cursorAt && o.cursorAt.top && o.cursorAt.top < 0) ? o.cursorAt.top : -1), left: ((o.cursorAt && o.cursorAt.left && o.cursorAt.left < 0) ? o.cursorAt.left : -1) },
 					iframeFix: o.iframeFix ? o.iframeFix : true,
+					wrapHelper: o.wrapHelper ? o.wrapHelper : true,
 					init: false
 				};
 
@@ -148,6 +145,9 @@
 			}
 			$(f.helper).css("position", "absolute").css("left", f.position[0]-o.cursorAt.left+"px").css("top", f.position[1]-o.cursorAt.top+"px").appendTo("body");
 
+			/* Save initial helper content in the oldContent property */
+			f.helper.oldContent = $(f.helper).html();
+		
 			/* Make clones on top of iframes, if dimensions.js is loaded */
 			if($.fn.offset && o.iframeFix) {
 				$("iframe").each(function() {
@@ -208,9 +208,17 @@
 			/* Trigger the onDrag callback */
 			if(o.onDrag)
 				o.onDrag.apply(f.current, [f.helper,f.position[0],f.position[1]]);		
-				
+			
+			/* If dimensions.js is loaded and wrapHelper is set to true, wrap the helper when
+			 * coming to a side of the screen.
+			 */
+			if($.fn.offset && o.wrapHelper) {
+				var xOffset = ((f.position[0]-o.cursorAt.left - $(window).width() + f.helper.offsetWidth) - (self.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft) > 0) ? (f.helper.offsetWidth - o.cursorAt.left * 2) : 0;
+				var yOffset = ((f.position[1]-o.cursorAt.top - $(window).height() + f.helper.offsetHeight) - (self.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) > 0) ? (f.helper.offsetHeight - o.cursorAt.top * 2) : 0;
+			}
+			
 			/* Stick the helper to the cursor or to modified x/y */			
-			$(f.helper).css("left", f.position[0]-(o.cursorAt.left ? o.cursorAt.left : 0)+"px").css("top", f.position[1]-(o.cursorAt.top ? o.cursorAt.top : 0)+"px");
+			$(f.helper).css("left", f.position[0]-xOffset-(o.cursorAt.left ? o.cursorAt.left : 0)+"px").css("top", f.position[1]-yOffset-(o.cursorAt.top ? o.cursorAt.top : 0)+"px");
 				
 		}
 	}

@@ -29,7 +29,7 @@
 				padding: 10px;
 				margin: 0 auto;
 				margin-top: 10px;
-				width: 90%;
+				width: 80%;
 				text-align: center;
 				color: #888;
 			}
@@ -55,7 +55,7 @@
 			div.helper {
 				border: 1px dotted black;
 				background: #eee;
-				color: #fff;
+				color: #000;
 				opacity: 0.8;
 				width: 100px;
 				height: 20px;
@@ -80,7 +80,7 @@
 					},
 					helper: function() {
 						var helper = document.createElement("div");
-						$(helper).css("background", "#fff");
+						$(helper).attr("className", "helper");
 						return helper;
 					},
 					dragPrevention: 0,
@@ -108,7 +108,6 @@
 					onOut: function(drag,helper) {
 						$(this).animate({ borderWidth: 1 }, 500);
 						$(helper).html(helper.oldContent);
-						helper.oldContent = null;
 					},
 					onDrop: function(drag) {
 						alert("dropped!");
@@ -131,18 +130,8 @@
 		</div>
 		
 		<div class="area" style="position: relative; height: 320px;">
-			<input id="url" type="text" value="http://www.google.com" style="width: 80%;"><input style="width: 19%;" type="button" value="Go!" onclick="changeUrl($('#url').attr('value'))">
-			<iframe name="iframe1" style="position: absolute; top: 40px; left: 0px; border: none;" id="iframe1" width="100%" height="300" src="http://www.google.com"></iframe>
+			<iframe name="iframe1" id="iframe1" width="100%" height="300" src="http://www.google.com"></iframe>
 		</div>
-		<div class="area">Filler div.</div>
-		<div class="area">Filler div.</div>
-		<div class="area">Filler div.</div>
-		<div class="area">Filler div.</div>
-		<div class="area">Filler div.</div>
-		<div class="area">Filler div.</div>
-		<div class="area">Filler div.</div>
-		<div class="area">Filler div.</div>
-		<div class="area">Filler div.</div>
 		
 	</body>
 </html>

@@ -95,6 +95,7 @@
 					cursorAt: { top: ((o.cursorAt && o.cursorAt.top && o.cursorAt.top < 0) ? o.cursorAt.top : -1), left: ((o.cursorAt && o.cursorAt.left && o.cursorAt.left < 0) ? o.cursorAt.left : -1) },
 					iframeFix: o.iframeFix ? o.iframeFix : true,
 					wrapHelper: o.wrapHelper ? o.wrapHelper : true,
+					scroll: o.scroll ? o.scroll : true,
 					init: false
 				};
 
@@ -226,6 +227,15 @@
 			if($.fn.offset && o.wrapHelper) {
 				var xOffset = ((f.position[0]-o.cursorAt.left - $(window).width() + f.helper.offsetWidth) - (self.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft) > 0) ? (f.helper.offsetWidth - o.cursorAt.left * 2) : 0;
 				var yOffset = ((f.position[1]-o.cursorAt.top - $(window).height() + f.helper.offsetHeight) - (self.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) > 0) ? (f.helper.offsetHeight - o.cursorAt.top * 2) : 0;
+			} else {
+				var xOffset = yOffset = 0;	
+			}
+			
+			/* Auto scrolling */
+			if($.fn.offset && o.scroll) {
+				if((f.position[1] - $(window).height()) - (self.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) > -5) {
+					console.log("scrolling..");	
+				}
 			}
 			
 			/* Stick the helper to the cursor or to modified x/y */			

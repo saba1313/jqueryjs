@@ -26,6 +26,9 @@
 				/* Bind the hovering events */
 				$(this).hover(d.evHover,d.evOut);
 				
+				/* Bind the mouseover event */
+				$(this).bind("mousemove", d.evMove);
+				
 				/* Bind the Drop event */
 				$(this).bind("mouseup", d.evDrop);
 				
@@ -34,21 +37,36 @@
 		destroy: function() {
 			
 		},
-		evHover: function(e) {
+		evMove: function(e) {
+			
+			if(!f.current) return;
 
 			var o = this.dropOptions;
-			
+
 			/* Save current target, if no last target given */
-			if(f.current && o.accept(f.current)) f.currentTarget = this;			
+			if(f.current && o.accept(f.current)) f.currentTarget = e.currentTarget;
+
+			f.evDrag.apply(document, [e]);
+			e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+				
+		},
+		evHover: function(e) {
+
+			if(!f.current) return;
+			
+			var o = this.dropOptions;
+			
+			/* Save helper content in the oldContent property */
+			f.helper.oldContent = $(f.helper).html();			
 
 			/* Fire the callback if we are dragging and the accept function returns true */
-			if(f.current && o.onHover && o.accept(f.current)) o.onHover.apply(this, [f.current, f.helper]);
+			if(o.onHover && o.accept(f.current)) o.onHover.apply(this, [f.current, f.helper]);
 
 		},
 		evOut: function(e) {
 
 			var o = this.dropOptions;
-			
+		
 			/* Fire the callback if we are dragging and the accept function returns true */
 			if(f.current && o.onOut && o.accept(f.current)) o.onOut.apply(this, [f.current, f.helper]);	
 
@@ -156,9 +174,6 @@
 				$(f.helper).attr("class", o.helper);				
 			}
 			$(f.helper).css("position", "absolute").css("left", f.position[0]-o.cursorAt.left+"px").css("top", f.position[1]-o.cursorAt.top+"px").appendTo("body");
-
-			/* Save initial helper content in the oldContent property */
-			f.helper.oldContent = $(f.helper).html();
 		
 			/* Make clones on top of iframes, if dimensions.js is loaded */
 			if($.fn.offset && o.iframeFix) {
@@ -243,7 +258,7 @@
 					window.scrollBy(-o.scroll,0);
 			}
 			
-			/* Stick the helper to the cursor or to modified x/y */			
+			/* Stick the helper to the cursor */			
 			$(f.helper).css("left", f.position[0]-xOffset-(o.cursorAt.left ? o.cursorAt.left : 0)+"px").css("top", f.position[1]-yOffset-(o.cursorAt.top ? o.cursorAt.top : 0)+"px");
 				
 		}
@@ -258,9 +273,9 @@
 	/* Extend jQuery's methods, map two of our internals */
 	jQuery.fn.extend(
 		{
-			removeDraggables : jQuery.fDrag.destroy,
-			addDraggables : jQuery.fDrag.init,
-			addDroppables : jQuery.fDrop.init
+			destroyDraggable : jQuery.fDrag.destroy,
+			makeDraggable : jQuery.fDrag.init,
+			makeDroppable : jQuery.fDrop.init
 		}
 	);
  })(jQuery);

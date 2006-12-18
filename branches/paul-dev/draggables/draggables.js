@@ -110,7 +110,7 @@
 					helper: o.helper ? o.helper : "",
 					dragPrevention: o.dragPrevention ? o.dragPrevention : 0,
 					dragPreventionOn: o.dragPreventionOn ? o.dragPreventionOn.toLowerCase().split(",") : ["input","textarea","button"],
-					cursorAt: { top: ((o.cursorAt && o.cursorAt.top && o.cursorAt.top < 0) ? o.cursorAt.top : -1), left: ((o.cursorAt && o.cursorAt.left && o.cursorAt.left < 0) ? o.cursorAt.left : -1) },
+					cursorAt: { top: ((o.cursorAt && o.cursorAt.top) ? o.cursorAt.top : 0), left: ((o.cursorAt && o.cursorAt.left) ? o.cursorAt.left : 0), bottom: ((o.cursorAt && o.cursorAt.bottom) ? o.cursorAt.bottom : 0), right: ((o.cursorAt && o.cursorAt.right) ? o.cursorAt.right : 0) },
 					iframeFix: o.iframeFix ? o.iframeFix : true,
 					wrapHelper: o.wrapHelper ? o.wrapHelper : true,
 					scroll: o.scroll != undefined ? o.scroll : 20,
@@ -231,6 +231,10 @@
 			else {
 				if(o.init == false) return;
 			}
+			
+			/* Remap right/bottom properties for cursorAt to left/top */
+			if(o.cursorAt.right && !o.cursorAt.left) o.cursorAt.left = f.helper.offsetWidth - o.cursorAt.right;
+			if(o.cursorAt.bottom && !o.cursorAt.top) o.cursorAt.top = f.helper.offsetHeight - o.cursorAt.bottom;
 			
 			/* Trigger the onDrag callback */
 			if(o.onDrag)

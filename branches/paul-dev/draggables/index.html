@@ -84,21 +84,17 @@
 				$("div.drag").makeDraggable({
 					handle: "div",
 					onStart: function(helper) {
-						$(helper).css("width", this.offsetWidth-1+"px").css("height", this.offsetHeight-1+"px");
+						$(helper).css("opacity", "0.7");
 					},
 					onStop: function() {
 					},
 					onDrag: function(helper,x,y) {
 						//$(helper).html("Position: ["+x+","+y+"]");
 					},
-					helper: function() {
-						var helper = document.createElement("div");
-						$(helper).attr("className", "helper");
-						return helper;
-					},
+					helper: "clone",
+					revert: true,
 					dragPrevention: 0,
 					dragPreventionOn: "a,input",
-					cursorAt: {top: 10, left: 10 },
 					scroll: 20
 				});
 				
@@ -174,7 +170,7 @@
 	<tr>
 		<td>helper</td>
 		<td>""</td>
-		<td>String/Function. If you set a string, a empty div is created as helper, which has the className defined in the String.</td>
+		<td>String/Function. If you set the string "original", the original is being dragged. If set to "clone", you'll drag a clone. If you define a function, you'll get the original as first parameter and you have then to return a valid DOM node as helper.</td>
 	</tr>
 	<tr>
 		<td>dragPrevention</td>
@@ -205,6 +201,11 @@
 		<td>scroll</td>
 		<td>20</td>
 		<td>Number/Boolean. If a number is set, automatic scrolling is done when the cursor is less then 10px at a side of the window. For no automatic scrolling, you can set this option to 'false'.</td>
+	</tr>
+	<tr>
+		<td>insideParent</td>
+		<td>true</td>
+		<td>Boolean. If true, the helper/clone is appended to the parent of the original element. If false, the helper/clone is appended to the body.</td>
 	</tr>
 	<tr>
 		<td>onStart</td>
@@ -265,7 +266,7 @@
 	<tr>
 		<td>greedy</td>
 		<td>false</td>
-		<td>Boolean. If you have a droppable within a droppable, and you drop over the child droppable, both onDrop callbacks (outer and inner droppable) are fired. If you set this to true, only the onDrop event of the child fires.</td>
+		<td>Boolean. If you have a droppable within a droppable, and you drop over the child droppable, both onDrop callbacks (outer and inner droppable) are fired. If you set this to true, only the onDrop event of the child fires. Note: This can only be used in fast mode (cursor not within helper).</td>
 	</tr>
 </table>
 

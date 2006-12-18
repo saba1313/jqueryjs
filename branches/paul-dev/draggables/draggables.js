@@ -4,7 +4,7 @@
 
 (function($) {
 	jQuery.fDrop = {
-		manager: {},
+		manager: [],
 		init: function(o) {
 
 			if(!o)
@@ -23,6 +23,9 @@
 					greedy: o.greedy ? o.greedy : false
 				}
 
+				/* Add the reference and positions to the manager */
+				d.manager.push({ item: this, over: 0, out: 1 });
+			
 				/* Bind the hovering events */
 				$(this).hover(d.evHover,d.evOut);
 				
@@ -77,7 +80,7 @@
 			
 			/* Fire the callback if we are dragging and the accept function returns true */
 			if(f.current && o.onDrop && o.accept(f.current)) {
-				if(o.greedy) {
+				if(o.greedy && !f.slowMode) {
 					if(f.currentTarget == this) o.onDrop.apply(this, [f.current, f.helper]);
 				} else {
 					o.onDrop.apply(this, [f.current, f.helper]);	
@@ -93,7 +96,9 @@
 		position: null,
 		oldPosition: null,
 		currentTarget: null,
+		lastTarget: null,
 		helper: null,
+		slowMode: false,
 		init: function(o) {
 
 			if(!o)
@@ -107,18 +112,23 @@
 					onStart : o.onStart && o.onStart.constructor == Function ? o.onStart : false,
 					onStop : o.onStop && o.onStop.constructor == Function ? o.onStop : false,
 					onDrag : o.onDrag && o.onDrag.constructor == Function ? o.onDrag : false,
-					helper: o.helper ? o.helper : "",
+					helper: o.helper ? o.helper : "clone",
 					dragPrevention: o.dragPrevention ? o.dragPrevention : 0,
 					dragPreventionOn: o.dragPreventionOn ? o.dragPreventionOn.toLowerCase().split(",") : ["input","textarea","button"],
 					cursorAt: { top: ((o.cursorAt && o.cursorAt.top) ? o.cursorAt.top : 0), left: ((o.cursorAt && o.cursorAt.left) ? o.cursorAt.left : 0), bottom: ((o.cursorAt && o.cursorAt.bottom) ? o.cursorAt.bottom : 0), right: ((o.cursorAt && o.cursorAt.right) ? o.cursorAt.right : 0) },
+					cursorAtIgnore: (!o.cursorAt) ? true : false,
 					iframeFix: o.iframeFix ? o.iframeFix : true,
 					wrapHelper: o.wrapHelper ? o.wrapHelper : true,
 					scroll: o.scroll != undefined ? o.scroll : 20,
-					init: false
+					insideParent: o.insideParent != undefined ? o.insideParent : true,
+					init: false 
 				};
 
 				/* Bind the mousedown event */
 				this.dragOptions.handle.bind("mousedown", f.evClick);
+				
+				/* If cursorAt is within the helper, set slowMode to true */
+				if(this.dragOptions.cursorAt && (this.dragOptions.cursorAt.top >= 0 || this.dragOptions.cursorAt.bottom >= 0) && (this.dragOptions.cursorAt.left >= 0 || this.dragOptions.cursorAt.right >= 0)) f.slowMode = true;
 				
 				/* Link the original element to the handle for later reference */
 				this.dragOptions.handle.get(0).dragEl = this;
@@ -168,12 +178,15 @@
 				
 			/* Append a helper div if helper is not a function */
 			if(typeof o.helper == "function") {
-				f.helper = o.helper();
+				f.helper = o.helper(f.current);
 			} else {
-				f.helper = document.createElement("div");
-				$(f.helper).attr("class", o.helper);				
+				/* It's not a custom helper, then clone the original element
+				 * or drag the original
+				 */
+				if(o.helper == "clone") f.helper = $(f.current).clone();
+				if(o.helper == "original") f.helper = f.current;				
 			}
-			$(f.helper).css("position", "absolute").css("left", f.position[0]-o.cursorAt.left+"px").css("top", f.position[1]-o.cursorAt.top+"px").appendTo("body");
+			$(f.helper).css("position", "absolute").appendTo((o.insideParent ? f.current.parentNode : "body"));
 		
 			/* Make clones on top of iframes, if dimensions.js is loaded */
 			if($.fn.offset && o.iframeFix) {
@@ -181,6 +194,13 @@
 					var curOffset = $(this).offset();
 					$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", curOffset.width+"px").css("height", curOffset.height+"px").css("position", "absolute").css("opacity", "0.001").css("top", curOffset.top+"px").css("left", curOffset.left+"px").appendTo("body");
 				});				
+			}
+			
+			/* If we want to pick the element where we clicked, we borrow cursorAt */
+			if(o.cursorAtIgnore) {
+				var curOffset = $(f.current).offset();
+				o.cursorAt.left = f.position[0] - curOffset.left;
+				o.cursorAt.top = f.position[1] - curOffset.top;
 			}
 		
 			/* Okay, initialization is done, then set it to true */
@@ -206,16 +226,28 @@
 			/* Trigger the onStop callback */
 			if(o.onStop)
 				o.onStop.apply(f.current);
-				
-			/* Remove helper */
-			$("body").get(0).removeChild(f.helper);
 			
-			/* Remove frame helpers, if dimensions.js is loaded */
+			/* If cursorAt is within the helper, we must use our drop manager */
+			if(f.slowMode) {
+				var m = d.manager;
+				for(var i=0;i<m.length;i++) {
+					/* Let's see if the droppable is within the cursor's area, then fire onDrop */
+					var cO = $(m[i].item).offset();
+					if((f.position[0] > cO.left && f.position[0] < cO.left + m[i].item.offsetWidth) && (f.position[1] > cO.top && f.position[1] < cO.top + m[i].item.offsetHeight)) {
+						d.evDrop.apply(m[i].item);
+					}
+				}
+			}
+				
+			/* Remove helper, if it's not f.current */
+			if(f.helper != f.current) $(f.helper).remove();
+			
+			/* Remove frame helpers */
 			if($.fn.offset && o.iframeFix)
 				$("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			
 
 			o.init = false;
-			f.current = f.oldPosition = f.position = f.helper = null;
+			f.oldPosition = f.position = f.current = f.helper = null;
 				
 		},
 		evDrag: function(e) {
@@ -240,10 +272,10 @@
 			if(o.onDrag)
 				o.onDrag.apply(f.current, [f.helper,f.position[0],f.position[1]]);		
 			
-			/* If dimensions.js is loaded and wrapHelper is set to true, wrap the helper when
-			 * coming to a side of the screen.
+			/* If wrapHelper is set to true (and we have a defined cursorAt),
+			 * wrap the helper when coming to a side of the screen.
 			 */
-			if($.fn.offset && o.wrapHelper) {
+			if(o.wrapHelper && !o.cursorAtIgnore) {
 				var xOffset = ((f.position[0]-o.cursorAt.left - $(window).width() + f.helper.offsetWidth) - $(document).scrollLeft() > 0 || (f.position[0]-o.cursorAt.left) - $(document).scrollLeft() < 0) ? (f.helper.offsetWidth - o.cursorAt.left * 2) : 0;
 				var yOffset = ((f.position[1]-o.cursorAt.top - $(window).height() + f.helper.offsetHeight) - $(document).scrollTop() > 0 || (f.position[1]-o.cursorAt.top) - $(document).scrollTop() < 0) ? (f.helper.offsetHeight - o.cursorAt.top * 2) : 0;
 			} else {
@@ -251,7 +283,7 @@
 			}
 			
 			/* Auto scrolling */
-			if($.fn.offset && o.scroll) {
+			if(o.scroll) {
 				if((f.position[1] - $(window).height()) - $(document).scrollTop() > -10)
 					window.scrollBy(0,o.scroll);
 				if(f.position[1] - $(document).scrollTop() < 10)
@@ -264,7 +296,20 @@
 			
 			/* Stick the helper to the cursor */			
 			$(f.helper).css("left", f.position[0]-xOffset-(o.cursorAt.left ? o.cursorAt.left : 0)+"px").css("top", f.position[1]-yOffset-(o.cursorAt.top ? o.cursorAt.top : 0)+"px");
-				
+			
+			/* If cursorAt is within the helper, we must use our drop manager */
+			if(f.slowMode) {
+				var m = d.manager;
+				for(var i=0;i<m.length;i++) {
+					/* Let's see if the droppable is within the cursor's area */
+					var cO = $(m[i].item).offset();
+					if((f.position[0] > cO.left && f.position[0] < cO.left + m[i].item.offsetWidth) && (f.position[1] > cO.top && f.position[1] < cO.top + m[i].item.offsetHeight)) {
+						if(m[i].over == 0) { m[i].out = 0; m[i].over = 1; d.evHover.apply(m[i].item); }
+					} else {
+						if(m[i].out == 0) { m[i].out = 1; m[i].over = 0; d.evOut.apply(m[i].item); }
+					}
+				}
+			}	
 		}
 	}
 

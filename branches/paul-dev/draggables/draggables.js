@@ -1,5 +1,14 @@
 /**
- * @author paul.bakaus
+ * This plugin features Drag & Drop for jQuery. It is part of Interface.
+ * A documentation is available on http://interface.eyecon.ro.
+ *
+ * @example $("#testdiv").drag()
+ *
+ * @example $("#testdiv").drop({ accept: "drag" });
+ * 
+ * @name drop
+ * @type Function
+ * @cat Plugins/Interface
  */
 
 (function($) {
@@ -118,6 +127,7 @@
 					scroll: o.scroll != undefined ? o.scroll : 20,
 					appendTo: o.appendTo ? o.appendTo : "parent",
 					axis: o.axis ? o.axis : null,
+					containment: o.containment ? (o.containment == "parent" ? this.parentNode : o.containment) : null,
 					init: false //Internal property
 				};
 
@@ -175,6 +185,9 @@
 			
 			/* get the current offset */
 			o.curOffset = $(f.current).offset();
+			
+			/* Get the containment offset if we want a containment */
+			if(o.containment && o.containment.top == undefined && o.cursorAtIgnore) o.containmentOffset = $(o.containment).offset();
 				
 			/* Append a helper div if helper is not a function */
 			if(typeof o.helper == "function") {
@@ -191,7 +204,7 @@
 				$(f.helper).css("margin", "0px");	
 			}
 		
-			/* Make clones on top of iframes, if dimensions.js is loaded */
+			/* Make clones on top of iframes */
 			if($.fn.offset && o.iframeFix) {
 				$("iframe").each(function() {
 					var curOffset = $(this).offset();
@@ -206,14 +219,13 @@
 			}
 		
 			/* Append the helper */
-			$(f.helper).css("position", "absolute").appendTo((o.appendTo == "parent" ? f.current.parentNode : o.appendTo));
+			$(f.helper).css("left", o.curOffset.left+"px").css("top", o.curOffset.top+"px").css("position", "absolute").appendTo((o.appendTo == "parent" ? f.current.parentNode : o.appendTo));
 			
 			/* Okay, initialization is done, then set it to true */
 			o.init = true;			
 			
 			/* Trigger the onStart callback */
-			if(o.onStart)
-				o.onStart.apply(f.current, [f.helper]);
+			if(o.onStart) o.onStart.apply(f.current, [f.helper]);
 			
 		},
 		evStop: function(e) {			
@@ -229,8 +241,7 @@
 				return f.current = f.oldPosition = f.position = null;
 			
 			/* Trigger the onStop callback */
-			if(o.onStop)
-				o.onStop.apply(f.current);
+			if(o.onStop) o.onStop.apply(f.current);
 			
 			/* If cursorAt is within the helper, we must use our drop manager */
 			if(f.slowMode) {
@@ -252,9 +263,9 @@
 			}
 			
 			/* Remove frame helpers */
-			if($.fn.offset && o.iframeFix)
-				$("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			
+			if($.fn.offset && o.iframeFix) $("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			
 
+			/* Clear temp variables */
 			o.init = false;
 			f.oldPosition = f.position = f.current = f.helper = null;
 				
@@ -278,8 +289,21 @@
 			if(o.cursorAt.bottom && !o.cursorAt.top) o.cursorAt.top = f.helper.offsetHeight - o.cursorAt.bottom;
 			
 			/* Trigger the onDrag callback */
-			if(o.onDrag)
-				o.onDrag.apply(f.current, [f.helper,f.position[0],f.position[1]]);		
+			if(o.onDrag) o.onDrag.apply(f.current, [f.helper,f.position[0],f.position[1]]);		
+
+			/* If cursorAt is within the helper, we must use our drop manager */
+			if(f.slowMode) {
+				var m = d.manager;
+				for(var i=0;i<m.length;i++) {
+					/* Let's see if the droppable is within the cursor's area */
+					var cO = $(m[i].item).offset();
+					if((f.position[0] > cO.left && f.position[0] < cO.left + m[i].item.offsetWidth) && (f.position[1] > cO.top && f.position[1] < cO.top + m[i].item.offsetHeight)) {
+						if(m[i].over == 0) { m[i].out = 0; m[i].over = 1; d.evHover.apply(m[i].item); }
+					} else {
+						if(m[i].out == 0) { m[i].out = 1; m[i].over = 0; d.evOut.apply(m[i].item); }
+					}
+				}
+			}
 			
 			/* If wrapHelper is set to true (and we have a defined cursorAt),
 			 * wrap the helper when coming to a side of the screen.
@@ -294,21 +318,19 @@
 			
 			/* Auto scrolling */
 			if(o.scroll) {
-				if((f.position[1] - $(window).height()) - $(document).scrollTop() > -10)
-					window.scrollBy(0,o.scroll);
-				if(f.position[1] - $(document).scrollTop() < 10)
-					window.scrollBy(0,-o.scroll);
-				if((f.position[0] - $(window).width()) - $(document).scrollLeft() > -10)
-					window.scrollBy(o.scroll,0);
-				if(f.position[0] - $(document).scrollLeft() < 10)
-					window.scrollBy(-o.scroll,0);
+				if((f.position[1] - $(window).height()) - $(document).scrollTop() > -10) window.scrollBy(0,o.scroll);
+				if(f.position[1] - $(document).scrollTop() < 10) window.scrollBy(0,-o.scroll);
+				if((f.position[0] - $(window).width()) - $(document).scrollLeft() > -10) window.scrollBy(o.scroll,0);
+				if(f.position[0] - $(document).scrollLeft() < 10) window.scrollBy(-o.scroll,0);
 			}
 
 			/* map new helper left/top values to temp vars */
 			var newTop = f.position[1]-yOffset-(o.cursorAt.top ? o.cursorAt.top : 0);
 			var newLeft = f.position[0]-xOffset-(o.cursorAt.left ? o.cursorAt.left : 0);
 
-			/* If we have a containment, use it. Cannot be used with cursorAt. */
+			/* If we have a axis or containment, use it.
+			 * Cannot be used with cursorAt.
+			 */
 			if(o.axis && o.cursorAtIgnore) {
 				switch(o.axis) {
 					case "horizontal":
@@ -324,23 +346,23 @@
 						break;
 				}					
 			}
+			if(o.containment && o.cursorAtIgnore) {
+				if(o.containment.top != undefined) {
+					if((newLeft < o.containment.left)) newLeft = o.containment.left;
+					if((newTop < o.containment.top)) newTop = o.containment.top;
+					if(newLeft+$(f.helper)[0].offsetWidth > o.containment.right) newLeft = o.containment.right-$(f.helper)[0].offsetWidth;
+					if(newTop+$(f.helper)[0].offsetHeight > o.containment.bottom) newTop = o.containment.bottom-$(f.helper)[0].offsetHeight;					
+				} else {
+					if((newLeft < o.containmentOffset.left)) newLeft = o.containmentOffset.left;
+					if((newTop < o.containmentOffset.top)) newTop = o.containmentOffset.top;
+					if((newTop+$(f.helper)[0].offsetHeight > o.containmentOffset.top+$(o.containment)[0].offsetHeight)) newTop = o.containmentOffset.top+$(o.containment)[0].offsetHeight-$(f.helper)[0].offsetHeight;
+					if((newLeft+$(f.helper)[0].offsetWidth > o.containmentOffset.left+$(o.containment)[0].offsetWidth)) newLeft = o.containmentOffset.left+$(o.containment)[0].offsetWidth-$(f.helper)[0].offsetWidth;		
+				}
+			}
 			
 			/* Stick the helper to the cursor */			
 			$(f.helper).css("left", newLeft+"px").css("top", newTop+"px");
 			
-			/* If cursorAt is within the helper, we must use our drop manager */
-			if(f.slowMode) {
-				var m = d.manager;
-				for(var i=0;i<m.length;i++) {
-					/* Let's see if the droppable is within the cursor's area */
-					var cO = $(m[i].item).offset();
-					if((f.position[0] > cO.left && f.position[0] < cO.left + m[i].item.offsetWidth) && (f.position[1] > cO.top && f.position[1] < cO.top + m[i].item.offsetHeight)) {
-						if(m[i].over == 0) { m[i].out = 0; m[i].over = 1; d.evHover.apply(m[i].item); }
-					} else {
-						if(m[i].out == 0) { m[i].out = 1; m[i].over = 0; d.evOut.apply(m[i].item); }
-					}
-				}
-			}	
 		}
 	}
 

@@ -171,6 +171,18 @@
 					<td>Hash. This defines the offset between helper and cursor. Note: Values have to be negative, because the Cursor may not be on top of the helper.</td>
 				</tr>
 				<tr>
+					<td>axis</td>
+					<td>-</td>
+					<td>Cannot be used with cursorAt</td>
+					<td>String. Can be set to "vertical", "horizontal" or if you want to define a grid: "grid[x,y]".</td>
+				</tr>
+				<tr>
+					<td>containment</td>
+					<td>-</td>
+					<td>Cannot be used with cursorAt</td>
+					<td>String/Object. Defines, in what area the draggable can be dragged. Input jQuery Syntax (i.e. "div p") or the special one "parent". If you want a custom area, insert a object like this: { top: 20, right: 100, bottom: 120, left: 10 }</td>
+				</tr>
+				<tr>
 					<td>iframeFix</td>
 					<td>true</td>
 					<td>-</td>
@@ -289,7 +301,13 @@
 			dragPrevention: 0,
 			dragPreventionOn: "a,input",
 			scroll: 20,
-			axis: "grid[40,40]"
+			//axis: "grid[40,40]",
+			containment: {
+				top: 1800,
+				right: 600,
+				bottom: 2100,
+				left: 100
+			}
 		});
 		
 		$("div.drop").drop({

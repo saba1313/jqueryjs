@@ -286,9 +286,8 @@
 		/* Example 1: Draggable with no options */
 		$("div.drag_1").drag();
 		
-		/* Example 1: Draggable with helper: 'original' */
+		/* Example 2: Draggable with helper: 'original' */
 		$("div.drag_2").drag({
-			handle: "div",
 			onStart: function(helper) {
 				$(helper).css("opacity", "0.7");
 			},
@@ -302,12 +301,28 @@
 			dragPreventionOn: "a,input",
 			scroll: 20,
 			//axis: "grid[40,40]",
-			containment: {
-				top: 1800,
-				right: 600,
-				bottom: 2100,
-				left: 100
-			}
+			containment: "parent"
+		});
+		
+		/* Example 3: Draggable with helper: 'original' */
+		$("div.drag_3").drag({
+			handle: "div",
+			onStart: function(helper) {
+				$(helper).css("opacity", "0.7");
+			},
+			onStop: function() {
+			},
+			onDrag: function(helper,x,y) {
+				//$(helper).html("Position: ["+x+","+y+"]");
+			},
+			helper: "clone",
+			cursorAt: { top: -5, left: -5 },
+			wrapHelper: true,
+			dragPrevention: 0,
+			dragPreventionOn: "a,input",
+			scroll: 20,
+			//axis: "grid[40,40]",
+			containment: "parent"
 		});
 		
 		$("div.drop").drop({
@@ -346,7 +361,7 @@
 		<div class="area" style="height: 600px;">
 			<div class="drag drag_1">I'm a draggable with no options!</div>
 			<div class="drag drag_2">I'm a draggable with a <a href="http://www.jquery.com">link</a> and a input. <input style="width: 100px;" type="text" value="form element"></div>
-			<div class="drag drag_2">I'm a draggable with a<div style="border: 1px solid black; padding: 2px;">handle.</div></div>
+			<div class="drag drag_3">I'm a draggable with a<div style="border: 1px solid black; padding: 2px;">handle.</div></div>
 			<div class="drop"><span>Im' a droppable.</span> <div id="ddrop" style="border: 1px solid black; padding: 2px; font-size: 10pt;">I'm a different droppable.</div></div>
 			<iframe style="float: left; margin: 5px; border: 1px solid black" name="iframe1" id="iframe1" width="130" height="130" src="http://www.google.com"></iframe>
 		</div>

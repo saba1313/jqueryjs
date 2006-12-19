@@ -196,7 +196,7 @@
 				/* It's not a custom helper, then clone the original element
 				 * or drag the original
 				 */
-				if(o.helper == "clone") f.helper = $(f.current).clone();
+				if(o.helper == "clone") f.helper = $(f.current).clone()[0];
 				if(o.helper == "original") f.helper = f.current;
 				
 				/* Margins are ugly, so remove them during drag */

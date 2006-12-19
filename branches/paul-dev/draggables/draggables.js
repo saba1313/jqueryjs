@@ -7,9 +7,7 @@
 		manager: [],
 		init: function(o) {
 
-			if(!o)
-				var o = {};	
-			
+			if(!o) var o = {};			
 			return this.each(function() {
 				this.dropOptions = {
 					accept: o.accept && o.accept.constructor == Function ? o.accept : function(dragEl) {
@@ -101,9 +99,7 @@
 		slowMode: false,
 		init: function(o) {
 
-			if(!o)
-				var o = {};
-
+			if(!o) var o = {};
 			return this.each(function() {			
 
 				/* Prepare the options */
@@ -116,12 +112,13 @@
 					dragPrevention: o.dragPrevention ? o.dragPrevention : 0,
 					dragPreventionOn: o.dragPreventionOn ? o.dragPreventionOn.toLowerCase().split(",") : ["input","textarea","button"],
 					cursorAt: { top: ((o.cursorAt && o.cursorAt.top) ? o.cursorAt.top : 0), left: ((o.cursorAt && o.cursorAt.left) ? o.cursorAt.left : 0), bottom: ((o.cursorAt && o.cursorAt.bottom) ? o.cursorAt.bottom : 0), right: ((o.cursorAt && o.cursorAt.right) ? o.cursorAt.right : 0) },
-					cursorAtIgnore: (!o.cursorAt) ? true : false,
+					cursorAtIgnore: (!o.cursorAt) ? true : false, //Internal property
 					iframeFix: o.iframeFix ? o.iframeFix : true,
 					wrapHelper: o.wrapHelper ? o.wrapHelper : true,
 					scroll: o.scroll != undefined ? o.scroll : 20,
-					insideParent: o.insideParent != undefined ? o.insideParent : true,
-					init: false 
+					appendTo: o.appendTo ? o.appendTo : "parent",
+					axis: o.axis ? o.axis : null,
+					init: false //Internal property
 				};
 
 				/* Bind the mousedown event */
@@ -175,6 +172,9 @@
 
 			/* Get the current mouse position */
 			f.position = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
+			
+			/* get the current offset */
+			o.curOffset = $(f.current).offset();
 				
 			/* Append a helper div if helper is not a function */
 			if(typeof o.helper == "function") {
@@ -184,9 +184,12 @@
 				 * or drag the original
 				 */
 				if(o.helper == "clone") f.helper = $(f.current).clone();
-				if(o.helper == "original") f.helper = f.current;				
+				if(o.helper == "original") f.helper = f.current;
+				
+				/* Margins are ugly, so remove them during drag */
+				o.oldMargins = [$(f.helper).css("marginTop"),$(f.helper).css("marginRight"),$(f.helper).css("marginBottom"),$(f.helper).css("marginLeft")];
+				$(f.helper).css("margin", "0px");	
 			}
-			$(f.helper).css("position", "absolute").appendTo((o.insideParent ? f.current.parentNode : "body"));
 		
 			/* Make clones on top of iframes, if dimensions.js is loaded */
 			if($.fn.offset && o.iframeFix) {
@@ -198,11 +201,13 @@
 			
 			/* If we want to pick the element where we clicked, we borrow cursorAt */
 			if(o.cursorAtIgnore) {
-				var curOffset = $(f.current).offset();
-				o.cursorAt.left = f.position[0] - curOffset.left;
-				o.cursorAt.top = f.position[1] - curOffset.top;
+				o.cursorAt.left = f.position[0] - o.curOffset.left;
+				o.cursorAt.top = f.position[1] - o.curOffset.top;
 			}
 		
+			/* Append the helper */
+			$(f.helper).css("position", "absolute").appendTo((o.appendTo == "parent" ? f.current.parentNode : o.appendTo));
+			
 			/* Okay, initialization is done, then set it to true */
 			o.init = true;			
 			
@@ -239,8 +244,12 @@
 				}
 			}
 				
-			/* Remove helper, if it's not f.current */
-			if(f.helper != f.current) $(f.helper).remove();
+			/* Remove helper, if it's not f.current, else add the removed margins again */
+			if(f.helper != f.current) {
+				$(f.helper).remove();	
+			} else {
+				$(f.helper).css("marginTop", o.oldMargins[0]).css("marginRight", o.oldMargins[1]).css("marginBottom", o.oldMargins[2]).css("marginLeft", o.oldMargins[3]);
+			}
 			
 			/* Remove frame helpers */
 			if($.fn.offset && o.iframeFix)
@@ -279,7 +288,8 @@
 				var xOffset = ((f.position[0]-o.cursorAt.left - $(window).width() + f.helper.offsetWidth) - $(document).scrollLeft() > 0 || (f.position[0]-o.cursorAt.left) - $(document).scrollLeft() < 0) ? (f.helper.offsetWidth - o.cursorAt.left * 2) : 0;
 				var yOffset = ((f.position[1]-o.cursorAt.top - $(window).height() + f.helper.offsetHeight) - $(document).scrollTop() > 0 || (f.position[1]-o.cursorAt.top) - $(document).scrollTop() < 0) ? (f.helper.offsetHeight - o.cursorAt.top * 2) : 0;
 			} else {
-				var xOffset = yOffset = 0;	
+				var xOffset = 0;
+				var yOffset = 0;	
 			}
 			
 			/* Auto scrolling */
@@ -293,9 +303,30 @@
 				if(f.position[0] - $(document).scrollLeft() < 10)
 					window.scrollBy(-o.scroll,0);
 			}
+
+			/* map new helper left/top values to temp vars */
+			var newTop = f.position[1]-yOffset-(o.cursorAt.top ? o.cursorAt.top : 0);
+			var newLeft = f.position[0]-xOffset-(o.cursorAt.left ? o.cursorAt.left : 0);
+
+			/* If we have a containment, use it. Cannot be used with cursorAt. */
+			if(o.axis && o.cursorAtIgnore) {
+				switch(o.axis) {
+					case "horizontal":
+						newTop = o.curOffset.top;
+						break;
+					case "vertical":
+						newLeft = o.curOffset.left;
+						break;
+					default:
+						var grid = [parseInt(o.axis.split("[")[1].split(",")[1]),parseInt(o.axis.split("[")[1].split(",")[0])];
+						newLeft = o.curOffset.left + Math.round((newLeft - o.curOffset.left) / grid[0]) * grid[0];
+						newTop = o.curOffset.top + Math.round((newTop - o.curOffset.top) / grid[1]) * grid[1];
+						break;
+				}					
+			}
 			
 			/* Stick the helper to the cursor */			
-			$(f.helper).css("left", f.position[0]-xOffset-(o.cursorAt.left ? o.cursorAt.left : 0)+"px").css("top", f.position[1]-yOffset-(o.cursorAt.top ? o.cursorAt.top : 0)+"px");
+			$(f.helper).css("left", newLeft+"px").css("top", newTop+"px");
 			
 			/* If cursorAt is within the helper, we must use our drop manager */
 			if(f.slowMode) {
@@ -322,9 +353,10 @@
 	/* Extend jQuery's methods, map two of our internals */
 	jQuery.fn.extend(
 		{
-			destroyDraggable : jQuery.fDrag.destroy,
-			makeDraggable : jQuery.fDrag.init,
-			makeDroppable : jQuery.fDrop.init
+			undrag : jQuery.fDrag.destroy,
+			undrop : jQuery.fDrop.destroy,
+			drag : jQuery.fDrag.init,
+			drop : jQuery.fDrop.init
 		}
 	);
  })(jQuery);

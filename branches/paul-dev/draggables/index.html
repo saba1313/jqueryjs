@@ -1,100 +1,195 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-		<title>Draggables Beta</title>
-		<script type="text/javascript" src="firebug/firebug.js"></script>
-		<script type="text/javascript" src="../../jquery/src/jquery/jquery.js"></script>
-		<script type="text/javascript" src="../../jquery/src/event/event.js"></script>
-		<script type="text/javascript" src="../../jquery/src/fx/fx.js"></script>
-		<script type="text/javascript" src="../../jquery/src/ajax/ajax.js"></script>
-		<script type="text/javascript" src="../../jquery_plugins/dimensions/dimensions.js"></script>
-		<style type="text/css">
-			body {
-				font-family: Arial, Helvetica, sans-serif;
-				font-size: 10pt;
-			}
-			div.content {
-				background: #eee;
-				border: 2px solid #999;
-				padding: 10px;
-				margin: 0 auto;
-				width: 90%;
-			}
-			div.content span {
-				color: #000;
-			}
-			
-			div.inner {
-				border: 2px solid darkgreen;
-				padding: 5px;
-				background: lightgreen;
-				margin: 5px;
-			}
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<title>Draggables Beta</title>
+	<script type="text/javascript" src="firebug/firebug.js"></script>
+	<script type="text/javascript" src="../../jquery/src/jquery/jquery.js"></script>
+	<script type="text/javascript" src="../../jquery/src/event/event.js"></script>
+	<script type="text/javascript" src="../../jquery/src/fx/fx.js"></script>
+	<script type="text/javascript" src="../../jquery/src/ajax/ajax.js"></script>
+	<script type="text/javascript" src="../../jquery_plugins/dimensions/dimensions.js"></script>
+	<style type="text/css">
+		body {
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 10pt;
+		}
+		div.content {
+			background: #eee;
+			border: 2px solid #999;
+			padding: 10px;
+			margin: 0 auto;
+			width: 90%;
+		}
+		div.content span {
+			color: #000;
+		}
+		
+		div.inner {
+			border: 2px solid darkgreen;
+			padding: 5px;
+			background: lightgreen;
+			margin: 5px;
+		}
 
-			div.options {
-				border: 2px solid darkred;
-				padding: 5px;
-				background: #FFCA6F;
-				margin: 5px;
-			}
-			
-			div.area {
-				background: #C6E5FF;
-				border: 2px solid #b6d5eF;
-				padding: 10px;
-				margin: 0 auto;
-				margin-top: 10px;
-				color: #888;
-				width: 90%;
-			}
-			
-			div.drag {
-				border: 2px solid darkgreen;
-				width: 120px;
-				height: 120px;
-				background-color: lightgreen;
-				padding: 5px;
-				float: left;
-				margin: 5px;
-			}
+		div.options {
+			border: 2px solid darkred;
+			padding: 5px;
+			background: #FFCA6F;
+			margin: 5px;
+		}
+		
+		div.area {
+			background: #C6E5FF;
+			border: 2px solid #b6d5eF;
+			padding: 10px;
+			margin: 0 auto;
+			margin-top: 10px;
+			color: #888;
+			width: 90%;
+		}
+		
+		div.drag {
+			border: 2px solid darkgreen;
+			width: 120px;
+			height: 120px;
+			background-color: lightgreen;
+			padding: 5px;
+			float: left;
+			margin: 5px;
+		}
 
-			div.drop {
-				border: 2px solid darkred;
-				width: 120px;
-				height: 120px;
-				background-color: orange;
-				padding: 5px;
-				float: left;
-				margin: 5px;
-			}
-			
-			div.helper {
-				border: 1px dotted black;
-				background: #eee;
-				color: #000;
-				opacity: 0.8;
-				width: 100px;
-				height: 20px;
-				z-index: 1000;
-			}
-			
-			table tr td {
-				text-align: left;
-				vertical-align: top;
-			}
-			
-			h2 {
-				border-bottom: 2px solid #777;
-				text-align: right;
-			}
-			
-		</style>
-		<script type="text/javascript" src="draggables.js"></script>
+		div.drop {
+			border: 2px solid darkred;
+			width: 120px;
+			height: 120px;
+			background-color: orange;
+			padding: 5px;
+			float: left;
+			margin: 5px;
+		}
+		
+		div.helper {
+			border: 1px dotted black;
+			background: #eee;
+			color: #000;
+			opacity: 0.8;
+			width: 100px;
+			height: 20px;
+			z-index: 1000;
+		}
+		
+		table tr td {
+			text-align: left;
+			vertical-align: top;
+		}
+		
+		h2 {
+			border-bottom: 2px solid #777;
+			text-align: right;
+		}
+		
+	</style>
+	<script type="text/javascript" src="draggables.js"></script>
 
-	</head>
-	<body>
-	<div class="content">
+</head>
+<body>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		
+		/* Example 1: Draggable with no options */
+		$("div.drag_1").drag();
+		
+		/* Example 2: Draggable with helper: 'original' */
+		$("div.drag_2").drag({
+			onStart: function(helper) {
+				$(helper).css("opacity", "0.7");
+			},
+			onStop: function() {
+			},
+			onDrag: function(helper,x,y) {
+				//$(helper).html("Position: ["+x+","+y+"]");
+			},
+			helper: "clone",
+			dragPrevention: 0,
+			dragPreventionOn: "a,input",
+			scroll: 20,
+			//axis: "grid[40,40]",
+			containment: "parent"
+		});
+		
+		/* Example 3: Draggable with helper: 'original' */
+		$("div.drag_3").drag({
+			handle: "div",
+			onStart: function(helper) {
+				$(helper).css("opacity", "0.7");
+			},
+			onStop: function() {
+			},
+			onDrag: function(helper,x,y) {
+				//$(helper).html("Position: ["+x+","+y+"]");
+			},
+			helper: "clone",
+			cursorAt: { top: -5, left: -5 },
+			wrapHelper: true,
+			dragPrevention: 0,
+			dragPreventionOn: "a,input",
+			scroll: 20,
+			//axis: "grid[40,40]",
+			containment: "parent"
+		});
+		
+		/* InsideParent */
+		$("div.inside").drag();
+		
+		$("div.drop").drop({
+			accept: "drag",
+			onHover: function(drag, helper) {
+				$(this).css("border", "5px solid black");
+			},
+			onOut: function(drag, helper) {
+				$(this).css("border", "");
+			},
+			onDrop: function(drag) {
+				$(this).css("border", "");
+				$("span", this).html("dropped on outer!");
+			},
+			greedy: true
+		});
+		
+		$("#ddrop").drop({
+			accept: "drag",
+			onHover: function(drag, helper) {
+				$(this).css("border", "5px solid black");
+			},
+			onOut: function(drag,helper) {
+				$(this).css("border", "1px solid black");
+			},
+			onDrop: function(drag) {
+				$(this).css("border", "1px solid black");
+				$(this).html("dropped on inner!");
+			}
+		});
+		
+	});
+	
+</script>
+		
+<div class="area" style="height: 200px;">
+	<div class="drag drag_1">I'm a draggable with no options!</div>
+	<div class="drag drag_2">I'm a draggable with a <a href="http://www.jquery.com">link</a> and a input. <input style="width: 100px;" type="text" value="form element"></div>
+	<div class="drag drag_3">I'm a draggable with a<div style="border: 1px solid black; padding: 2px;">handle.</div></div>
+	<div class="drop"><span>Im' a droppable.</span> <div id="ddrop" style="border: 1px solid black; padding: 2px; font-size: 10pt;">I'm a different droppable.</div></div>
+	<iframe style="float: left; margin: 5px; border: 1px solid black" name="iframe1" id="iframe1" width="130" height="130" src="http://www.google.com"></iframe>
+	<div class="drag" style="width: 300px; overflow: scroll; position: relative;">
+		<div class="drag inside">inside dragging</div>
+		<div style="height: 300px; width: 400px;">stretch</div>
+	</div>
+</div>
+
+
+<div class="content">
 
 <table cellpadding="0" cellspacing="0" width="100%">
 	<tr>
@@ -279,92 +374,6 @@
 </table>						
 
 </div>
-
-<script type="text/javascript">
-	$(document).ready(function() {
-		
-		/* Example 1: Draggable with no options */
-		$("div.drag_1").drag();
-		
-		/* Example 2: Draggable with helper: 'original' */
-		$("div.drag_2").drag({
-			onStart: function(helper) {
-				$(helper).css("opacity", "0.7");
-			},
-			onStop: function() {
-			},
-			onDrag: function(helper,x,y) {
-				//$(helper).html("Position: ["+x+","+y+"]");
-			},
-			helper: "clone",
-			dragPrevention: 0,
-			dragPreventionOn: "a,input",
-			scroll: 20,
-			//axis: "grid[40,40]",
-			containment: "parent"
-		});
-		
-		/* Example 3: Draggable with helper: 'original' */
-		$("div.drag_3").drag({
-			handle: "div",
-			onStart: function(helper) {
-				$(helper).css("opacity", "0.7");
-			},
-			onStop: function() {
-			},
-			onDrag: function(helper,x,y) {
-				//$(helper).html("Position: ["+x+","+y+"]");
-			},
-			helper: "clone",
-			cursorAt: { top: -5, left: -5 },
-			wrapHelper: true,
-			dragPrevention: 0,
-			dragPreventionOn: "a,input",
-			scroll: 20,
-			//axis: "grid[40,40]",
-			containment: "parent"
-		});
-		
-		$("div.drop").drop({
-			accept: "drag",
-			onHover: function(drag, helper) {
-				$(this).css("border", "5px solid black");
-			},
-			onOut: function(drag, helper) {
-				$(this).css("border", "");
-			},
-			onDrop: function(drag) {
-				$(this).css("border", "");
-				$("span", this).html("dropped on outer!");
-			},
-			greedy: true
-		});
-		
-		$("#ddrop").drop({
-			accept: "drag",
-			onHover: function(drag, helper) {
-				$(this).css("border", "5px solid black");
-			},
-			onOut: function(drag,helper) {
-				$(this).css("border", "1px solid black");
-			},
-			onDrop: function(drag) {
-				$(this).css("border", "1px solid black");
-				$(this).html("dropped on inner!");
-			}
-		});
-		
-	});
-	
-</script>
-		
-		<div class="area" style="height: 600px;">
-			<div class="drag drag_1">I'm a draggable with no options!</div>
-			<div class="drag drag_2">I'm a draggable with a <a href="http://www.jquery.com">link</a> and a input. <input style="width: 100px;" type="text" value="form element"></div>
-			<div class="drag drag_3">I'm a draggable with a<div style="border: 1px solid black; padding: 2px;">handle.</div></div>
-			<div class="drop"><span>Im' a droppable.</span> <div id="ddrop" style="border: 1px solid black; padding: 2px; font-size: 10pt;">I'm a different droppable.</div></div>
-			<iframe style="float: left; margin: 5px; border: 1px solid black" name="iframe1" id="iframe1" width="130" height="130" src="http://www.google.com"></iframe>
-		</div>
 		
 	</body>
 </html>

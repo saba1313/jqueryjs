@@ -52,10 +52,18 @@
 			if(!f.current) return;
 
 			var o = this.dropOptions;
-
+			
 			/* Save current target, if no last target given */
-			if(f.current && o.accept(f.current)) f.currentTarget = e.currentTarget;
-
+			var findCurrentTarget = function(e) {
+				if(e.currentTarget) return e.currentTarget;
+				var element = e.srcElement;
+				do {
+					if(element.dropOptions) return element;
+					element = element.parentNode;
+				} while (element);
+			}
+			if(f.current && o.accept(f.current)) f.currentTarget = findCurrentTarget(e);
+			
 			f.evDrag.apply(document, [e]);
 			e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
 				
@@ -84,7 +92,6 @@
 		evDrop: function(e) {
 
 			var o = this.dropOptions;
-			
 			/* Fire the callback if we are dragging and the accept function returns true */
 			if(f.current && o.onDrop && o.accept(f.current)) {
 				if(o.greedy && !f.slowMode) {
@@ -134,9 +141,6 @@
 				/* Bind the mousedown event */
 				this.dragOptions.handle.bind("mousedown", f.evClick);
 				
-				/* If cursorAt is within the helper, set slowMode to true */
-				if(this.dragOptions.cursorAt && (this.dragOptions.cursorAt.top >= 0 || this.dragOptions.cursorAt.bottom >= 0) && (this.dragOptions.cursorAt.left >= 0 || this.dragOptions.cursorAt.right >= 0)) f.slowMode = true;
-				
 				/* Link the original element to the handle for later reference */
 				this.dragOptions.handle.get(0).dragEl = this;
 				
@@ -147,6 +151,8 @@
 					this.style.KhtmlUserSelect = "none";
 				}else if($.browser.msie){
 					this.unselectable = "on";
+					this.ondrag = function () { return false; };
+					this.onselectstart = function () { return false; };
 				}else{
 					return false;
 				}				
@@ -180,9 +186,6 @@
 
 			var o = f.current.dragOptions;
 
-			/* Get the current mouse position */
-			f.position = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
-			
 			/* get the current offset */
 			o.curOffset = $(f.current).offset();
 			
@@ -212,15 +215,48 @@
 				});				
 			}
 			
+			/* Let's see if we have a positioned parent */
+			var curParent = f.current.parentNode;
+			while (curParent) {
+				if(curParent.style && (curParent.style.position == "relative" || curParent.style.position == "absolute")) {
+					o.positionedParent = curParent;
+					o.positionedParentOffset = $(curParent).offset();
+					break;	
+				}
+				curParent = curParent.parentNode ? curParent.parentNode : null;
+			};
+			
+			/* Get the current mouse position */
+			f.position = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
+					
 			/* If we want to pick the element where we clicked, we borrow cursorAt */
 			if(o.cursorAtIgnore) {
 				o.cursorAt.left = f.position[0] - o.curOffset.left;
 				o.cursorAt.top = f.position[1] - o.curOffset.top;
 			}
+			
+			if(o.positionedParent) {
+				f.position[0] -= o.positionedParentOffset.left;
+				f.position[1] -= o.positionedParentOffset.top;	
+			}
+			
+			/* If cursorAt is within the helper, set slowMode to true */
+			f.slowMode = (o.cursorAt && (o.cursorAt.top > 0 || o.cursorAt.bottom > 0) && (o.cursorAt.left > 0 || o.cursorAt.right > 0)) ? true : false;
 		
 			/* Append the helper */
 			$(f.helper).css("left", o.curOffset.left+"px").css("top", o.curOffset.top+"px").css("position", "absolute").appendTo((o.appendTo == "parent" ? f.current.parentNode : o.appendTo));
 			
+			/* Only after we have appended the helper, we compute the offsets
+			 * for the slowMode! This is important, so the user aready see's
+			 * something going on.
+			 */
+			if(f.slowMode) {
+				var m = d.manager;
+				for(var i=0;i<m.length;i++) {
+					m[i].offset = $(m[i].item).offset();
+				}
+			}
+		
 			/* Okay, initialization is done, then set it to true */
 			o.init = true;			
 			
@@ -248,7 +284,7 @@
 				var m = d.manager;
 				for(var i=0;i<m.length;i++) {
 					/* Let's see if the droppable is within the cursor's area, then fire onDrop */
-					var cO = $(m[i].item).offset();
+					var cO = m[i].offset;
 					if((f.position[0] > cO.left && f.position[0] < cO.left + m[i].item.offsetWidth) && (f.position[1] > cO.top && f.position[1] < cO.top + m[i].item.offsetHeight)) {
 						d.evDrop.apply(m[i].item);
 					}
@@ -263,7 +299,7 @@
 			}
 			
 			/* Remove frame helpers */
-			if($.fn.offset && o.iframeFix) $("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			
+			if(o.iframeFix) $("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			
 
 			/* Clear temp variables */
 			o.init = false;
@@ -276,6 +312,10 @@
 		
 			/* Get the current mouse position */
 			f.position = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
+			if(o.positionedParent) {
+				f.position[0] -= o.positionedParentOffset.left - o.positionedParent.scrollLeft;
+				f.position[1] -= o.positionedParentOffset.top - o.positionedParent.scrollTop;	
+			}
 
 			/* If position is more than x pixels from original position, start dragging */
 			if( (Math.abs(f.position[0]-f.oldPosition[0]) > o.dragPrevention || Math.abs(f.position[1]-f.oldPosition[1]) > o.dragPrevention) && o.init == false)
@@ -296,7 +336,7 @@
 				var m = d.manager;
 				for(var i=0;i<m.length;i++) {
 					/* Let's see if the droppable is within the cursor's area */
-					var cO = $(m[i].item).offset();
+					var cO = m[i].offset;
 					if((f.position[0] > cO.left && f.position[0] < cO.left + m[i].item.offsetWidth) && (f.position[1] > cO.top && f.position[1] < cO.top + m[i].item.offsetHeight)) {
 						if(m[i].over == 0) { m[i].out = 0; m[i].over = 1; d.evHover.apply(m[i].item); }
 					} else {
@@ -318,10 +358,15 @@
 			
 			/* Auto scrolling */
 			if(o.scroll) {
-				if((f.position[1] - $(window).height()) - $(document).scrollTop() > -10) window.scrollBy(0,o.scroll);
-				if(f.position[1] - $(document).scrollTop() < 10) window.scrollBy(0,-o.scroll);
-				if((f.position[0] - $(window).width()) - $(document).scrollLeft() > -10) window.scrollBy(o.scroll,0);
-				if(f.position[0] - $(document).scrollLeft() < 10) window.scrollBy(-o.scroll,0);
+				/* If we have a positioned parent, we only scroll in this one */
+				if(o.positionedParent) {
+					/* Extremely strange issues are waiting here..handle with care */
+				} else {
+					if((f.position[1] - $(window).height()) - $(document).scrollTop() > -10) window.scrollBy(0,o.scroll);
+					if(f.position[1] - $(document).scrollTop() < 10) window.scrollBy(0,-o.scroll);
+					if((f.position[0] - $(window).width()) - $(document).scrollLeft() > -10) window.scrollBy(o.scroll,0);
+					if(f.position[0] - $(document).scrollLeft() < 10) window.scrollBy(-o.scroll,0);
+				}
 			}
 
 			/* map new helper left/top values to temp vars */
@@ -359,7 +404,7 @@
 					if((newLeft+$(f.helper)[0].offsetWidth > o.containmentOffset.left+$(o.containment)[0].offsetWidth)) newLeft = o.containmentOffset.left+$(o.containment)[0].offsetWidth-$(f.helper)[0].offsetWidth;		
 				}
 			}
-			
+
 			/* Stick the helper to the cursor */			
 			$(f.helper).css("left", newLeft+"px").css("top", newTop+"px");
 			

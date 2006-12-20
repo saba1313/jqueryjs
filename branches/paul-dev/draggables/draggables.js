@@ -211,7 +211,7 @@
 			if($.fn.offset && o.iframeFix) {
 				$("iframe").each(function() {
 					var curOffset = $(this).offset();
-					$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", curOffset.width+"px").css("height", curOffset.height+"px").css("position", "absolute").css("opacity", "0.001").css("top", curOffset.top+"px").css("left", curOffset.left+"px").appendTo("body");
+					$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", curOffset.width+"px").css("height", curOffset.height+"px").css("position", "absolute").css("opacity", "0.001").css("top", curOffset.top-curOffset.borderTop+"px").css("left", curOffset.left-curOffset.borderLeft+"px").appendTo("body");
 				});				
 			}
 			
@@ -231,20 +231,20 @@
 					
 			/* If we want to pick the element where we clicked, we borrow cursorAt */
 			if(o.cursorAtIgnore) {
-				o.cursorAt.left = f.position[0] - o.curOffset.left;
-				o.cursorAt.top = f.position[1] - o.curOffset.top;
+				o.cursorAt.left = f.position[0] - o.curOffset.left - o.curOffset.borderLeft;
+				o.cursorAt.top = f.position[1] - o.curOffset.top - o.curOffset.borderTop;
 			}
 			
 			if(o.positionedParent) {
-				f.position[0] -= o.positionedParentOffset.left;
-				f.position[1] -= o.positionedParentOffset.top;	
+				f.position[0] -= o.positionedParentOffset.left - o.positionedParentOffset.borderLeft;
+				f.position[1] -= o.positionedParentOffset.top - o.positionedParentOffset.borderTop;	
 			}
 			
 			/* If cursorAt is within the helper, set slowMode to true */
 			f.slowMode = (o.cursorAt && (o.cursorAt.top > 0 || o.cursorAt.bottom > 0) && (o.cursorAt.left > 0 || o.cursorAt.right > 0)) ? true : false;
 		
 			/* Append the helper */
-			$(f.helper).css("left", o.curOffset.left+"px").css("top", o.curOffset.top+"px").css("position", "absolute").appendTo((o.appendTo == "parent" ? f.current.parentNode : o.appendTo));
+			$(f.helper).css("left", o.curOffset.left-o.curOffset.borderLeft+"px").css("top", o.curOffset.top-o.curOffset.borderTop+"px").css("position", "absolute").appendTo((o.appendTo == "parent" ? f.current.parentNode : o.appendTo));
 			
 			/* Only after we have appended the helper, we compute the offsets
 			 * for the slowMode! This is important, so the user aready see's
@@ -285,7 +285,7 @@
 				for(var i=0;i<m.length;i++) {
 					/* Let's see if the droppable is within the cursor's area, then fire onDrop */
 					var cO = m[i].offset;
-					if((f.position[0] > cO.left && f.position[0] < cO.left + m[i].item.offsetWidth) && (f.position[1] > cO.top && f.position[1] < cO.top + m[i].item.offsetHeight)) {
+					if((f.position[0] > cO.left-cO.borderLeft && f.position[0] < cO.left-cO.borderLeft + m[i].item.offsetWidth) && (f.position[1] > cO.top-cO.borderTop && f.position[1] < cO.top-cO.borderTop + m[i].item.offsetHeight)) {
 						d.evDrop.apply(m[i].item);
 					}
 				}
@@ -313,8 +313,8 @@
 			/* Get the current mouse position */
 			f.position = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
 			if(o.positionedParent) {
-				f.position[0] -= o.positionedParentOffset.left;
-				f.position[1] -= o.positionedParentOffset.top;	
+				f.position[0] -= o.positionedParentOffset.left - o.positionedParentOffset.borderLeft;
+				f.position[1] -= o.positionedParentOffset.top - o.positionedParentOffset.borderTop;	
 			}
 
 			/* If position is more than x pixels from original position, start dragging */
@@ -337,7 +337,7 @@
 				for(var i=0;i<m.length;i++) {
 					/* Let's see if the droppable is within the cursor's area */
 					var cO = m[i].offset;
-					if((f.position[0] > cO.left && f.position[0] < cO.left + m[i].item.offsetWidth) && (f.position[1] > cO.top && f.position[1] < cO.top + m[i].item.offsetHeight)) {
+					if((f.position[0] > cO.left-cO.borderLeft && f.position[0] < cO.left-cO.borderLeft + m[i].item.offsetWidth) && (f.position[1] > cO.top-cO.borderTop && f.position[1] < cO.top-cO.borderTop + m[i].item.offsetHeight)) {
 						if(m[i].over == 0) { m[i].out = 0; m[i].over = 1; d.evHover.apply(m[i].item); }
 					} else {
 						if(m[i].out == 0) { m[i].out = 1; m[i].over = 0; d.evOut.apply(m[i].item); }
@@ -383,15 +383,15 @@
 			if(o.axis && o.cursorAtIgnore) {
 				switch(o.axis) {
 					case "horizontal":
-						newTop = o.curOffset.top;
+						newTop = o.curOffset.top-o.curOffset.borderTop;
 						break;
 					case "vertical":
-						newLeft = o.curOffset.left;
+						newLeft = o.curOffset.left-o.curOffset.borderLeft;
 						break;
 					default:
 						var grid = [parseInt(o.axis.split("[")[1].split(",")[1]),parseInt(o.axis.split("[")[1].split(",")[0])];
-						newLeft = o.curOffset.left + Math.round((newLeft - o.curOffset.left) / grid[0]) * grid[0];
-						newTop = o.curOffset.top + Math.round((newTop - o.curOffset.top) / grid[1]) * grid[1];
+						newLeft = o.curOffset.left-o.curOffset.borderLeft + Math.round((newLeft - o.curOffset.left-o.curOffset.borderLeft) / grid[0]) * grid[0];
+						newTop = o.curOffset.top-o.curOffset.borderTop + Math.round((newTop - o.curOffset.top-o.curOffset.borderTop) / grid[1]) * grid[1];
 						break;
 				}					
 			}
@@ -402,10 +402,10 @@
 					if(newLeft+$(f.helper)[0].offsetWidth > o.containment.right) newLeft = o.containment.right-$(f.helper)[0].offsetWidth;
 					if(newTop+$(f.helper)[0].offsetHeight > o.containment.bottom) newTop = o.containment.bottom-$(f.helper)[0].offsetHeight;					
 				} else {
-					if((newLeft < o.containmentOffset.left)) newLeft = o.containmentOffset.left;
-					if((newTop < o.containmentOffset.top)) newTop = o.containmentOffset.top;
-					if((newTop+$(f.helper)[0].offsetHeight > o.containmentOffset.top+$(o.containment)[0].offsetHeight)) newTop = o.containmentOffset.top+$(o.containment)[0].offsetHeight-$(f.helper)[0].offsetHeight;
-					if((newLeft+$(f.helper)[0].offsetWidth > o.containmentOffset.left+$(o.containment)[0].offsetWidth)) newLeft = o.containmentOffset.left+$(o.containment)[0].offsetWidth-$(f.helper)[0].offsetWidth;		
+					if((newLeft < o.containmentOffset.left-o.containmentOffset.borderLeft)) newLeft = o.containmentOffset.left-o.containmentOffset.borderLeft;
+					if((newTop < o.containmentOffset.top-o.containmentOffset.borderTop)) newTop = o.containmentOffset.top-o.containmentOffset.borderTop;
+					if((newTop+$(f.helper)[0].offsetHeight > o.containmentOffset.top-o.containmentOffset.borderTop+$(o.containment)[0].offsetHeight)) newTop = o.containmentOffset.top-o.containmentOffset.borderTop+$(o.containment)[0].offsetHeight-$(f.helper)[0].offsetHeight;
+					if((newLeft+$(f.helper)[0].offsetWidth > o.containmentOffset.left-o.containmentOffset.borderLeft+$(o.containment)[0].offsetWidth)) newLeft = o.containmentOffset.left-o.containmentOffset.borderLeft+$(o.containment)[0].offsetWidth-$(f.helper)[0].offsetWidth;		
 				}
 			}
 

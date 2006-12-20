@@ -313,8 +313,8 @@
 			/* Get the current mouse position */
 			f.position = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
 			if(o.positionedParent) {
-				f.position[0] -= o.positionedParentOffset.left - o.positionedParent.scrollLeft;
-				f.position[1] -= o.positionedParentOffset.top - o.positionedParent.scrollTop;	
+				f.position[0] -= o.positionedParentOffset.left;
+				f.position[1] -= o.positionedParentOffset.top;	
 			}
 
 			/* If position is more than x pixels from original position, start dragging */
@@ -361,6 +361,10 @@
 				/* If we have a positioned parent, we only scroll in this one */
 				if(o.positionedParent) {
 					/* Extremely strange issues are waiting here..handle with care */
+					if(f.position[0] - o.positionedParent.offsetWidth - o.positionedParent.scrollLeft > -10) o.positionedParent.scrollLeft += o.scroll;
+					if(f.position[0] - o.positionedParent.scrollLeft < 10) o.positionedParent.scrollLeft -= o.scroll;	
+					if(f.position[1] - o.positionedParent.offsetHeight - o.positionedParent.scrollTop > -10) o.positionedParent.scrollTop += o.scroll;
+					if(f.position[1] - o.positionedParent.scrollTop < 10) o.positionedParent.scrollTop -= o.scroll;
 				} else {
 					if((f.position[1] - $(window).height()) - $(document).scrollTop() > -10) window.scrollBy(0,o.scroll);
 					if(f.position[1] - $(document).scrollTop() < 10) window.scrollBy(0,-o.scroll);

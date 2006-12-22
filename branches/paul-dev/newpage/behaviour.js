@@ -1,6 +1,7 @@
 /**
  * @author paul.bakaus
  */
+var currentActiveMenu;
 $(document).ready(function() {
 	$("#bottombar ul li").hover(function() {
 		$("img.pfeil", this).animate({ width: 10, marginLeft: -5, height: 54, top: -69 }, 1000);
@@ -9,6 +10,19 @@ $(document).ready(function() {
 	}, function() {
 		$("img.pfeil", this).animate({ width: 46, marginLeft: -24, height: 24, top: -39, opacity: 'hide' }, 1000);
 		$("div.carousel", this).animate({ height: 1, top: -40, opacity: 'hide' }, 1000);
+	});
+	$("#bottombar ul li a").bind("focus", function() {
+		
+		console.log(currentActiveMenu);
+		if(currentActiveMenu) {
+			$("img.pfeil", currentActiveMenu).animate({ width: 46, marginLeft: -24, height: 24, top: -39, opacity: 'hide' }, 1000);
+			$("div.carousel", currentActiveMenu).animate({ height: 1, top: -40, opacity: 'hide' }, 1000);			
+		}
+		
+		$("img.pfeil", this.parentNode).animate({ width: 10, marginLeft: -5, height: 54, top: -69 }, 1000);
+		$("div.carousel", this.parentNode).animate({ height: 140, top: -140, opacity: 'show' }, 1000);
+		
+		currentActiveMenu = this.parentNode;
 	});
 	
 	$("#bottombar ul li a").click(function() {

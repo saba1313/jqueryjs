@@ -1,12 +1,14 @@
 html {
 	margin: 0px;
 	padding: 0px;
+	height: 100%;
 }
 body {
 	background: #00284F;
 	margin: 0px;
 	padding: 0px;
 	font-family: Arial;
+	height: 100%;
 }
 
 #bottombar {
@@ -64,10 +66,10 @@ body {
 	color: #fff;
 }
 #bottombar ul li img.pfeil {
-	width: 47px;
-	height: 31px;
+	width: 46px;
+	height: 24px;
 	position: absolute;
-	top: -45px;
+	top: -39px;
 	left: 50%;
 	margin-left: -24px;
 	display: none;
@@ -96,4 +98,8 @@ div.carousel img {
 
 #bottombar ul li:hover img {
 	display: block;
+}
+
+.transferIndicator {
+	border: 2px solid white;
 }

@@ -18,6 +18,11 @@ $(document).ready(function() {
     		className: 'transferIndicator'
 		});
 	});
+	$("div.carousel a img").hover(function() {
+		$(this).attr("src", "images/"+$(this).attr("rel")+"_h.png");
+	}, function() {
+		$(this).attr("src", "images/"+$(this).attr("rel")+".png");
+	});
 	
 	/* Style the content via js */
 	//$("#content").css("border", "2px solid #fff").css("position", "absolute").
@@ -29,8 +34,8 @@ $(window).bind("load", function() {
 
 	$('div.carousel').Carousel(
 		{
-			itemWidth: 100,
-			itemHeight: 62,
+			itemWidth: 130,
+			itemHeight: 50,
 			itemMinWidth: 50,
 			items: 'a',
 			reflections: .5,

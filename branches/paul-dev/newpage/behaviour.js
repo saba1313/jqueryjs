@@ -10,7 +10,7 @@ $(document).ready(function() {
 		$("img.pfeil", this).animate({ width: 47, marginLeft: -24, height: 31, top: -45, opacity: 'hide' }, 1000);
 		$("div.carousel", this).animate({ height: 1, top: -40, opacity: 'hide' }, 1000);
 	});
-	$.ImageBox.init();
+
 });
 
 $(window).bind("load", function() {

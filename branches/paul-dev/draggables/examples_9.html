@@ -1,0 +1,42 @@
+<p>If you don't use cursorAt, you can use a containment where you cannot drag out.</p>
+<div class="code">
+$("#mydiv").drag({<br>
+containment: "parent"<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv">
+		Drag me
+	</div>
+</div>
+
+<div class="code">
+$("#mydiv2").drag({<br>
+containment: "body"<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv2" class="draggable">
+		Drag me
+	</div>
+</div>
+
+<div class="code">
+$("#mydiv3").drag({<br>
+containment: { top: 300, left: 600, bottom: 800, right: 1000 }<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv3" class="draggable">
+		Drag me
+	</div>
+</div>
+
+<script type="text/javascript">
+	var toBeEvaled = $("div.code")[0].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+	var toBeEvaled = $("div.code")[1].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+	var toBeEvaled = $("div.code")[2].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+</script>

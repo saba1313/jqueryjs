@@ -1,0 +1,18 @@
+<p>You can prevent dragging using dragPrevention and dragPreventionOn. Try to start dragging on the input.</p>
+<div class="code">
+$("#mydiv").drag({<br>
+dragPrevention: 10,<br>
+dragPreventionOn: "input,textarea"<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv">
+		Drag me<br>
+	<input type="text" style="width: 80px;" value="I'm a input">
+	</div>
+</div>
+
+<script type="text/javascript">
+	var toBeEvaled = $("div.code").html().replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+</script>

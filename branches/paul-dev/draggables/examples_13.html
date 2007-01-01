@@ -1,0 +1,28 @@
+<p>This example utilizes the advanced callback onDrag, which gets the position as parameters and can return these to i.e. make a unique containment.</p>
+<div class="code">
+$("#mydiv").drag({<br>
+onDrag: function(helper,x,y)<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;var centerx = 800;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;var centery = 400;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;var angle = Math.atan((centery-y)/(centerx-x));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if((centerx-x)&gt;=0)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle += Math.PI;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;radius = 160;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x: radius * Math.cos(angle) + centerx,<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y: radius * Math.sin(angle) + centery<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv" style="position: relative;">
+		Drag me
+	</div>
+</div>
+
+<script type="text/javascript">
+	var toBeEvaled = $("div.code")[0].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"").replace(/&gt;/g,">");
+	eval(toBeEvaled);
+</script>

@@ -1,0 +1,148 @@
+html,body { 
+margin: 0;
+padding: 0;
+height: 100%;
+font: 9pt arial,sans-serif;
+}
+
+p {
+margin: 0 10px 10px;
+}
+
+div#container {
+height: 100%;
+}
+
+div#header {
+position: absolute;
+top: 0px;
+left: 0px;
+width: 100%;
+}
+
+div#header h1 {
+height: 80px;
+line-height: 80px;
+margin: 0;
+padding-left: 10px;
+background: #EEE;
+color: #79B30B;
+border-bottom: 2px solid #888;
+}
+
+div#content {
+margin-left: 202px;
+height: 100%;
+background-image: url(images/bg_content.jpg);
+background-repeat: repeat-y;
+}
+
+div#content > p:first-child {
+padding-top: 85px;
+}
+div#content p {
+line-height: 1.4;
+}
+
+div#navigation { 
+background: #B9CAFF;
+float: left;
+width: 200px;
+height: 100%;
+border-right: 1px solid #888;
+}
+div#navigation:hover {
+background-image: url(images/bg_hover.jpg);
+}
+
+div#navigation ul {
+margin-top: 90px;
+list-style-type: cjk-ideographic;
+}
+div#navigation ul li {
+border-bottom: 1px solid #888;
+letter-spacing: 2px;
+cursor: pointer;
+}
+div#navigation ul li:hover {
+color: #eee;
+border-bottom: 1px solid #eee;
+letter-spacing: 6px;
+}
+
+div#extra {
+float: right;
+width: 200px;
+height: 100%;
+border-left: 1px solid #BBB;
+border-right: 1px solid #888;
+background-image: url(images/bg_extra.jpg);
+background-repeat: repeat-y;
+display: none;
+}
+div#extra:hover {
+background-image: url(images/bg_hover.jpg);
+}
+div#extra ul {
+margin-top: 90px;
+list-style-type: cjk-ideographic;
+}
+div#extra ul li {
+border-bottom: 1px solid #888;
+letter-spacing: 2px;
+cursor: pointer;
+}
+div#extra ul li:hover {
+color: #eee;
+border-bottom: 1px solid #eee;
+}
+div#extra ul {
+	display: none;
+}
+
+div#footer {
+background: #333;
+color: #FFF;
+clear: both;
+width: 100%;
+}
+
+div#footer p {
+margin: 0;
+padding: 5px 10px;
+}
+
+div#wrapper {
+float: right;
+width: 100%;
+height: 100%;
+margin-left: -404px;
+}
+
+
+/* Stuff for examples */
+div.result {
+border: 1px dotted #999;
+padding: 5px;
+padding-top: 25px;
+margin: 5px;
+background-image: url(images/bg_result.png);
+background-repeat: no-repeat;
+}
+div.code {
+border: 1px dotted #999;
+padding: 5px;
+padding-top: 25px;
+margin: 5px;
+background-image: url(images/bg_code.png);
+background-repeat: no-repeat;
+}
+
+
+#mydiv,.draggable {
+	border: 2px solid #000;
+	height: 100px;
+	width: 100px;
+	background: #79B30B;
+	margin: 0 auto;
+}

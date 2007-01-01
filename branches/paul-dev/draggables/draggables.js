@@ -129,8 +129,8 @@
 					dragPreventionOn: o.dragPreventionOn ? o.dragPreventionOn.toLowerCase().split(",") : ["input","textarea","button"],
 					cursorAt: { top: ((o.cursorAt && o.cursorAt.top) ? o.cursorAt.top : 0), left: ((o.cursorAt && o.cursorAt.left) ? o.cursorAt.left : 0), bottom: ((o.cursorAt && o.cursorAt.bottom) ? o.cursorAt.bottom : 0), right: ((o.cursorAt && o.cursorAt.right) ? o.cursorAt.right : 0) },
 					cursorAtIgnore: (!o.cursorAt) ? true : false, //Internal property
-					iframeFix: o.iframeFix ? o.iframeFix : true,
-					wrapHelper: o.wrapHelper ? o.wrapHelper : true,
+					iframeFix: o.iframeFix != undefined ? o.iframeFix : true,
+					wrapHelper: o.wrapHelper != undefined ? o.wrapHelper : true,
 					scroll: o.scroll != undefined ? o.scroll : 20,
 					appendTo: o.appendTo ? o.appendTo : "parent",
 					axis: o.axis ? o.axis : null,
@@ -329,8 +329,13 @@
 			if(o.cursorAt.bottom && !o.cursorAt.top) o.cursorAt.top = f.helper.offsetHeight - o.cursorAt.bottom;
 			
 			/* Trigger the onDrag callback */
-			if(o.onDrag) o.onDrag.apply(f.current, [f.helper,f.position[0],f.position[1]]);		
-
+			if(o.onDrag) var retPos = o.onDrag.apply(f.current, [f.helper,f.position[0],f.position[1]]);		
+			/* If something came back from our callback, use it as modified position */
+			if(retPos) {
+				if(retPos.x) f.position[0] = retPos.x;
+				if(retPos.y) f.position[1] = retPos.y;	
+			}
+			
 			/* If cursorAt is within the helper, we must use our drop manager */
 			if(f.slowMode) {
 				var m = d.manager;

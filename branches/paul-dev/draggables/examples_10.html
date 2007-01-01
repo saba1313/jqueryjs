@@ -1,0 +1,34 @@
+<p>Usually, you won't be able to drag on top of iframes if the cursor is not on top of the drag helper. The iframeFix allows it, standard is true.</p>
+<div class="code">
+$("#mydiv").drag({<br>
+iframeFix: false,<br>
+cursorAt: { top: -10, left: -10 }<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv">
+		Drag me
+	</div>
+	<iframe style="width: 90%; margin-top: 10px;" class="draggable" src="http://www.google.com">
+	</iframe>
+</div>
+
+<div class="code">
+$("#mydiv2").drag({<br>
+cursorAt: { top: -10, left: -10 }<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv2" class="draggable">
+		Drag me
+	</div>
+	<iframe style="width: 90%; margin-top: 10px;" class="draggable" src="http://www.google.com">
+	</iframe>
+</div>
+
+<script type="text/javascript">
+	var toBeEvaled = $("div.code")[0].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+	var toBeEvaled = $("div.code")[1].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+</script>

@@ -1,0 +1,102 @@
+<p style="text-align: center; font-size: 14pt; border: 2px solid #888;">Syntax: $("div.ohmy").drag({ <i>options</i> })</p>
+<center>
+<table cellpadding="5" cellspacing="5" border="0" style="width: 95%">
+	<tr style="font-size: 12pt;">
+		<td>Option</td>
+		<td>Standard value</td>
+		<td>Limited to</td>
+		<td>Description</td>
+	</tr>
+	<tr>
+		<td>handle</td>
+		<td>$(this)</td>
+		<td>-</td>
+		<td>String. You can specify your handle (where you can start dragging) via String as in jQuery's selector. Example: "#myhandle" or "div:first-child".</td>
+	</tr>
+	<tr>
+		<td>helper</td>
+		<td>"clone"</td>
+		<td>-</td>
+		<td>String/Function. If set to "original", the original is being dragged. If set to "clone", you'll drag a clone of the original. If you input a function, you'll get the original as first parameter and you have then to return a valid DOM node as helper.</td>
+	</tr>
+	<tr>
+		<td>dragPrevention</td>
+		<td>0</td>
+		<td>-</td>
+		<td>Number. This controls the number of pixels the cursor must move after clicking to start the the dragging. Used to control unwanted dragging.</td>
+	</tr>
+	<tr>
+		<td>dragPreventionOn</td>
+		<td>"input,textarea,button"</td>
+		<td>-</td>
+		<td>Commata-seperated String. Define child elements of your draggable on which you <b>cannot</b> start dragging.</td>
+	</tr>
+	<tr>
+		<td>cursorAt</td>
+		<td>{ top: -1, left: -1 }</td>
+		<td>-</td>
+		<td>Hash. This defines the offset between helper and cursor. Note: Based on this property, %title% will switch to fast mode if the cursor is not on top of the helper.</td>
+	</tr>
+	<tr>
+		<td>axis</td>
+		<td>-</td>
+		<td>Cannot be used with cursorAt</td>
+		<td>String. Can be set to "vertical", "horizontal" or if you want to define a custom grid: "grid[x,y]".</td>
+	</tr>
+	<tr>
+		<td>containment</td>
+		<td>-</td>
+		<td>Cannot be used with cursorAt</td>
+		<td>String/Object. Defines, in what area the draggable can be dragged. Input jQuery Syntax (i.e. "div p") or the special one "parent". If you want a custom area, insert a object like this: { top: 20, right: 100, bottom: 120, left: 10 }.</td>
+	</tr>
+	<tr>
+		<td>iframeFix</td>
+		<td>true</td>
+		<td>-</td>
+		<td>Boolean. If enabled, all iframes on the page are measured if you start dragging. Then, a transparent div is layed on top of each, so that you can harmlessly drag over them without interrogation. Enabled by default. Requires dimensions.js.</td>
+	</tr>
+	<tr>
+		<td>wrapHelper</td>
+		<td>true</td>
+		<td>Requires cursorAt to be set</td>
+		<td>Boolean. If enabled, the helper will mirror its position to the left side when coming with the cursor to the right side. Same with bottom. Enabled by default.</td>
+	</tr>
+	<tr>
+		<td>scroll</td>
+		<td>20</td>
+		<td>-</td>
+		<td>Number/Boolean. If a number is set, automatic scrolling is done when the cursor is less then 10px at a side of the window. For no automatic scrolling, you can set this option to 'false'.</td>
+	</tr>
+	<tr>
+		<td>appendTo</td>
+		<td>"parent"</td>
+		<td>-</td>
+		<td>String.Only modify if you know what you are doing. The helper/clone is appended to the element passed in this String. If set to "parent", the helper appends to the parent.</td>
+	</tr>
+	<tr>
+		<td>onStart</td>
+		<td>false</td>
+		<td>-</td>
+		<td>Callback function. It gets the helper as first argument, while 'this' refers to the original element.</td>
+	</tr>
+	<tr>
+		<td>onStop</td>
+		<td>false</td>
+		<td>-</td>
+		<td>Callback function. No arguments. 'this' refers to the original element.</td>
+	</tr>
+	<tr>
+		<td>onDrag</td>
+		<td>false</td>
+		<td>-</td>
+		<td>Callback function. Gets the following arguments in this order: Helper, horizontal position of cursor, vertical position of cursor. 'this' refers to the original element. You can return a object in the callback function: { x: x, y: y } to set a custom position.</td>
+	</tr>
+</table>
+</center>
+<script type="text/javascript">
+	$("table tr td:even").each(function() {
+		if(this.innerHTML == "-") {
+			$(this).css("background", "#EFFFEF");	
+		}	
+	})
+</script>

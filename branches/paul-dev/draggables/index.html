@@ -1,379 +1,116 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-	<title>Draggables Beta</title>
-	<script type="text/javascript" src="firebug/firebug.js"></script>
-	<script type="text/javascript" src="../../jquery/src/jquery/jquery.js"></script>
-	<script type="text/javascript" src="../../jquery/src/event/event.js"></script>
-	<script type="text/javascript" src="../../jquery/src/fx/fx.js"></script>
-	<script type="text/javascript" src="../../jquery/src/ajax/ajax.js"></script>
-	<script type="text/javascript" src="../../jquery_plugins/dimensions/dimensions.js"></script>
-	<style type="text/css">
-		body {
-			font-family: Arial, Helvetica, sans-serif;
-			font-size: 10pt;
-		}
-		div.content {
-			background: #eee;
-			border: 2px solid #999;
-			padding: 10px;
-			margin: 0 auto;
-			width: 90%;
-		}
-		div.content span {
-			color: #000;
-		}
-		
-		div.inner {
-			border: 2px solid darkgreen;
-			padding: 5px;
-			background: lightgreen;
-			margin: 5px;
-		}
-
-		div.options {
-			border: 2px solid darkred;
-			padding: 5px;
-			background: #FFCA6F;
-			margin: 5px;
-		}
-		
-		div.area {
-			background: #C6E5FF;
-			border: 2px solid #b6d5eF;
-			padding: 10px;
-			margin: 0 auto;
-			margin-top: 10px;
-			color: #888;
-			width: 90%;
-		}
-		
-		div.drag {
-			border: 2px solid darkgreen;
-			width: 120px;
-			height: 120px;
-			background-color: lightgreen;
-			padding: 5px;
-			float: left;
-			margin: 5px;
-		}
-
-		div.drop {
-			border: 2px solid darkred;
-			width: 120px;
-			height: 120px;
-			background-color: orange;
-			padding: 5px;
-			float: left;
-			margin: 5px;
-		}
-		
-		div.helper {
-			border: 1px dotted black;
-			background: #eee;
-			color: #000;
-			opacity: 0.8;
-			width: 100px;
-			height: 20px;
-			z-index: 1000;
-		}
-		
-		table tr td {
-			text-align: left;
-			vertical-align: top;
-		}
-		
-		h2 {
-			border-bottom: 2px solid #777;
-			text-align: right;
-		}
-		
-	</style>
-	<script type="text/javascript" src="draggables.js"></script>
-
-</head>
-<body>
-
+<title>Drag & Drop for jQuery</title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" media="screen" href="style.css">
+<script type="text/javascript" src="firebug/firebug.js"></script>
+<script type="text/javascript" src="../../jquery/src/jquery/jquery.js"></script>
+<script type="text/javascript" src="../../jquery/src/selector/selector.js"></script>
+<script type="text/javascript" src="../../jquery/src/event/event.js"></script>
+<script type="text/javascript" src="../../jquery/src/fx/fx.js"></script>
+<script type="text/javascript" src="../../jquery/src/ajax/ajax.js"></script>
+<script type="text/javascript" src="../../jquery_plugins/dimensions/dimensions.js"></script>
+<script type="text/javascript" src="draggables.js"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
-		
-		/* Example 1: Draggable with no options */
-		$("div.drag_1").drag();
-		
-		/* Example 2: Draggable with helper: 'original' */
-		$("div.drag_2").drag({
-			onStart: function(helper) {
-				$(helper).css("opacity", "0.7");
-			},
-			onStop: function() {
-			},
-			onDrag: function(helper,x,y) {
-				//$(helper).html("Position: ["+x+","+y+"]");
-			},
-			helper: "clone",
-			dragPrevention: 0,
-			dragPreventionOn: "a,input",
-			scroll: 20,
-			axis: "grid[24,24]",
-			containment: "parent"
-		});
-		
-		/* Example 3: Draggable with helper: 'original' */
-		$("div.drag_3").drag({
-			handle: "div",
-			onStart: function(helper) {
-				$(helper).css("opacity", "0.7");
-			},
-			onStop: function() {
-			},
-			onDrag: function(helper,x,y) {
-				//$(helper).html("Position: ["+x+","+y+"]");
-			},
-			helper: "clone",
-			cursorAt: { top: -5, left: -5 },
-			wrapHelper: true,
-			dragPrevention: 0,
-			dragPreventionOn: "a,input",
-			scroll: 20,
-			//axis: "grid[40,40]",
-			containment: "parent"
-		});
-		
-		/* InsideParent */
-		$("div.inside").drag();
-		
-		$("div.drop").drop({
-			accept: "drag",
-			onHover: function(drag, helper) {
-				$(this).css("border", "5px solid black");
-			},
-			onOut: function(drag, helper) {
-				$(this).css("border", "");
-			},
-			onDrop: function(drag) {
-				$(this).css("border", "");
-				$("span", this).html("dropped on outer!");
-			},
-			greedy: true
-		});
-		
-		$("#ddrop").drop({
-			accept: "drag",
-			onHover: function(drag, helper) {
-				$(this).css("border", "5px solid black");
-			},
-			onOut: function(drag,helper) {
-				$(this).css("border", "1px solid black");
-			},
-			onDrop: function(drag) {
-				$(this).css("border", "1px solid black");
-				$(this).html("dropped on inner!");
-			}
-		});
-		
+		$("span.title").html("<b>Drag & Drop for jQuery</b>");		
+		changePage("main");
 	});
 	
+	function replaceKeywords() {
+		var toBeReplaced = [
+		[/jQuery/g,"<a href='http://www.jquery.com'>jQuery</a>"],
+		[/%title%/g,"<b>Drag & Drop for jQuery</b>"],
+		[/dimensions\.js/g,"<a href='http://jquery.com/dev/svn/trunk/plugins/dimensions/dimensions.js'>dimensions.js</a>"],
+		[/String/g, "<b>String</b>"],
+		[/Helper/g, "<abbr title='The helper element which follows the cursor during drag. Can be set via helper property.'>Helper</abbr>"],
+		[/helper/g, "<abbr title='The helper element which follows the cursor during drag. Can be set via helper property.'>helper</abbr>"],
+		[/draggable/g, "<abbr title='The object which is made draggable. Notice: Draggable != Helper'>draggable</abbr>"],
+		[/Draggable/g, "<abbr title='The object which is made draggable. Notice: Draggable != Helper'>Draggable</abbr>"],
+		[/fast mode/g, "<abbr title='Event based droppable detection'>fast mode</abbr>"]
+		];
+		
+		$("p,td").each(function() {
+			for(var i=0;i<toBeReplaced.length;i++) {
+				this.innerHTML = this.innerHTML.replace(toBeReplaced[i][0], toBeReplaced[i][1]);	
+			}
+		});
+	}
+	
+	function changePage(link, sublink) {
+		
+		if(!sublink) {
+			if($("#extra").css("display") != "none") {
+				$("#extra").animate({ opacity: 'hide' }, 500);
+				$("#content").animate({ marginLeft: 202 },500);				
+			}
+		} else {
+			if($("#extra").css("display") == "none") {
+				$("#extra").animate({ opacity: 'show' }, 500);
+				$("#content").animate({ marginLeft: 404 },500);				
+			}
+		}
+		
+		switch(link) {
+			case "examples":
+			case "documentation":
+				if($("#extra ul."+link).css("display") == "none") {
+					$("#extra ul").css("display", "none");
+					$("#extra ul."+link).css("display", "block");	
+				}
+				break;
+		}
+		var Now = new Date();
+		if(!sublink) var sublink = ""; else sublink = "_"+sublink;
+		$("#content").load(link+sublink+".html#"+Now.getTime(), {}, function() {
+			replaceKeywords();
+		});
+		
+	}
 </script>
-		
-<div class="area" style="height: 200px;">
-	<div class="drag drag_1">I'm a draggable with no options!</div>
-	<div class="drag drag_2">I'm a draggable with a <a href="http://www.jquery.com">link</a> and a input. <input style="width: 100px;" type="text" value="form element"></div>
-	<div class="drag drag_3">I'm a draggable with a<div style="border: 1px solid black; padding: 2px;">handle.</div></div>
-	<div class="drop"><span>Im' a droppable.</span> <div id="ddrop" style="border: 1px solid black; padding: 2px; font-size: 10pt;">I'm a different droppable.</div></div>
-	<iframe style="float: left; margin: 5px; border: 1px solid black" name="iframe1" id="iframe1" width="130" height="130" src="http://www.google.com"></iframe>
-	<div class="drag" style="width: 300px; overflow: scroll; position: relative;">
-		<div class="drag inside">inside dragging</div>
-		<div style="height: 300px; width: 400px;">stretch</div>
-	</div>
+</head>
+<body>
+<div id="container">
+<div id="header"><h1>Drag & Drop for jQuery</h1></div>
+<div id="wrapper">
+<div id="content">
 </div>
-
-
-<div class="content">
-
-<table cellpadding="0" cellspacing="0" width="100%">
-	<tr>
-		<td>
-			<div class="inner">
-				<h2>Intelligent draggables!</h2>
-				<p>The features of the draggables include:<br>
-				<ul>
-					<li><b>Automatic scrolling</b></li>
-					<li>uses DOM or Events based on if the mouse is over the helper or not -> <b>makes it faster</b>..a LOT faster</li>
-					<li>Helper based (Full access to helper via callback function) (see Yahoo Mail)</li>
-					<li><b>Dragging over iframes</b></li>
-					<li><b>Automatic wrapping</b> of the helper when coming to a side</li>
-					<li>Advanced <b>drag prevention</b></li>
-				</ul>
-				</p>
-			</div>
-		</td>
-		<td>
-			<div class="inner">
-				<h2>Intelligent droppables!</h2>
-				<p>The features of the droppables include:<br>
-				<ul>
-					<li>uses DOM or Events based on if the mouse is over the helper or not -> <b>makes it faster</b>..a LOT faster</li>
-					<li>Conditional function in accept property: Accept what you want!</li>
-					<li>greedy option: Fire all child events or only the most inner</li>
-				</ul>
-				</p>
-			</div>			
-		</td>
-	</tr>
-
-	<tr>
-		<td>
-			<div class="options">		
-				<h2>Options for draggables:</h2>
-				<p>Syntax: <span>$(".ohmy").drag({ options });</span></p>
-				<p>
-			<table cellpadding="5" cellspacing="0" border="0">
-				<tr>
-					<td><b>option</b></td>
-					<td><b>standard value</b></td>
-					<td><b>Limited to</b></td>
-					<td><b>description</b></td>
-				</tr>
-				<tr>
-					<td>handle</td>
-					<td>$(this)</td>
-					<td>-</td>
-					<td>String. You can specify your handle (where you can start dragging) via String as in jQuery's Filter. Example: "#myhandle" or "div:first-child".</td>
-				</tr>
-				<tr>
-					<td>helper</td>
-					<td>"clone"</td>
-					<td>-</td>
-					<td>String/Function. If you set the string "original", the original is being dragged. If set to "clone", you'll drag a clone. If you define a function, you'll get the original as first parameter and you have then to return a valid DOM node as helper.</td>
-				</tr>
-				<tr>
-					<td>dragPrevention</td>
-					<td>0</td>
-					<td>-</td>
-					<td>Number. This controls the number of pixels the cursor must move after clicking to start the dragging. That means, to control unwanted dragging.</td>
-				</tr>
-				<tr>
-					<td>dragPreventionOn</td>
-					<td>"input,textarea,button"</td>
-					<td>-</td>
-					<td>Commata-seperated String. Define child elements of your draggable on which you cannot start dragging.</td>
-				</tr>
-				<tr>
-					<td>cursorAt</td>
-					<td>{ top: -1, left: -1 }</td>
-					<td>-</td>
-					<td>Hash. This defines the offset between helper and cursor. Note: Values have to be negative, because the Cursor may not be on top of the helper.</td>
-				</tr>
-				<tr>
-					<td>axis</td>
-					<td>-</td>
-					<td>Cannot be used with cursorAt</td>
-					<td>String. Can be set to "vertical", "horizontal" or if you want to define a grid: "grid[x,y]".</td>
-				</tr>
-				<tr>
-					<td>containment</td>
-					<td>-</td>
-					<td>Cannot be used with cursorAt</td>
-					<td>String/Object. Defines, in what area the draggable can be dragged. Input jQuery Syntax (i.e. "div p") or the special one "parent". If you want a custom area, insert a object like this: { top: 20, right: 100, bottom: 120, left: 10 }</td>
-				</tr>
-				<tr>
-					<td>iframeFix</td>
-					<td>true</td>
-					<td>-</td>
-					<td>Boolean. If enabled, all iframes on the page are measured if you start dragging. Then, a transparent div is layed on top of each, so that you can harmlessly drag over them without interrogation. Enabled by default. Requires dimensions.js.</td>
-				</tr>
-				<tr>
-					<td>wrapHelper</td>
-					<td>true</td>
-					<td>Requires cursorAt to be set</td>
-					<td>Boolean. If enabled, the helper will mirror its position to the left side when coming with the cursor to the right side. Same with bottom. Enabled by default.</td>
-				</tr>
-				<tr>
-					<td>scroll</td>
-					<td>20</td>
-					<td>-</td>
-					<td>Number/Boolean. If a number is set, automatic scrolling is done when the cursor is less then 10px at a side of the window. For no automatic scrolling, you can set this option to 'false'.</td>
-				</tr>
-				<tr>
-					<td>appendTo</td>
-					<td>"parent"</td>
-					<td>-</td>
-					<td>String.Only modify if you know what you are doing. The helper/clone is appended to the element passed in this String. If set to "parent", the helper appends to the parent.</td>
-				</tr>
-				<tr>
-					<td>onStart</td>
-					<td>false</td>
-					<td>-</td>
-					<td>Callback function. It gets the helper as first argument, while 'this' refers to the original element.</td>
-				</tr>
-				<tr>
-					<td>onStop</td>
-					<td>false</td>
-					<td>-</td>
-					<td>Callback function. No arguments. 'this' refers to the original element.</td>
-				</tr>
-				<tr>
-					<td>onDrag</td>
-					<td>false</td>
-					<td>-</td>
-					<td>Callback function. Gets the following arguments in this order: Helper, horizontal position of cursor, vertical position of cursor. 'this' refers to the original element.</td>
-				</tr>
-			</table>
-			
-				</p>
-			</div>	
-		</td>
-		<td>
-			<div class="options">
-			<h2>Options for droppables:</h2>
-			<p>Syntax: <span>$(".ohmy").drop({ options });</span></p>
-			<p>
-			<table cellpadding="5" cellspacing="0" border="0">
-				<tr>
-					<td><b>option</b></td>
-					<td><b>standard value</b></td>
-					<td><b>Limited to</b></td>
-					<td><b>description</b></td>
-				</tr>
-				<tr>
-					<td>accept</td>
-					<td>-</td>
-					<td>-</td>
-					<td>String or function. This specifies what draggables you want to accept for the droppable. You can either insert a string, then all draggables that have this String as class name wil be affected. If you specify a function, you get the draggable as first argument and 'this' references to the droppable. In this function, you can make your custom check, then return true/false.</td>
-				</tr>
-				<tr>
-					<td>onHover</td>
-					<td>false</td>
-					<td>-</td>
-					<td>Callback function that fires when you move over a droppable. It gets the draggable as first argument, its helper as second argument, while 'this' refers to the droppable.</td>
-				</tr>
-				<tr>
-					<td>onOut</td>
-					<td>-</td>
-					<td>function(drag,helper) { $(helper).html(helper.oldContent); }</td>
-					<td>Callback function that fires when you move out of a droppable. It gets the draggable as first argument, its helper as second argument, while 'this' refers to the droppable.</td>
-				</tr>
-				<tr>
-					<td>onDrop</td>
-					<td>false</td>
-					<td>-</td>
-					<td>Callback function that fires when a valid draggable is dropped. It gets the draggable as first argument, its helper as second argument, while 'this' refers to the droppable.</td>
-				</tr>
-				<tr>
-					<td>greedy</td>
-					<td>false</td>
-					<td>Fast mode (cursor is not over helper)</td>
-					<td>Boolean. If you have a droppable within a droppable, and you drop over the child droppable, both onDrop callbacks (outer and inner droppable) are fired. If you set this to true, only the onDrop event of the child fires. Note: This can only be used in fast mode (cursor not within helper).</td>
-				</tr>
-			</table>
-			</p>
-			</div>			
-		</td>
-	</tr>
-</table>						
-
 </div>
-		
-	</body>
+<div id="navigation">
+<ul>
+	<li onclick="changePage('main')">Main</li>
+	<li onclick="changePage('download')">Download</li>
+	<li onclick="changePage('documentation', '1')">Documentation</li>
+	<li onclick="changePage('examples', '1')">Examples</li>
+	<li onclick="changePage('roadmap')">Roadmap</li>
+	<li onclick="changePage('changelog')">Changelog</li>
+	<li onclick="changePage('contact')">Contact</li>
+</ul>
+</div>
+<div id="extra">
+<ul class="examples">
+	<li onclick="changePage('examples', '1')">Basic draggable</li>
+	<li onclick="changePage('examples', '2')">Drag via handle</li>
+	<li onclick="changePage('examples', '3')">Drag the original</li>
+	<li onclick="changePage('examples', '4')">Custom helper</li>
+	<li onclick="changePage('examples', '5')">Drag prevention</li>
+	<li onclick="changePage('examples', '6')">Helper position</li>
+	<li onclick="changePage('examples', '7')">Drag on axis</li>
+	<li onclick="changePage('examples', '8')">Drag in grid</li>
+	<li onclick="changePage('examples', '9')">Containment</li>
+	<li onclick="changePage('examples', '10')">Iframe Fix</li>
+	<li onclick="changePage('examples', '11')">Wrapping the helper</li>
+	<li onclick="changePage('examples', '12')">Automatic scrolling</li>
+	<li onclick="changePage('examples', '13')">Advanced dragging</li>
+</ul>
+
+<ul class="documentation">
+	<li onclick="changePage('documentation', '1')">Draggables</li>
+	<li onclick="changePage('documentation', '2')">Droppables</li>
+</ul>
+</div>
+<!-- <div id="footer"><p>&copy;2006 Paul Bakaus.</p></div> -->
+</div>
+</body>
 </html>

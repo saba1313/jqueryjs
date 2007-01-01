@@ -1,0 +1,29 @@
+<p>Automatic scrolling is enabled by default. the scroll indicates the offset, the cursor needs to be located at edge of the window.</p>
+<div class="code">
+$("#mydiv").drag({<br>
+scroll: false<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv">
+		Drag me
+	</div>
+</div>
+
+<div class="code">
+$("#mydiv2").drag({<br>
+scroll: 20<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv2" class="draggable">
+		Drag me
+	</div>
+</div>
+
+<script type="text/javascript">
+	var toBeEvaled = $("div.code")[0].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+	var toBeEvaled = $("div.code")[1].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+</script>

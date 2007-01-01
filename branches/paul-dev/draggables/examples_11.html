@@ -1,0 +1,30 @@
+<p>If you use cursorAt, you can use the wrapHelper option to always see the helper, even when coming to a edge of the screen. This is enabled by default. The second example shows it with option not enabled.</p>
+<div class="code">
+$("#mydiv").drag({<br>
+cursorAt: { top: -10, left: -10 }<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv">
+		Drag me
+	</div>
+</div>
+
+<div class="code">
+$("#mydiv2").drag({<br>
+cursorAt: { top: -10, left: -10 },<br>
+wrapHelper: false<br>
+});
+</div>
+<div class="result">
+	<div id="mydiv2" class="draggable">
+		Drag me
+	</div>
+</div>
+
+<script type="text/javascript">
+	var toBeEvaled = $("div.code")[0].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+	var toBeEvaled = $("div.code")[1].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	eval(toBeEvaled);
+</script>

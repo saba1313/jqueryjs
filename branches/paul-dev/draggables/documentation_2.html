@@ -1,0 +1,47 @@
+<p style="text-align: center; font-size: 14pt; border: 2px solid #888;">Syntax: $(".ohmy").drop({ options });</p>
+
+<table cellpadding="5" cellspacing="0" border="0">
+	<tr style="font-size: 12pt;">
+		<td>Option</td>
+		<td>Standard value</td>
+		<td>Limited to</td>
+		<td>Description</td>
+	</tr>
+	<tr>
+		<td>accept</td>
+		<td>-</td>
+		<td>-</td>
+		<td>String or function. This specifies what draggables you want to accept for the droppable. You can either insert a string, then all draggables that have this String as class name wil be affected. If you specify a function, you get the draggable as first argument and 'this' references to the droppable. In this function, you can make your custom check, then return true/false.</td>
+	</tr>
+	<tr>
+		<td>onHover</td>
+		<td>false</td>
+		<td>-</td>
+		<td>Callback function that fires when you move over a droppable. It gets the draggable as first argument, its helper as second argument, while 'this' refers to the droppable.</td>
+	</tr>
+	<tr>
+		<td>onOut</td>
+		<td>function(drag,helper) { $(helper).html(helper.oldContent); }</td>
+		<td>-</td>
+		<td>Callback function that fires when you move out of a droppable. It gets the draggable as first argument, its helper as second argument, while 'this' refers to the droppable.</td>
+	</tr>
+	<tr>
+		<td>onDrop</td>
+		<td>false</td>
+		<td>-</td>
+		<td>Callback function that fires when a valid draggable is dropped. It gets the draggable as first argument, its helper as second argument, while 'this' refers to the droppable.</td>
+	</tr>
+	<tr>
+		<td>greedy</td>
+		<td>false</td>
+		<td>Fast mode (cursor is not over helper)</td>
+		<td>Boolean. If you have a droppable within a droppable, and you drop over the child droppable, both onDrop callbacks (outer and inner droppable) are fired. If you set this to true, only the onDrop event of the child fires. Note: This can only be used in fast mode (cursor not within helper).</td>
+	</tr>
+</table>
+<script type="text/javascript">
+	$("table tr td:even").each(function() {
+		if(this.innerHTML == "-") {
+			$(this).css("background", "#EFFFEF");	
+		}	
+	})
+</script>

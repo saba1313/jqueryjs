@@ -139,7 +139,6 @@ jQuery.fx.animateColor = function (e, duration, color, property, callback, trans
 	if (!z.endColor || !z.startColor) {
 		return false;
 	}
-	console.log(property);
 	
 	z.t=(new Date).getTime();
 	z.clear = function(){clearInterval(z.timer);z.timer=null;};

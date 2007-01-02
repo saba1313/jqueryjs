@@ -1,10 +1,10 @@
 /**
  * Interface Elements for jQuery
- * FX
+ * Animate Class
  * 
  * http://interface.eyecon.ro
  * 
- * Copyright (c) 2006 Stefan Petre, Paul Bakaus
+ * Copyright (c) 2006 Stefan Petre, Paul Bakaus (http://www.paulbakaus.com)
  * Dual licensed under the MIT (MIT-LICENSE.txt) 
  * and GPL (GPL-LICENSE.txt) licenses.
  *   

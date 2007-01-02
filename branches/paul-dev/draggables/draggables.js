@@ -206,14 +206,6 @@
 				o.oldMargins = [$(f.helper).css("marginTop"),$(f.helper).css("marginRight"),$(f.helper).css("marginBottom"),$(f.helper).css("marginLeft")];
 				$(f.helper).css("margin", "0px");	
 			}
-		
-			/* Make clones on top of iframes */
-			if($.fn.offset && o.iframeFix) {
-				$("iframe").each(function() {
-					var curOffset = $(this).offset();
-					$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", curOffset.width+"px").css("height", curOffset.height+"px").css("position", "absolute").css("opacity", "0.001").css("top", curOffset.top-curOffset.borderTop+"px").css("left", curOffset.left-curOffset.borderLeft+"px").appendTo("body");
-				});				
-			}
 			
 			/* Let's see if we have a positioned parent */
 			var curParent = f.current.parentNode;
@@ -245,6 +237,14 @@
 		
 			/* Append the helper */
 			$(f.helper).css("left", o.curOffset.left-o.curOffset.borderLeft+"px").css("top", o.curOffset.top-o.curOffset.borderTop+"px").css("position", "absolute").appendTo((o.appendTo == "parent" ? f.current.parentNode : o.appendTo));
+
+			/* Make clones on top of iframes (only if we are not in slowMode) */
+			if(!f.slowMode && $.fn.offset && o.iframeFix) {
+				$("iframe").each(function() {
+					var curOffset = $(this).offset();
+					$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", curOffset.width+"px").css("height", curOffset.height+"px").css("position", "absolute").css("opacity", "0.001").css("top", curOffset.top-curOffset.borderTop+"px").css("left", curOffset.left-curOffset.borderLeft+"px").appendTo("body");
+				});				
+			}
 			
 			/* Only after we have appended the helper, we compute the offsets
 			 * for the slowMode! This is important, so the user aready see's

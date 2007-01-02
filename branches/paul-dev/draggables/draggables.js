@@ -175,6 +175,10 @@
 
 			/* Bind mouseup and mousemove events */
 			$(document).bind("mouseup", f.evStop);
+			/* Let's prevent orphans */
+			$(document).bind("mouseout", function(e) {
+				if(!f.mouseOutOneTime) { f.mouseOutOneTime = 1;	} else { f.evStop(e); }
+			});
 			$(document).bind("mousemove", f.evDrag);
 
 			/* Get the original mouse position */
@@ -271,6 +275,8 @@
 			/* Unbind the mouse events */
 			$(document).unbind("mouseup");
 			$(document).unbind("mousemove");
+			$(document).unbind("mouseout");
+			f.mouseOutOneTime = null;
 			
 			/* If init is false, don't do the following, just set properties to null */
 			if(o.init == false)

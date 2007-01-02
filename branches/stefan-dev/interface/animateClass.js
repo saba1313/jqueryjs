@@ -26,275 +26,148 @@ jQuery.fn.animateClass = function(c1,c2,c3) {
 		{ if(this.className.split(" ")[i] == c1) return; }
 			
 		var aniObj = {};
-		var aniDuration = (c2 && typeof c2 != "string") ? c2 : c3;
-		var oldStyleAttr = ($(this).attr("style") || '');
-		/* Stupidly in IE, style is a object.. */
-		if(typeof oldStyleAttr == 'object') oldStyleAttr = oldStyleAttr["cssText"];
-
-		/* Create and append a dummy element for computing the styles
-		 * on the new class. It will not be visible, of course.
-		 */
-		var dummyEl = this.cloneNode(true);
-		$(dummyEl).html($(this).html());
-		$(dummyEl).css("visibility", "hidden").css("position", "absolute");
-		$(this.parentNode).append(dummyEl);
-
-		/* Set the new class on dummy and compute the style
-		 * Then remove it again.
-		 */
-		if(typeof c2 != "string") $(dummyEl).get(0).className = this.className; else $(dummyEl).get(0).className = "";
-		$(dummyEl).addClass(c1);
-
-		if(document.defaultView) {
-			var oldStyle = document.defaultView.getComputedStyle(this,null);
-			var newStyle = document.defaultView.getComputedStyle(dummyEl,null);
-		} else {
-			var oldStyle = this.currentStyle;
-			var newStyle = dummyEl.currentStyle;
-		}
-
-		/* The main function to form the object for animation */
-		if(window.console != undefined) console.log("Animating element to class "+c1+" with the following properties:");
+		var aniDuration = c3 || c2 || 400;
 		
-		for(var n in newStyle) {
-			if( typeof newStyle[n] != "function" && newStyle[n] /* No functions and null properties */
-				&& n.indexOf("Moz") == -1 && n.indexOf("length") == -1 /* No mozilla spezific render properties. */
-				&& newStyle[n] != oldStyle[n] /* Only values that have changed are used for the animation */
-			)
-			{ 
-				/* At this part, we suggest, that all changes the user made are:
-				 * 1) Numeric changes (Integer) or
-				 * 2) Color changes
-				 * We cannot insert strings into animate
-				 * (there is no way anyway to animate a solid border to an outset one).
-				 */
-
-				if(n.indexOf("Color") == -1 && n.indexOf("color") == -1) {
-					if(!isNaN(parseInt(newStyle[n].replace(/px/, "")))) {
-	
-	                	/* If it's not positioned, remove position values because of performance */
-	                    if(oldStyle.position != "static"  || (oldStyle.position == "static" && n != "left" && n != "top" && n != "bottom" && n != "right"))
-	                    {
-							if(window.console != undefined) console.log(n+": "+parseInt(newStyle[n].replace(/px/, "")));  /* Debug line */
-							aniObj[n] = parseInt(newStyle[n].replace(/px/, ""));	/* Remove px from every value and convert to integer */
-	                	}
-	                }
-				} else {
-					/* Okay this is the tricky part...
-					 * let's start the color fading.
-					 */	
-					animateColor(this,n,oldStyle[n],newStyle[n], aniDuration, oldStyleAttr);
-					if(window.console != undefined) console.log(n+": "+newStyle[n]);  /* Debug line */
+		if (c3) {
+			$(this).addClass(c1);
+		}
+		var oldStyles = [];
+		var oldColors = [];
+		
+		var currentStyle = document.defaultView ? document.defaultView.getComputedStyle(this,null) :  this.currentStyle;
+		
+		for (var i=0; i<jQuery.fx.animatedCssRules.length; i++) {
+			if (currentStyle[jQuery.fx.animatedCssRules[i]])
+				oldStyles[i] = parseInt(currentStyle[jQuery.fx.animatedCssRules[i]]) || 0;
+		}
+		for (var i=0; i<jQuery.fx.animatedColorsCssRules.length; i++) {
+			if (currentStyle[jQuery.fx.animatedColorsCssRules[i]])
+				oldColors[i] = currentStyle[jQuery.fx.animatedColorsCssRules[i]];
+		}
+		
+		if (c3) {
+			$(this).addClass(c2);
+		} else {
+			$(this).addClass(c1);
+		}
+		toAnimate = {};
+		toColors = {};
+		var currentStyle = document.defaultView ? document.defaultView.getComputedStyle(this,null) :  this.currentStyle;
+		for (var i=0; i<jQuery.fx.animatedCssRules.length; i++) {
+			if (currentStyle[jQuery.fx.animatedCssRules[i]]) {
+				newStyle = parseInt(currentStyle[jQuery.fx.animatedCssRules[i]]) || 0;
+				if (newStyle != oldStyles[i]) {
+					toAnimate[jQuery.fx.animatedCssRules[i]] = newStyle;
 				}
 			}
 		}
-
-		/* Finally, we'll do the animation with our newly constructed animation
-		 * object with our changed values.
-		 */
-		$(this).animate(aniObj, aniDuration, function() {			
-			/* Toggle classes */
-			if(typeof c2 == "string") $(this).removeClass(c2);
-			$(this).addClass(c1);
-			
-			/* Change style attribute back to original.
-			 * For stupid IE, we need to clear the damn object.
-			 */
-			if(typeof $(this).attr("style") == 'object') {
-				$(this).attr("style")["cssText"] = "";
-				$(this).attr("style")["cssText"] = oldStyleAttr;
-			} else {
-				$(this).attr("style", oldStyleAttr);	
+		for (var i=0; i<jQuery.fx.animatedColorsCssRules.length; i++) {
+			if (currentStyle[jQuery.fx.animatedColorsCssRules[i]] && currentStyle[jQuery.fx.animatedColorsCssRules[i]] != oldColors[i]) {
+				toColors[jQuery.fx.animatedColorsCssRules[i]] = [oldColors[i],currentStyle[jQuery.fx.animatedColorsCssRules[i]]];
 			}
-			
-			/* Remove the dummy */
-			$(dummyEl).remove();
-		});
-	});
-	
-	/* Our color animation function */
-	function animateColor(that,prop,oldColor,newColor, aniDuration, oldStyleAttr) {
-				
-		var nSC,oSC;
-		/* Workaround for special case 'transparent':
-		 * We need to set it to white, fading from transparent to red
-		 * is just very difficult.
-		 */
-		if(oldColor == "transparent") { oSC = [255,255,255]; } else {
-			if(oldColor.substr(0, 3) == "rgb") oSC = oldColor.substr(4).replace(/\)/, "").split(","); /* It's a gecko rgb value */
-			if(oldColor.substr(0, 1) == "#" && oldColor.length == 7) oSC = [parseInt(oldColor.substr(1,2),16),parseInt(oldColor.substr(3,2),16),parseInt(oldColor.substr(5,2),16)]; /* it's a hex value.. */
-			if(oldColor.substr(0, 1) == "#" && oldColor.length == 4) oSC = [parseInt(oldColor.substr(1,1)+oldColor.substr(1,1),16),parseInt(oldColor.substr(2,1)+oldColor.substr(2,1),16),parseInt(oldColor.substr(3,1)+oldColor.substr(3,1),16)]; /* it's a short hex value.. */
-			/* No luck with them? Then it's something written */
-			if(oldColor.substr(0, 3) != "rgb" && oldColor.substr(0, 1) != "#") oSC = colorToArray(oldColor);
 		}
-		if(newColor == "transparent") {
-			nSC = [255,255,255]	
+		if (c3) {
+			$(this).removeClass(c2);
 		} else {
-			if(newColor.substr(0, 3) == "rgb") nSC = newColor.substr(4).replace(/\)/, "").split(","); /* It's a gecko rgb value */
-			if(newColor.substr(0, 1) == "#" && newColor.length == 7) nSC = [parseInt(newColor.substr(1,2),16),parseInt(newColor.substr(3,2),16),parseInt(newColor.substr(5,2),16)]; /* it's a hex value.. */
-			if(newColor.substr(0, 1) == "#" && newColor.length == 4) nSC = [parseInt(newColor.substr(1,1)+newColor.substr(1,1),16),parseInt(newColor.substr(2,1)+newColor.substr(2,1),16),parseInt(newColor.substr(3,1)+newColor.substr(3,1),16)]; /* it's a short hex value.. */
-			/* No luck with them? Then it's something written */
-			if(newColor.substr(0, 3) != "rgb" && newColor.substr(0, 1) != "#") nSC = colorToArray(newColor);		
+			$(this).removeClass(c1);
 		}
-		
-		var diffR = parseInt(nSC[0]) - parseInt(oSC[0]);
-		var diffG = parseInt(nSC[1]) - parseInt(oSC[1]);
-		var diffB = parseInt(nSC[2]) - parseInt(oSC[2]);
-		
-		colorTimers[prop] = 0;
-		colorIntervals[prop] = window.setInterval(intervalColor,20);
-		
-		function intervalColor() {
-			colorTimers[prop] = colorTimers[prop] + 20;
-			
-			var newR = Math.round(parseInt(oSC[0]) + (diffR/aniDuration)*colorTimers[prop]);
-			var newG = Math.round(parseInt(oSC[1]) + (diffG/aniDuration)*colorTimers[prop]);
-			var newB = Math.round(parseInt(oSC[2]) + (diffB/aniDuration)*colorTimers[prop]);
-			$(that).css(prop, "rgb("+newR+","+newG+","+newB+")");
+		$(this).animate(toAnimate,aniDuration );
+		colorNimations = {};
+		for(i in toColors) {
+			colorNimations[i] = new jQuery.fx.animateColor(this, aniDuration, toColors[i], i);
+		}
+		return
+	});
+}
+jQuery.fx.animatedCssRules = [
+	'borderBottomWidth',
+	'borderLeftWidth',
+	'borderRightWidth',
+	'borderTopWidth',
+	'bottom',
+	'fontSize',
+	'height',
+	'left',
+	'letterSpacing',
+	'lineHeight',
+	'marginBottom',
+	'marginLeft',
+	'marginRight',
+	'marginTop',
+	'maxHeight',
+	'maxWidth',
+	'minHeight',
+	'minWidth',
+	'opacity',
+	'outlineOffset',
+	'outlineWidth',
+	'paddingBottom',
+	'paddingLeft',
+	'paddingRight',
+	'paddingTop',
+	'right',
+	'textIndent',
+	'top',
+    'width',
+	'zIndex'
+];
+jQuery.fx.animatedColorsCssRules = [
+	'backgroundColor',
+	'borderBottomColor',
+	'borderLeftColor',
+	'borderRightColor',
+	'borderTopColor',
+	'color',
+	'outlineColor'
+];
 
-			if(colorTimers[prop] == aniDuration) {
-				window.clearInterval(colorIntervals[prop]);
-				/* CLEAR THE DAMN HARDCODED CSS STYLE TAG!!! FINALLY!! */
-				if(typeof $(that).attr("style") == 'object') {
-					$(that).attr("style")["cssText"] = "";
-					$(that).attr("style")["cssText"] = oldStyleAttr;
-				}					
-			}
-		};
-		function colorToArray(cColor) {
-			switch(cColor) {
-				case 'aqua':
-					return [0,255,255];
-					break;
-				case 'azure':
-					return [240,255,255];
-					break;
-				case 'beige':
-					return [245,245,220];
-					break;
-				case 'black':
-					return [0,0,0];
-					break;
-				case 'blue':
-					return [0,0,255];
-					break;
-				case 'brown':
-					return [165,42,42];
-					break;
-				case 'cyan':
-					return [0,255,255];
-					break;
-				case 'darkblue':
-					return [0,0,139];
-					break;
-				case 'darkcyan':
-					return [0,139,139];
-					break;
-				case 'darkgrey':
-					return [169,169,169];
-					break;
-				case 'darkgreen':
-					return [0,100,0];
-					break;
-				case 'darkkhaki':
-					return [189,183,107];
-					break;
-				case 'darkmagenta':
-					return [139,0,139];
-					break;
-				case 'darkolivegreen':
-					return [85,107,47];
-					break;
-				case 'darkorange':
-					return [255,140,0];
-					break;
-				case 'darkorchid':
-					return [153,50,204];
-					break;
-				case 'darkred':
-					return [139,0,0];
-					break;
-				case 'darksalmon':
-					return [233,150,122];
-					break;
-				case 'darkviolet':
-					return [148,0,211];
-					break;
-				case 'fuchsia':
-					return [255,0,255];
-					break;
-				case 'gold':
-					return [255,215,0];
-					break;
-				case 'green':
-					return [0,128,0];
-					break;
-				case 'indigo':
-					return [75,0,130];
-					break;
-				case 'khaki':
-					return [240,230,140];
-					break;
-				case 'lightblue':
-					return [173,216,230];
-					break;
-				case 'lightcyan':
-					return [224,255,255];
-					break;
-				case 'lightgreen':
-					return [144,238,144];
-					break;
-				case 'lightgrey':
-					return [211,211,211];
-					break;
-				case 'lightpink':
-					return [255,182,193];
-					break;
-				case 'lightyellow':
-					return [255,255,224];
-					break;
-				case 'lime':
-					return [0,255,0];
-					break;
-				case 'magenta':
-					return [255,0,255];
-					break;
-				case 'maroon':
-					return [128,0,0];
-					break;
-				case 'navy':
-					return [0,0,128];
-					break;
-				case 'olive':
-					return [128,128,0];
-					break;
-				case 'orange':
-					return [255,165,0];
-					break;
-				case 'pink':
-					return [255,192,203];
-					break;
-				case 'purple':
-					return [128,0,128];
-					break;
-				case 'red':
-					return [255,0,0];
-					break;
-				case 'silver':
-					return [192,192,192];
-					break;
-				case '238,130,238':
-					return [238,130,238];
-					break;
-				case 'white':
-					return [255,255,255];
-					break;
-				case 'yellow':
-					return [255,255,0]
-				default:
-					return [0,0,0];
-					break;
-			}	
-		};		
+jQuery.fx.animateColor = function (e, duration, color, property, callback, transition)
+{
+	/*if (!jQuery.fxCheckTag(e) || !color) {
+		jQuery.dequeue(e, 'interfaceFX');
+		return false;
+	}*/
+	var z = this;
+	z.transition = transition||'original';
+	z.duration = jQuery.speed(duration).duration;
+	z.callback = callback;
+	z.property = property;
+	z.el = jQuery(e);
+	z.endColor = jQuery.fx.parseColor(color[1]);
+	z.startColor = jQuery.fx.parseColor(color[0]);
+	
+	if (!z.endColor || !z.startColor) {
+		return false;
+	}
+	console.log(property);
+	
+	z.t=(new Date).getTime();
+	z.clear = function(){clearInterval(z.timer);z.timer=null;};
+	z.step = function(){
+		var t = (new Date).getTime();
+		var n = t - z.t;
+		var p = n / z.duration;
+		if (t >= z.duration+z.t) {
+			setTimeout(
+				function(){
+					if (z.callback && typeof z.callback == 'function') {
+						z.callback.apply(z.el.get(0));
+					}
+				},
+				13
+			);
+			z.clear();
+		} else {
+			o = 1;
+			s = jQuery.fx.transitions(p, n, z.from, (z.to-z.from), z.duration, z.transition);
+			newColor = {
+				r: parseInt(jQuery.fx.transitions(p, n, z.startColor.r, (z.endColor.r-z.startColor.r), z.duration, z.transition)),
+				g: parseInt(jQuery.fx.transitions(p, n, z.startColor.g, (z.endColor.g-z.startColor.g), z.duration, z.transition)),
+				b: parseInt(jQuery.fx.transitions(p, n, z.startColor.b, (z.endColor.b-z.startColor.b), z.duration, z.transition))
+			};
+			z.el.css(z.property, 'rgb(' + newColor.r + ',' + newColor.g + ',' + newColor.b + ')');
+		}
 	};
+	z.timer=setInterval(function(){z.step();},13);
+
 };

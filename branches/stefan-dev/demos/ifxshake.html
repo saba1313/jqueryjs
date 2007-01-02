@@ -2,14 +2,14 @@
 <head>
 <meta http-equiv="Content-Language" content="en" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Interface FX - animate Class</title>
+<title>Interface FX - Shake demo - Interface plugin for jQuery</title>
 <script type="text/javascript" src="../jquery/jquery/jquery.js"></script>
 <script type="text/javascript" src="../jquery/ajax/ajax.js"></script>
 <script type="text/javascript" src="../jquery/event/event.js"></script>
 <script type="text/javascript" src="../jquery/fx/fx.js"></script>
 <script type="text/javascript" src="../interface/iutil.js"></script>
 <script type="text/javascript" src="../interface/ifx.js"></script>
-<script type="text/javascript" src="../interface/animateClass.js"></script>
+<script type="text/javascript" src="../interface/ifxshake.js"></script>
 <style type="text/css" media="all">
 
 body
@@ -19,7 +19,7 @@ body
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
 }
-.ifxElement
+#ifxElement
 {
 	background-color: #B5EF59;
 	border-top: 2px solid #6CAF00;
@@ -32,23 +32,7 @@ body
 	height: 200px;
 	top: 120px;
 	left: 200px;
-	text-align: left;
-	letter-spacing: 0px;
-	color: #000;
-}
-.toAnimate
-{
-	background-color: #990000;
-	color: #FFCC33;
-	border-top-width: 30px;
-	letter-spacing: 20px;
-}
-.toReset
-{
-	background-color: #B5EF59;
-	color: #000;
-	border-top-width: 2px;
-	letter-spacing: 0px;
+	text-align: center;
 }
 #ifxElement strong{
 	font-size: 2em;
@@ -76,11 +60,16 @@ body
 </style>
 </head>
 <body>
-	<div id="ifxElement" class="ifxElement">This whould be animated
+	<div id="ifxElement">
+		My home town
+		<img src="images/brasov3.jpg" width="100%" />
+		<a href="http://www.iubescbrasovul.ro"><strong>Brasov</strong></a>
 	</div>
 	<div id="ifxLinks">
-		<a href="#" onClick="$('#ifxElement').animateClass(['toReset', 'toAnimate'], 1000);">Animate</a>
-		<a href="#" onClick="$('#ifxElement').animateClass('toReset', 1000);">Reset</a>
+		<a href="#" onClick="$('#ifxElement').Shake(2);">Shake 3 times</a>
+		<a href="#" onClick="$('#ifxElement').Shake(5);">Shake 5 times</a>
 	</div>
+<script type="text/javascript">
+</script>
 </body>
 </html>

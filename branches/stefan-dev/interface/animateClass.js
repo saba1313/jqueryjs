@@ -19,6 +19,7 @@
 jQuery.fx.animateClass = function(el, classToAnimate, duration, callback) {
 	var endClass = typeof classToAnimate == 'string' ? classToAnimate : classToAnimate[1];
 	var startClass = typeof classToAnimate == 'string' ? null : classToAnimate[0];
+	var oldStyleAttr = jQuery(el).attr("style") || '';
 	jQuery(el).removeClass(endClass);
 	if (startClass) {
 		jQuery(el).addClass(startClass);
@@ -65,7 +66,7 @@ jQuery.fx.animateClass = function(el, classToAnimate, duration, callback) {
 		duration,
 		function()
 		{
-			jQuery(this).addClass(endClass).attr('style','');
+			jQuery(this).addClass(endClass).attr('style',oldStyleAttr);
 			jQuery.dequeue(this, 'interfaceClassFX');
 		}
 	);

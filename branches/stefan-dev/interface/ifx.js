@@ -12,25 +12,18 @@
  */
 
 //overwrite jQuery's default fx function with the new one to support diferent transitions
-jQuery.fx = function( elem, options, prop, transition ){
+/*jQuery.fx = function( elem, options, prop, transition ){
 
 	var z = this;
 
 	z.transition = /easein|easeout|easeboth|bouncein|bounceout|bounceboth|elasticin|elasticout|elasticboth/.test(transition) ? transition : 'original';
-	// The users options
 	z.o = {
 		duration: options.duration || 400,
 		complete: options.complete,
 		step: options.step
 	};
-
-	// The element
 	z.el = elem;
-
-	// The styles
 	var y = z.el.style;
-
-	// Simple function for setting a style value
 	z.a = function(){
 		if ( options.step )
 			options.step.apply( elem, [ z.now ] );
@@ -41,26 +34,18 @@ jQuery.fx = function( elem, options, prop, transition ){
 				y.filter = "alpha(opacity=" + z.now*100 + ")";
 			else
 				y.opacity = z.now;
-
-		// My hate for IE will never die
 		} else if ( parseInt(z.now) )
 			y[prop] = parseInt(z.now) + "px";
 			
 		y.display = "block";
 	};
-
-	// Figure out the maximum number to run to
 	z.max = function(){
 		return parseFloat( jQuery.css(z.el,prop) );
 	};
-
-	// Get the current size
 	z.cur = function(){
 		var r = parseFloat( jQuery.curCSS(z.el, prop) );
 		return r && r > -10000 ? r : z.max();
 	};
-
-	// Start an animation from one number to another
 	z.custom = function(from,to){
 		z.startTime = (new Date()).getTime();
 		z.now = from;
@@ -70,51 +55,29 @@ jQuery.fx = function( elem, options, prop, transition ){
 			z.step(from, to);
 		}, 13);
 	};
-
-	// Simple 'show' function
 	z.show = function( p ){
 		if ( !z.el.orig ) z.el.orig = {};
-
-		// Remember where we started, so that we can go back to it later
 		z.el.orig[prop] = this.cur();
 
 		z.custom( 0, z.el.orig[prop] );
-
-		// Stupid IE, look what you made me do
 		if ( prop != "opacity" )
 			y[prop] = "1px";
 	};
-
-	// Simple 'hide' function
 	z.hide = function(){
 		if ( !z.el.orig ) z.el.orig = {};
-
-		// Remember where we started, so that we can go back to it later
 		z.el.orig[prop] = this.cur();
-
 		z.o.hide = true;
-
-		// Begin the animation
 		z.custom(z.el.orig[prop], 0);
 	};
-
-	// IE has trouble with opacity if it does not have layout
 	if ( jQuery.browser.msie && !z.el.currentStyle.hasLayout )
 		y.zoom = "1";
-
-	// Remember  the overflow of the element
 	if ( !z.el.oldOverlay )
 		z.el.oldOverflow = jQuery.css( z.el, "overflow" );
-
-	// Make sure that nothing sneaks out
 	y.overflow = "hidden";
-
-	// Each step of an animation
 	z.step = function(firstNum, lastNum){
 		var t = (new Date()).getTime();
 
 		if (t > z.o.duration + z.startTime) {
-			// Stop the timer
 			clearInterval(z.timer);
 			z.timer = null;
 
@@ -130,42 +93,25 @@ jQuery.fx = function( elem, options, prop, transition ){
 			}
 					
 			if ( done ) {
-				// Reset the overflow
 				y.overflow = z.el.oldOverflow;
-			
-				// Hide the element if the "hide" operation was done
 				if ( z.o.hide ) 
 					y.display = 'none';
-				
-				// Reset the property, if the item has been hidden
 				if ( z.o.hide ) {
 					for ( var p in z.el.curAnim ) {
 						y[ p ] = z.el.orig[p] + ( p == "opacity" ? "" : "px" );
-
-						/*// set its height and/or width to auto
-						if ( p == 'height' || p == 'width' )
-							jQuery.setAuto( z.el, p );*/
 					}
 				}
 			}
-			
-			// If a callback was provided, execute it
 			if( done && z.o.complete && z.o.complete.constructor == Function )
-				// Execute the complete function
 				z.o.complete.apply( z.el );
 		} else {
 			var n = t - this.startTime;
-			// Figure out where in the animation we are and set the number
-			//var p = (t - this.startTime) / z.o.duration;
 			var p = n / z.o.duration;
-			//z.now = ((-Math.cos(p*Math.PI)/2) + 0.5) * (lastNum-firstNum) + firstNum;
 			z.now = jQuery.fx.transitions(p, n, firstNum, (lastNum-firstNum), z.o.duration, z.transition);
-
-			// Perform the next step of the animation
 			z.a();
 		}
 	};	
-};
+};*/
 
 jQuery.fxCheckTag = function(e)
 {
@@ -257,7 +203,7 @@ jQuery.fx.buildWrapper = function(e)
 	es.left = '0px';
 	return {oldStyle:oldStyle, wrapper:jQuery(wr)};
 };
-jQuery.fx.transitions = function(p, n, firstNum, delta, duration, type)
+/*jQuery.fx.transitions = function(p, n, firstNum, delta, duration, type)
 {
 	if (type == 'original') {
 		return ((-Math.cos(p*Math.PI)/2) + 0.5) * delta + firstNum;
@@ -348,8 +294,12 @@ jQuery.fx.transitions = function(p, n, firstNum, delta, duration, type)
 		return delta*Math.pow(2,-10*(n-=1)) * Math.sin( (n*duration-(duration*.45)/4)*(2*Math.PI)/(duration*.45) )*.5 + delta + firstNum;
 	}
 			
+};*/
+
+jQuery.fx.transitions = function(p, n, firstNum, delta, duration, type) {
+	return ((-Math.cos(p*Math.PI)/2) + 0.5) * delta + firstNum;
 };
-	
+
 jQuery.fx.namedColors = {
 	'aqua':[0,255,255],
 	'azure':[240,255,255],
@@ -429,4 +379,108 @@ jQuery.fx.parseColor = function(color)
 		};
 	else
 		return false;
+};
+jQuery.fx.animatedCssRules = [
+	'borderBottomWidth',
+	'borderLeftWidth',
+	'borderRightWidth',
+	'borderTopWidth',
+	'bottom',
+	'fontSize',
+	'height',
+	'left',
+	'letterSpacing',
+	'lineHeight',
+	'marginBottom',
+	'marginLeft',
+	'marginRight',
+	'marginTop',
+	'maxHeight',
+	'maxWidth',
+	'minHeight',
+	'minWidth',
+	'opacity',
+	'outlineOffset',
+	'outlineWidth',
+	'paddingBottom',
+	'paddingLeft',
+	'paddingRight',
+	'paddingTop',
+	'right',
+	'textIndent',
+	'top',
+    'width',
+	'zIndex'
+];
+jQuery.fx.animatedColorsCssRules = [
+	'backgroundColor',
+	'borderBottomColor',
+	'borderLeftColor',
+	'borderRightColor',
+	'borderTopColor',
+	'color',
+	'outlineColor'
+];
+
+jQuery.fx.animateColor = function (e, duration, colors, callback, transition)
+{
+	/*if (!jQuery.fxCheckTag(e) || !color) {
+		jQuery.dequeue(e, 'interfaceFX');
+		return false;
+	}*/
+	var z = this;
+	z.transition = transition||'original';
+	z.duration = jQuery.speed(duration).duration;
+	z.callback = callback;
+	z.el = jQuery(e);
+	z.colors = colors;
+	var cnt = 0;
+	for(i in z.colors) {
+		z.colors[i] = [jQuery.fx.parseColor(z.colors[i][0]),jQuery.fx.parseColor(z.colors[i][1])];
+		cnt ++;
+	}
+	
+	if (cnt == 0) {
+		return false;
+	}
+	
+	z.t=(new Date).getTime();
+	z.clear = function(){clearInterval(z.timer);z.timer=null;};
+	z.step = function(){
+		var t = (new Date).getTime();
+		var n = t - z.t;
+		var p = n / z.duration;
+		if (t >= z.duration+z.t) {
+			setTimeout(
+				function(){
+					jQuery.dequeue(z.el.get(0), 'interfaceFX');
+					if (z.callback && typeof z.callback == 'function') {
+						z.callback.apply(z.el.get(0));
+					}
+				},
+				13
+			);
+			z.clear();
+		} else {
+			o = 1;
+			s = jQuery.fx.transitions(p, n, z.from, (z.to-z.from), z.duration, z.transition);
+			
+			for(i in z.colors) {
+				newColor = {
+					r: parseInt(jQuery.fx.transitions(p, n, z.colors[i][0].r, (z.colors[i][1].r-z.colors[i][0].r), z.duration, z.transition)),
+					g: parseInt(jQuery.fx.transitions(p, n, z.colors[i][0].g, (z.colors[i][1].g-z.colors[i][0].g), z.duration, z.transition)),
+					b: parseInt(jQuery.fx.transitions(p, n, z.colors[i][0].b, (z.colors[i][1].b-z.colors[i][0].b), z.duration, z.transition))
+				};
+				z.el.css(i, 'rgb(' + newColor.r + ',' + newColor.g + ',' + newColor.b + ')');
+			}
+		}
+	};
+	z.timer=setInterval(function(){z.step();},13);
+
+};
+
+jQuery.fn.animateColor = function(duration, color, callback, transition) {
+	return this.queue('interfaceFX',function(){
+		new jQuery.fx.animateColor(this, duration, color, callback, transition);
+	});
 };

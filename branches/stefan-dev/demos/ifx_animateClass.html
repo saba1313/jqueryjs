@@ -32,7 +32,8 @@ body
 	height: 200px;
 	top: 120px;
 	left: 200px;
-	text-align: center;
+	text-align: left;
+	letter-spacing: 0px;
 	color: #000;
 }
 .toAnimate
@@ -40,12 +41,14 @@ body
 	background-color: #990000;
 	color: #FFCC33;
 	border-top-width: 30px;
+	letter-spacing: 20px;
 }
 .toReset
 {
 	background-color: #B5EF59;
 	color: #000;
 	border-top-width: 2px;
+	letter-spacing: 0px;
 }
 #ifxElement strong{
 	font-size: 2em;
@@ -76,7 +79,8 @@ body
 	<div id="ifxElement" class="ifxElement">This whould be animated
 	</div>
 	<div id="ifxLinks">
-		<a href="#" onClick="$('#ifxElement').animateClass('toAnimate', 1000);">Animate</a>
+		<a href="#" onClick="$('#ifxElement').animateClass(['toReset', 'toAnimate'], 1000);">Animate</a>
+		<a href="#" onClick="$('#ifxElement').animateClass('toReset', 1000);">Reset</a>
 	</div>
 </body>
 </html>

@@ -23,10 +23,10 @@ jQuery.fn.extend({
 	 * @cat Effects/Animations
 	 * @see hide(String|Number,Function)
 	 */
-	show: function(speed,callback){
+	show: function(speed,callback, transition){
 		return speed ? this.animate({
 			height: "show", width: "show", opacity: "show"
-		}, speed, callback) : this._show();
+		}, speed, callback, transition) : this._show();
 	},
 	
 	// Overwrite the old hide method
@@ -52,10 +52,10 @@ jQuery.fn.extend({
 	 * @cat Effects/Animations
 	 * @see show(String|Number,Function)
 	 */
-	hide: function(speed,callback){
+	hide: function(speed,callback, transition){
 		return speed ? this.animate({
 			height: "hide", width: "hide", opacity: "hide"
-		}, speed, callback) : this._hide();
+		}, speed, callback, transition) : this._hide();
 	},
 	
 	/**
@@ -79,8 +79,8 @@ jQuery.fn.extend({
 	 * @see slideUp(String|Number,Function)
 	 * @see slideToggle(String|Number,Function)
 	 */
-	slideDown: function(speed,callback){
-		return this.animate({height: "show"}, speed, callback);
+	slideDown: function(speed,callback, transition){
+		return this.animate({height: "show"}, speed, callback, transition);
 	},
 	
 	/**
@@ -104,8 +104,8 @@ jQuery.fn.extend({
 	 * @see slideDown(String|Number,Function)
 	 * @see slideToggle(String|Number,Function)
 	 */
-	slideUp: function(speed,callback){
-		return this.animate({height: "hide"}, speed, callback);
+	slideUp: function(speed,callback, transition){
+		return this.animate({height: "hide"}, speed, callback, transition);
 	},
 
 	/**
@@ -129,10 +129,10 @@ jQuery.fn.extend({
 	 * @see slideDown(String|Number,Function)
 	 * @see slideUp(String|Number,Function)
 	 */
-	slideToggle: function(speed, callback){
+	slideToggle: function(speed, callback, transition){
 		return this.each(function(){
 			var state = jQuery(this).is(":hidden") ? "show" : "hide";
-			jQuery(this).animate({height: state}, speed, callback);
+			jQuery(this).animate({height: state}, speed, callback, transition);
 		});
 	},
 	
@@ -158,8 +158,8 @@ jQuery.fn.extend({
 	 * @see fadeOut(String|Number,Function)
 	 * @see fadeTo(String|Number,Number,Function)
 	 */
-	fadeIn: function(speed, callback){
-		return this.animate({opacity: "show"}, speed, callback);
+	fadeIn: function(speed, callback, transition){
+		return this.animate({opacity: "show"}, speed, callback, transition);
 	},
 	
 	/**
@@ -184,8 +184,8 @@ jQuery.fn.extend({
 	 * @see fadeIn(String|Number,Function)
 	 * @see fadeTo(String|Number,Number,Function)
 	 */
-	fadeOut: function(speed, callback){
-		return this.animate({opacity: "hide"}, speed, callback);
+	fadeOut: function(speed, callback, transition){
+		return this.animate({opacity: "hide"}, speed, callback, transition);
 	},
 	
 	/**
@@ -211,8 +211,8 @@ jQuery.fn.extend({
 	 * @see fadeIn(String|Number,Function)
 	 * @see fadeOut(String|Number,Function)
 	 */
-	fadeTo: function(speed,to,callback){
-		return this.animate({opacity: to}, speed, callback);
+	fadeTo: function(speed,to,callback, transition){
+		return this.animate({opacity: to}, speed, callback, transition);
 	},
 	
 	/**
@@ -339,7 +339,7 @@ jQuery.extend({
 			step: options.step,
 			transition : /easein|easeout|easeboth|bouncein|bounceout|bounceboth|elasticin|elasticout|elasticboth/.test(transition) ? transition : 'original'
 		};
-
+		
 		// The element
 		z.el = elem;
 
@@ -543,7 +543,8 @@ jQuery.extend({
    				return firstNum;
    			if ((n/=duration)==1)
    				return firstNum+delta;
-   			a = delta * 0.5;
+   			a = delta * 0.3;
+   			p=duration*.3;
 			if (a < Math.abs(delta)) {
 				a=delta;
 				s=p/4;
@@ -553,33 +554,36 @@ jQuery.extend({
 			return -(a*Math.pow(2,10*(n-=1)) * Math.sin( (n*duration-s)*(2*Math.PI)/p )) + firstNum; 
 		}
 		if (type == 'elasticout') {
-			if (n==0) 
+			if (n==0)
 				return firstNum;
-			if ((n/=duration)==1) 
+			if ((n/=duration/2)==2)
 				return firstNum + delta;
-   			a = delta * 0.5;
-			if (a < Math.abs(delta)) {
-				a=delta;
+   			a = delta * 0.3;
+   			p=duration*.3;
+			if (a < Math.abs(delta)){
+				a = delta;
 				s=p/4;
 			} else { 
 				s = p/(2*Math.PI) * Math.asin (delta/a);
 			}
-			return a*Math.pow(2,-10*n) * Math.sin( (n*duration-s)*(2*Math.PI)/p ) + delta + firstNum; 
+			return a*Math.pow(2,-10*n) * Math.sin( (n*duration-s)*(2*Math.PI)/p ) + delta + firstNum;
 		}
 		if (type == 'elasticboth') {
 			if (n==0)
 				return firstNum;
 			if ((n/=duration/2)==2)
 				return firstNum + delta;
-   			a = delta * 0.5;
+   			a = delta * 0.3;
+   			p=duration*.3;
 			if (a < Math.abs(delta)){
 				a = delta;
-				var s=p/4;
+				s=p/4;
 			} else { 
-				var s = p/(2*Math.PI) * Math.asin (delta/a);
+				s = p/(2*Math.PI) * Math.asin (delta/a);
 			}
-			if (n < 1) 
+			if (n < 1) {
 				return -.5*(a*Math.pow(2,10*(n-=1)) * Math.sin( (n*duration-s)*(2*Math.PI)/p )) + firstNum;
+			}
 			return a*Math.pow(2,-10*(n-=1)) * Math.sin( (n*duration-s)*(2*Math.PI)/p )*.5 + delta + firstNum; 
 		}
 	}

@@ -142,22 +142,9 @@
 				this.dragOptions.handle.bind("mousedown", f.evClick);
 				
 				/* Link the original element to the handle for later reference */
-				this.dragOptions.handle.get(0).dragEl = this;
-				
-				/* Prevent text selection */
-				if($.browser.mozilla){
-					this.style.MozUserSelect = "none";
-				}else if($.browser.safari){
-					this.style.KhtmlUserSelect = "none";
-				}else if($.browser.msie){
-					this.unselectable = "on";
-					this.ondrag = function () { return false; };
-					this.onselectstart = function () { return false; };
-				}else{
-					return false;
-				}				
+				this.dragOptions.handle.get(0).dragEl = this;				
 			
-			});	
+			});
 		},
 		destroy: function() {
 			/* Destroy all droppables */	
@@ -167,7 +154,7 @@
 			/* Prevent execution on defined elements */
 			var targetName = (e.target) ? e.target.nodeName.toLowerCase() : e.srcElement.nodeName.toLowerCase();
 			for(var i=0;i<this.dragEl.dragOptions.dragPreventionOn.length;i++) {
-				if(targetName == this.dragEl.dragOptions.dragPreventionOn[i]) return;
+				if(targetName == this.dragEl.dragOptions.dragPreventionOn[i]) return false;
 			}
 		
 			/* Set f.current to the current element */
@@ -179,7 +166,7 @@
 
 			/* Get the original mouse position */
 			f.oldPosition = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
-	
+		
 			return false;
 		},
 		evStart: function(e) {
@@ -263,6 +250,7 @@
 			/* Trigger the onStart callback */
 			if(o.onStart) o.onStart.apply(f.current, [f.helper]);
 			
+			return false;		
 		},
 		evStop: function(e) {			
 
@@ -304,12 +292,19 @@
 			/* Clear temp variables */
 			o.init = false;
 			f.oldPosition = f.position = f.current = f.helper = null;
-				
+			
+			return false;
 		},
 		evDrag: function(e) {
 
+			// check for IE mouseup when moving into the document again
+			if ($.browser.msie && !e.button) {
+			 f.evStop.apply(document, [e]);
+			 return false;
+			}
+
 			var o = f.current.dragOptions;
-		
+			
 			/* Get the current mouse position */
 			f.position = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
 			if(o.positionedParent) {
@@ -321,7 +316,7 @@
 			if( (Math.abs(f.position[0]-f.oldPosition[0]) > o.dragPrevention || Math.abs(f.position[1]-f.oldPosition[1]) > o.dragPrevention) && o.init == false)
 				f.evStart.apply(f.current,[e]);			
 			else {
-				if(o.init == false) return;
+				if(o.init == false) return false;
 			}
 			
 			/* Remap right/bottom properties for cursorAt to left/top */
@@ -417,6 +412,7 @@
 			/* Stick the helper to the cursor */			
 			$(f.helper).css("left", newLeft+"px").css("top", newTop+"px");
 			
+			return false;
 		}
 	}
 

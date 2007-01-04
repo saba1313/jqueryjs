@@ -242,13 +242,13 @@ jQuery.fn.extend({
 	 * @param Function callback (optional) A function to be executed whenever the animation completes.
 	 * @cat Effects/Animations
 	 */
-	animate: function(prop,speed,callback) {
+	animate: function(prop,speed,callback, transition) {
 		return this.queue(function(){
 		
 			this.curAnim = jQuery.extend({}, prop);
 			
 			for ( var p in prop ) {
-				var e = new jQuery.fx( this, jQuery.speed(speed,callback), p );
+				var e = new jQuery.fx( this, jQuery.speed(speed,callback), p, transition );
 				if ( prop[p].constructor == Number )
 					e.custom( e.cur(), prop[p] );
 				else
@@ -328,7 +328,7 @@ jQuery.extend({
 	 * people. You've been warned.
 	 */
 	
-	fx: function( elem, options, prop ){
+	fx: function( elem, options, prop, transition ){
 
 		var z = this;
 
@@ -336,7 +336,8 @@ jQuery.extend({
 		z.o = {
 			duration: options.duration || 400,
 			complete: options.complete,
-			step: options.step
+			step: options.step,
+			transition : /easein|easeout|easeboth|bouncein|bounceout|bounceboth|elasticin|elasticout|elasticboth/.test(transition) ? transition : 'original'
 		};
 
 		// The element
@@ -485,15 +486,102 @@ jQuery.extend({
 					// Execute the complete function
 					z.o.complete.apply( z.el );
 			} else {
+				var n = t - this.startTime;
 				// Figure out where in the animation we are and set the number
-				var p = (t - this.startTime) / z.o.duration;
-				z.now = ((-Math.cos(p*Math.PI)/2) + 0.5) * (lastNum-firstNum) + firstNum;
+				var p = n / z.o.duration;
+				//z.now = ((-Math.cos(p*Math.PI)/2) + 0.5) * (lastNum-firstNum) + firstNum;
+				z.now = jQuery.transitions(p, n,  firstNum, (lastNum-firstNum), z.o.duration, z.o.transition);
 
 				// Perform the next step of the animation
 				z.a();
 			}
 		};
 	
+	},
+	
+	transitions :  function(p, n, firstNum, delta, duration, type) {
+		var nm, m, a, s;
+		if (type == 'original') {
+			return ((-Math.cos(p*Math.PI)/2) + 0.5) * delta + firstNum;
+		}
+		if (type == 'easein') {
+			return delta*(n/=duration)*n*n + firstNum;
+		}
+		if (type == 'easeout') {
+			return -delta * ((n=n/duration-1)*n*n*n - 1) + firstNum;
+		}
+		if (type == 'easeboth') {
+			if ((n/=duration/2) < 1)
+				return delta/2*n*n*n*n + firstNum;
+				return -delta/2 * ((n-=2)*n*n*n - 2) + firstNum;
+		}
+		if (type == 'easeboth') {
+			if ((n/=duration/2) < 1)
+				return delta/2*n*n*n*n + firstNum;
+			return -delta/2 * ((n-=2)*n*n*n - 2) + firstNum;
+		}
+		if (type == 'bounceout') {
+			if ((n/=duration) < (1/2.75)) {
+				return delta*(7.5625*n*n) + firstNum;
+			} else if (n < (2/2.75)) {
+				return delta*(7.5625*(n-=(1.5/2.75))*n + .75) + firstNum;
+			} else if (n < (2.5/2.75)) {
+				return delta*(7.5625*(n-=(2.25/2.75))*n + .9375) + firstNum;
+			} else {
+				return delta*(7.5625*(n-=(2.625/2.75))*n + .984375) + firstNum;
+			}
+		}
+		if (type == 'bouncein') {
+			return delta - jQuery.transitions (p, duration - n, 0, delta, duration, 'bounceout') + firstNum; 
+		}
+		if (type == 'bounceboth') {
+		   if (n < duration/2) return jQuery.transitions(p, n*2, 0, delta, duration, 'bouncein') * .5 + firstNum;
+		   return jQuery.transitions(p, n*2-duration, 0, delta, duration, 'bounceout') * .5 + delta*.5 + firstNum; 
+		}
+		if (type == 'elasticin') {
+   			if (n == 0)
+   				return firstNum;
+   			if ((n/=duration)==1)
+   				return firstNum+delta;
+   			a = delta * 0.5;
+			if (a < Math.abs(delta)) {
+				a=delta;
+				s=p/4;
+			} else { 
+				s = p/(2*Math.PI) * Math.asin (delta/a);
+			}
+			return -(a*Math.pow(2,10*(n-=1)) * Math.sin( (n*duration-s)*(2*Math.PI)/p )) + firstNum; 
+		}
+		if (type == 'elasticout') {
+			if (n==0) 
+				return firstNum;
+			if ((n/=duration)==1) 
+				return firstNum + delta;
+   			a = delta * 0.5;
+			if (a < Math.abs(delta)) {
+				a=delta;
+				s=p/4;
+			} else { 
+				s = p/(2*Math.PI) * Math.asin (delta/a);
+			}
+			return a*Math.pow(2,-10*n) * Math.sin( (n*duration-s)*(2*Math.PI)/p ) + delta + firstNum; 
+		}
+		if (type == 'elasticboth') {
+			if (n==0)
+				return firstNum;
+			if ((n/=duration/2)==2)
+				return firstNum + delta;
+   			a = delta * 0.5;
+			if (a < Math.abs(delta)){
+				a = delta;
+				var s=p/4;
+			} else { 
+				var s = p/(2*Math.PI) * Math.asin (delta/a);
+			}
+			if (n < 1) 
+				return -.5*(a*Math.pow(2,10*(n-=1)) * Math.sin( (n*duration-s)*(2*Math.PI)/p )) + firstNum;
+			return a*Math.pow(2,-10*(n-=1)) * Math.sin( (n*duration-s)*(2*Math.PI)/p )*.5 + delta + firstNum; 
+		}
 	}
 
 });

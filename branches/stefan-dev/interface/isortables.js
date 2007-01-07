@@ -115,7 +115,7 @@ jQuery.iSort = {
 		shs.display = 'none';
 		ts = [];
 		fnc = false;
-		for(i in jQuery.iSort.changed){
+		for(var i=0; i<jQuery.iSort.changed.length; i++){
 			iEL = jQuery.iDrop.zones[jQuery.iSort.changed[i]].get(0);
 			id = jQuery.attr(iEL, 'id');
 			ser = jQuery.iSort.serialize(id);

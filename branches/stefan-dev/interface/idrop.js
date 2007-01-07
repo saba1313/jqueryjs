@@ -175,7 +175,6 @@ jQuery.iDrop = {
 					 
 			) {
 				if (iEL.dropCfg.hc && iEL.dropCfg.h == false) {
-					jQuery.iDrop.highlighted[i].removeClass(iEL.dropCfg.ac);
 					jQuery.iDrop.highlighted[i].addClass(iEL.dropCfg.hc);
 				}
 				//chec if onHover function has to be called
@@ -197,14 +196,13 @@ jQuery.iDrop = {
 				}
 				if (iEL.dropCfg.hc) {
 					jQuery.iDrop.highlighted[i].removeClass(iEL.dropCfg.hc);
-					jQuery.iDrop.highlighted[i].addClass(iEL.dropCfg.ac);
 				}
 				iEL.dropCfg.h = false;
 			}
 		}
 		if (jQuery.iSort && jQuery.iDrop.overzone == false) {
 			jQuery.iSort.helper.get(0).style.display = 'none';
-			jQuery('body').append(jQuery.iSort.helper.get(0));
+			//jQuery('body').append(jQuery.iSort.helper.get(0));
 		}
 		//call onhover
 		if(applyOnHover) {
@@ -277,8 +275,8 @@ jQuery.iDrop = {
 					id = jQuery.attr(this,'id');
 					jQuery.iSort.collected[id] = this.dropCfg.a;
 					this.dropCfg.s = true;
-					if(o.onchange) {
-						this.dropCfg.onchange = o.onchange;
+					if(o.onChange) {
+						this.dropCfg.onChange = o.onChange;
 						this.dropCfg.os = jQuery.iSort.serialize(id).hash;
 					}
 				}

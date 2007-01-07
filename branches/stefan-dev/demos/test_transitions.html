@@ -7,6 +7,7 @@
 <script type="text/javascript" src="../jquery/ajax/ajax.js"></script>
 <script type="text/javascript" src="../jquery/event/event.js"></script>
 <script type="text/javascript" src="../jquery/fx/fx.js"></script>
+<script type="text/javascript" src="../interface/easing.js"></script>
 <style type="text/css" media="all">
 
 body
@@ -80,9 +81,9 @@ var animateEl = function()
 {
 	var el = $('#ifxElement');
 	if(parseInt(el.css('left')) > 10) {
-		el.animate({left: 10}, 1000, null, $('input[@checked]').val());
+		el.animate({left: 10}, 1000, $('input[@checked]').val());
 	} else {
-		el.animate({left: 400}, 1000, null, $('input[@checked]').val());
+		el.animate({left: 400}, 1000, $('input[@checked]').val());
 	}
 	return false;
 }

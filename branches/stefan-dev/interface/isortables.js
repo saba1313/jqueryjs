@@ -121,8 +121,8 @@ jQuery.iSort = {
 			ser = jQuery.iSort.serialize(id);
 			if (iEL.dropCfg.os != ser.hash) {
 				iEL.dropCfg.os = ser.hash;
-				if (fnc == false && iEL.dropCfg.onchange) {
-					fnc = iEL.dropCfg.onchange;
+				if (fnc == false && iEL.dropCfg.onChange) {
+					fnc = iEL.dropCfg.onChange;
 				}
 				ser.id = id;
 				ts[ts.length] = ser;
@@ -132,14 +132,13 @@ jQuery.iSort = {
 			fnc(ts);
 		}
 		jQuery.iSort.changed = [];
-	
+		jQuery('body').append(jQuery.iSort.helper.get(0));
 	},
 	
 	checkhover : function(e,o)
 	{
 		if (!jQuery.iDrag.dragged)
 			return;
-		jQuery.iSort.helper.get(0).style.display = 'block';
 		var cur = false;
 		var i = 0;
 		if ( e.dropCfg.el.size() > 0) {
@@ -172,6 +171,7 @@ jQuery.iSort = {
 			jQuery.iSort.inFrontOf = null;
 			jQuery(e).append(jQuery.iSort.helper.get(0));
 		}
+		jQuery.iSort.helper.get(0).style.display = 'block';
 	},
 	
 	measure : function (e)

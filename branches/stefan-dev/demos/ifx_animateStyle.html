@@ -2,15 +2,15 @@
 <head>
 <meta http-equiv="Content-Language" content="en" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Interface FX - Pulsate demo - Interface plugin for jQuery</title>
+<title>Interface FX - animate Style</title>
 <script type="text/javascript" src="../jquery/jquery/jquery.js"></script>
 <script type="text/javascript" src="../jquery/ajax/ajax.js"></script>
 <script type="text/javascript" src="../jquery/event/event.js"></script>
 <script type="text/javascript" src="../jquery/fx/fx.js"></script>
 <script type="text/javascript" src="../interface/iutil.js"></script>
 <script type="text/javascript" src="../interface/ifx.js"></script>
-<script type="text/javascript" src="../interface/ifxblind.js"></script>
 <script type="text/javascript" src="../interface/easing.js"></script>
+<script type="text/javascript" src="../interface/animateStyle.js"></script>
 <style type="text/css" media="all">
 
 body
@@ -20,7 +20,7 @@ body
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
 }
-#ifxElement
+.ifxElement
 {
 	background-color: #B5EF59;
 	border-top: 2px solid #6CAF00;
@@ -33,8 +33,23 @@ body
 	height: 200px;
 	top: 120px;
 	left: 200px;
-	text-align: center;
-	display: none;
+	text-align: left;
+	letter-spacing: 0px;
+	color: #000;
+}
+.toAnimate
+{
+	background-color: #990000;
+	color: #FFCC33;
+	border-top-width: 30px;
+	letter-spacing: 20px;
+}
+.toReset
+{
+	background-color: #B5EF59;
+	color: #000;
+	border-top-width: 2px;
+	letter-spacing: 0px;
 }
 #ifxElement strong{
 	font-size: 2em;
@@ -62,21 +77,11 @@ body
 </style>
 </head>
 <body>
-	<div id="ifxElement">
-		My home town
-		<img src="images/brasov3.jpg" width="100%" />
-		<a href="http://www.iubescbrasovul.ro"><strong>Brasov</strong></a>
+	<div id="ifxElement" class="ifxElement">This whould be animated
 	</div>
 	<div id="ifxLinks">
-		<a href="#" onClick="$('#ifxElement').BlindUp(500);">Blind up</a>
-		<a href="#" onClick="$('#ifxElement').BlindDown(500);">Blind down</a>
-		<a href="#" onClick="$('#ifxElement').BlindToggleVertically(1000, null, 'bounceout');">Blind toggle vertically</a>
-		<br /><br /><br />
-		<a href="#" onClick="$('#ifxElement').BlindLeft(500);">Blind left</a>
-		<a href="#" onClick="$('#ifxElement').BlindRight(500);">Blind right</a>
-		<a href="#" onClick="$('#ifxElement').BlindToggleHorizontally(1000, null, 'easeout');">Blind toggle horizontally</a>
+		<a href="#" onClick="$('#ifxElement').animateStyle('width: 300px; height: 30px; background-color: #fff', 1000);">width: 300px; height: 30px; background-color: #fff</a><br /><br />
+		<a href="#" onClick="$('#ifxElement').animateStyle('height: 400px; width: 200px; background-color: #f00', 1000);">height: 400px; width: 200px; background-color: #f00</a>
 	</div>
-<script type="text/javascript">
-</script>
 </body>
 </html>

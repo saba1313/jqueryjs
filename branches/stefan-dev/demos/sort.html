@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Sortables demo - Interface plugin for jQuery</title>
+<script type="text/javascript" src="../jquery/jquery/jquery.js"></script>
+<script type="text/javascript" src="../jquery/ajax/ajax.js"></script>
+<script type="text/javascript" src="../jquery/event/event.js"></script>
+<script type="text/javascript" src="../jquery/fx/fx.js"></script>
+<script type="text/javascript" src="../interface/iutil.js"></script>
+<script type="text/javascript" src="../interface/idrag.js"></script>
+<script type="text/javascript" src="../interface/idrop.js"></script>
+<script type="text/javascript" src="../interface/isortables.js"></script>
+<style type="text/css" media="all">
+html
+{
+	height: 100%;
+}
+img{
+	border: none;
+}
+body
+{
+	background: #fff;
+	height: 100%;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+.groupWrapper
+{
+	width: 32%;
+	float: left;
+	margin-right: 1%;
+	min-height: 400px;
+}
+.serializer
+{
+	clear: both;
+}
+.group
+{
+	margin-bottom: 20px;
+}
+.group .header
+{
+	line-height: 28px;
+	background-color: #DAFF9F;
+	border-top: 2px solid #B5EF59;
+	color: #000;
+	padding: 0 10px;
+	cursor: move;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.group .header a
+{
+	float: right;
+	font-weight: normal;
+	font-size: 11px;
+}
+.sortHelper
+{
+	border: 3px dashed #666;
+	width: auto !important;
+}
+.groupWrapper p
+{
+	height: 1px;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+</style>
+</head>
+<body>
+<div id="sort1" class="groupWrapper">
+	<div id="newsFeeder" class="group">
+		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>Feeds</div>
+		<div class="content">
+			<ul>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+			</ul>
+		</div>
+	</div>
+	<div id="news" class="group">
+		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>News</div>
+		<div class="content">
+			<ul>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+			</ul>
+		</div>
+	</div>
+	<p>&nbsp;</p>
+</div>
+<div id="sort2" class="groupWrapper">
+	<div id="shop" class="group">
+		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>Shopping</div>
+		<div class="content">
+			<ul>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+			</ul>
+		</div>
+	</div>
+	<p>&nbsp;</p>
+</div>
+<div id="sort3" class="groupWrapper">
+	<div id="links" class="group">
+		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>Links</div>
+		<div class="content">
+			<ul>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+			</ul>
+		</div>
+	</div>
+	<div id="images" class="group">
+		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>Images</div>
+		<div class="content">
+			<ul>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
+			</ul>
+		</div>
+	</div>
+	<p>&nbsp;</p>
+</div>
+<script type="text/javascript">
+$(document).ready(
+	function () {
+		$('a.closeEl').bind('click', toggleContent);
+		$('div.groupWrapper').Sortable(
+			{
+				accept: 'group',
+				helperclass: 'sortHelper',
+				activeclass : 	'sortableactive',
+				hoverclass : 	'sortablehover',
+				onchange : function(ser)
+				{
+					console.log(ser);
+				}
+			}
+		);
+	}
+);
+var toggleContent = function(e)
+{
+	var targetContent = $('div.content', this.parentNode.parentNode);
+	if (targetContent.css('display') == 'none') {
+		targetContent.slideDown(300);
+		$('img', this).attr('src', 'images/bullet_toggle_plus.png');
+	} else {
+		targetContent.slideUp(300);
+		$('img', this).attr('src', 'images/bullet_toggle_minus.png');
+	}
+	return false;
+};
+function serialize(s)
+{
+	serial = $.SortSerialize(s);
+	alert(serial.hash);
+};
+</script>
+<div  class="serializer">
+<a href="#" onclick="serialize(); return false;" >serialize all lists</a>
+<a href="#" onclick="serialize('sort1'); return false;" >serialize list 1</a>
+<a href="#" onclick="serialize('sort2'); return false;" >serialize list 2</a>
+<a href="#" onclick="serialize('sort3'); return false;" >serialize list 3</a>
+<a href="#" onclick="serialize(['sort1', 'sort3']); return false;" >serialize lists 2 and 3</a>
+</div>
+</body>
+</html>

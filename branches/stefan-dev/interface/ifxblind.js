@@ -13,51 +13,51 @@
 
 jQuery.fn.extend(
 	{
-		BlindUp : function (speed, callback, transition)
+		BlindUp : function (speed, callback, easing)
 		{
 			return this.queue('interfaceFX',function(){
-				new jQuery.fx.BlindDirection(this, speed, callback, 'up', transition);
+				new jQuery.fx.BlindDirection(this, speed, callback, 'up', easing);
 			});
 		},
 		
-		BlindDown : function (speed, callback, transition)
+		BlindDown : function (speed, callback, easing)
 		{
 			return this.queue('interfaceFX',function(){
-				new jQuery.fx.BlindDirection(this, speed, callback, 'down', transition);
+				new jQuery.fx.BlindDirection(this, speed, callback, 'down', easing);
 			});
 		},
 		
-		BlindToggleVertically : function (speed, callback, transition)
+		BlindToggleVertically : function (speed, callback, easing)
 		{
 			return this.queue('interfaceFX',function(){
-				new jQuery.fx.BlindDirection(this, speed, callback, 'togglever', transition);
+				new jQuery.fx.BlindDirection(this, speed, callback, 'togglever', easing);
 			});
 		},
 		
-		BlindLeft : function (speed, callback, transition)
+		BlindLeft : function (speed, callback, easing)
 		{
 			return this.queue('interfaceFX',function(){
-				new jQuery.fx.BlindDirection(this, speed, callback, 'left', transition);
+				new jQuery.fx.BlindDirection(this, speed, callback, 'left', easing);
 			});
 		},
 		
-		BlindRight : function (speed, callback, transition)
+		BlindRight : function (speed, callback, easing)
 		{
 			return this.queue('interfaceFX',function(){
-				new jQuery.fx.BlindDirection(this, speed, callback, 'right', transition);
+				new jQuery.fx.BlindDirection(this, speed, callback, 'right', easing);
 			});
 		},
 		
-		BlindToggleHorizontally : function (speed, callback, transition)
+		BlindToggleHorizontally : function (speed, callback, easing)
 		{
 			return this.queue('interfaceFX',function(){
-				new jQuery.fx.BlindDirection(this, speed, callback, 'togglehor', transition);
+				new jQuery.fx.BlindDirection(this, speed, callback, 'togglehor', easing);
 			});
 		}
 	}
 );
 
-jQuery.fx.BlindDirection = function (e, speed, callback, direction, transition)
+jQuery.fx.BlindDirection = function (e, speed, callback, direction, easing)
 {
 	if (!jQuery.fxCheckTag(e)) {
 		jQuery.dequeue(e, 'interfaceFX');
@@ -66,7 +66,7 @@ jQuery.fx.BlindDirection = function (e, speed, callback, direction, transition)
 	var z = this;
 	z.el = jQuery(e);
 	z.size = jQuery.iUtil.getSize(e);
-	z.transition = transition||'original';
+	z.easing = easing;
 	if (!e.ifxFirstDisplay)
 		e.ifxFirstDisplay = z.el.css('display');
 	if ( direction == 'togglever') {
@@ -98,10 +98,10 @@ jQuery.fx.BlindDirection = function (e, speed, callback, direction, transition)
 				z.fx.wrapper.get(0),
 				jQuery.speed(
 					z.speed,
+					z.easing,
 					z.complete
 				),
-				'height',
-				z.transition
+				'height'
 			);
 			fxh.custom(z.fx.oldStyle.sizes.hb, 0);
 		break;
@@ -112,10 +112,10 @@ jQuery.fx.BlindDirection = function (e, speed, callback, direction, transition)
 				z.fx.wrapper.get(0),
 				jQuery.speed(
 					z.speed,
+					z.easing,
 					z.complete
 				),
-				'height',
-				z.transition
+				'height'
 			);
 			fxh.custom(0, z.fx.oldStyle.sizes.hb);
 		break;
@@ -124,10 +124,10 @@ jQuery.fx.BlindDirection = function (e, speed, callback, direction, transition)
 				z.fx.wrapper.get(0),
 				jQuery.speed(
 					z.speed,
+					z.easing,
 					z.complete
 				),
-				'width',
-				z.transition
+				'width'
 			);
 			fxh.custom(z.fx.oldStyle.sizes.wb, 0);
 		break;
@@ -138,10 +138,10 @@ jQuery.fx.BlindDirection = function (e, speed, callback, direction, transition)
 				z.fx.wrapper.get(0),
 				jQuery.speed(
 					z.speed,
+					z.easing,
 					z.complete
 				),
-				'width',
-				z.transition
+				'width'
 			);
 			fxh.custom(0, z.fx.oldStyle.sizes.wb);
 		break;

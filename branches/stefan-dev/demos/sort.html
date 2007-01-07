@@ -1,7 +1,6 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; utf-8" />
 <title>Sortables demo - Interface plugin for jQuery</title>
 <script type="text/javascript" src="../jquery/jquery/jquery.js"></script>
 <script type="text/javascript" src="../jquery/ajax/ajax.js"></script>
@@ -11,6 +10,7 @@
 <script type="text/javascript" src="../interface/idrag.js"></script>
 <script type="text/javascript" src="../interface/idrop.js"></script>
 <script type="text/javascript" src="../interface/isortables.js"></script>
+<script type="text/javascript" src="../interface/iautoscroller.js"></script>
 <style type="text/css" media="all">
 html
 {
@@ -37,11 +37,11 @@ body
 {
 	clear: both;
 }
-.group
+.groupItem
 {
 	margin-bottom: 20px;
 }
-.group .header
+.groupItem .itemHeader
 {
 	line-height: 28px;
 	background-color: #DAFF9F;
@@ -51,13 +51,18 @@ body
 	cursor: move;
 	font-weight: bold;
 	font-size: 16px;
+	height: 28px;
+	position: relative;
 }
 
-.group .header a
+.groupItem .itemHeader a
 {
-	float: right;
+	position: absolute;
+	right: 10px;
+	top: 0px;
 	font-weight: normal;
 	font-size: 11px;
+	text-decoration: none;
 }
 .sortHelper
 {
@@ -75,9 +80,9 @@ body
 </head>
 <body>
 <div id="sort1" class="groupWrapper">
-	<div id="newsFeeder" class="group">
-		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>Feeds</div>
-		<div class="content">
+	<div id="newsFeeder" class="groupItem">
+		<div class="itemHeader">Feeds<a href="#" class="closeEl">[-]</a></div>
+		<div class="itemContent">
 			<ul>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
@@ -86,9 +91,9 @@ body
 			</ul>
 		</div>
 	</div>
-	<div id="news" class="group">
-		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>News</div>
-		<div class="content">
+	<div id="news" class="groupItem">
+		<div class="itemHeader">News<a href="#" class="closeEl">[-]</a></div>
+		<div class="itemContent">
 			<ul>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
@@ -100,9 +105,9 @@ body
 	<p>&nbsp;</p>
 </div>
 <div id="sort2" class="groupWrapper">
-	<div id="shop" class="group">
-		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>Shopping</div>
-		<div class="content">
+	<div id="shop" class="groupItem">
+		<div class="itemHeader">Shopping<a href="#" class="closeEl">[-]</a></div>
+		<div class="itemContent">
 			<ul>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
@@ -114,9 +119,9 @@ body
 	<p>&nbsp;</p>
 </div>
 <div id="sort3" class="groupWrapper">
-	<div id="links" class="group">
-		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>Links</div>
-		<div class="content">
+	<div id="links" class="groupItem">
+		<div class="itemHeader">Links<a href="#" class="closeEl">[-]</a></div>
+		<div class="itemContent">
 			<ul>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
@@ -125,9 +130,9 @@ body
 			</ul>
 		</div>
 	</div>
-	<div id="images" class="group">
-		<div class="header"><a href="#" class="closeEl"><img src="images/bullet_toggle_plus.png" /></a>Images</div>
-		<div class="content">
+	<div id="images" class="groupItem">
+		<div class="itemHeader">Images<a href="#" class="closeEl">[-]</a></div>
+		<div class="itemContent">
 			<ul>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
 				<li>orem ipsum dolor sit amet, consectetuer adipiscing elit</li>
@@ -144,12 +149,21 @@ $(document).ready(
 		$('a.closeEl').bind('click', toggleContent);
 		$('div.groupWrapper').Sortable(
 			{
-				accept: 'group',
+				accept: 'groupItem',
 				helperclass: 'sortHelper',
 				activeclass : 	'sortableactive',
 				hoverclass : 	'sortablehover',
+				handle: 'div.itemHeader',
 				onChange : function(ser)
 				{
+				},
+				onStart : function()
+				{
+					$.iAutoscroller.start(this, document.getElementsByTagName('body'));
+				},
+				onStop : function()
+				{
+					$.iAutoscroller.stop();
 				}
 			}
 		);
@@ -157,13 +171,13 @@ $(document).ready(
 );
 var toggleContent = function(e)
 {
-	var targetContent = $('div.content', this.parentNode.parentNode);
+	var targetContent = $('div.itemContent', this.parentNode.parentNode);
 	if (targetContent.css('display') == 'none') {
 		targetContent.slideDown(300);
-		$('img', this).attr('src', 'images/bullet_toggle_plus.png');
+		$(this).html('[-]');
 	} else {
 		targetContent.slideUp(300);
-		$('img', this).attr('src', 'images/bullet_toggle_minus.png');
+		$(this).html('[+]');
 	}
 	return false;
 };

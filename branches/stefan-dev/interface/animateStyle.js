@@ -44,12 +44,14 @@ jQuery.fx.animateStyle = function(el, styleToAnimate, duration, easing, callback
 	
 	var toAnimate = {};
 	var toColors = {};
+	var stylesLength = 0;
 	var currentStyle = document.defaultView ? document.defaultView.getComputedStyle(el,null) :  el.currentStyle;
 	for (var i=0; i<jQuery.fx.animatedCssRules.length; i++) {
-		if (currentStyle[jQuery.fx.animatedCssRules[i]]) {
+		if (currentStyle[jQuery.fx.animatedCssRules[i]] && newStyles[jQuery.fx.animatedCssRules[i]]) {
 			newStyle = parseInt(currentStyle[jQuery.fx.animatedCssRules[i]]) || 0;
 			if (newStyle != oldStyles[i]) {
 				toAnimate[jQuery.fx.animatedCssRules[i]] = newStyle;
+				stylesLength++;
 			}
 		}
 	}
@@ -72,12 +74,14 @@ jQuery.fx.animateStyle = function(el, styleToAnimate, duration, easing, callback
 		console.log(i+':'+toAnimate[i]);
 	}
 	jQuery(el)
-		.animateColor(duration, toColors, easing, callback)
-		.animate(
-			toAnimate,
-			duration,
-			easing
-		);
+		.animateColor(duration, toColors, easing, callback);
+	if (stylesLength > 0)
+		jQuery(el)
+			.animate(
+				toAnimate,
+				duration,
+				easing
+			);
 	var times = window.setTimeout(
 		function() {
 			jQuery.dequeue(el, 'interfaceStyleFX');

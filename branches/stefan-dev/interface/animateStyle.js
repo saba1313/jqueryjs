@@ -69,19 +69,13 @@ jQuery.fx.animateStyle = function(el, styleToAnimate, duration, easing, callback
 	} else {
 		jQuery(el).attr("style", oldStyleAttr);	
 	}
-	for(i in toAnimate)
-	{
-		console.log(i+':'+toAnimate[i]);
-	}
 	jQuery(el)
-		.animateColor(duration, toColors, easing, callback);
-	if (stylesLength > 0)
-		jQuery(el)
-			.animate(
-				toAnimate,
-				duration,
-				easing
-			);
+		.animateColor(duration, toColors, easing, callback)
+		.animate(
+			toAnimate,
+			duration,
+			easing
+		);
 	var times = window.setTimeout(
 		function() {
 			jQuery.dequeue(el, 'interfaceStyleFX');

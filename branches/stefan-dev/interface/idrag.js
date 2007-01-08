@@ -518,11 +518,11 @@ jQuery.iDrag =	{
 						{
 							this.onselectstart = function(){return false;};
 							this.ondrag = function(){return false;};
-							/*this.unselectable = "on";*/
+							this.selectable = "on";
 						}
 					);
 				} else {
-					/*dhe.css('-moz-user-select', 'none');*/
+					dhe.css('-moz-user-select', 'none');
 					dhe.css('user-select', 'none');
 					dhe.css('-khtml-user-select', 'none');
 				}

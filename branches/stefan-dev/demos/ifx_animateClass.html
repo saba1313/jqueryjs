@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Interface FX - animate Class</title>
 <script type="text/javascript" src="../jquery/jquery/jquery.js"></script>
+<script type="text/javascript" src="../jquery/selector/selector.js"></script>
 <script type="text/javascript" src="../jquery/ajax/ajax.js"></script>
 <script type="text/javascript" src="../jquery/event/event.js"></script>
 <script type="text/javascript" src="../jquery/fx/fx.js"></script>
@@ -80,7 +81,7 @@ body
 	<div id="ifxElement" class="ifxElement">This whould be animated
 	</div>
 	<div id="ifxLinks">
-		<a href="#" onClick="$('#ifxElement').animateClass(['toReset', 'toAnimate'], 1000, 'bounceout');">Animate</a>
+		<a href="#" onClick="$('#ifxElement').animateClass(['toReset', 'toAnimate'], 1000);">Animate</a>
 		<a href="#" onClick="$('#ifxElement').animateClass('toReset', 1000);">Reset</a>
 	</div>
 </body>

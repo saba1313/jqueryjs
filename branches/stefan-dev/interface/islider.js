@@ -57,6 +57,8 @@ jQuery.iSlider = {
 	
 	modifyContainer : function (elm)
 	{
+		elm.dragCfg.containerMaxx = elm.dragCfg.cont.w - elm.dragCfg.oC.wb;
+		elm.dragCfg.containerMaxy = elm.dragCfg.cont.h - elm.dragCfg.oC.hb;
 		if (elm.SliderContainer.slideCfg.restricted ) {
 			next = elm.SliderContainer.slideCfg.sliders.get(elm.SliderIteration+1);
 			if (next) {
@@ -94,8 +96,8 @@ jQuery.iSlider = {
 				yfrac = parseInt(y/elm.dragCfg.fracH);
 				yproc = yfrac * 100 / elm.dragCfg.fractions;
 		} else {
-			xproc = parseInt(x * 100 / elm.dragCfg.maxx);
-			yproc = parseInt(y * 100 / elm.dragCfg.maxy);
+			xproc = parseInt(x * 100 / elm.dragCfg.containerMaxx);
+			yproc = parseInt(y * 100 / elm.dragCfg.containerMaxy);
 		}
 		elm.dragCfg.lastSi = [xproc||0, yproc||0, x||0, y||0];
 		if (elm.dragCfg.onSlide)

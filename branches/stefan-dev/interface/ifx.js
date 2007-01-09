@@ -180,7 +180,7 @@ jQuery.fx.parseColor = function(color)
 			b: parseInt("0x" + result[3])
 		};
 	else
-		return false;
+		return {r: 255, g: 255, b: 255};
 };
 jQuery.fx.animatedCssRules = [
 	'borderBottomWidth',

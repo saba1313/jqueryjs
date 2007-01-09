@@ -86,7 +86,7 @@ jQuery.iDrop = {
 		for (i in jQuery.iDrop.zones) {
 			if (jQuery.iDrop.zones[i] != null) {
 				iEL = jQuery.iDrop.zones[i].get(0);
-				if (jQuery.className.has(jQuery.iDrag.dragged.className,iEL.dropCfg.a)) {
+				if (jQuery(jQuery.iDrag.dragged).is('.' + iEL.dropCfg.a)) {
 					if (iEL.dropCfg.m == false) {
 						iEL.dropCfg.p = jQuery.extend(
 							jQuery.iUtil.getPositionLite(iEL),
@@ -129,7 +129,7 @@ jQuery.iDrop = {
 		for (i in jQuery.iDrop.zones) {
 			if (jQuery.iDrop.zones[i] != null) {
 				iEL = jQuery.iDrop.zones[i].get(0);
-				if (jQuery.className.has(jQuery.iDrag.dragged,iEL.dropCfg.a)) {
+				if (jQuery(jQuery.iDrag.dragged).is('.' + iEL.dropCfg.a)) {
 					iEL.dropCfg.p = jQuery.extend(
 						jQuery.iUtil.getPositionLite(iEL),
 						jQuery.iUtil.getSizeLite(iEL)

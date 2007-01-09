@@ -256,7 +256,7 @@ jQuery.iSort = {
 		return this.each(
 			function ()
 			{
-				if(!this.sortCfg || !jQuery.className.has(e.className, this.sortCfg.accept))
+				if(!this.sortCfg || !jQuery(e).is('.' +  this.sortCfg.accept))
 					jQuery(e).addClass(this.sortCfg.accept);
 				jQuery(e).Draggable(this.sortCfg.dragCfg);
 			}

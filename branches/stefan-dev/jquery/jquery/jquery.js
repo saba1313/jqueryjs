@@ -5,8 +5,8 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * $Date: 2007-01-08 04:39:10 +0200 (L, 08 ian. 2007) $
- * $Rev: 927 $
+ * $Date: 2007-01-08 18:12:20 +0200 (L, 08 ian. 2007) $
+ * $Rev: 934 $
  */
 
 // Global undefined variable
@@ -1227,20 +1227,24 @@ jQuery.extend({
 	},
 
 	className: {
+		// internal only, use addClass("class")
 		add: function( elem, c ){
 			jQuery.each( c.split(/\s+/), function(i, cur){
 				if ( !jQuery.className.has( elem.className, cur ) )
 					elem.className += ( elem.className ? " " : "" ) + cur;
 			});
 		},
+		// internal only, use removeClass("class")
 		remove: function( elem, c ){
             elem.className = c ?
                 jQuery.grep( elem.className.split(/\s+/), function(cur){
 				    return !jQuery.className.has( c, cur );	
                 }).join(' ') : "";
 		},
-		has: function( classes, c ){
-			return classes && new RegExp("(^|\\s)" + c + "(\\s|$)").test( classes );
+		// internal only, use is(".class")
+		has: function( t, c ) {
+			t = t.className || t;
+			return t && new RegExp("(^|\\s)" + c + "(\\s|$)").test( t );
 		}
 	},
 

@@ -88,7 +88,6 @@
 				{
 					lastValues = [parseInt(cordx * 255/100),parseInt(cordy * 255/100)];
 					setGradientColor();
-					setGradientColor();
 				}
 			}
 		);
@@ -104,12 +103,6 @@
 		);
 	}
 );
-
-function getHex (c)
-{
-	c = parseInt(c).toString(16);
-	return c.length<2?"0"+c:c;
-}
 function setVertColor(indic){
 	var n=256/6, j=256/n, C=indic, c=C%n;
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -106,9 +106,8 @@ body
 	<a href="images/imagebox/lights2.jpg" title="Flash lights" rel="imagebox"><img src="images/carousel/th_lights2.jpg" width="100%" /></a>
 	<a href="images/imagebox/lights3.jpg" title="Laser lights" rel="imagebox"><img src="images/carousel/th_lights3.jpg" width="100%" /></a>
 </div>
-</body>
 <script type="text/javascript">
-	$(document).ready(
+	window.onload = 
 		function()
 		{
 			$('#carousel').Carousel(
@@ -121,8 +120,8 @@ body
 					rotationSpeed: 1.8
 				}
 			);
-			//$.ImageBox.init();
-		}
-	);
+			$.ImageBox.init();
+		};
 </script>
+</body>
 </html>

@@ -79,9 +79,6 @@
 </head>
 
 <body>
-<div class="slider2"><div class="indicator"></div><div class="indicator"></div></div>
-<input type="text" size="4" id="cordx2" />x<input type="text" size="4" id="cordy2" /> 
-<input type="text" size="4" id="x2" />x<input type="text" size="4" id="y2" />
 <div class="slider1"><div class="indicator"></div></div>
 <input type="text" size="4" id="cordx" />
 <input type="text" size="4" id="cordy" />
@@ -111,28 +108,6 @@ $('.slider1').Slider(
 			[70,70]
 		]
 	}
-);
-$('.slider2').Slider(
-	{
-		accept : '.indicator',
-		onSlide : function( cordx, cordy,x, y)
-		{
-			document.getElementById('cordx2').value = cordx + '%';
-			document.getElementById('cordy2').value = cordy + '%';
-			document.getElementById('x2').value = x;
-			document.getElementById('y2').value = y;
-		}/*,
-		onchange: function(coordx, coordy, x, y)
-		{
-			alert('moved on X axis:' + coordx + '%');
-			alert('moved on Y axis:' + coordy + '%');
-		}*/
-	}
-).SliderSetValues(
-	[
-		[20,50],
-		[200,200]
-	]
 );
 $('.slider3').Slider(
 	{

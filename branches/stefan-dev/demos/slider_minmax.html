@@ -69,7 +69,8 @@
 					restricted: true,
 					opacity: 0.8,
 					onSlide : function(procx, procy, x, y) {
-						document.getElementById(this.SliderIteration == 0 ? 'minPrice' : 'maxPrice').innerHTML = 500 + parseInt(11500 * procx/100);
+						price = parseInt((500 + parseInt(11500 * procx/100))/100) * 100;
+						document.getElementById(this.SliderIteration == 0 ? 'minPrice' : 'maxPrice').innerHTML = price;
 					},
 					values: [
 						[0,0],

@@ -29,6 +29,32 @@ jQuery.iSlider = {
 		);
 	},
 	
+	get : function()
+	{
+		var values = [];
+		this.each(
+			function(slider)
+			{
+				if (this.isSlider) {
+					values[slider] = [];
+					var elm = this;
+					var sizes = jQuery.iUtil.getSize(this);
+					this.slideCfg.sliders.each(
+						function (key) 
+						{
+							var x = this.offsetLeft;
+							var y = this.offsetTop;
+							xproc = parseInt(x * 100 / (sizes.w - this.offsetWidth));
+							yproc = parseInt(y * 100 / (sizes.h - this.offsetHeight));
+							values[slider][key] = [xproc||0, yproc||0, x||0, y||0];
+						}
+					);
+				}
+			}
+		);
+		return values;
+	},
+	
 	modifyContainer : function (elm)
 	{
 		if (elm.SliderContainer.slideCfg.restricted ) {
@@ -232,6 +258,7 @@ jQuery.iSlider = {
 jQuery.fn.extend(
 	{
 		Slider : jQuery.iSlider.build,
-		SliderSetValues : jQuery.iSlider.set
+		SliderSetValues : jQuery.iSlider.set,
+		SliderGetValues : jQuery.iSlider.get
 	}
 );

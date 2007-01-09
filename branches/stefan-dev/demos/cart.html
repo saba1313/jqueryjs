@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Shopping cart demo - Draggables, droppable, FX Highlight, Fx Drop, FX Pulsate, FX Shake</title>
+<title>Shopping cart demo - Draggables, droppable, FX Highlight, Fx Drop, FX Pulsate, FX Shake, FX Transfer</title>
 <script type="text/javascript" src="../jquery/jquery/jquery.js"></script>
 <script type="text/javascript" src="../jquery/selector/selector.js"></script>
 <script type="text/javascript" src="../jquery/ajax/ajax.js"></script>
@@ -16,6 +16,7 @@
 <script type="text/javascript" src="../interface/ifxdrop.js"></script>
 <script type="text/javascript" src="../interface/ifxpulsate.js"></script>
 <script type="text/javascript" src="../interface/ifxshake.js"></script>
+<script type="text/javascript" src="../interface/ifxtransfer.js"></script>
 <style type="text/css">
 *
 {
@@ -88,6 +89,10 @@ h1
 	font-size: 11px;
 	color: #333;
 }
+.product a
+{
+	color: #6CAF00;
+}
 .productCart
 {
 	font-size: 10px;
@@ -97,6 +102,10 @@ h1
 {
 	color: #f00;
 	float: right;
+}
+.transferProduct
+{
+	border: 1px solid #6CAF00;
 }
 </style>
 </head>
@@ -114,42 +123,63 @@ h1
 		<h2>Product 1</h2>
 		<p>Long sleeve shirt</p>
 		<p><strong>Price: <span>49.95</span> $</strong></p>
+		<a href="#">add to cart</a>
 	</div>
 	<div id="product2" class="product">
 		<img src="images/cart/th_30l519col4.jpg" width="170" height="128" />
 		<h2>Product 2</h2>
 		<p>Long Sleeve, stripes</p>
 		<p><strong>Price: <span>49.95</span> $</strong></p>
+		<a href="#">add to cart</a>
 	</div>
 	<div id="product3" class="product">
 		<img src="images/cart/th_13l569col2.jpg" width="170" height="128" />
 		<h2>Product 3</h2>
 		<p>Long Sleeve fantasy style</p>
 		<p><strong>Price: <span>49.95</span> $</strong></p>
+		<a href="#">add to cart</a>
 	</div>
 	<div id="product4" class="product">
 		<img src="images/cart/th_13l569col1.jpg" width="170" height="128" />
 		<h2>Product 4</h2>
 		<p>Long sleeve classic style white fantasy</p>
 		<p><strong>Price: <span>49.95</span> $</strong></p>
+		<a href="#">add to cart</a>
 	</div>
 	<div id="product5" class="product">
 		<img src="images/cart/th_17l519col1.jpg" width="170" height="128" />
 		<h2>Product 5</h2>
 		<p>Long sleeve, stripes</p>
 		<p><strong>Price: <span>49.95</span> $</strong></p>
+		<a href="#">add to cart</a>
 	</div>
 	<div id="product6" class="product">
 		<img src="images/cart/th_519plain1112col3.jpg" width="170" height="128" />
 		<h2>Product 6</h2>
 		<p>Long sleeve</p>
 		<p><strong>Price: <span>49.95</span> $</strong></p>
+		<a href="#">add to cart</a>
 	</div>
 </div>
 <script type="text/javascript">
 $(document).ready(
 	function()
 	{
+		$('#products a')
+			.bind(
+				'click',
+				function() {
+					$(this.parentNode)
+						.TransferTo(
+							{
+								to:addProductToCart(this.parentNode),
+								className:'transferProduct',
+								duration: 400
+							}
+						);
+					return false;
+				}
+			);
 		$('div.product').Draggable({revert: true, fx: 300, ghosting: true, opacity: 0.4});
 		$('#cart').Droppable(
 			{
@@ -161,42 +191,46 @@ $(document).ready(
 				{
 					$(this).Shake(2);
 				},
-				onDrop:			function(dragged)
-				{
-					var productName = $('h2', dragged).html();
-					var productPrice = parseFloat($('span', dragged).html());
-					var productId = $(dragged).attr('id');
-					var isInCart = $('#' + productId + '_cart');
-					if (isInCart.size() == 1) {
-						var quantity = parseInt(isInCart.find('span.quantity').html()) + 1;
-						isInCart.find('span.quantity').html(quantity+'').end().Pulsate(300, 2);
-					} else {
-						$('#cartProducts')
-							.append('<div class="productCart" id="' + productId + '_cart">' + productName + '<a href="#">remove</a><br />qty: <span class="quantity">1</span><br />price: <span class="price">' + productPrice + ' $</span></div>')
-							.find('div.productCart:last')
-							.fadeIn(400)
-							.find('a')
-							.bind(
-								'click', 
-								function(){
-									$(this.parentNode).DropOutDown(
-										400,
-										function() {
-											$(this).remove();
-											calculateCartTotal();
-										}
-									);
-									return false;
-								}
-							);
-					}
-					calculateCartTotal();
-				}
+				onDrop:			addProductToCart
 			}
 		);
 	}
 );
-
+var addProductToCart = function(elem)
+{
+	var cartItem;
+	var productName = $('h2', dragged).html();
+	var productPrice = parseFloat($('span', dragged).html());
+	var productId = $(dragged).attr('id');
+	var isInCart = $('#' + productId + '_cart');
+	if (isInCart.size() == 1) {
+		var quantity = parseInt(isInCart.find('span.quantity').html()) + 1;
+		isInCart.find('span.quantity').html(quantity+'').end().Pulsate(300, 2);
+		cartItem = isInCart.get(0);
+	} else {
+		$('#cartProducts')
+			.append('<div class="productCart" id="' + productId + '_cart">' + productName + '<a href="#">remove</a><br />qty: <span class="quantity">1</span><br />price: <span class="price">' + productPrice + ' $</span></div>')
+			.find('div.productCart:last')
+			.fadeIn(400)
+			.find('a')
+			.bind(
+				'click', 
+				function(){
+					$(this.parentNode).DropOutDown(
+						400,
+						function() {
+							$(this).remove();
+							calculateCartTotal();
+						}
+					);
+					return false;
+				}
+			);
+		cartItem = $('div.productCart:last').get(0);
+	}
+	calculateCartTotal();
+	return cartItem;
+};
 var calculateCartTotal = function()
 {
 	var total = 0;
@@ -209,7 +243,7 @@ var calculateCartTotal = function()
 		}
 	);
 	$('#cartTotal').html(formatNr(total));
-	$('#cart p').Highlight(500, '#ff0');
+	$('#cart p').Highlight(500, '#ff0', function(){$(this).css('backgroundColor', 'transparent');});
 };
 var formatNr = function(nr)
 {

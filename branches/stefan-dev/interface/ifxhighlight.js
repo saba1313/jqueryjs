@@ -17,14 +17,19 @@ jQuery.fn.Highlight = function(duration, color, callback, easing) {
 		function()
 		{
 			this.oldStyleAttr = jQuery(this).attr("style") || '';
+			easing = typeof callback == 'string' ? callback : easing||null;
+			callback = typeof callback == 'function' ? callback : null;
+			var oldColor = jQuery(this).css('backgroundColor');
+			
 			/* In IE, style is a object.. */
 			if(typeof this.oldStyleAttr == 'object') this.oldStyleAttr = this.oldStyleAttr["cssText"];
 			
 			jQuery(this).animateColor(
 				duration,
-				{'backgroundColor':[color, jQuery(this).css('backgroundColor')]},
+				{'backgroundColor':[color, oldColor]},
 				function() {
 					jQuery.dequeue(this, 'interfaceColorFX');
+					jQuery(this).css('backgroundColor',oldColor);
 					if(typeof jQuery(this).attr("style") == 'object') {
 						jQuery(this).attr("style")["cssText"] = "";
 						jQuery(this).attr("style")["cssText"] = this.oldStyleAttr;

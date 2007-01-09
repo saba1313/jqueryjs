@@ -95,7 +95,7 @@ jQuery.fx.DropOutDirectiont = function (e, speed, callback, direction, type, eas
 	}
 	var z = this;
 	z.el = jQuery(e);
-	z.easing = easing;
+	z.easing = typeof callback == 'string' ? callback : easing||null;
 	z.oldStyle = {};
 	z.oldStyle.position = z.el.css('position');
 	z.oldStyle.top = z.el.css('top');
@@ -106,10 +106,12 @@ jQuery.fx.DropOutDirectiont = function (e, speed, callback, direction, type, eas
 		type = z.el.css('display') == 'none' ? 'in' : 'out';
 	}
 	z.el.show();
+	
 	if (z.oldStyle.position != 'relative' && z.oldStyle.position != 'absolute') {
 		z.el.css('position', 'relative');
 	}
 	z.type = type;
+	callback = typeof callback == 'function' ? callback : null;
 	/*sizes = ['em','px','pt','%'];
 	for(i in sizes) {
 		if (z.oldStyle.top.indexOf(sizes[i])>0) {

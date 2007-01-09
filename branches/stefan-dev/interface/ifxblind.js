@@ -66,7 +66,7 @@ jQuery.fx.BlindDirection = function (e, speed, callback, direction, easing)
 	var z = this;
 	z.el = jQuery(e);
 	z.size = jQuery.iUtil.getSize(e);
-	z.easing = easing;
+	z.easing = typeof callback == 'string' ? callback : easing||null;
 	if (!e.ifxFirstDisplay)
 		e.ifxFirstDisplay = z.el.css('display');
 	if ( direction == 'togglever') {
@@ -76,7 +76,7 @@ jQuery.fx.BlindDirection = function (e, speed, callback, direction, easing)
 	}
 	z.el.show();
 	z.speed = speed;
-	z.callback = callback;
+	z.callback = typeof callback == 'function' ? callback : null;
 	z.fx = jQuery.fx.buildWrapper(e);
 	z.direction = direction;
 	z.complete = function()

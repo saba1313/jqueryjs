@@ -70,8 +70,8 @@ jQuery.fx.OpenClose = function (e, speed, callback, direction, type, easing)
 	var z = this;
 	var restoreStyle = false;
 	z.el = jQuery(e);
-	z.easing = easing;
-	z.callback = callback;
+	z.easing = typeof callback == 'string' ? callback : easing||null;
+	z.callback = typeof callback == 'function' ? callback : null;
 	z.type = type;
 	z.speed = speed;
 	z.oldP = jQuery.iUtil.getSize(e);

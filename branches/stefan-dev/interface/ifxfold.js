@@ -44,13 +44,13 @@ jQuery.fx.DoFold = function (e, speed, height, callback, type, easing)
 	}
 	var z = this;
 	z.el = jQuery(e);
-	z.easing = easing;
+	z.easing = typeof callback == 'string' ? callback : easing||null;
+	z.callback = typeof callback == 'function' ? callback : null;
 	if ( type == 'toggle') {
 		type = z.el.css('display') == 'none' ? 'unfold' : 'fold';
 	}
 	//z.el.show();
 	z.speed = speed;
-	z.callback = callback;
 	z.height = height && height.constructor == Number ? height : 20;
 	z.fx = jQuery.fx.buildWrapper(e);
 	z.type = type;

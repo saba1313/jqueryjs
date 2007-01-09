@@ -107,7 +107,8 @@ jQuery.fx.slide = function(e, speed, callback, direction, type, easing)
 	}
 	var z = this;
 	z.el = jQuery(e);
-	z.easing = easing||'original';
+	z.easing = typeof callback == 'string' ? callback : easing||null;
+	z.callback = typeof callback == 'function' ? callback : null;
 	if ( type == 'toggle') {
 		type = z.el.css('display') == 'none' ? 'in' : 'out';
 	}
@@ -116,7 +117,6 @@ jQuery.fx.slide = function(e, speed, callback, direction, type, easing)
 	z.el.show();
 	
 	z.speed = speed;
-	z.callback = callback;
 	z.fx = jQuery.fx.buildWrapper(e);
 	
 	z.type = type;

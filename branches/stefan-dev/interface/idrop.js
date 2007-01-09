@@ -107,7 +107,7 @@ jQuery.iDrop = {
 						oneIsSortable = true;
 					}
 					if (iEL.dropCfg.onActivate) {
-						iEL.dropCfg.onActivate.apply(this, [jQuery.iDrag.dragged]);
+						iEL.dropCfg.onActivate.apply(jQuery.iDrop.zones[i].get(0), [jQuery.iDrag.dragged]);
 					}
 				}
 			}

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Shopping cart demo - Draggables, droppable, FX Highlight, Fx Drop, FX Pulsate</title>
+<title>Shopping cart demo - Draggables, droppable, FX Highlight, Fx Drop, FX Pulsate, FX Bounce</title>
 <script type="text/javascript" src="../jquery/jquery/jquery.js"></script>
 <script type="text/javascript" src="../jquery/selector/selector.js"></script>
 <script type="text/javascript" src="../jquery/ajax/ajax.js"></script>
@@ -15,6 +15,7 @@
 <script type="text/javascript" src="../interface/ifxhighlight.js"></script>
 <script type="text/javascript" src="../interface/ifxdrop.js"></script>
 <script type="text/javascript" src="../interface/ifxpulsate.js"></script>
+<script type="text/javascript" src="../interface/ifxbounce.js"></script>
 <style type="text/css">
 *
 {
@@ -68,6 +69,7 @@ h1
 #products
 {
 	margin-right: 250px;
+	width: 600px;
 }
 .product
 {
@@ -155,6 +157,10 @@ $(document).ready(
 				activeclass:	'activeCart', 
 				hoverclass:		'hoverCart',
 				tolerance:		'intersect',
+				onActivate:		function(dragged)
+				{
+					$(this).Bounce(30,2,2);
+				},
 				onDrop:			function(dragged)
 				{
 					var productName = $('h2', dragged).html();

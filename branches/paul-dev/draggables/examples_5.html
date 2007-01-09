@@ -13,6 +13,6 @@ dragPreventionOn: "input,textarea"<br>
 </div>
 
 <script type="text/javascript">
-	var toBeEvaled = $("div.code").html().replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	var toBeEvaled = $("div.code").html().replace(/<BR>/g,"\n").replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
 	eval(toBeEvaled);
 </script>

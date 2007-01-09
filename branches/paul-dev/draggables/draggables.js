@@ -137,6 +137,23 @@
 					containment: o.containment ? (o.containment == "parent" ? this.parentNode : o.containment) : null,
 					init: false //Internal property
 				};
+				
+				if(this.dragOptions.helper == "clone" || this.dragOptions.helper == "original") {
+
+					/* Let's save the margins for better reference */
+					this.dragOptions.margins = {
+						top: parseInt($(this).css("marginTop")) || 0,
+						left: parseInt($(this).css("marginLeft")) || 0,
+						bottom: parseInt($(this).css("marginBottom")) || 0,
+						right: parseInt($(this).css("marginRight")) || 0
+					};
+
+					/* We have to add margins to our cursorAt */
+					if(this.dragOptions.cursorAt.top != 0) this.dragOptions.cursorAt.top += this.dragOptions.margins.top;
+					if(this.dragOptions.cursorAt.left != 0) this.dragOptions.cursorAt.left += this.dragOptions.margins.left;
+					if(this.dragOptions.cursorAt.bottom != 0) this.dragOptions.cursorAt.bottom += this.dragOptions.margins.bottom;
+					if(this.dragOptions.cursorAt.right != 0) this.dragOptions.cursorAt.right += this.dragOptions.margins.right;
+				}
 
 				/* Bind the mousedown event */
 				this.dragOptions.handle.bind("mousedown", f.evClick);
@@ -150,7 +167,6 @@
 			/* Destroy all droppables */	
 		},
 		evClick: function(e) {
-
 			/* Prevent execution on defined elements */
 			var targetName = (e.target) ? e.target.nodeName.toLowerCase() : e.srcElement.nodeName.toLowerCase();
 			for(var i=0;i<this.dragEl.dragOptions.dragPreventionOn.length;i++) {
@@ -170,7 +186,6 @@
 			return false;
 		},
 		evStart: function(e) {
-
 			var o = f.current.dragOptions;
 
 			/* get the current offset */
@@ -188,10 +203,6 @@
 				 */
 				if(o.helper == "clone") f.helper = $(f.current).clone()[0];
 				if(o.helper == "original") f.helper = f.current;
-				
-				/* Margins are ugly, so remove them during drag */
-				o.oldMargins = [$(f.helper).css("marginTop"),$(f.helper).css("marginRight"),$(f.helper).css("marginBottom"),$(f.helper).css("marginLeft")];
-				$(f.helper).css("margin", "0px");	
 			}
 			
 			/* Let's see if we have a positioned parent */
@@ -208,22 +219,27 @@
 			/* Get the current mouse position */
 			f.position = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
 					
-			/* If we want to pick the element where we clicked, we borrow cursorAt */
+			/* If we want to pick the element where we clicked, we borrow cursorAt and add margins */
 			if(o.cursorAtIgnore) {
-				o.cursorAt.left = f.position[0] - o.curOffset.left;
-				o.cursorAt.top = f.position[1] - o.curOffset.top;
+				o.cursorAt.left = f.position[0] - o.curOffset.left + o.margins.left;
+				o.cursorAt.top = f.position[1] - o.curOffset.top + o.margins.top;
 			}
 			
+			/* If we have a positioned parent, we pick the draggable relative to it */
 			if(o.positionedParent) {
 				f.position[0] -= o.positionedParentOffset.left;
 				f.position[1] -= o.positionedParentOffset.top;	
 			}
 			
 			/* If cursorAt is within the helper, set slowMode to true */
-			f.slowMode = (o.cursorAt && (o.cursorAt.top > 0 || o.cursorAt.bottom > 0) && (o.cursorAt.left > 0 || o.cursorAt.right > 0)) ? true : false;
-		
+			f.slowMode = (o.cursorAt && (o.cursorAt.top-o.margins.top > 0 || o.cursorAt.bottom-o.margins.bottom > 0) && (o.cursorAt.left-o.margins.left > 0 || o.cursorAt.right-o.margins.right > 0)) ? true : false;
+
 			/* Append the helper */
 			$(f.helper).css("left", o.curOffset.left+"px").css("top", o.curOffset.top+"px").css("position", "absolute").appendTo((o.appendTo == "parent" ? f.current.parentNode : o.appendTo));
+
+			/* Remap right/bottom properties for cursorAt to left/top */
+			if(o.cursorAt.right && !o.cursorAt.left) o.cursorAt.left = f.helper.offsetWidth+o.margins.right+o.margins.left - o.cursorAt.right;
+			if(o.cursorAt.bottom && !o.cursorAt.top) o.cursorAt.top = f.helper.offsetHeight+o.margins.top+o.margins.bottom - o.cursorAt.bottom;
 
 			/* Make clones on top of iframes (only if we are not in slowMode) */
 			if(!f.slowMode && o.iframeFix) {
@@ -239,9 +255,7 @@
 			 */
 			if(f.slowMode) {
 				var m = d.manager;
-				for(var i=0;i<m.length;i++) {
-					m[i].offset = $(m[i].item).offset();
-				}
+				for(var i=0;i<m.length;i++) { m[i].offset = $(m[i].item).offset(); }
 			}
 		
 			/* Okay, initialization is done, then set it to true */
@@ -249,7 +263,7 @@
 			
 			/* Trigger the onStart callback */
 			if(o.onStart) o.onStart.apply(f.current, [f.helper]);
-			
+
 			return false;		
 		},
 		evStop: function(e) {			
@@ -278,12 +292,8 @@
 				}
 			}
 				
-			/* Remove helper, if it's not f.current, else add the removed margins again */
-			if(f.helper != f.current) {
-				$(f.helper).remove();	
-			} else {
-				//$(f.helper).css("marginTop", o.oldMargins[0]).css("marginRight", o.oldMargins[1]).css("marginBottom", o.oldMargins[2]).css("marginLeft", o.oldMargins[3]);
-			}
+			/* Remove helper, if it's not f.current (a clone) */
+			if(f.helper != f.current) $(f.helper).remove();	
 			
 			/* Remove frame helpers */
 			if(o.iframeFix) $("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			
@@ -296,10 +306,7 @@
 		},
 		evDrag: function(e) {
 			// check for IE mouseup when moving into the document again
-			if ($.browser.msie && !e.button) {
-			 f.evStop.apply(document, [e]);
-			 return false;
-			}
+			if ($.browser.msie && !e.button) return f.evStop.apply(document, [e]);
 
 			var o = f.current.dragOptions;
 			
@@ -316,11 +323,7 @@
 			else {
 				if(o.init == false) return false;
 			}
-			
-			/* Remap right/bottom properties for cursorAt to left/top */
-			if(o.cursorAt.right && !o.cursorAt.left) o.cursorAt.left = f.helper.offsetWidth - o.cursorAt.right;
-			if(o.cursorAt.bottom && !o.cursorAt.top) o.cursorAt.top = f.helper.offsetHeight - o.cursorAt.bottom;
-			
+		
 			/* Trigger the onDrag callback */
 			if(o.onDrag) var retPos = o.onDrag.apply(f.current, [f.helper,f.position[0],f.position[1]]);		
 			/* If something came back from our callback, use it as modified position */
@@ -347,8 +350,8 @@
 			 * wrap the helper when coming to a side of the screen.
 			 */
 			if(o.wrapHelper && !o.cursorAtIgnore) {
-				var xOffset = ((f.position[0]-o.cursorAt.left - $(window).width() + f.helper.offsetWidth) - $(document).scrollLeft() > 0 || (f.position[0]-o.cursorAt.left) - $(document).scrollLeft() < 0) ? (f.helper.offsetWidth - o.cursorAt.left * 2) : 0;
-				var yOffset = ((f.position[1]-o.cursorAt.top - $(window).height() + f.helper.offsetHeight) - $(document).scrollTop() > 0 || (f.position[1]-o.cursorAt.top) - $(document).scrollTop() < 0) ? (f.helper.offsetHeight - o.cursorAt.top * 2) : 0;
+				var xOffset = ((f.position[0]-o.cursorAt.left - $(window).width() + f.helper.offsetWidth+o.margins.right) - $(document).scrollLeft() > 0 || (f.position[0]-o.cursorAt.left+o.margins.left) - $(document).scrollLeft() < 0) ? (f.helper.offsetWidth+o.margins.left+o.margins.right - o.cursorAt.left * 2) : 0;
+				var yOffset = ((f.position[1]-o.cursorAt.top - $(window).height() + f.helper.offsetHeight+o.margins.bottom) - $(document).scrollTop() > 0 || (f.position[1]-o.cursorAt.top+o.margins.top) - $(document).scrollTop() < 0) ? (f.helper.offsetHeight+o.margins.top+o.margins.bottom - o.cursorAt.top * 2) : 0;
 			} else {
 				var xOffset = 0;
 				var yOffset = 0;	
@@ -358,7 +361,7 @@
 			if(o.scroll) {
 				/* If we have a positioned parent, we only scroll in this one */
 				if(o.positionedParent) {
-					/* Extremely strange issues are waiting here..handle with care */
+					/* TODO: Extremely strange issues are waiting here..handle with care */
 					if(f.position[0] - o.positionedParent.offsetWidth - o.positionedParent.scrollLeft > -10) o.positionedParent.scrollLeft += o.scroll;
 					if(f.position[0] - o.positionedParent.scrollLeft < 10) o.positionedParent.scrollLeft -= o.scroll;	
 					if(f.position[1] - o.positionedParent.offsetHeight - o.positionedParent.scrollTop > -10) o.positionedParent.scrollTop += o.scroll;
@@ -381,15 +384,15 @@
 			if(o.axis && o.cursorAtIgnore) {
 				switch(o.axis) {
 					case "horizontal":
-						newTop = o.curOffset.top;
+						newTop = o.curOffset.top - o.margins.top;
 						break;
 					case "vertical":
-						newLeft = o.curOffset.left;
+						newLeft = o.curOffset.left - o.margins.left;
 						break;
 					default:
 						var grid = [parseInt(o.axis.split("[")[1].split(",")[1]),parseInt(o.axis.split("[")[1].split(",")[0])];
-						newLeft = o.curOffset.left + Math.round((newLeft - o.curOffset.left) / grid[0]) * grid[0];
-						newTop = o.curOffset.top + Math.round((newTop - o.curOffset.top) / grid[1]) * grid[1];
+						newLeft = o.curOffset.left + o.margins.left + Math.round((newLeft - o.curOffset.left - o.margins.left) / grid[0]) * grid[0];
+						newTop = o.curOffset.top + o.margins.top + Math.round((newTop - o.curOffset.top - o.margins.top) / grid[1]) * grid[1];
 						break;
 				}					
 			}
@@ -400,10 +403,10 @@
 					if(newLeft+$(f.helper)[0].offsetWidth > o.containment.right) newLeft = o.containment.right-$(f.helper)[0].offsetWidth;
 					if(newTop+$(f.helper)[0].offsetHeight > o.containment.bottom) newTop = o.containment.bottom-$(f.helper)[0].offsetHeight;					
 				} else {
-					if((newLeft < o.containmentOffset.left)) newLeft = o.containmentOffset.left;
-					if((newTop < o.containmentOffset.top)) newTop = o.containmentOffset.top;
-					if((newTop+$(f.helper)[0].offsetHeight > o.containmentOffset.top+$(o.containment)[0].offsetHeight)) newTop = o.containmentOffset.top+$(o.containment)[0].offsetHeight-$(f.helper)[0].offsetHeight;
-					if((newLeft+$(f.helper)[0].offsetWidth > o.containmentOffset.left+$(o.containment)[0].offsetWidth)) newLeft = o.containmentOffset.left+$(o.containment)[0].offsetWidth-$(f.helper)[0].offsetWidth;		
+					if((newLeft < o.containmentOffset.left-o.margins.left)) newLeft = o.containmentOffset.left-o.margins.left;
+					if((newTop < o.containmentOffset.top-o.margins.top)) newTop = o.containmentOffset.top-o.margins.top;
+					if((newTop+$(f.helper)[0].offsetHeight > o.containmentOffset.top+$(o.containment)[0].offsetHeight-o.margins.bottom)) newTop = o.containmentOffset.top+$(o.containment)[0].offsetHeight-$(f.helper)[0].offsetHeight-o.margins.bottom;
+					if((newLeft+$(f.helper)[0].offsetWidth > o.containmentOffset.left+$(o.containment)[0].offsetWidth-o.margins.right)) newLeft = o.containmentOffset.left+$(o.containment)[0].offsetWidth-$(f.helper)[0].offsetWidth-o.margins.right;		
 				}
 			}
 

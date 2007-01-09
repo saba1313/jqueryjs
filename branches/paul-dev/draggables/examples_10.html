@@ -27,8 +27,8 @@ cursorAt: { top: -10, left: -10 }<br>
 </div>
 
 <script type="text/javascript">
-	var toBeEvaled = $("div.code")[0].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	var toBeEvaled = $("div.code")[0].innerHTML.replace(/<BR>/g,"\n").replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
 	eval(toBeEvaled);
-	var toBeEvaled = $("div.code")[1].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	var toBeEvaled = $("div.code")[1].innerHTML.replace(/<BR>/g,"\n").replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
 	eval(toBeEvaled);
 </script>

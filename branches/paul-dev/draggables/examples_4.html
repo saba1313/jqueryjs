@@ -2,7 +2,7 @@
 <div class="code">
 $("#mydiv").drag({ helper: function() {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;var myHelper = document.createElement("div");<br>
-&nbsp;&nbsp;&nbsp;&nbsp;$(myHelper).css("width", "100px").css("height", "100px").css("background", "yellow").css("opacity", "0.6");
+&nbsp;&nbsp;&nbsp;&nbsp;$(myHelper).css("width", "100px").css("height", "100px").css("background", "yellow").css("opacity", "0.6");<br>
 &nbsp;&nbsp;&nbsp;&nbsp;return myHelper;<br>
 }});
 </div>
@@ -11,6 +11,6 @@ $("#mydiv").drag({ helper: function() {<br>
 </div>
 
 <script type="text/javascript">
-	var toBeEvaled = $("div.code").html().replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
+	var toBeEvaled = $("div.code").html().replace(/<BR>/g,"\n").replace(/<br>/g,"\n").replace(/&nbsp;/g,"");
 	eval(toBeEvaled);
 </script>

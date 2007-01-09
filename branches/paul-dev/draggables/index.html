@@ -63,7 +63,8 @@
 		}
 		var Now = new Date();
 		if(!sublink) var sublink = ""; else sublink = "_"+sublink;
-		$("#content").load(link+sublink+".html#"+Now.getTime(), {}, function() {
+		
+		$("#content").load(link+sublink+".html", { nocache: Now.getTime() }, function() {
 			replaceKeywords();
 		});
 		

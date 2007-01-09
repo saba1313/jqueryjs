@@ -1,6 +1,7 @@
 <p>This example utilizes the advanced callback onDrag, which gets the position as parameters and can return these to i.e. make a unique containment.</p>
 <div class="code">
 $("#mydiv").drag({<br>
+helper: 'original',<br>
 onDrag: function(helper,x,y)<br>
 {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;var centerx = 800;<br>
@@ -23,6 +24,6 @@ onDrag: function(helper,x,y)<br>
 </div>
 
 <script type="text/javascript">
-	var toBeEvaled = $("div.code")[0].innerHTML.replace(/<br>/g,"\n").replace(/&nbsp;/g,"").replace(/&gt;/g,">");
+	var toBeEvaled = $("div.code")[0].innerHTML.replace(/<BR>/g,"\n").replace(/<br>/g,"\n").replace(/&nbsp;/g,"").replace(/&gt;/g,">");
 	eval(toBeEvaled);
 </script>

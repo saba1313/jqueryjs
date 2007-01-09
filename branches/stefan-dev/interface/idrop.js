@@ -106,6 +106,9 @@ jQuery.iDrop = {
 						elm.style.display = elm.dragCfg.oD;
 						oneIsSortable = true;
 					}
+					if (iEL.dropCfg.onActivate) {
+						iEL.dropCfg.onActivate.apply(this, [jQuery.iDrag.dragged]);
+					}
 				}
 			}
 		}
@@ -266,6 +269,7 @@ jQuery.iDrop = {
 					onDrop:	o.ondrop||o.onDrop||false,
 					onHover: o.onHover||o.onhover||false,
 					onOut: o.onOut||o.onout||false,
+					onActivate: o.onActivate||false,
 					t: o.tolerance && ( o.tolerance == 'fit' || o.tolerance == 'intersect') ? o.tolerance : 'pointer',
 					fx: o.fx ? o.fx : false,
 					m: false,

@@ -153,6 +153,8 @@
 					if(this.dragOptions.cursorAt.left != 0) this.dragOptions.cursorAt.left += this.dragOptions.margins.left;
 					if(this.dragOptions.cursorAt.bottom != 0) this.dragOptions.cursorAt.bottom += this.dragOptions.margins.bottom;
 					if(this.dragOptions.cursorAt.right != 0) this.dragOptions.cursorAt.right += this.dragOptions.margins.right;
+				} else {
+					this.dragOptions.margins = { top: 0, left: 0, right: 0, bottom: 0 };
 				}
 
 				/* Bind the mousedown event */

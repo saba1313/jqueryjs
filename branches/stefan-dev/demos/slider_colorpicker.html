@@ -148,6 +148,10 @@
 				{
 					setVertColor(parseInt(cordy * 255 / 100));
 					setGradientColor();
+				},
+				onChange : function()
+				{
+					document.getElementById('oldColor').style.backgroundColor = 'rgb(' + currentColor.r + ',' + currentColor.g + ',' + currentColor.b + ')';
 				}
 			}
 		);

@@ -189,7 +189,10 @@ $(document).ready(
 				tolerance:		'intersect',
 				onActivate:		function(dragged)
 				{
-					$(this).Shake(2);
+					if (!this.shakedFirstTime) {
+						$(this).Shake(3);
+						this.shakedFirstTime = true;
+					}
 				},
 				onDrop:			addProductToCart
 			}

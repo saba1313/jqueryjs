@@ -89,6 +89,19 @@ jQuery.extend({
 		}
 	],
 
+	multiFilter: function( expr, elems, not ) {
+		var old, cur = [];
+
+		while ( expr && expr != old ) {
+			old = expr;
+			var f = jQuery.filter( expr, elems, not );
+			expr = f.t.replace(/^\s*,\s*/, "" );
+			cur = not ? elems = f.r : jQuery.merge( cur, f.r );
+		}
+
+		return cur;
+	},
+
 	/**
 	 * @name $.find
 	 * @type Array<Element>
@@ -175,8 +188,8 @@ jQuery.extend({
 			// matched a token
 			if ( t && !foundToken ) {
 				// Handle multiple expressions
-				if ( !t.indexOf(",") || !t.indexOf("|") ) {
-					// Clean teh result set
+				if ( !t.indexOf(",") ) {
+					// Clean the result set
 					if ( ret[0] == context ) ret.shift();
 
 					// Merge the result sets
@@ -222,12 +235,20 @@ jQuery.extend({
 						// We need to find all descendant elements, it is more
 						// efficient to use getAll() when we are already further down
 						// the tree - we try to recognize that here
-						for ( var i = 0, rl = ret.length; i < rl; i++ )
+						for ( var i = 0, rl = ret.length; i < rl; i++ ) {
+							// Grab the tag name being searched for
+							var tag = m[1] != "" || m[0] == "" ? "*" : m[2];
+
+							// Handle IE7 being really dumb about <object>s
+							if ( ret[i].nodeName.toUpperCase() == "OBJECT" && tag == "*" )
+								tag = "param";
+
 							jQuery.merge( r,
 								m[1] != "" && ret.length != 1 ?
 									jQuery.getAll( ret[i], [], m[1], m[2], rec ) :
-									ret[i].getElementsByTagName( m[1] != "" || m[0] == "" ? "*" : m[2] )
+									ret[i].getElementsByTagName( tag )
 							);
+						}
 
 						// It's faster to filter by class and be done with it
 						if ( m[1] == "." && ret.length == 1 )

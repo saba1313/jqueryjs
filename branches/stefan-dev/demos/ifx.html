@@ -136,6 +136,22 @@ body
 {
 	margin: 30px 10px;
 }
+.transferer1
+{
+	border: 1px solid #000;
+}
+.transferer2
+{
+	border: 1px solid #BBEF68;
+	background-color: #ffc;
+}
+.transferer3
+{
+	border-top: 2px solid #6CAF00;
+	border-bottom: 2px solid #6CAF00;
+	border-left: 5px dashed #6CAF00;
+	border-right: 5px dashed #6CAF00;
+}
 </style>
 </head>
 <body>
@@ -288,6 +304,7 @@ body
 	</div>
 <script type="text/javascript">
 var currentTab = null;
+var inSlide = false;
 $(document).ready(
 	function()
 	{
@@ -322,17 +339,22 @@ $(document).ready(
 );
 var switchTab = function()
 {
-	$('#tabs a').removeClass('active');
-	$(this).addClass('active');
-	this.blur();
 	var tabName = this.href.split('#')[1];
-	currentTab.SlideToggleUp(
-		400,
-		function()
-		{
-			currentTab = $('#' + tabName.substr(0, tabName.length-3)).SlideToggleUp(400);
-		}
-	);
+	this.blur();
+	if (inSlide == false && currentTab.get(0) != $('#' + tabName.substr(0, tabName.length-3)).get(0)) {
+		$('#tabs a').removeClass('active');
+		$(this).addClass('active');
+		inSlide = true;
+		currentTab.SlideToggleUp(
+			400,
+			function()
+			{
+				currentTab = $('#' + tabName.substr(0, tabName.length-3)).SlideToggleUp(400, function(){inSlide=false;});
+			}
+		);
+	} else {
+		return false;
+	}
 };
 var animateEl = function()
 {

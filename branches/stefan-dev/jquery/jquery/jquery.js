@@ -5,8 +5,8 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * $Date: 2007-01-08 18:12:20 +0200 (L, 08 ian. 2007) $
- * $Rev: 934 $
+ * $Date: 2007-01-11 06:52:41 +0200 (J, 11 ian. 2007) $
+ * $Rev: 993 $
  */
 
 // Global undefined variable
@@ -154,25 +154,18 @@ var $ = jQuery;
  * });
  * @desc Executes the function when the DOM is ready to be used.
  *
+ * @example jQuery(function($) {
+ *   // Your code using failsafe $ alias here...
+ * });
+ * @desc Uses both the shortcut for $(document).ready() and the argument
+ * to write failsafe jQuery code using the $ alias, without relying on the
+ * global alias.
+ *
  * @name $
  * @param Function fn The function to execute when the DOM is ready.
  * @cat Core
  * @type jQuery
- */
-
-/**
- * A means of creating a cloned copy of a jQuery object. This function
- * copies the set of matched elements from one jQuery object and creates
- * another, new, jQuery object containing the same elements.
- *
- * @example var div = $("div");
- * $( div ).find("p");
- * @desc Locates all p elements with all div elements, without disrupting the original jQuery object contained in 'div' (as would normally be the case if a simple div.find("p") was done).
- *
- * @name $
- * @param jQuery obj The jQuery object to be cloned.
- * @cat Core
- * @type jQuery
+ * @see ready(Function)
  */
 
 jQuery.fn = jQuery.prototype = {
@@ -260,16 +253,16 @@ jQuery.fn = jQuery.prototype = {
 	 * Set the jQuery object to an array of elements, while maintaining
 	 * the stack.
 	 *
-	 * @example $("img").set([ document.body ]);
-	 * @result $("img").set() == [ document.body ]
+	 * @example $("img").pushStack([ document.body ]);
+	 * @result $("img").pushStack() == [ document.body ]
 	 *
 	 * @private
-	 * @name set
+	 * @name pushStack
 	 * @type jQuery
 	 * @param Elements elems An array of elements
 	 * @cat Core
 	 */
-	set: function( a ) {
+	pushStack: function( a ) {
 		var ret = jQuery(this);
 		ret.prevObject = this;
 		return ret.setArray( a );
@@ -277,7 +270,7 @@ jQuery.fn = jQuery.prototype = {
 	
 	/**
 	 * Set the jQuery object to an array of elements. This operation is
-	 * completely destructive - be sure to use .set() if you wish to maintain
+	 * completely destructive - be sure to use .pushStack() if you wish to maintain
 	 * the jQuery stack.
 	 *
 	 * @example $("img").setArray([ document.body ]);
@@ -447,7 +440,7 @@ jQuery.fn = jQuery.prototype = {
 			for ( var prop in obj )
 				jQuery.attr(
 					type ? this.style : this,
-					prop, jQuery.prop(this, prop, obj[prop], type)
+					prop, jQuery.prop(this, obj[prop], type)
 				);
 		});
 	},
@@ -492,16 +485,22 @@ jQuery.fn = jQuery.prototype = {
 
 	/**
 	 * Set a single style property to a value, on all matched elements.
+	 * If a number is provided, it is automatically converted into a pixel value.
 	 *
 	 * @example $("p").css("color","red");
 	 * @before <p>Test Paragraph.</p>
 	 * @result <p style="color:red;">Test Paragraph.</p>
 	 * @desc Changes the color of all paragraphs to red
 	 *
+	 * @example $("p").css("left",30);
+	 * @before <p>Test Paragraph.</p>
+	 * @result <p style="left:30px;">Test Paragraph.</p>
+	 * @desc Changes the left of all paragraphs to "30px"
+	 *
 	 * @name css
 	 * @type jQuery
 	 * @param String key The name of the property to set.
-	 * @param Object value The value to set the property to.
+	 * @param String|Number value The value to set the property to.
 	 * @cat CSS
 	 */
 	css: function( key, value ) {
@@ -549,7 +548,7 @@ jQuery.fn = jQuery.prototype = {
 			"textContent" : "innerText";
 			
 		return e == undefined ?
-			this.length && this[0][ type ] :
+			jQuery.map(this, function(a){ return a[ type ]; }).join('') :
 			this.each(function(){ this[ type ] = e; });
 	},
 
@@ -796,7 +795,7 @@ jQuery.fn = jQuery.prototype = {
 	 * @cat DOM/Traversing
 	 */
 	find: function(t) {
-		return this.set( jQuery.map( this, function(a){
+		return this.pushStack( jQuery.map( this, function(a){
 			return jQuery.find(t,a);
 		}) );
 	},
@@ -814,10 +813,11 @@ jQuery.fn = jQuery.prototype = {
 	 *
 	 * @name clone
 	 * @type jQuery
+	 * @param Boolean deep (Optional) Set to false if you don't want to clone all descendant nodes, in addition to the element itself.
 	 * @cat DOM/Manipulation
 	 */
 	clone: function(deep) {
-		return this.set( jQuery.map( this, function(a){
+		return this.pushStack( jQuery.map( this, function(a){
 			return a.cloneNode( deep != undefined ? deep : true );
 		}) );
 	},
@@ -827,21 +827,21 @@ jQuery.fn = jQuery.prototype = {
 	 * match the specified expression(s). This method is used to narrow down
 	 * the results of a search.
 	 *
-	 * Provide a String array of expressions to apply multiple filters at once.
+	 * Provide a comma-separated list of expressions to apply multiple filters at once.
 	 *
 	 * @example $("p").filter(".selected")
 	 * @before <p class="selected">Hello</p><p>How are you?</p>
 	 * @result [ <p class="selected">Hello</p> ]
 	 * @desc Selects all paragraphs and removes those without a class "selected".
 	 *
-	 * @example $("p").filter([".selected", ":first"])
+	 * @example $("p").filter(".selected, :first")
 	 * @before <p>Hello</p><p>Hello Again</p><p class="selected">And Again</p>
 	 * @result [ <p>Hello</p>, <p class="selected">And Again</p> ]
 	 * @desc Selects all paragraphs and removes those without class "selected" and being the first one.
 	 *
 	 * @name filter
 	 * @type jQuery
-	 * @param String|Array<String> expression Expression(s) to search with.
+	 * @param String expression Expression(s) to search with.
 	 * @cat DOM/Traversing
 	 */
 	 
@@ -863,22 +863,13 @@ jQuery.fn = jQuery.prototype = {
 	 * @cat DOM/Traversing
 	 */
 	filter: function(t) {
-		return this.set(
-			t.constructor == Array &&
-			jQuery.map(this,function(a){
-				for ( var i = 0, tl = t.length; i < tl; i++ )
-					if ( jQuery.filter(t[i],[a]).r.length )
-						return a;
-				return null;
+		return this.pushStack(
+			t.constructor == Function &&
+			jQuery.grep(this, function(el, index){
+				return t.apply(el, [index])
 			}) ||
 
-			t.constructor == Boolean &&
-			( t ? this.get() : [] ) ||
-
-			typeof t == "function" &&
-			jQuery.grep( this, function(el, index) { return t.apply(el, [index]) }) ||
-
-			jQuery.filter(t,this).r );
+			jQuery.multiFilter(t,this) );
 	},
 
 	/**
@@ -911,10 +902,33 @@ jQuery.fn = jQuery.prototype = {
 	 * @param String expr An expression with which to remove matching elements
 	 * @cat DOM/Traversing
 	 */
+
+	/**
+	 * Removes any elements inside the array of elements from the set
+	 * of matched elements. This method is used to remove one or more
+	 * elements from a jQuery object.
+	 *
+	 * @example $("p").not( $("div p.selected") )
+	 * @before <div><p>Hello</p><p class="selected">Hello Again</p></div>
+	 * @result [ <p>Hello</p> ]
+	 * @desc Removes all elements that match "div p.selected" from the total set of all paragraphs.
+	 *
+	 * @name not
+	 * @type jQuery
+	 * @param Array|jQuery elems A set of elements to remove from the jQuery set of matched elements.
+	 * @cat DOM/Traversing
+	 */
 	not: function(t) {
-		return this.set( typeof t == "string" ?
-			jQuery.filter(t,this,true).r :
-			jQuery.grep(this,function(a){ return a != t; }) );
+		return this.pushStack(
+			t.constructor == String &&
+			jQuery.multiFilter(t,this,true) ||
+
+			jQuery.grep(this,function(a){
+					if ( t.constructor == Array || t.jquery )
+						return !jQuery.inArray( t, a );
+					else
+						return a != t;
+			}) );
 	},
 
 	/**
@@ -928,6 +942,19 @@ jQuery.fn = jQuery.prototype = {
 	 * @name add
 	 * @type jQuery
 	 * @param String expr An expression whose matched elements are added
+	 * @cat DOM/Traversing
+	 */
+	 
+	/**
+	 * Adds the on the fly created elements to the jQuery object.
+	 *
+	 * @example $("p").add("<span>Again</span>")
+	 * @before <p>Hello</p>
+	 * @result [ <p>Hello</p>, <span>Again</span> ]
+	 *
+	 * @name add
+	 * @type jQuery
+	 * @param String html A string of HTML to create on the fly.
 	 * @cat DOM/Traversing
 	 */
 
@@ -950,10 +977,10 @@ jQuery.fn = jQuery.prototype = {
 	 * @cat DOM/Traversing
 	 */
 	add: function(t) {
-		return this.set( jQuery.merge(
-			this.get(), typeof t == "string" ?
-				jQuery.find(t) :
-				t.constructor == Array ? t : [t] ) );
+		return this.pushStack( jQuery.merge(
+			this.get(),
+			typeof t == "string" ? jQuery(t).get() : t )
+		);
 	},
 
 	/**
@@ -1009,7 +1036,9 @@ jQuery.fn = jQuery.prototype = {
 	 * @cat DOM/Attributes
 	 */
 	val: function( val ) {
-		return val == undefined ?			( this.length ? this[0].value : null ) :			this.attr( "value", val );
+		return val == undefined ?
+			( this.length ? this[0].value : null ) :
+			this.attr( "value", val );
 	},
 	
 	/**
@@ -1039,7 +1068,9 @@ jQuery.fn = jQuery.prototype = {
 	 * @cat DOM/Attributes
 	 */
 	html: function( val ) {
-		return val == undefined ?			( this.length ? this[0].innerHTML : null ) :			this.empty().append( val );
+		return val == undefined ?
+			( this.length ? this[0].innerHTML : null ) :
+			this.empty().append( val );
 	},
 	
 	/**
@@ -1220,10 +1251,16 @@ jQuery.extend({
 		return obj;
 	},
 	
-	prop: function(elem, key, value){
-		// Handle executable functions
-		return value.constructor == Function &&
-			value.call( elem ) || value;
+	prop: function(elem, value, type){
+			// Handle executable functions
+			if ( value.constructor == Function )
+				return value.call( elem )
+
+			// Handle passing in a number to a CSS property
+			if ( value.constructor == Number && type == "css" )
+				return value + "px";
+
+			return value;
 	},
 
 	className: {
@@ -1234,13 +1271,15 @@ jQuery.extend({
 					elem.className += ( elem.className ? " " : "" ) + cur;
 			});
 		},
+
 		// internal only, use removeClass("class")
 		remove: function( elem, c ){
-            elem.className = c ?
-                jQuery.grep( elem.className.split(/\s+/), function(cur){
-				    return !jQuery.className.has( c, cur );	
-                }).join(' ') : "";
+			elem.className = c ?
+				jQuery.grep( elem.className.split(/\s+/), function(cur){
+					return !jQuery.className.has( c, cur );	
+				}).join(' ') : "";
 		},
+
 		// internal only, use is(".class")
 		has: function( t, c ) {
 			t = t.className || t;
@@ -1344,7 +1383,7 @@ jQuery.extend({
 	
 	clean: function(a) {
 		var r = [];
-		
+
 		for ( var i = 0, al = a.length; i < al; i++ ) {
 			var arg = a[i];
 			
@@ -1355,16 +1394,17 @@ jQuery.extend({
 
 				var wrap =
 					 // option or optgroup
-					!s.indexOf("<opt") && [1, "<select>", "</select>"] ||
+					!s.indexOf("<opt") &&
+					[1, "<select>", "</select>"] ||
 					
-					!s.indexOf("<thead") || !s.indexOf("<tbody") || !s.indexOf("<tfoot") &&
+					(!s.indexOf("<thead") || !s.indexOf("<tbody") || !s.indexOf("<tfoot")) &&
 					[1, "<table>", "</table>"] ||
 					
 					!s.indexOf("<tr") &&
 					[2, "<table><tbody>", "</tbody></table>"] ||
 					
 				 	// <thead> matched above
-					!s.indexOf("<td") || !s.indexOf("<th") &&
+					(!s.indexOf("<td") || !s.indexOf("<th")) &&
 					[3, "<table><tbody><tr>", "</tr></tbody></table>"] ||
 					
 					[0,"",""];
@@ -1396,10 +1436,11 @@ jQuery.extend({
 				arg = div.childNodes;
 			}
 			
-			if ( arg.nodeType )
+			if ( arg[0] == undefined )
 				r.push( arg );
 			else
 				r = jQuery.merge( r, arg );
+
 		}
 
 		return r;
@@ -1817,17 +1858,17 @@ new function() {
  */
 jQuery.each({
 	parent: "a.parentNode",
-	parents: jQuery.parents,
-	next: "jQuery.nth(a,1,'nextSibling')",
-	prev: "jQuery.nth(a,1,'previousSibling')",
+	parents: "jQuery.parents(a)",
+	next: "jQuery.nth(a,2,'nextSibling')",
+	prev: "jQuery.nth(a,2,'previousSibling')",
 	siblings: "jQuery.sibling(a.parentNode.firstChild,a)",
 	children: "jQuery.sibling(a.firstChild)"
 }, function(i,n){
 	jQuery.fn[ i ] = function(a) {
 		var ret = jQuery.map(this,n);
 		if ( a && typeof a == "string" )
-			ret = jQuery.filter(a,ret).r;
-		return this.set( ret );
+			ret = jQuery.multiFilter(a,ret);
+		return this.pushStack( ret );
 	};
 });
 
@@ -1844,8 +1885,9 @@ jQuery.each({
  *
  * @name appendTo
  * @type jQuery
- * @param String expr A jQuery expression of elements to match.
+ * @param <Content> content Content to append to the selected element to.
  * @cat DOM/Manipulation
+ * @see append(<Content>)
  */
 
 /**
@@ -1861,8 +1903,9 @@ jQuery.each({
  *
  * @name prependTo
  * @type jQuery
- * @param String expr A jQuery expression of elements to match.
+ * @param <Content> content Content to prepend to the selected element to.
  * @cat DOM/Manipulation
+ * @see prepend(<Content>)
  */
 
 /**
@@ -1878,8 +1921,9 @@ jQuery.each({
  *
  * @name insertBefore
  * @type jQuery
- * @param String expr A jQuery expression of elements to match.
+ * @param <Content> content Content to insert the selected element before.
  * @cat DOM/Manipulation
+ * @see before(<Content>)
  */
 
 /**
@@ -1895,8 +1939,9 @@ jQuery.each({
  *
  * @name insertAfter
  * @type jQuery
- * @param String expr A jQuery expression of elements to match.
+ * @param <Content> content Content to insert the selected element after.
  * @cat DOM/Manipulation
+ * @see after(<Content>)
  */
 
 jQuery.each({
@@ -1928,65 +1973,25 @@ jQuery.each({
  */
 
 /**
- * Displays each of the set of matched elements if they are hidden.
- *
- * @example $("p").show()
- * @before <p style="display: none">Hello</p>
- * @result [ <p style="display: block">Hello</p> ]
- *
- * @name show
- * @type jQuery
- * @cat Effects
- */
-
-/**
- * Hides each of the set of matched elements if they are shown.
- *
- * @example $("p").hide()
- * @before <p>Hello</p>
- * @result [ <p style="display: none">Hello</p> ]
- *
- * var pass = true, div = $("div");
- * div.hide().each(function(){
- *   if ( this.style.display != "none" ) pass = false;
- * });
- * ok( pass, "Hide" );
- *
- * @name hide
- * @type jQuery
- * @cat Effects
- */
-
-/**
- * Toggles each of the set of matched elements. If they are shown,
- * toggle makes them hidden. If they are hidden, toggle
- * makes them shown.
- *
- * @example $("p").toggle()
- * @before <p>Hello</p><p style="display: none">Hello Again</p>
- * @result [ <p style="display: none">Hello</p>, <p style="display: block">Hello Again</p> ]
- *
- * @name toggle
- * @type jQuery
- * @cat Effects
- */
-
-/**
- * Adds the specified class to each of the set of matched elements.
+ * Adds the specified class(es) to each of the set of matched elements.
  *
  * @example $("p").addClass("selected")
  * @before <p>Hello</p>
  * @result [ <p class="selected">Hello</p> ]
  *
+ * @example $("p").addClass("selected highlight")
+ * @before <p>Hello</p>
+ * @result [ <p class="selected highlight">Hello</p> ]
+ *
  * @name addClass
  * @type jQuery
- * @param String class A CSS class to add to the elements
+ * @param String class One or more CSS classes to add to the elements
  * @cat DOM/Attributes
  * @see removeClass(String)
  */
 
 /**
- * Removes all or the specified class from the set of matched elements.
+ * Removes all or the specified class(es) from the set of matched elements.
  *
  * @example $("p").removeClass()
  * @before <p class="selected">Hello</p>
@@ -1996,9 +2001,13 @@ jQuery.each({
  * @before <p class="selected first">Hello</p>
  * @result [ <p class="first">Hello</p> ]
  *
+ * @example $("p").removeClass("selected highlight")
+ * @before <p class="highlight selected first">Hello</p>
+ * @result [ <p class="first">Hello</p> ]
+ *
  * @name removeClass
  * @type jQuery
- * @param String class (optional) A CSS class to remove from the elements
+ * @param String class (optional) One or more CSS classes to remove from the elements
  * @cat DOM/Attributes
  * @see addClass(String)
  */
@@ -2054,20 +2063,6 @@ jQuery.each( {
 		jQuery.attr( this, key, "" );
 		this.removeAttribute( key );
 	},
-	show: function(){
-		this.style.display = this.oldblock ? this.oldblock : "";
-		if ( jQuery.css(this,"display") == "none" )
-			this.style.display = "block";
-	},
-	hide: function(){
-		this.oldblock = this.oldblock || jQuery.css(this,"display");
-		if ( this.oldblock == "none" )
-			this.oldblock = "block";
-		this.style.display = "none";
-	},
-	toggle: function(){
-		jQuery(this)[ jQuery(this).is(":hidden") ? "show" : "hide" ].apply( jQuery(this), arguments );
-	},
 	addClass: function(c){
 		jQuery.className.add(this,c);
 	},
@@ -2078,7 +2073,7 @@ jQuery.each( {
 		jQuery.className[ jQuery.className.has(this,c) ? "remove" : "add" ](this, c);
 	},
 	remove: function(a){
-		if ( !a || jQuery.filter( a, [this] ).r )
+		if ( !a || jQuery.filter( a, [this] ).r.length )
 			this.parentNode.removeChild( this );
 	},
 	empty: function() {
@@ -2151,5 +2146,73 @@ jQuery.each( {
 jQuery.each( [ "eq", "lt", "gt", "contains" ], function(i,n){
 	jQuery.fn[ n ] = function(num,fn) {
 		return this.filter( ":" + n + "(" + num + ")", fn );
+	};
+});
+
+/**
+ * Get the current computed, pixel, width of the first matched element.
+ *
+ * @example $("p").width();
+ * @before <p>This is just a test.</p>
+ * @result 300
+ *
+ * @name width
+ * @type String
+ * @cat CSS
+ */
+
+/**
+ * Set the CSS width of every matched element. If no explicit unit
+ * was specified (like 'em' or '%') then "px" is added to the width.
+ *
+ * @example $("p").width(20);
+ * @before <p>This is just a test.</p>
+ * @result <p style="width:20px;">This is just a test.</p>
+ *
+ * @example $("p").width("20em");
+ * @before <p>This is just a test.</p>
+ * @result <p style="width:20em;">This is just a test.</p>
+ *
+ * @name width
+ * @type jQuery
+ * @param Number|String val Set the CSS property to the specified value.
+ * @cat CSS
+ */
+ 
+/**
+ * Get the current computed, pixel, height of the first matched element.
+ *
+ * @example $("p").height();
+ * @before <p>This is just a test.</p>
+ * @result 300
+ *
+ * @name height
+ * @type String
+ * @cat CSS
+ */
+
+/**
+ * Set the CSS width of every matched element. If no explicit unit
+ * was specified (like 'em' or '%') then "px" is added to the width.
+ *
+ * @example $("p").height(20);
+ * @before <p>This is just a test.</p>
+ * @result <p style="height:20px;">This is just a test.</p>
+ *
+ * @example $("p").height("20em");
+ * @before <p>This is just a test.</p>
+ * @result <p style="height:20em;">This is just a test.</p>
+ *
+ * @name height
+ * @type jQuery
+ * @param Number|String val Set the CSS property to the specified value.
+ * @cat CSS
+ */
+
+jQuery.each( [ "height", "width" ], function(i,n){
+	jQuery.fn[ n ] = function(h) {
+		return h == undefined ?
+			( this.length ? jQuery.css( this[0], n ) : null ) :
+			this.css( n, h.constructor == String ? h : h + "px" );
 	};
 });

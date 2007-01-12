@@ -191,10 +191,10 @@
 			var o = f.current.dragOptions;
 
 			/* get the current offset */
-			o.curOffset = $(f.current).offset();
+			o.curOffset = $(f.current).offset({ border: false });
 			
 			/* Get the containment offset if we want a containment */
-			if(o.containment && o.containment.top == undefined && o.cursorAtIgnore) o.containmentOffset = $(o.containment).offset();
+			if(o.containment && o.containment.top == undefined && o.cursorAtIgnore) o.containmentOffset = $(o.containment).offset({ border: false });
 				
 			/* Append a helper div if helper is not a function */
 			if(typeof o.helper == "function") {
@@ -212,7 +212,7 @@
 			while (curParent) {
 				if(curParent.style && (curParent.style.position == "relative" || curParent.style.position == "absolute")) {
 					o.positionedParent = curParent;
-					o.positionedParentOffset = $(curParent).offset();
+					o.positionedParentOffset = $(curParent).offset({ border: false });
 					break;	
 				}
 				curParent = curParent.parentNode ? curParent.parentNode : null;
@@ -246,7 +246,7 @@
 			/* Make clones on top of iframes (only if we are not in slowMode) */
 			if(!f.slowMode && o.iframeFix) {
 				$("iframe").each(function() {
-					var curOffset = $(this).offset();
+					var curOffset = $(this).offset({ border: false });
 					$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", this.offsetWidth+"px").css("height", this.offsetHeight+"px").css("position", "absolute").css("opacity", "0.001").css("z-index", "1000").css("top", curOffset.top+"px").css("left", curOffset.left+"px").appendTo("body");
 				});				
 			}
@@ -257,7 +257,7 @@
 			 */
 			if(f.slowMode) {
 				var m = d.manager;
-				for(var i=0;i<m.length;i++) { m[i].offset = $(m[i].item).offset(); }
+				for(var i=0;i<m.length;i++) { m[i].offset = $(m[i].item).offset({ border: false }); }
 			}
 		
 			/* Okay, initialization is done, then set it to true */

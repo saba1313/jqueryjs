@@ -10,6 +10,7 @@
 <script type="text/javascript" src="../jquery/fx/fx.js"></script>
 <script type="text/javascript" src="../interface/iutil.js"></script>
 <script type="text/javascript" src="../interface/idrag.js"></script>
+<script type="text/javascript" src="../interface/itooltip.js"></script>
 <style type="text/css" media="all">
 
 body
@@ -31,8 +32,8 @@ body
 #image
 {
 	position: absolute;
-	top: 10px;
-	left: 10px;
+	top: 0;
+	left: 0;
 	height: 200px;
 	width: 1780px;
 	overflow: hidden;
@@ -55,12 +56,68 @@ body
 	height: 11px;
 	background-image: url(images/select.gif);
 	cursor: move;
+	overflow: hidden;
+}
+.inputsTooltip
+{
+	border: 1px solid #ccc;
+	background-color: #eee;
+	padding: 4px;
+	color: #333;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	filter:alpha(opacity=70);
+	-moz-opacity:.70;
+	opacity:.70;
+}
+#tooltipURL
+{
+	display: none;
+}
+#oldCityhall
+{
+	display: block;
+	border: 1px solid #fff;
+	position: absolute;
+	top: 0px;
+	left: 682px;
+	height: 140px;
+	width: 150px;
+	text-decoration: none;
+}
+
+#oldCityhall:hover,
+#me:hover
+{
+	border: 1px solid #FF6666;
+}
+#me
+{
+	display: block;
+	border: 1px solid #fff;
+	position: absolute;
+	top: 108px;
+	left: 959px;
+	height: 26px;
+	width: 10px;
+	text-decoration: none;
+}
+#me2
+{
+	display: block;
+	border: 1px solid #fff;
+	position: absolute;
+	top: 108px;
+	left: 69px;
+	height: 26px;
+	width: 10px;
+	text-decoration: none;
 }
 </style>
 </head>
 <body>
 <div id="vr">
-	<div id="image"><img src="images/piatasfatului.jpg" width="890" /><img src="images/piatasfatului.jpg" /></div>
+	<div id="image"><a id="oldCityhall" href="#" title="old CityHall">&nbsp;</a><a id="me" href="#" title="this is me">&nbsp;</a><a id="me2" href="#" title="this is me">&nbsp;</a><img src="images/piatasfatului.jpg" width="890" /><img src="images/piatasfatului.jpg" /></div>
 </div>
 <div id="slider"></div>
 <div id="indicator"></div>
@@ -89,6 +146,12 @@ $(document).ready(
 						y: radius * Math.sin(angle) + centery
 					}
 				}
+			}
+		);
+		$('a').ToolTip(
+			{
+				className: 'inputsTooltip',
+				position: 'mouse'
 			}
 		);
 	}

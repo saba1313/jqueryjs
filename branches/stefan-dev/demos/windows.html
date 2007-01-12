@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Language" content="en" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -34,7 +35,7 @@ body
 {
 	height: 30px;
 	overflow: 30px;
-	background-image: url(images/window_top_end.jpg);
+	background-image: url(images/window_top_end.png);
 	background-position: right top;
 	background-repeat: no-repeat;
 	position: relative;
@@ -43,8 +44,8 @@ body
 }
 #windowTopContent
 {
-	margin-right: 10px;
-	background-image:url(images/window_top_start.jpg);
+	margin-right: 13px;
+	background-image:url(images/window_top_start.png);
 	background-position:left top;
 	background-repeat: no-repeat;
 	overflow: hidden;
@@ -82,7 +83,7 @@ body
 {
 	position: relative;
 	height: 270px;
-	background-image: url(images/window_bottom_end.jpg);
+	background-image: url(images/window_bottom_end.png);
 	background-position: right bottom;
 	background-repeat: no-repeat;
 }
@@ -90,16 +91,16 @@ body
 {
 	position: relative;
 	height: 270px;
-	background-image: url(images/window_bottom_start.jpg);
+	background-image: url(images/window_bottom_start.png);
 	background-position: left bottom;
 	background-repeat: no-repeat;
-	margin-right: 10px;
+	margin-right: 13px;
 }
 #windowResize
 {
 	position: absolute;
-	right: 0;
-	bottom: 0;
+	right: 3px;
+	bottom: 5px;
 	cursor: se-resize;
 }
 #windowContent
@@ -112,8 +113,8 @@ body
 	overflow: auto;
 	margin-right: 10px;
 	border: 1px solid #6caf00;
-	height: 238px;
-	width: 358px;
+	height: 235px;
+	width: 355px;
 	font-family:Arial, Helvetica, sans-serif;
 	font-size: 11px;
 	padding: 10px;
@@ -203,8 +204,8 @@ $(document).ready(
 			{
 				var windowSize = $.iUtil.getSize(document.getElementById('windowContent'));
 				$('#windowContent').SlideToggleUp(300);
-				$('#windowBottom, #windowBottomContent').animate({height: windowSize.hb + 10}, 300);
-				$('#window').animate({height:windowSize.hb+40}, 300).get(0).isMinimized = false;
+				$('#windowBottom, #windowBottomContent').animate({height: windowSize.hb + 13}, 300);
+				$('#window').animate({height:windowSize.hb+43}, 300).get(0).isMinimized = false;
 				$(this).hide();
 				$('#windowMin, #windowResize').show();
 			}
@@ -220,10 +221,10 @@ $(document).ready(
 					se: '#windowResize'
 				},
 				onResize : function(size, position) {
-					$('#windowBottom, #windowBottomContent').css('height', size.height-30 + 'px');
-					var windowContentEl = $('#windowContent').css('width', size.width - 42 + 'px');
+					$('#windowBottom, #windowBottomContent').css('height', size.height-33 + 'px');
+					var windowContentEl = $('#windowContent').css('width', size.width - 45 + 'px');
 					if (!document.getElementById('window').isMinimized) {
-						windowContentEl.css('height', size.height - 62 + 'px');
+						windowContentEl.css('height', size.height - 68 + 'px');
 					}
 				}
 			}

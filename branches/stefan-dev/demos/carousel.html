@@ -120,7 +120,12 @@ body
 					rotationSpeed: 1.8
 				}
 			);
-			$.ImageBox.init();
+			$.ImageBox.init(
+				{
+					loaderSRC: 'images/imagebox/loading.gif',
+					closeHTML: '<img src="images/imagebox/close.jpg" />'
+				}
+			);
 		};
 </script>
 </body>

@@ -28,7 +28,7 @@
 <script type="text/javascript" src="../interface/ifxtransfer.js"></script>
 <script type="text/javascript" src="../plugins/tabs.js"></script>
 <style type="text/css" media="all">
-*
+body,html,ul
 {
 	margin: 0;
 	padding: 0;
@@ -40,25 +40,44 @@ body
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
 }
-.ifxElement
-{
-	background-color: #B5EF59;
-	border-top: 2px solid #6CAF00;
-	border-bottom: 2px solid #6CAF00;
-	border-left: 5px dashed #6CAF00;
-	border-right: 5px dashed #6CAF00;
-	padding: 10px;
-	position: absolute;
-	width: 200px;
+
+/* Elements to be animated */
+#outerBlind {
+position: absolute;
+top: -370px;
+left: 0px;	
+}
+#blindElement {
+	border: 2px solid #999;
+	width: 190px;
+	height: 320px;
+	padding: 5px;
+	float: left;
+	margin-left: 5px;
+}
+#blindElement2 {
+	width: 750px;
+	height: 320px;
+	padding: 5px;
+	padding-top: 0px;
+	float: left;	
+}
+#blindElement3 {
+	border: 2px solid #999;
+	width: 745px;
 	height: 200px;
-	top: 60px;
-	left: 100px;
-	text-align: center;
-	letter-spacing: 0px;
+	padding: 5px;
+	overflow: auto;	
 }
-#ifxElement strong{
-	font-size: 2em;
+#blindElement4 {
+	border: 2px solid #999;
+	width: 745px;
+	height: 100px;
+	margin-bottom: 6px;	
+	padding: 5px;
+	overflow: auto;	
 }
+
 #fx{
 	position: absolute;
 	top: 380px;
@@ -78,7 +97,7 @@ body
 }
 .tabContent
 {
-	width: 500px;
+	width: 950px;
 	height: 140px;
 	display: none;
 	background-color: #DAFF9F;
@@ -90,30 +109,34 @@ body
 	list-style: none;
 	line-height: 30px;
 	position: absolute;
-	top: 320px;
+	top: 358px;
 	left: 10px;
-	width: 520px;
+	width: 970px;
 	z-index: 4000;
 }
 #tabs li
 {
 	float: left;
-	padding-right: 10px;
+	padding-right: 5px;
 }
 #tabs li a
 {
 	display: block;
 	float: left;
-	height: 30px;
-	line-height: 30px;
+	height: 20px;
+	line-height: 20px;
 	padding: 0 6px;
 	color: #000;
 	text-decoration: none;
 	font-weight: bold;
+	background-color: #F3FFDF;
+	border: 2px solid #B5EF59;
 }
 #tabs li a.active
 {
-	background-color:#B5EF59;
+	background-color: #DAFF9F;
+	border: 2px solid #B5EF59;
+	border-bottom: 2px solid #DAFF9F;
 }
 .toAnimate
 {
@@ -129,14 +152,7 @@ body
 	border-top-width: 2px;
 	letter-spacing: 0px;
 }
-#scroll
-{
-	width: 300px;
-}
-#scroll p
-{
-	margin: 30px 10px;
-}
+
 .transferer1
 {
 	border: 1px solid #000;
@@ -156,15 +172,10 @@ body
 </style>
 </head>
 <body>
-	<div id="ifxElement" class="ifxElement">
-		My home town
-		<img src="images/brasov3.jpg" width="100%" />
-		<a href="http://www.iubescbrasovul.ro"><strong>Brasov</strong></a>
-	</div>
 	<ul id="tabs">
 		<li><a href="#blind-fx">Blind</a></li>
-		<li><a href="#animateclass-fx">Animate class</a></li>
-		<li><a href="#animatestyle-fx">Animate style</a></li>
+		<li><a href="#animateclass-fx">AnimateClass</a></li>
+		<li><a href="#animatestyle-fx">AnimateStyle</a></li>
 		<li><a href="#bounce-fx">Bounce</a></li>
 		<li><a href="#drop-fx">Drop</a></li>
 		<li><a href="#fold-fx">Fold</a></li>
@@ -175,21 +186,38 @@ body
 		<li><a href="#shake-fx">Shake</a></li>
 		<li><a href="#slide-fx">Slide</a></li>
 		<li><a href="#transfer-fx">Transfer</a></li>
-		<li><a href="#easing-fx">Easing</a></li>
+		<li><a href="#easing-fx">Ease</a></li>
 	</ul>
 	<div id="fx">
 		<div id="blind" class="tabContent">
-			<a href="#" onClick="$('#ifxElement').BlindUp(500);return false;">Blind up</a>
-			<a href="#" onClick="$('#ifxElement').BlindDown(500);return false;">Blind down</a>
-			<a href="#" onClick="$('#ifxElement').BlindToggleVertically(1000, null, 'bounceout');return false;">Blind toggle vertically</a>
+	<div id="outerBlind">
+	<div id="blindElement">
+		<h2>Short news</h2>
+		<p>This is a collapseable collapseable column.</p>
+	</div>
+	<div id="blindElement2">
+<div id="blindElement4">A vertical collapseable container.</div>
+<div id="blindElement3">
+<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec ut libero a augue lobortis vulputate. Aliquam venenatis nulla ac nisl vulputate tincidunt. Sed imperdiet eleifend lectus. Mauris dolor urna, volutpat imperdiet, vestibulum in, interdum sed, lectus. Quisque ultrices enim quis ante. Donec interdum. Proin hendrerit dignissim diam. Nunc luctus tellus vitae libero sagittis bibendum. Duis bibendum. Sed faucibus, dolor ut ultricies porttitor, metus leo viverra nunc, et adipiscing enim massa a libero. Donec adipiscing eleifend erat. Cras nisl mi, sodales non, sodales at, lacinia ac, justo. Aliquam sit amet lorem vel ipsum convallis pellentesque. Donec dolor lorem, consectetuer a, facilisis sed, faucibus a, justo. Aenean egestas sodales lorem. Mauris aliquam justo sed ante placerat sollicitudin. Curabitur id libero eu tortor rhoncus ornare.</p>
+<p>Proin rhoncus neque sed felis. Vivamus erat lacus, aliquam sed, venenatis ac, rutrum id, risus. Proin lacus. Sed luctus tortor at justo. Quisque hendrerit venenatis urna. Pellentesque placerat consectetuer augue. Quisque semper vestibulum libero. Morbi nec felis. Vivamus fringilla aliquam augue. Mauris ligula. Integer nunc. Praesent laoreet. Sed fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;</p>
+<p>Morbi tellus est, mollis nec, tempus in, aliquam et, felis. Aliquam egestas mattis velit. Vivamus lectus sapien, sagittis vel, imperdiet ac, accumsan vitae, arcu. Morbi rhoncus. Cras ut eros. Quisque lacus leo, ultrices eu, consequat sit amet, ultricies ut, purus. Etiam et lorem nec arcu semper sollicitudin. Morbi suscipit, nunc in dignissim venenatis, leo libero consectetuer leo, a faucibus arcu tortor sed massa. Nunc consequat imperdiet dolor. Phasellus euismod turpis et nunc. Curabitur aliquam. Sed dictum sodales justo.</p>
+<p>Fusce leo purus, sodales sit amet, scelerisque id, ultricies eget, nibh. Cras tincidunt tellus sit amet turpis. Nunc ut metus. Praesent in tellus nec sapien vestibulum interdum. Sed vel dui. Maecenas urna. Pellentesque aliquam eros quis magna. Quisque ac nisl. Morbi sapien mauris, semper dictum, volutpat vitae, volutpat nec, leo. In ipsum.</p>
+<p>Vivamus non elit nec libero placerat laoreet. Pellentesque ut nulla. Nulla vestibulum facilisis diam. Aenean quis arcu sed felis iaculis placerat. Ut arcu dui, mollis vel, porta viverra, molestie ut, lorem. Aliquam erat volutpat. Praesent pede ipsum, commodo vel, bibendum nec, ullamcorper ac, lectus. Etiam quis est. Aliquam aliquam consequat magna. Integer scelerisque est id turpis. Nulla elementum. Sed dictum sapien et sem. In hendrerit facilisis eros. Pellentesque eleifend rutrum augue. Integer eu ligula in purus bibendum auctor. Nam felis neque, mollis vitae, luctus id, facilisis ac, libero. Aliquam eget sapien. Nam tincidunt mattis pede.</p>
+</div>
+	</div>
+	</div>
+
+			<a href="#" onClick="$('#blindElement4').BlindUp(500);return false;">Blind up</a>
+			<a href="#" onClick="$('#blindElement4').BlindDown(500);return false;">Blind down</a>
+			<a href="#" onClick="$('#blindElement4').BlindToggleVertically(1000, null, 'bounceout');return false;">Blind toggle vertically</a>
 			<br /><br />
-			<a href="#" onClick="$('#ifxElement').BlindLeft(500);return false;">Blind left</a>
-			<a href="#" onClick="$('#ifxElement').BlindRight(500);return false;">Blind right</a>
-			<a href="#" onClick="$('#ifxElement').BlindToggleHorizontally(1000, null, 'easeout');return false;">Blind toggle horizontally</a>
+			<a href="#" onClick="$('#blindElement').BlindLeft(500);return false;">Blind left</a>
+			<a href="#" onClick="$('#blindElement').BlindRight(500);return false;">Blind right</a>
+			<a href="#" onClick="$('#blindElement').BlindToggleHorizontally(1000, null, 'easeout');return false;">Blind toggle horizontally</a>
 		</div>
 		<div id="animateclass" class="tabContent">
-			<a href="#" onClick="$('#ifxElement').animateClass(['toReset', 'toAnimate'], 1000);return false;">Animate</a>
-			<a href="#" onClick="$('#ifxElement').animateClass('toReset', 1000);return false;">Reset</a>
+			<a href="#" onClick="$('#acElement').animateClass(['toReset', 'toAnimate'], 1000);return false;">Animate</a>
+			<a href="#" onClick="$('#acElement').animateClass('toReset', 1000);return false;">Reset</a>
 		</div>
 		<div id="animatestyle" class="tabContent">
 			<a href="#" onClick="$('#ifxElement').animateStyle('width: 300px; height: 30px; background-color: #fff', 1000);return false;">width: 300px; height: 30px; background-color: #fff</a><br /><br />
@@ -292,17 +320,7 @@ body
 				</table>
 		</div>
 	</div>
-	<div  id="scroll" style="padding-top: 600px;">
-		<p id="FirstParagraph"><a href="latp" onClick="$('#LastParagraph').ScrollTo(800); return false;">Scroll to last paragraph</a>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nullam purus arcu, posuere nec, lacinia eget, nonummy et, nulla. Nulla ut augue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed lobortis tellus at arcu. Aenean egestas hendrerit libero. Sed nec augue. Proin venenatis nibh sed risus. Sed velit ante, dignissim ut, gravida ac, malesuada dictum, dolor. Pellentesque semper, erat et nonummy tincidunt, mauris mi aliquet turpis, a tincidunt urna magna commodo nulla. In aliquet metus eu justo. Mauris vel neque sed turpis auctor laoreet. Etiam ultricies neque ac tortor.</p>
-		
-		<p>Praesent sem elit, pretium <a href="#LastParagraph">ac, tincidunt vel,</a> pretium eget, pede. Aenean non justo vitae lectus scelerisque suscipit. Curabitur laoreet semper dolor. Etiam nisi nulla, auctor in, varius ac, semper eu, magna. Morbi aliquet viverra augue. Integer ac leo. Praesent nunc. Duis id mauris quis nisi tristique pretium. Aliquam et lorem at mauris nonummy dictum. Nulla mattis, mi sed posuere volutpat, ipsum est euismod libero, vitae egestas ipsum est sed eros. Etiam iaculis diam sit amet purus. Maecenas augue ante, condimentum id, posuere a, mattis sed, turpis. Duis lorem tortor, volutpat sit amet, adipiscing id, elementum ut, neque.</p>
-		
-		<p>Quisque elit. Sed eu nisl a lorem varius dignissim. Donec sit amet mi ornare nisl convallis tristique. Curabitur nec lectus. Pellentesque aliquam, magna et rutrum posuere, nisi ipsum adipiscing libero, auctor aliquet velit elit id turpis. Vestibulum ac quam. Sed nonummy. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Proin gravida sapien ac felis. Proin ultrices tincidunt urna. Aenean tincidunt sodales purus. Vestibulum id nibh id ante fermentum pellentesque. Donec vulputate elit vel pede. Morbi vel odio nec purus egestas fermentum. Duis varius. Suspendisse erat. Donec tempor sem. Quisque consectetuer dui a mauris. Etiam non massa id urna tempus semper.</p>
-		
-		<p>In suscipit, orci vitae laoreet fermentum, sapien eros commodo elit, ut semper dui mauris ac nisl. In congue. Vestibulum nulla ligula, pharetra in, vehicula et, pellentesque ut, pede. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Pellentesque laoreet. Sed sagittis orci quis nisi. Cras dignissim vulputate nibh. Duis massa massa, porttitor vel, sollicitudin ut, faucibus sed, est. Sed rutrum. Nunc at magna. Phasellus viverra odio nec nisl. Sed a lectus id ante rutrum pretium. Fusce id lectus sit amet diam euismod semper. Morbi dolor massa, vulputate eget, tristique quis, pellentesque vitae, enim. Suspendisse feugiat. In hac habitasse platea dictumst. In condimentum.</p>
-		
-		<p id="LastParagraph"><a href="latp" onClick="$('#FirstParagraph').ScrollTo(1000, 'easeout'); return false;">Scroll to first paragraph</a> eu erat ut lorem aliquet venenatis. Pellentesque felis. Nunc pulvinar mollis velit. Proin lectus enim, tincidunt sit amet, ultricies vitae, varius nec, leo. Fusce eget mauris non eros dapibus fermentum. Nulla elementum ultrices nisi. Donec iaculis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Nulla elit lectus, pellentesque non, dapibus at, consectetuer nec, magna. Sed sagittis, sapien id ullamcorper tristique, odio enim interdum justo, at semper nibh pede id nibh. Proin volutpat urna in eros. Praesent non ligula in elit accumsan viverra. Curabitur risus quam, condimentum in, posuere at, luctus eget, eros. Sed interdum turpis vel tortor. Morbi ut felis eu est iaculis cursus. Etiam egestas. Maecenas nulla urna, aliquam non, dapibus pretium, luctus eu, tellus. Donec sollicitudin lacus sit amet orci. Vestibulum accumsan pellentesque lectus.</p>
-	</div>
+
 <script type="text/javascript">
 var currentTab = null;
 var inSlide = false;

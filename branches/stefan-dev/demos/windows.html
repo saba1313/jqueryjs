@@ -193,7 +193,7 @@ $(document).ready(
 			'click',
 			function()
 			{
-				$('#windowContent').SlideToggleUp(300);
+				$('#windowContent').css('overflow', 'hidden').SlideToggleUp(300);
 				$('#windowBottom, #windowBottomContent').animate({height: 10}, 300);
 				$('#window').animate({height:40},300).get(0).isMinimized = true;
 				$(this).hide();
@@ -206,7 +206,7 @@ $(document).ready(
 			function()
 			{
 				var windowSize = $.iUtil.getSize(document.getElementById('windowContent'));
-				$('#windowContent').SlideToggleUp(300);
+				$('#windowContent').SlideToggleUp(300).css('overflow', 'auto');
 				$('#windowBottom, #windowBottomContent').animate({height: windowSize.hb + 13}, 300);
 				$('#window').animate({height:windowSize.hb+43}, 300).get(0).isMinimized = false;
 				$(this).hide();

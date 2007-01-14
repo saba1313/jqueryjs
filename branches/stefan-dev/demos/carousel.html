@@ -32,10 +32,11 @@ body
 {
 	width: 700px;
 	height: 150px;
-	background-color: #111;
+	border: 1px solid #333;
 	position: absolute;
 	top: 200px;
-	left: 100px;
+	left: 50%;
+	margin-left: -350px;
 }
 #carousel a
 {
@@ -117,7 +118,9 @@ body
 					itemMinWidth: 50,
 					items: 'a',
 					reflections: .5,
-					rotationSpeed: 1.8
+					rotationSpeed: 4,
+					slowOnHover: false,
+					slowOnOut: false
 				}
 			);
 			$.ImageBox.init(

@@ -325,7 +325,7 @@ jQuery.iDrag =	{
 			}
 		} else if (dragged.dragCfg.fx > 0) {
 			dragged.dragCfg.prot = true;
-			if(jQuery.iDrop && jQuery.iDrop.overzone && jQuery.iSort) {
+			if(jQuery.iDrop && jQuery.iDrop.overzone && jQuery.iSort && dragged.dragCfg.so) {
 				dh = jQuery.iUtil.getPosition(jQuery.iSort.helper.get(0));
 			} else {
 				dh = false;

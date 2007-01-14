@@ -62,6 +62,8 @@
  * @option Integer itemMinWidth the minimum width for each item, the height is automaticaly calculated to keep proportions
  * @option Float rotationSpeed the speed for rotation animation
  * @option Float reflectionSize the reflection size a fraction from items' height
+ * @option Boolean slowOnHover if true the rotation speed slows down when an item is hovered
+ * @option Boolean slowOnOut it true the rotation speed slows down when the cursor leaves the carousel
  *
  * @type jQuery
  * @cat Plugins/Interface
@@ -91,6 +93,8 @@ jQuery.iCarousel = {
 					start : Math.PI/2,
 					rotationSpeed : options.rotationSpeed,
 					reflectionSize : options.reflections,
+					slowOnHover : options.slowOnHover,
+					slowOnOut : options.slowOnOut,
 					reflections : [],
 					protectRotation : false,
 					increment: 2*Math.PI/360
@@ -175,24 +179,26 @@ jQuery.iCarousel = {
 							el.carouselCfg.reflections[nr] = canvas;
 							jQuery(reflexions).append(canvas);
 						}
-					)
-					.bind(
-						'mouseover',
-						function(e)
-						{
-							el.carouselCfg.protectRotation = true;
-							el.carouselCfg.speed = el.carouselCfg.increment*0.1 * el.carouselCfg.speed / Math.abs(el.carouselCfg.speed);
-							return false;
-						}
-					)
-					.bind(
-						'mouseout',
-						function(e)
-						{
-							el.carouselCfg.protectRotation = false;
-							return false;
-						}
 					);
+				if (el.carouselCfg.slowOnHover)
+					el.carouselCfg.items
+						.bind(
+							'mouseover',
+							function(e)
+							{
+								el.carouselCfg.protectRotation = true;
+								el.carouselCfg.speed = el.carouselCfg.increment*0.1 * el.carouselCfg.speed / Math.abs(el.carouselCfg.speed);
+								return false;
+							}
+						)
+						.bind(
+							'mouseout',
+							function(e)
+							{
+								el.carouselCfg.protectRotation = false;
+								return false;
+							}
+						);
 				jQuery.iCarousel.positionItems(el);
 				el.carouselCfg.speed = el.carouselCfg.increment*0.2;
 				el.carouselCfg.rotationTimer = window.setInterval(
@@ -205,14 +211,16 @@ jQuery.iCarousel = {
 					},
 					20
 				);
+				if (el.carouselCfg.slowOnOut)
+					jQuery(el)
+						.bind(
+							'mouseout',
+							function()
+							{
+								el.carouselCfg.speed = el.carouselCfg.increment*0.2 * el.carouselCfg.speed / Math.abs(el.carouselCfg.speed);
+							}
+						);
 				jQuery(el)
-					.bind(
-						'mouseout',
-						function()
-						{
-							el.carouselCfg.speed = el.carouselCfg.increment*0.2 * el.carouselCfg.speed / Math.abs(el.carouselCfg.speed);
-						}
-					)
 					.bind(
 						'mousemove',
 						function(e)

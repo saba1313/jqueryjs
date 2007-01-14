@@ -99,7 +99,7 @@ jQuery.iDrop = {
 					}
 					jQuery.iDrop.highlighted[i] = jQuery.iDrop.zones[i];
 					//if (jQuery.iSort && jQuery.iDrag.dragged.dragCfg.so) {
-					if (jQuery.iSort && iEL.dropCfg.s == true) {
+					if (jQuery.iSort && iEL.dropCfg.s && jQuery.iDrag.dragged.dragCfg.so) {
 						iEL.dropCfg.el = jQuery('.' + iEL.dropCfg.a, iEL);
 						elm.style.display = 'none';
 						jQuery.iSort.measure(iEL);
@@ -142,7 +142,7 @@ jQuery.iDrop = {
 					}
 					jQuery.iDrop.highlighted[i] = jQuery.iDrop.zones[i];
 					
-					if (jQuery.iSort && iEL.dropCfg.s == true) {
+					if (jQuery.iSort && iEL.dropCfg.s && jQuery.iDrag.dragged.dragCfg.so) {
 						iEL.dropCfg.el = jQuery('.' + iEL.dropCfg.a, iEL);
 						elm.style.display = 'none';
 						jQuery.iSort.measure(iEL);

@@ -280,7 +280,7 @@
 				return f.current = f.oldPosition = f.position = null;
 			
 			/* Trigger the onStop callback */
-			if(o.onStop) o.onStop.apply(f.current);
+			if(o.onStop) o.onStop.apply(f.current, [f.helper]);
 			
 			/* If cursorAt is within the helper, we must use our drop manager */
 			if(f.slowMode) {

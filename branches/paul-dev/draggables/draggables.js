@@ -233,7 +233,6 @@
 			/* Get the containment */
 			if(o.containment && o.cursorAtIgnore) {
 				if(o.containment.left == undefined) {
-					console.log(o.containment);
 					//I'm a node, so compute top/left/right/bottom
 					var conEl = $(o.containment)[0];
 					var conOffset = $(o.containment).offset({ border: false });

@@ -1,12 +1,12 @@
 /*
  * jQuery @VERSION - New Wave Javascript
  *
- * Copyright (c) 2006 John Resig (jquery.com)
+ * Copyright (c) 2007 John Resig (jquery.com)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * $Date: 2007-01-11 06:52:41 +0200 (J, 11 ian. 2007) $
- * $Rev: 993 $
+ * $Date: 2007-01-15 00:37:33 +0200 (L, 15 ian. 2007) $
+ * $Rev: 1073 $
  */
 
 // Global undefined variable
@@ -33,19 +33,19 @@ var jQuery = function(a,c) {
 	// HANDLE: $(function)
 	// Shortcut for document ready
 	// Safari reports typeof on DOM NodeLists as a function
-	if ( typeof a == "function" && !a.nodeType && a[0] == undefined )
+	if ( jQuery.isFunction(a) && !a.nodeType && a[0] == undefined )
 		return new jQuery(document)[ jQuery.fn.ready ? "ready" : "load" ]( a );
 	
 	// Handle HTML strings
 	if ( typeof a  == "string" ) {
-		// HANDLE: $(html) -> $(array)
 		var m = /^[^<]*(<.+>)[^>]*$/.exec(a);
-		if ( m )
-			a = jQuery.clean( [ m[1] ] );
+
+		a = m ?
+			// HANDLE: $(html) -> $(array)
+			jQuery.clean( [ m[1] ] ) :
 		
-		// HANDLE: $(expr)
-		else
-			return new jQuery( c ).find( a );
+			// HANDLE: $(expr)
+			jQuery.find( a, c );
 	}
 	
 	return this.setArray(
@@ -121,11 +121,6 @@ var $ = jQuery;
  *
  * This function also accepts XML Documents and Window objects
  * as valid arguments (even though they are not DOM Elements).
- *
- * @example $(document).find("div > p")
- * @before <p>one</p> <div><p>two</p></div> <p>three</p>
- * @result [ <p>two</p> ]
- * @desc Same as $("div > p") because the document
  *
  * @example $(document.body).background( "black" );
  * @desc Sets the background color of the page to black.
@@ -320,17 +315,17 @@ jQuery.fn = jQuery.prototype = {
 	 * Returns -1 if the object wasn't found.
 	 *
 	 * @example $("*").index( $('#foobar')[0] ) 
-	 * @before <div id="foobar"></div><b></b><span id="foo"></span>
+	 * @before <div id="foobar"><b></b><span id="foo"></span></div>
 	 * @result 0
 	 * @desc Returns the index for the element with ID foobar
 	 *
-	 * @example $("*").index( $('#foo')) 
-	 * @before <div id="foobar"></div><b></b><span id="foo"></span>
+	 * @example $("*").index( $('#foo')[0] ) 
+	 * @before <div id="foobar"><b></b><span id="foo"></span></div>
 	 * @result 2
-	 * @desc Returns the index for the element with ID foo
+	 * @desc Returns the index for the element with ID foo within another element
 	 *
-	 * @example $("*").index( $('#bar')) 
-	 * @before <div id="foobar"></div><b></b><span id="foo"></span>
+	 * @example $("*").index( $('#bar')[0] ) 
+	 * @before <div id="foobar"><b></b><span id="foo"></span></div>
 	 * @result -1
 	 * @desc Returns -1, as there is no element with ID bar
 	 *
@@ -544,12 +539,18 @@ jQuery.fn = jQuery.prototype = {
 	 * @cat DOM/Attributes
 	 */
 	text: function(e) {
-		var type = this.length && this[0].innerText == undefined ?
-			"textContent" : "innerText";
-			
-		return e == undefined ?
-			jQuery.map(this, function(a){ return a[ type ]; }).join('') :
-			this.each(function(){ this[ type ] = e; });
+		if ( typeof e == "string" )
+			return this.empty().append( document.createTextNode( e ) );
+
+		var t = "";
+		jQuery.each( e || this, function(){
+			jQuery.each( this.childNodes, function(){
+				if ( this.nodeType != 8 )
+					t += this.nodeType != 1 ?
+						this.nodeValue : jQuery.fn.text([ this ]);
+			});
+		});
+		return t;
 	},
 
 	/**
@@ -864,7 +865,7 @@ jQuery.fn = jQuery.prototype = {
 	 */
 	filter: function(t) {
 		return this.pushStack(
-			t.constructor == Function &&
+			jQuery.isFunction( t ) &&
 			jQuery.grep(this, function(el, index){
 				return t.apply(el, [index])
 			}) ||
@@ -915,7 +916,7 @@ jQuery.fn = jQuery.prototype = {
 	 *
 	 * @name not
 	 * @type jQuery
-	 * @param Array|jQuery elems A set of elements to remove from the jQuery set of matched elements.
+	 * @param jQuery elems A set of elements to remove from the jQuery set of matched elements.
 	 * @cat DOM/Traversing
 	 */
 	not: function(t) {
@@ -925,18 +926,18 @@ jQuery.fn = jQuery.prototype = {
 
 			jQuery.grep(this,function(a){
 					if ( t.constructor == Array || t.jquery )
-						return !jQuery.inArray( t, a );
+						return jQuery.inArray( t, a ) < 0;
 					else
 						return a != t;
 			}) );
 	},
 
 	/**
-	 * Adds the elements matched by the expression to the jQuery object. This
-	 * can be used to concatenate the result sets of two expressions.
+	 * Adds more elements, matched by the given expression,
+	 * to the set of matched elements.
 	 *
 	 * @example $("p").add("span")
-	 * @before <p>Hello</p><p><span>Hello Again</span></p>
+	 * @before <p>Hello</p><span>Hello Again</span>
 	 * @result [ <p>Hello</p>, <span>Hello Again</span> ]
 	 *
 	 * @name add
@@ -946,7 +947,8 @@ jQuery.fn = jQuery.prototype = {
 	 */
 	 
 	/**
-	 * Adds the on the fly created elements to the jQuery object.
+	 * Adds more elements, created on the fly, to the set of
+	 * matched elements.
 	 *
 	 * @example $("p").add("<span>Again</span>")
 	 * @before <p>Hello</p>
@@ -961,15 +963,13 @@ jQuery.fn = jQuery.prototype = {
 	/**
 	 * Adds one or more Elements to the set of matched elements.
 	 *
-	 * This is used to add a set of Elements to a jQuery object.
-	 *
 	 * @example $("p").add( document.getElementById("a") )
 	 * @before <p>Hello</p><p><span id="a">Hello Again</span></p>
 	 * @result [ <p>Hello</p>, <span id="a">Hello Again</span> ]
 	 *
-	 * @example $("p").add([document.getElementById("a"), document.getElementById("b")])
-	 * @before <p>Hello</p><p><span id="a">Hello Again</span><span id="b">And Again</span></p>
-	 * @result [ <p>Hello</p>, <span id="a">Hello Again</span>, <span id="b">And Again</span> ]
+	 * @example $("p").add( document.forms[0].elements )
+	 * @before <p>Hello</p><p><form><input/><button/></form>
+	 * @result [ <p>Hello</p>, <input/>, <button/> ]
 	 *
 	 * @name add
 	 * @type jQuery
@@ -1095,8 +1095,9 @@ jQuery.fn = jQuery.prototype = {
 			if ( table && this.nodeName.toUpperCase() == "TABLE" && a[0].nodeName.toUpperCase() == "TR" )
 				obj = this.getElementsByTagName("tbody")[0] || this.appendChild(document.createElement("tbody"));
 
-			for ( var i = 0, al = a.length; i < al; i++ )
-				fn.apply( obj, [ clone ? a[i].cloneNode(true) : a[i] ] );
+			jQuery.each( a, function(){
+				fn.apply( obj, [ clone ? this.cloneNode(true) : this ] );
+			});
 
 		});
 	}
@@ -1212,6 +1213,10 @@ jQuery.extend({
 			$ = jQuery._$;
 	},
 
+	isFunction: function( fn ) {
+		return fn && typeof fn == "function";
+	},
+
 	/**
 	 * A generic iterator function, which can be used to seemlessly
 	 * iterate over both objects and arrays. This function is not the same
@@ -1253,11 +1258,11 @@ jQuery.extend({
 	
 	prop: function(elem, value, type){
 			// Handle executable functions
-			if ( value.constructor == Function )
-				return value.call( elem )
+			if ( jQuery.isFunction( value ) )
+				return value.call( elem );
 
 			// Handle passing in a number to a CSS property
-			if ( value.constructor == Number && type == "css" )
+			if ( value.constructor == Number && type == "curCSS" )
 				return value + "px";
 
 			return value;
@@ -1277,7 +1282,7 @@ jQuery.extend({
 			elem.className = c ?
 				jQuery.grep( elem.className.split(/\s+/), function(cur){
 					return !jQuery.className.has( c, cur );	
-				}).join(' ') : "";
+				}).join(" ") : "";
 		},
 
 		// internal only, use is(".class")
@@ -1305,10 +1310,10 @@ jQuery.extend({
 		if ( p == "height" || p == "width" ) {
 			var old = {}, oHeight, oWidth, d = ["Top","Bottom","Right","Left"];
 
-			for ( var i = 0, dl = d.length; i < dl; i++ ) {
-				old["padding" + d[i]] = 0;
-				old["border" + d[i] + "Width"] = 0;
-			}
+			jQuery.each( d, function(){
+				old["padding" + this] = 0;
+				old["border" + this + "Width"] = 0;
+			});
 
 			jQuery.swap( e, old, function() {
 				if (jQuery.css(e,"display") != "none") {
@@ -1344,8 +1349,8 @@ jQuery.extend({
 	curCSS: function(elem, prop, force) {
 		var ret;
 		
-		if (prop == 'opacity' && jQuery.browser.msie)
-			return jQuery.attr(elem.style, 'opacity');
+		if (prop == "opacity" && jQuery.browser.msie)
+			return jQuery.attr(elem.style, "opacity");
 			
 		if (prop == "float" || prop == "cssFloat")
 		    prop = jQuery.browser.msie ? "styleFloat" : "cssFloat";
@@ -1363,12 +1368,12 @@ jQuery.extend({
 
 			if ( cur )
 				ret = cur.getPropertyValue(prop);
-			else if ( prop == 'display' )
-				ret = 'none';
+			else if ( prop == "display" )
+				ret = "none";
 			else
-				jQuery.swap(elem, { display: 'block' }, function() {
-				    var c = document.defaultView.getComputedStyle(this, '');
-				    ret = c && c.getPropertyValue(prop) || '';
+				jQuery.swap(elem, { display: "block" }, function() {
+				    var c = document.defaultView.getComputedStyle(this, "");
+				    ret = c && c.getPropertyValue(prop) || "";
 				});
 
 		} else if (elem.currentStyle) {
@@ -1384,8 +1389,11 @@ jQuery.extend({
 	clean: function(a) {
 		var r = [];
 
-		for ( var i = 0, al = a.length; i < al; i++ ) {
-			var arg = a[i];
+		jQuery.each( a, function(i,arg){
+			if ( !arg ) return;
+
+			if ( arg.constructor == Number )
+				arg = arg.toString();
 			
 			 // Convert html string into DOM nodes
 			if ( typeof arg == "string" ) {
@@ -1435,13 +1443,16 @@ jQuery.extend({
 				
 				arg = div.childNodes;
 			}
+
+			if ( arg.length === 0 )
+				return;
 			
 			if ( arg[0] == undefined )
 				r.push( arg );
 			else
 				r = jQuery.merge( r, arg );
 
-		}
+		});
 
 		return r;
 	},
@@ -1484,7 +1495,7 @@ jQuery.extend({
 			if ( value != undefined ) elem[fix[name]] = value;
 			return elem[fix[name]];
 
-		} else if ( value == undefined && jQuery.browser.msie && elem.nodeName && elem.nodeName.toUpperCase() == 'FORM' && (name == 'action' || name == 'method') )
+		} else if ( value == undefined && jQuery.browser.msie && elem.nodeName && elem.nodeName.toUpperCase() == "FORM" && (name == "action" || name == "method") )
 			return elem.getAttributeNode(name).nodeValue;
 
 		// IE elem.getAttribute passes even for style
@@ -1699,7 +1710,7 @@ jQuery.extend({
  */
  
 /*
- * Wheather the W3C compliant box model is being used.
+ * Whether the W3C compliant box model is being used.
  *
  * @property
  * @name $.boxModel
@@ -2175,7 +2186,7 @@ jQuery.each( [ "eq", "lt", "gt", "contains" ], function(i,n){
  *
  * @name width
  * @type jQuery
- * @param Number|String val Set the CSS property to the specified value.
+ * @param String|Number val Set the CSS property to the specified value.
  * @cat CSS
  */
  
@@ -2205,7 +2216,7 @@ jQuery.each( [ "eq", "lt", "gt", "contains" ], function(i,n){
  *
  * @name height
  * @type jQuery
- * @param Number|String val Set the CSS property to the specified value.
+ * @param String|Number val Set the CSS property to the specified value.
  * @cat CSS
  */
 

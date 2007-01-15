@@ -44,7 +44,7 @@ jQuery.fn.extend({
 	 * @cat Ajax
 	 */
 	load: function( url, params, callback, ifModified ) {
-		if ( url.constructor == Function )
+		if ( jQuery.isFunction( url ) )
 			return this.bind("load", url);
 
 		callback = callback || function(){};
@@ -55,7 +55,7 @@ jQuery.fn.extend({
 		// If the second parameter was provided
 		if ( params )
 			// If it's a function
-			if ( params.constructor == Function ) {
+			if ( jQuery.isFunction( params.constructor ) ) {
 				// We assume that it's the callback
 				callback = params;
 				params = null;
@@ -121,7 +121,7 @@ jQuery.fn.extend({
 	 * @cat Ajax
 	 */
 	evalScripts: function() {
-		return this.find('script').each(function(){
+		return this.find("script").each(function(){
 			if ( this.src )
 				jQuery.getScript( this.src );
 			else
@@ -223,7 +223,7 @@ if ( jQuery.browser.msie && typeof XMLHttpRequest == "undefined" )
  */
  
 /**
- * Attach a function to be executed before an AJAX request is send.
+ * Attach a function to be executed before an AJAX request is sent.
  *
  * The XMLHttpRequest and settings used for that request are passed
  * as arguments to the callback.
@@ -231,7 +231,7 @@ if ( jQuery.browser.msie && typeof XMLHttpRequest == "undefined" )
  * @example $("#msg").ajaxSend(function(request, settings){
  *   $(this).append("<li>Starting request at " + settings.url + "</li>");
  * });
- * @desc Show a message before an AJAX request is send.
+ * @desc Show a message before an AJAX request is sent.
  *
  * @name ajaxSend
  * @type jQuery
@@ -273,7 +273,7 @@ jQuery.extend({
 	 */
 	get: function( url, data, callback, type, ifModified ) {
 		// shift arguments if data argument was ommited
-		if ( data && data.constructor == Function ) {
+		if ( jQuery.isFunction( data ) ) {
 			callback = data;
 			data = null;
 		}
@@ -457,7 +457,8 @@ jQuery.extend({
 		timeout: 0,
 		contentType: "application/x-www-form-urlencoded",
 		processData: true,
-		async: true
+		async: true,
+		data: null
 	},
 	
 	// Last-Modified header cache for next request
@@ -536,7 +537,7 @@ jQuery.extend({
 	 * the default content-type "application/x-www-form-urlencoded". If you want to send
 	 * DOMDocuments, set this option to false.
 	 *
-	 * (Boolean) async - By default, all requests are send asynchronous (set to true).
+	 * (Boolean) async - By default, all requests are sent asynchronous (set to true).
 	 * If you need synchronous requests, set this option to false.
 	 *
 	 * (Function) beforeSend - A pre-callback to set custom headers etc., the
@@ -590,7 +591,7 @@ jQuery.extend({
 		// if data available
 		if ( s.data ) {
 			// convert data if not already a string
-			if (s.processData && typeof s.data != 'string')
+			if (s.processData && typeof s.data != "string")
     			s.data = jQuery.param(s.data);
 			// append data to url for get requests
 			if( s.type.toLowerCase() == "get" )
@@ -789,8 +790,9 @@ jQuery.extend({
 		// of form elements
 		if ( a.constructor == Array || a.jquery )
 			// Serialize the form elements
-			for ( var i = 0; i < a.length; i++ )
-				s.push( encodeURIComponent(a[i].name) + "=" + encodeURIComponent( a[i].value ) );
+			jQuery.each( a, function(){
+				s.push( encodeURIComponent(this.name) + "=" + encodeURIComponent( this.value ) );
+			});
 
 		// Otherwise, assume that it's an object of key/value pairs
 		else
@@ -798,8 +800,9 @@ jQuery.extend({
 			for ( var j in a )
 				// If the value is an array then the key names need to be repeated
 				if ( a[j].constructor == Array )
-					for ( var k = 0; k < a[j].length; k++ )
-						s.push( encodeURIComponent(j) + "=" + encodeURIComponent( a[j][k] ) );
+					jQuery.each( a[j], function(){
+						s.push( encodeURIComponent(j) + "=" + encodeURIComponent( this ) );
+					});
 				else
 					s.push( encodeURIComponent(j) + "=" + encodeURIComponent( a[j] ) );
 

@@ -1,6 +1,6 @@
 jQuery.extend({
 	expr: {
-		"": "m[2]== '*'||a.nodeName.toUpperCase()==m[2].toUpperCase()",
+		"": "m[2]=='*'||a.nodeName.toUpperCase()==m[2].toUpperCase()",
 		"#": "a.getAttribute('id')==m[2]",
 		":": {
 			// Position Checks
@@ -14,7 +14,7 @@ jQuery.extend({
 			odd: "i%2",
 
 			// Child Checks
-			"nth-child": "jQuery.nth(a.parentNode.firstChild,m[3],'nextSibling')==a",
+			"nth-child": "jQuery.nth(a.parentNode.firstChild,m[3],'nextSibling',a)==a",
 			"first-child": "jQuery.nth(a.parentNode.firstChild,1,'nextSibling')==a",
 			"last-child": "jQuery.nth(a.parentNode.lastChild,1,'previousSibling')==a",
 			"only-child": "jQuery.sibling(a.parentNode.firstChild).length==1",
@@ -27,14 +27,14 @@ jQuery.extend({
 			contains: "jQuery.fn.text.apply([a]).indexOf(m[3])>=0",
 
 			// Visibility
-			visible: "a.type!='hidden'&&jQuery.css(a,'display')!='none'&&jQuery.css(a,'visibility')!='hidden'",
-			hidden: "a.type=='hidden'||jQuery.css(a,'display')=='none'||jQuery.css(a,'visibility')=='hidden'",
+			visible: 'a.type!="hidden"&&jQuery.css(a,"display")!="none"&&jQuery.css(a,"visibility")!="hidden"',
+			hidden: 'a.type=="hidden"||jQuery.css(a,"display")=="none"||jQuery.css(a,"visibility")=="hidden"',
 
 			// Form attributes
 			enabled: "!a.disabled",
 			disabled: "a.disabled",
 			checked: "a.checked",
-			selected: "a.selected || jQuery.attr(a, 'selected')",
+			selected: "a.selected||jQuery.attr(a,'selected')",
 
 			// Form elements
 			text: "a.type=='text'",
@@ -45,16 +45,16 @@ jQuery.extend({
 			submit: "a.type=='submit'",
 			image: "a.type=='image'",
 			reset: "a.type=='reset'",
-			button: "a.type=='button'||a.nodeName=='BUTTON'",
+			button: 'a.type=="button"||a.nodeName=="BUTTON"',
 			input: "/input|select|textarea|button/i.test(a.nodeName)"
 		},
 		".": "jQuery.className.has(a,m[2])",
 		"@": {
 			"=": "z==m[4]",
 			"!=": "z!=m[4]",
-			"^=": "z && !z.indexOf(m[4])",
-			"$=": "z && z.substr(z.length - m[4].length,m[4].length)==m[4]",
-			"*=": "z && z.indexOf(m[4])>=0",
+			"^=": "z&&!z.indexOf(m[4])",
+			"$=": "z&&z.substr(z.length - m[4].length,m[4].length)==m[4]",
+			"*=": "z&&z.indexOf(m[4])>=0",
 			"": "z",
 			_resort: function(m){
 				return ["", m[1], m[3], m[2], m[5]];
@@ -67,23 +67,23 @@ jQuery.extend({
 	// The regular expressions that power the parsing engine
 	parse: [
 		// Match: [@value='test'], [@foo]
-		"\\[ *(@)S *([!*$^=]*) *('?\"?)(.*?)\\4 *\\]",
+		/^\[ *(@)([a-z0-9_-]*) *([!*$^=]*) *('?"?)(.*?)\4 *\]/i,
 
 		// Match: [div], [div p]
-		"(\\[)\\s*(.*?(\\[.*?\\])?[^[]*?)\\s*\\]",
+		/^(\[)\s*(.*?(\[.*?\])?[^[]*?)\s*\]/,
 
 		// Match: :contains('foo')
-		"(:)S\\(\"?'?(.*?(\\(.*?\\))?[^(]*?)\"?'?\\)",
+		/^(:)([a-z0-9_-]*)\("?'?(.*?(\(.*?\))?[^(]*?)"?'?\)/i,
 
 		// Match: :even, :last-chlid
-		"([:.#]*)S"
+		/^([:.#]*)([a-z0-9_*-]*)/i
 	],
 
 	token: [
-		"\\.\\.|/\\.\\.", "a.parentNode",
-		">|/", "jQuery.sibling(a.firstChild)",
-		"\\+", "jQuery.nth(a,2,'nextSibling')",
-		"~", function(a){
+		/^(\/?\.\.)/, "a.parentNode",
+		/^(>|\/)/, "jQuery.sibling(a.firstChild)",
+		/^(\+)/, "jQuery.nth(a,2,'nextSibling')",
+		/^(~)/, function(a){
 			var s = jQuery.sibling(a.parentNode.firstChild);
 			return s.slice(0, jQuery.inArray(a,s));
 		}
@@ -153,10 +153,11 @@ jQuery.extend({
 
 			if ( m ) {
 				// Perform our own iteration and filter
-				for ( var i = 0, rl = ret.length; i < rl; i++ )
-					for ( var c = ret[i].firstChild; c; c = c.nextSibling )
+				jQuery.each( ret, function(){
+					for ( var c = this.firstChild; c; c = c.nextSibling )
 						if ( c.nodeType == 1 && ( c.nodeName == m[1].toUpperCase() || m[1] == "*" ) )
 							r.push( c );
+				});
 
 				ret = r;
 				t = jQuery.trim( t.replace( re, "" ) );
@@ -166,13 +167,13 @@ jQuery.extend({
 				for ( var i = 0; i < jQuery.token.length; i += 2 ) {
 					// Attempt to match each, individual, token in
 					// the specified order
-					var re = new RegExp("^(" + jQuery.token[i] + ")");
+					var re = jQuery.token[i];
 					var m = re.exec(t);
 
 					// If the token match was found
 					if ( m ) {
 						// Map it against the token's handler
-						r = ret = jQuery.map( ret, jQuery.token[i+1].constructor == Function ?
+						r = ret = jQuery.map( ret, jQuery.isFunction( jQuery.token[i+1] ) ?
 							jQuery.token[i+1] :
 							function(a){ return eval(jQuery.token[i+1]); });
 
@@ -235,20 +236,20 @@ jQuery.extend({
 						// We need to find all descendant elements, it is more
 						// efficient to use getAll() when we are already further down
 						// the tree - we try to recognize that here
-						for ( var i = 0, rl = ret.length; i < rl; i++ ) {
+						jQuery.each( ret, function(){
 							// Grab the tag name being searched for
 							var tag = m[1] != "" || m[0] == "" ? "*" : m[2];
 
 							// Handle IE7 being really dumb about <object>s
-							if ( ret[i].nodeName.toUpperCase() == "OBJECT" && tag == "*" )
+							if ( this.nodeName.toUpperCase() == "OBJECT" && tag == "*" )
 								tag = "param";
 
 							jQuery.merge( r,
 								m[1] != "" && ret.length != 1 ?
-									jQuery.getAll( ret[i], [], m[1], m[2], rec ) :
-									ret[i].getElementsByTagName( tag )
+									jQuery.getAll( this, [], m[1], m[2], rec ) :
+									this.getElementsByTagName( tag )
 							);
-						}
+						});
 
 						// It's faster to filter by class and be done with it
 						if ( m[1] == "." && ret.length == 1 )
@@ -263,11 +264,12 @@ jQuery.extend({
 							r = [];
 
 							// Then try to find the element with the ID
-							for ( var i = 0, tl = tmp.length; i < tl; i++ )
-								if ( tmp[i].getAttribute("id") == m[2] ) {
-									r = [ tmp[i] ];
-									break;
+							jQuery.each( tmp, function(){
+								if ( this.getAttribute("id") == m[2] ) {
+									r = [ this ];
+									return false;
 								}
+							});
 						}
 
 						ret = r;
@@ -300,28 +302,25 @@ jQuery.extend({
 		// Look for common filter expressions
 		while ( t && /^[a-z[({<*:.#]/i.test(t) ) {
 
-			var p = jQuery.parse;
+			var p = jQuery.parse, m;
 
-			for ( var i = 0, pl = p.length; i < pl; i++ ) {
+			jQuery.each( p, function(i,re){
 		
 				// Look for, and replace, string-like sequences
 				// and finally build a regexp out of it
-				var re = new RegExp(
-					"^" + p[i].replace("S", "([a-z*_-][a-z0-9_-]*)"), "i" );
-
-				var m = re.exec( t );
+				m = re.exec( t );
 
 				if ( m ) {
+					// Remove what we just matched
+					t = t.substring( m[0].length );
+
 					// Re-organize the first match
 					if ( jQuery.expr[ m[1] ]._resort )
 						m = jQuery.expr[ m[1] ]._resort( m );
 
-					// Remove what we just matched
-					t = t.replace( re, "" );
-
-					break;
+					return false;
 				}
-			}
+			});
 
 			// :not() is a special case that can be optimized by
 			// keeping it out of the expression list
@@ -334,7 +333,7 @@ jQuery.extend({
 
 				var re = new RegExp("(^|\\s)" + m[2] + "(\\s|$)");
 				r = jQuery.grep( r, function(e){
-					return re.test(e.className || '');
+					return re.test(e.className || "");
 				}, not);
 
 			// Otherwise, find the expression to execute
@@ -366,7 +365,7 @@ jQuery.extend({
 				if ( token == "." )
 					add = s.className && re.test(s.className);
 				else if ( token == "#" )
-					add = s.getAttribute('id') == name;
+					add = s.getAttribute("id") == name;
 	
 				if ( add )
 					r.push( s );
@@ -407,17 +406,17 @@ jQuery.extend({
 	 * @name $.nth
 	 * @type DOMElement
 	 * @param DOMElement cur The element to search from.
-	 * @param Number|String num The Nth result to match. Can be a number or a string (like 'even' or 'odd').
+	 * @param String|Number num The Nth result to match. Can be a number or a string (like 'even' or 'odd').
 	 * @param String dir The direction to move in (pass in something like 'previousSibling' or 'nextSibling').
 	 * @cat DOM/Traversing
 	 */
-	nth: function(cur,result,dir){
+	nth: function(cur,result,dir,elem){
 		result = result || 1;
 		var num = 0;
 		for ( ; cur; cur = cur[dir] ) {
 			if ( cur.nodeType == 1 ) num++;
-			if ( num == result || result == "even" && num % 2 == 0 && num > 1 ||
-				result == "odd" && num % 2 == 1 ) return cur;
+			if ( num == result || result == "even" && num % 2 == 0 && num > 1 && cur == elem ||
+				result == "odd" && num % 2 == 1 && cur == elem ) return cur;
 		}
 	},
 	

@@ -77,20 +77,20 @@ jQuery.event = {
 		if ( !element ) {
 			var g = this.global[type];
 			if ( g )
-				for ( var i = 0, gl = g.length; i < gl; i++ )
-					this.trigger( type, data, g[i] );
+				jQuery.each( g, function(){
+					jQuery.event.trigger( type, data, this );
+				});
 
 		// Handle triggering a single element
 		} else if ( element["on" + type] ) {
-			if ( element[ type ] && element[ type ].constructor == Function )
-				element[ type ]();
-			else {
-				// Pass along a fake event
-				data.unshift( this.fix({ type: type, target: element }) );
+			// Pass along a fake event
+			data.unshift( this.fix({ type: type, target: element }) );
 	
-				// Trigger the event
-				element["on" + type].apply( element, data );
-			}
+			// Trigger the event
+			var val = element["on" + type].apply( element, data );
+
+			if ( val !== false && jQuery.isFunction( element[ type ] ) )
+				element[ type ]();
 		}
 	},
 
@@ -133,7 +133,7 @@ jQuery.event = {
 			event.target = event.srcElement;
 
 		// Calculate pageX/Y if missing and clientX/Y available
-		if ( typeof event.pageX == "undefined" && typeof event.clientX != "undefined" ) {
+		if ( event.pageX == undefined && event.clientX != undefined ) {
 			var e = document.documentElement, b = document.body;
 			event.pageX = event.clientX + (e.scrollLeft || b.scrollLeft);
 			event.pageY = event.clientY + (e.scrollTop || b.scrollTop);
@@ -468,8 +468,9 @@ jQuery.extend({
 			// If there are functions bound, to execute
 			if ( jQuery.readyList ) {
 				// Execute all of them
-				for ( var i = 0; i < jQuery.readyList.length; i++ )
-					jQuery.readyList[i].apply( document );
+				jQuery.each( jQuery.readyList, function(){
+					this.apply( document );
+				});
 				
 				// Reset the list of functions
 				jQuery.readyList = null;

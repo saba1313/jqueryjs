@@ -192,9 +192,6 @@
 
 			/* get the current offset */
 			o.curOffset = $(f.current).offset({ border: false });
-			
-			/* Get the containment offset if we want a containment */
-			if(o.containment && o.containment.top == undefined && o.cursorAtIgnore) o.containmentOffset = $(o.containment).offset({ border: false });
 				
 			/* Append a helper div if helper is not a function */
 			if(typeof o.helper == "function") {
@@ -231,6 +228,23 @@
 			if(o.positionedParent) {
 				f.position[0] -= o.positionedParentOffset.left;
 				f.position[1] -= o.positionedParentOffset.top;	
+			}
+			
+			/* Get the containment */
+			if(o.containment && o.cursorAtIgnore) {
+				if(o.containment.left == undefined) {
+					console.log(o.containment);
+					//I'm a node, so compute top/left/right/bottom
+					var conEl = $(o.containment)[0];
+					var conOffset = $(o.containment).offset({ border: false });
+
+					o.containment = {
+						top: conOffset.top-(o.positionedParentOffset ? o.positionedParentOffset.top : 0)-o.margins.top,
+						left: conOffset.left-(o.positionedParentOffset ? o.positionedParentOffset.left : 0)-o.margins.left,
+						right: conOffset.left-(o.positionedParentOffset ? o.positionedParentOffset.left : 0)+(conEl.offsetWidth || conEl.scrollWidth)-o.margins.right,
+						bottom: conOffset.top-(o.positionedParentOffset ? o.positionedParentOffset.top : 0)+(conEl.offsetHeight || conEl.scrollHeight)-o.margins.bottom
+					}
+				}
 			}
 			
 			/* If cursorAt is within the helper, set slowMode to true */
@@ -398,18 +412,13 @@
 						break;
 				}					
 			}
+			
+			/* Stick to a defined containment */
 			if(o.containment && o.cursorAtIgnore) {
-				if(o.containment.top != undefined) {
-					if((newLeft < o.containment.left)) newLeft = o.containment.left;
-					if((newTop < o.containment.top)) newTop = o.containment.top;
-					if(newLeft+$(f.helper)[0].offsetWidth > o.containment.right) newLeft = o.containment.right-$(f.helper)[0].offsetWidth;
-					if(newTop+$(f.helper)[0].offsetHeight > o.containment.bottom) newTop = o.containment.bottom-$(f.helper)[0].offsetHeight;					
-				} else {
-					if((newLeft < o.containmentOffset.left-o.margins.left)) newLeft = o.containmentOffset.left-o.margins.left;
-					if((newTop < o.containmentOffset.top-o.margins.top)) newTop = o.containmentOffset.top-o.margins.top;
-					if((newTop+$(f.helper)[0].offsetHeight > o.containmentOffset.top+$(o.containment)[0].offsetHeight-o.margins.bottom)) newTop = o.containmentOffset.top+$(o.containment)[0].offsetHeight-$(f.helper)[0].offsetHeight-o.margins.bottom;
-					if((newLeft+$(f.helper)[0].offsetWidth > o.containmentOffset.left+$(o.containment)[0].offsetWidth-o.margins.right)) newLeft = o.containmentOffset.left+$(o.containment)[0].offsetWidth-$(f.helper)[0].offsetWidth-o.margins.right;		
-				}
+				if((newLeft < o.containment.left)) newLeft = o.containment.left;
+				if((newTop < o.containment.top)) newTop = o.containment.top;
+				if(newLeft+$(f.helper)[0].offsetWidth > o.containment.right) newLeft = o.containment.right-$(f.helper)[0].offsetWidth;
+				if(newTop+$(f.helper)[0].offsetHeight > o.containment.bottom) newTop = o.containment.bottom-$(f.helper)[0].offsetHeight;
 			}
 
 			/* Stick the helper to the cursor */			

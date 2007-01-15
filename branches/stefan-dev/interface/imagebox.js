@@ -414,8 +414,10 @@ jQuery.ImageBox = {
 	loadImage : function(imageSrc, captiontext, pageSize, totalImages, iteration, prevImage, nextImage)
 	{
 		jQuery('#ImageBoxCurrentImage').remove();
-		prevImageEl = jQuery('#ImageBoxPrevImage').hide();
-		nextImageEl = jQuery('#ImageBoxNextImage').hide();
+		prevImageEl = jQuery('#ImageBoxPrevImage');
+		prevImageEl.hide();
+		nextImageEl = jQuery('#ImageBoxNextImage');
+		nextImageEl.hide();
 		loader = jQuery('#ImageBoxLoader');
 		container = jQuery('#ImageBoxContainer');
 		outerContainer = jQuery('#ImageBoxOuterContainer');

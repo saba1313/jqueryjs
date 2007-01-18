@@ -340,7 +340,7 @@
 			}
 		
 			/* Trigger the onDrag callback */
-			if(o.onDrag) var retPos = o.onDrag.apply(f.current, [f.helper,f.position[0],f.position[1]]);		
+			if(o.onDrag) var retPos = o.onDrag.apply(f.current, [f.helper,f.position,f.oldPosition,o.cursorAt]);		
 			/* If something came back from our callback, use it as modified position */
 			if(retPos) {
 				if(retPos.x) f.position[0] = retPos.x;

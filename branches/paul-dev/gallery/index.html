@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Image gallery</title>
+		<link rel="stylesheet" media="screen" href="style.css">
+		<script type="text/javascript" src="../../../trunk/jquery/src/jquery/jquery.js"></script>
+		<script type="text/javascript" src="../../../trunk/jquery/src/selector/selector.js"></script>
+		<script type="text/javascript" src="../../../trunk/jquery/src/event/event.js"></script>
+		<script type="text/javascript" src="../../../trunk/jquery/src/fx/fx.js"></script>
+		<script type="text/javascript" src="../../../trunk/jquery/src/ajax/ajax.js"></script>
+		<script type="text/javascript" src="../../../trunk/plugins/center/center.js"></script>
+		<script type="text/javascript" src="../../../trunk/plugins/dimensions/dimensions.js"></script>
+		<script type="text/javascript" src="../draggables/draggables.js"></script>
+		<script type="text/javascript">
+			(function($) {
+				$.gallery = {
+					container: null,
+					containerSize: [0,0],
+					init: function() {
+						this.each(function() {
+							$.gallery.container = this;
+							
+							
+							$("*",this).each(function() {
+								if(this.offsetWidth > $.gallery.containerSize[0]) $.gallery.containerSize[0] = this.offsetWidth;		
+								if(this.offsetHeight > $.gallery.containerSize[1]) $.gallery.containerSize[1] = this.offsetHeight;	
+								
+								
+								$(this).hide();
+							});
+							
+							$(this).css("width", $.gallery.containerSize[0]).css("height", $.gallery.containerSize[1]); 
+						
+							$.gallery.show.apply(this, [0]);
+						});	
+					},
+					show: function(index) {
+						what = $($("*",this).get(index));
+						what.fadeIn("slow");
+						what.center();
+						what.addClass("current");
+					},
+					play: function(dir) {
+						var current = $(".current", this);
+
+						if(current) {	
+							var next = (dir == "next") ? current.next() : current.prev();
+							if(next[0].className.indexOf("current") == -1) {
+								current.fadeOut("slow");
+								current.removeClass("current");
+								
+								next.fadeIn();
+								next.center();
+								next.addClass("current");
+							} else {
+								//Last picture, so stop or go to first
+							}
+						}		
+					}
+				}	
+				
+				jQuery.fn.extend(
+					{
+						gallery : jQuery.gallery.init,
+						igNext : function() { jQuery.gallery.play.apply(this, ["next"]); },
+						igPrevious : function() { jQuery.gallery.play.apply(this, ["prev"]); }
+					}
+				);
+			 })(jQuery);
+			 
+			 
+			 $(document).ready(function() {
+			 	$(".container").gallery();
+			 });
+			 
+		</script>
+	</head>
+	<body>
+		<div class="container" id="con1">
+			<img src="images/bw1.jpg">
+			<img src="images/bw2.jpg">
+			<img src="images/bw3.jpg">
+			<img src="images/lights1.jpg">
+			<img src="images/lights2.jpg">
+			<img src="images/lights3.jpg">
+		</div>
+		
+		<div class="container" id="con2">
+			<img src="images/bw1.jpg">
+			<img src="images/bw2.jpg">
+			<img src="images/bw3.jpg">
+			<img src="images/lights1.jpg">
+			<img src="images/lights2.jpg">
+			<img src="images/lights3.jpg">
+		</div>
+		<input type="button" onclick="$('#con1').igPrevious();" value="previous">
+		<input type="button" onclick="$('#con1').igNext();" value="next">
+		
+		<input type="button" onclick="$('#con2').igPrevious();" value="previous">
+		<input type="button" onclick="$('#con2').igNext();" value="next">
+	</body>
+</html>

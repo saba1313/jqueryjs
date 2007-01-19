@@ -308,7 +308,7 @@
 			}
 				
 			/* Remove helper, if it's not f.current (a clone) */
-			if(f.helper != f.current) $(f.helper).remove();	
+			if(f.helper != f.current && !f.helper.keepMe) $(f.helper).remove();	
 			
 			/* Remove frame helpers */
 			if(o.iframeFix) $("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			

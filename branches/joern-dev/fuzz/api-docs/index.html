@@ -9,434 +9,21 @@
 </head>
 <body>
 <h1>
-<a class="logo" href="http://jquery.com">jQuery</a>
-<div>1.1.1 API Browser <span>(<a href="jquery-api-browser.zip">Download</a>)</span>
-</div>
+<a href="http://jquery.com"><img src="style/images/jquery_logo.gif" alt="jQuery Logo"></a>
 </h1>
+<div id="header">1.1.1 API Browser <span>(<a href="jquery-api-browser.zip">Download</a>)</span>
+</div>
 <div id="content">
 <div id="nav">
 <h2>Navigation</h2>
 <ul class="tabs-nav">
 <li>
-<a href="#navAlpha">Alphabetical</a>
-</li>
-<li>
 <a href="#navCat">Category</a>
 </li>
-</ul>
-<div class="navsub" id="navAlpha">
-<h3>Alphabetic</h3>
-<div class="treecontrol">
-<a href="#">Collapse All</a><a href="#">Expand All</a><a href="#">Toggle All</a>
-</div>
-<ul>
 <li>
-<a href="#String">$(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#ElementArrayElement">$(<span class="arg-type tooltip">Element|Array&lt;Element&gt;</span>)</a>
-</li>
-<li>
-<a href="#Function">$(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#StringElementjQuery">$(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Element|jQuery</span>)</a>
-</li>
-<li>
-<a href="#addString">add(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#addString">add(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#addElementArrayElement">add(<span class="arg-type tooltip">Element|Array&lt;Element&gt;</span>)</a>
-</li>
-<li>
-<a href="#addClassString">addClass(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#afterContent">after(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
-</li>
-<li>
-<a href="#ajaxMap">$.ajax(<span class="arg-type tooltip">Map</span>)</a>
-</li>
-<li>
-<a href="#ajaxCompleteFunction">ajaxComplete(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#ajaxErrorFunction">ajaxError(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#ajaxSendFunction">ajaxSend(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#ajaxSetupMap">$.ajaxSetup(<span class="arg-type tooltip">Map</span>)</a>
-</li>
-<li>
-<a href="#ajaxStartFunction">ajaxStart(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#ajaxStopFunction">ajaxStop(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#ajaxSuccessFunction">ajaxSuccess(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#ajaxTimeoutNumber">$.ajaxTimeout(<span class="arg-type tooltip">Number</span>)</a>
-</li>
-<li>
-<a href="#animateHashStringNumberStringFunction">animate(<span class="arg-type tooltip">Hash</span>, <span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#appendContent">append(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
-</li>
-<li>
-<a href="#appendToContent">appendTo(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
-</li>
-<li>
-<a href="#attrString">attr(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#attrMap">attr(<span class="arg-type tooltip">Map</span>)</a>
-</li>
-<li>
-<a href="#attrStringObject">attr(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Object</span>)</a>
-</li>
-<li>
-<a href="#attrStringFunction">attr(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#beforeContent">before(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
-</li>
-<li>
-<a href="#bindStringObjectFunction">bind(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#blur">blur()</a>
-</li>
-<li>
-<a href="#blurFunction">blur(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#browser">$.browser</a>
-</li>
-<li>
-<a href="#changeFunction">change(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#childrenString">children(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#click">click()</a>
-</li>
-<li>
-<a href="#clickFunction">click(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#cloneBoolean">clone(<span class="arg-type tooltip">Boolean</span>)</a>
-</li>
-<li>
-<a href="#containsString">contains(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#cssString">css(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#cssMap">css(<span class="arg-type tooltip">Map</span>)</a>
-</li>
-<li>
-<a href="#cssStringStringNumber">css(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">String|Number</span>)</a>
-</li>
-<li>
-<a href="#dblclickFunction">dblclick(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#eachFunction">each(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#eachObjectFunction">$.each(<span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#empty">empty()</a>
-</li>
-<li>
-<a href="#end">end()</a>
-</li>
-<li>
-<a href="#eqNumber">eq(<span class="arg-type tooltip">Number</span>)</a>
-</li>
-<li>
-<a href="#errorFunction">error(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#extendObject">$.extend(<span class="arg-type tooltip">Object</span>)</a>
-</li>
-<li>
-<a href="#extendObjectObjectObject">$.extend(<span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Object</span>)</a>
-</li>
-<li>
-<a href="#fadeInStringNumberFunction">fadeIn(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#fadeOutStringNumberFunction">fadeOut(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#fadeToStringNumberNumberFunction">fadeTo(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Number</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#filterString">filter(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#filterFunction">filter(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#findString">find(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#focus">focus()</a>
-</li>
-<li>
-<a href="#focusFunction">focus(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#get">get()</a>
-</li>
-<li>
-<a href="#getNumber">get(<span class="arg-type tooltip">Number</span>)</a>
-</li>
-<li>
-<a href="#getStringMapFunction">$.get(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#getIfModifiedStringMapFunction">$.getIfModified(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#getJSONStringMapFunction">$.getJSON(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#getScriptStringFunction">$.getScript(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#grepArrayFunctionBoolean">$.grep(<span class="arg-type tooltip">Array</span>, <span class="arg-type tooltip">Function</span>, <span class="arg-type tooltip">Boolean</span>)</a>
-</li>
-<li>
-<a href="#gtNumber">gt(<span class="arg-type tooltip">Number</span>)</a>
-</li>
-<li>
-<a href="#height">height()</a>
-</li>
-<li>
-<a href="#heightStringNumber">height(<span class="arg-type tooltip">String|Number</span>)</a>
-</li>
-<li>
-<a href="#hide">hide()</a>
-</li>
-<li>
-<a href="#hideStringNumberFunction">hide(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#hoverFunctionFunction">hover(<span class="arg-type tooltip">Function</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#html">html()</a>
-</li>
-<li>
-<a href="#htmlString">html(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#indexElement">index(<span class="arg-type tooltip">Element</span>)</a>
-</li>
-<li>
-<a href="#insertAfterContent">insertAfter(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
-</li>
-<li>
-<a href="#insertBeforeContent">insertBefore(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
-</li>
-<li>
-<a href="#isString">is(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#keydownFunction">keydown(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#keypressFunction">keypress(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#keyupFunction">keyup(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#length">length</a>
-</li>
-<li>
-<a href="#loadFunction">load(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#loadStringObjectFunction">load(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#loadIfModifiedStringMapFunction">loadIfModified(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#ltNumber">lt(<span class="arg-type tooltip">Number</span>)</a>
-</li>
-<li>
-<a href="#mapArrayFunction">$.map(<span class="arg-type tooltip">Array</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#mergeArrayArray">$.merge(<span class="arg-type tooltip">Array</span>, <span class="arg-type tooltip">Array</span>)</a>
-</li>
-<li>
-<a href="#mousedownFunction">mousedown(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#mousemoveFunction">mousemove(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#mouseoutFunction">mouseout(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#mouseoverFunction">mouseover(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#mouseupFunction">mouseup(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#nextString">next(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#noConflict">$.noConflict()</a>
-</li>
-<li>
-<a href="#notElement">not(<span class="arg-type tooltip">Element</span>)</a>
-</li>
-<li>
-<a href="#notString">not(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#notjQuery">not(<span class="arg-type tooltip">jQuery</span>)</a>
-</li>
-<li>
-<a href="#oneStringObjectFunction">one(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#parentString">parent(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#parentsString">parents(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#postStringMapFunction">$.post(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#prependContent">prepend(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
-</li>
-<li>
-<a href="#prependToContent">prependTo(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
-</li>
-<li>
-<a href="#prevString">prev(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#readyFunction">ready(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#removeString">remove(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#removeAttrString">removeAttr(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#removeClassString">removeClass(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#resizeFunction">resize(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#scrollFunction">scroll(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#select">select()</a>
-</li>
-<li>
-<a href="#selectFunction">select(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#serialize">serialize()</a>
-</li>
-<li>
-<a href="#show">show()</a>
-</li>
-<li>
-<a href="#showStringNumberFunction">show(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#siblingsString">siblings(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#size">size()</a>
-</li>
-<li>
-<a href="#slideDownStringNumberFunction">slideDown(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#slideToggleStringNumberFunction">slideToggle(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#slideUpStringNumberFunction">slideUp(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#submit">submit()</a>
-</li>
-<li>
-<a href="#submitFunction">submit(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#text">text()</a>
-</li>
-<li>
-<a href="#textString">text(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#toggle">toggle()</a>
-</li>
-<li>
-<a href="#toggleFunctionFunction">toggle(<span class="arg-type tooltip">Function</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#toggleClassString">toggleClass(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#triggerString">trigger(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#trimString">$.trim(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#unbindStringFunction">unbind(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#unloadFunction">unload(<span class="arg-type tooltip">Function</span>)</a>
-</li>
-<li>
-<a href="#val">val()</a>
-</li>
-<li>
-<a href="#valString">val(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#width">width()</a>
-</li>
-<li>
-<a href="#widthStringNumber">width(<span class="arg-type tooltip">String|Number</span>)</a>
-</li>
-<li>
-<a href="#wrapString">wrap(<span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#wrapElement">wrap(<span class="arg-type tooltip">Element</span>)</a>
+<a href="#navAlpha">Alphabetical</a>
 </li>
 </ul>
-</div>
 <div class="navsub" id="navCat">
 <h3>Categorized</h3>
 <div class="treecontrol">
@@ -878,6 +465,419 @@
 <a href="#serialize">serialize()</a>
 </li>
 </ul>
+</li>
+</ul>
+</div>
+<div class="navsub" id="navAlpha">
+<h3>Alphabetic</h3>
+<div class="treecontrol">
+<a href="#">Collapse All</a><a href="#">Expand All</a><a href="#">Toggle All</a>
+</div>
+<ul>
+<li>
+<a href="#String">$(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#ElementArrayElement">$(<span class="arg-type tooltip">Element|Array&lt;Element&gt;</span>)</a>
+</li>
+<li>
+<a href="#Function">$(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#StringElementjQuery">$(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Element|jQuery</span>)</a>
+</li>
+<li>
+<a href="#addString">add(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#addString">add(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#addElementArrayElement">add(<span class="arg-type tooltip">Element|Array&lt;Element&gt;</span>)</a>
+</li>
+<li>
+<a href="#addClassString">addClass(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#afterContent">after(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
+</li>
+<li>
+<a href="#ajaxMap">$.ajax(<span class="arg-type tooltip">Map</span>)</a>
+</li>
+<li>
+<a href="#ajaxCompleteFunction">ajaxComplete(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#ajaxErrorFunction">ajaxError(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#ajaxSendFunction">ajaxSend(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#ajaxSetupMap">$.ajaxSetup(<span class="arg-type tooltip">Map</span>)</a>
+</li>
+<li>
+<a href="#ajaxStartFunction">ajaxStart(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#ajaxStopFunction">ajaxStop(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#ajaxSuccessFunction">ajaxSuccess(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#ajaxTimeoutNumber">$.ajaxTimeout(<span class="arg-type tooltip">Number</span>)</a>
+</li>
+<li>
+<a href="#animateHashStringNumberStringFunction">animate(<span class="arg-type tooltip">Hash</span>, <span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#appendContent">append(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
+</li>
+<li>
+<a href="#appendToContent">appendTo(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
+</li>
+<li>
+<a href="#attrString">attr(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#attrMap">attr(<span class="arg-type tooltip">Map</span>)</a>
+</li>
+<li>
+<a href="#attrStringObject">attr(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Object</span>)</a>
+</li>
+<li>
+<a href="#attrStringFunction">attr(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#beforeContent">before(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
+</li>
+<li>
+<a href="#bindStringObjectFunction">bind(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#blur">blur()</a>
+</li>
+<li>
+<a href="#blurFunction">blur(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#browser">$.browser</a>
+</li>
+<li>
+<a href="#changeFunction">change(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#childrenString">children(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#click">click()</a>
+</li>
+<li>
+<a href="#clickFunction">click(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#cloneBoolean">clone(<span class="arg-type tooltip">Boolean</span>)</a>
+</li>
+<li>
+<a href="#containsString">contains(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#cssString">css(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#cssMap">css(<span class="arg-type tooltip">Map</span>)</a>
+</li>
+<li>
+<a href="#cssStringStringNumber">css(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">String|Number</span>)</a>
+</li>
+<li>
+<a href="#dblclickFunction">dblclick(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#eachFunction">each(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#eachObjectFunction">$.each(<span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#empty">empty()</a>
+</li>
+<li>
+<a href="#end">end()</a>
+</li>
+<li>
+<a href="#eqNumber">eq(<span class="arg-type tooltip">Number</span>)</a>
+</li>
+<li>
+<a href="#errorFunction">error(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#extendObject">$.extend(<span class="arg-type tooltip">Object</span>)</a>
+</li>
+<li>
+<a href="#extendObjectObjectObject">$.extend(<span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Object</span>)</a>
+</li>
+<li>
+<a href="#fadeInStringNumberFunction">fadeIn(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#fadeOutStringNumberFunction">fadeOut(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#fadeToStringNumberNumberFunction">fadeTo(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Number</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#filterString">filter(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#filterFunction">filter(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#findString">find(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#focus">focus()</a>
+</li>
+<li>
+<a href="#focusFunction">focus(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#get">get()</a>
+</li>
+<li>
+<a href="#getNumber">get(<span class="arg-type tooltip">Number</span>)</a>
+</li>
+<li>
+<a href="#getStringMapFunction">$.get(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#getIfModifiedStringMapFunction">$.getIfModified(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#getJSONStringMapFunction">$.getJSON(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#getScriptStringFunction">$.getScript(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#grepArrayFunctionBoolean">$.grep(<span class="arg-type tooltip">Array</span>, <span class="arg-type tooltip">Function</span>, <span class="arg-type tooltip">Boolean</span>)</a>
+</li>
+<li>
+<a href="#gtNumber">gt(<span class="arg-type tooltip">Number</span>)</a>
+</li>
+<li>
+<a href="#height">height()</a>
+</li>
+<li>
+<a href="#heightStringNumber">height(<span class="arg-type tooltip">String|Number</span>)</a>
+</li>
+<li>
+<a href="#hide">hide()</a>
+</li>
+<li>
+<a href="#hideStringNumberFunction">hide(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#hoverFunctionFunction">hover(<span class="arg-type tooltip">Function</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#html">html()</a>
+</li>
+<li>
+<a href="#htmlString">html(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#indexElement">index(<span class="arg-type tooltip">Element</span>)</a>
+</li>
+<li>
+<a href="#insertAfterContent">insertAfter(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
+</li>
+<li>
+<a href="#insertBeforeContent">insertBefore(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
+</li>
+<li>
+<a href="#isString">is(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#keydownFunction">keydown(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#keypressFunction">keypress(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#keyupFunction">keyup(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#length">length</a>
+</li>
+<li>
+<a href="#loadFunction">load(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#loadStringObjectFunction">load(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#loadIfModifiedStringMapFunction">loadIfModified(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#ltNumber">lt(<span class="arg-type tooltip">Number</span>)</a>
+</li>
+<li>
+<a href="#mapArrayFunction">$.map(<span class="arg-type tooltip">Array</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#mergeArrayArray">$.merge(<span class="arg-type tooltip">Array</span>, <span class="arg-type tooltip">Array</span>)</a>
+</li>
+<li>
+<a href="#mousedownFunction">mousedown(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#mousemoveFunction">mousemove(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#mouseoutFunction">mouseout(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#mouseoverFunction">mouseover(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#mouseupFunction">mouseup(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#nextString">next(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#noConflict">$.noConflict()</a>
+</li>
+<li>
+<a href="#notElement">not(<span class="arg-type tooltip">Element</span>)</a>
+</li>
+<li>
+<a href="#notString">not(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#notjQuery">not(<span class="arg-type tooltip">jQuery</span>)</a>
+</li>
+<li>
+<a href="#oneStringObjectFunction">one(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Object</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#parentString">parent(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#parentsString">parents(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#postStringMapFunction">$.post(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Map</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#prependContent">prepend(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
+</li>
+<li>
+<a href="#prependToContent">prependTo(<span class="arg-type tooltip">&lt;Content&gt;</span>)</a>
+</li>
+<li>
+<a href="#prevString">prev(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#readyFunction">ready(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#removeString">remove(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#removeAttrString">removeAttr(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#removeClassString">removeClass(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#resizeFunction">resize(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#scrollFunction">scroll(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#select">select()</a>
+</li>
+<li>
+<a href="#selectFunction">select(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#serialize">serialize()</a>
+</li>
+<li>
+<a href="#show">show()</a>
+</li>
+<li>
+<a href="#showStringNumberFunction">show(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#siblingsString">siblings(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#size">size()</a>
+</li>
+<li>
+<a href="#slideDownStringNumberFunction">slideDown(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#slideToggleStringNumberFunction">slideToggle(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#slideUpStringNumberFunction">slideUp(<span class="arg-type tooltip">String|Number</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#submit">submit()</a>
+</li>
+<li>
+<a href="#submitFunction">submit(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#text">text()</a>
+</li>
+<li>
+<a href="#textString">text(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#toggle">toggle()</a>
+</li>
+<li>
+<a href="#toggleFunctionFunction">toggle(<span class="arg-type tooltip">Function</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#toggleClassString">toggleClass(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#triggerString">trigger(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#trimString">$.trim(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#unbindStringFunction">unbind(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#unloadFunction">unload(<span class="arg-type tooltip">Function</span>)</a>
+</li>
+<li>
+<a href="#val">val()</a>
+</li>
+<li>
+<a href="#valString">val(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#width">width()</a>
+</li>
+<li>
+<a href="#widthStringNumber">width(<span class="arg-type tooltip">String|Number</span>)</a>
+</li>
+<li>
+<a href="#wrapString">wrap(<span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#wrapElement">wrap(<span class="arg-type tooltip">Element</span>)</a>
 </li>
 </ul>
 </div>

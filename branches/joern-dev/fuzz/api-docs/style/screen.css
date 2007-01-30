@@ -18,32 +18,24 @@ html, body {
 }
 h1 {
 	margin: 0 0 0 1.5em;
+	height: 85px;
+}
+h1 a img { border: none; }
+#header {
 	color: #FFF;
 	font-size: 2em;
+	font-weight: bold;
+	margin-left: 2em;
+	left: 231px;
+	top: 30px;
 }
-h1 div {
-	height:85px;
-	top: 0;
-	padding-top:30px;
-	padding-left: 1em;
-}
-h1 span { font-size: .6em; color: white; }
-h1 a.logo {
-	background:transparent url(images/jquery_logo.gif) no-repeat scroll 0%;
-	border:0pt none !important;
-	float: left;
-	font-size:0pt;
-	height:85px;
-	margin:0pt !important;
-	text-indent:-9999em;
-	width:251px;
-}
+#header span { font-size: .6em; color: white; }
 h2 { margin: .5em; font-size: 1.6em; }
 h3 { margin: .4em 0; font-size: 1.2em;  }
 h4 { margin: .35em 0; font-size: 1em;  }
 
-h1, #content, #nav, #docs { position:absolute; }
-#header, #content { left:0 !important; right:0 !important; }
+h1, #content, #nav, #docs, #header { position:absolute; }
+#content { left:0 !important; right:0 !important; }
 #content { background:#666 !important; top:85px !important; bottom:0 !important; }
 
 #nav, #docs {
@@ -204,15 +196,12 @@ p.raw a {
 	line-height: 90%;
 	padding-bottom: .1em;
 }
-#nav .treecontrol {
-	border-bottom: 1px solid black;
-}
+#nav .treecontrol { margin-bottom: 5px; }
 #nav .treecontrol a {
 	padding: 0 5px;
 	margin: 5px;
 	text-decoration: none;
-	border: 1px solid black;
-	border-bottom: 1px dotted white;
+	border: 1px dotted black;
 }
 
 .treeview li { 
@@ -237,11 +226,11 @@ p.raw a {
 .javascript .global   { color: blue; }
 .javascript .numbers  { color: red; }
 
-.html .comm { color: green; }
-.html .tag { color: blue; }
-.html .string { color: teal; }
-.html .attribute { color: maroon; }
-.html .iehack, .javascript .iehack { display: none }
+.html .tag    { color: navy; font-weight: bold; }
+.html .aname  { color: purple; }
+.html .avalue { color: fuchsia; }
+.html .mlcom  { color: green; }
+.html .entity { color: teal; }
 
 code {
 	font-size: 108%;

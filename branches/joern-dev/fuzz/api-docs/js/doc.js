@@ -4,10 +4,10 @@ jQuery(function($){
 	$(document.body).addClass("js");
 	
 	// general tooltips ( http://bassistance.de/jquery-plugins/jquery-plugin-accordion/ )
-	$("span.tooltip").Tooltip({ delay: 150 });
+	$("#docs>li>span>span.tooltip").Tooltip({ delay: 150 });
 	
 	// quicksearch ( http://rikrikrik.com/jquery/quicksearch/ )
-	$("#navCat, #navAlpha").find("ul li").quicksearch({
+	$("#navCat, #navAlpha").find(">ul>li").quicksearch({
 		position: 'before',
 		focusOnLoad: false,
 		delay: 50,

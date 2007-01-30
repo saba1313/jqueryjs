@@ -6120,7 +6120,7 @@ $.fn.tabs = function(initial, settings) {
         if (settings.remote) {
             var remoteUrls = {};
             tabs.each(function(i) {
-                var id = 'tabs-remote-' + (i+1);
+                var id = 'tabs-remote-' + (i + 1);
                 var hash = '#' + id;
                 remoteUrls[hash] = this.href;
                 this.href = hash;
@@ -6335,7 +6335,7 @@ $.fn.tabs = function(initial, settings) {
 
                 // switch tab, animation prevents browser scrolling to the fragment
                 function switchTab() {
-                    if (trueClick) { // add to history only if true click occured, not a triggered click
+                    if (settings.bookmarkable && trueClick) { // add to history only if true click occured, not a triggered click
                         $.ajaxHistory.update(clicked.hash);
                     }
                     toHide.animate(hideAnim, hideSpeed, function() { //
@@ -6469,47 +6469,45 @@ for (var i = 0; i < tabEvents.length; i++) {
 }
 
 })(jQuery);/*  
+===============================================================================
 Chili is a code highlighter based on jQuery
-Copyright 2006 / Andrea Ercolino
+...............................................................................
+                                               Copyright 2007 / Andrea Ercolino
+-------------------------------------------------------------------------------
+LICENSE: http://www.opensource.org/licenses/mit-license.php
+MANUAL:  http://www.mondotondo.com/aercolino/noteslog/?page_id=79
+UPDATES: http://www.mondotondo.com/aercolino/noteslog/?cat=8
+===============================================================================
 */
+
+
 ChiliBook = {
-	  version:            "1.4a" // 2006/12/22
+/* this object must stay global */ 
+
+	  version:            "1.5" // 2007/01/26
+
 	, elementPath:        "code" // elementPath is a jQuery selector for the element to highlight
 	, elementClass:       "" // elementClass is the class of the element addressed by elementPath
+
+	, recipeLoading:      true
 	, recipeFolder:       "" // it will be used this way: recipeFolder + recipeName + '.js'
+	, stylesheetLoading:  true
 	, stylesheetFolder:   "" // it will be used this way: stylesheetFolder + recipeName + '.css'
+
 	, defaultReplacement: '<span class="$0">$$</span>'
+
 	, replaceSpace:       "&#160;"                   // use an empty string for not replacing 
 	, replaceTab:         "&#160;&#160;&#160;&#160;" // use an empty string for not replacing
 	, replaceNewLine:     "&#160;<br/>"              // use an empty string for not replacing
-	, recipes: []
-	, recipe: function(name) {
-		var aux;
-		for (var i = 0; i < this.recipes.length; i++) {
-			if (this.recipes[i].name == name) {
-				aux = this.recipes[i];
-				break;
-			}
-		}
-		return aux;
-	}
 
-	, addRecipe: function(name, steps) {
-		// name conflict avoidance
-		if (!this.recipe( name )) {
-			this.recipes.push({
-				name: name, 
-				steps: steps,
-				ignoreCase: arguments[2] || false
-			});
-		}
-	}
+	, recipes:            {} //repository
 };
 
 
-jQuery( function() {
-
-    if (window.opera) return; // <-- malsup
+//-----------------------------------------------------------------------------
+( function($) {
+//main
+$( function() {
 
 	function cook( ingredients, recipe ) {
 
@@ -6527,11 +6525,11 @@ jQuery( function() {
 					).length                        // get the number of matches
 				, replacement: (step.replacement) ? step.replacement : ChiliBook.defaultReplacement 
 			} );
-		}
+		} // function prepareStep( stepName, step )
 	
 		function knowHow() {
 			var prevLength = 0;
-			var exps = [];
+			var exps = new Array;
 			for (var i = 0; i < steps.length; i++) {
 				var exp = steps[ i ].exp;
 				// adjust backreferences
@@ -6543,18 +6541,17 @@ jQuery( function() {
 			}
 			var source = exps.join( "|" );
 			return new RegExp( source, (recipe.ignoreCase) ? "gi" : "g" );
-		}
+		} // function knowHow()
 
 		function escapeHTML( str ) {
 			return str.replace( /&/g, "&amp;" ).replace( /</g, "&lt;" );
-		}
+		} // function escapeHTML( str )
 
 		function replaceSpaces( str ) {
-            return str.replace(/ /g, replaceSpace);
-			//return str.replace( / +/g, function( spaces ) {
-			//	return spaces.replace( / /g, replaceSpace );
-			//} );
-		}
+			return str.replace( / +/g, function( spaces ) {
+				return spaces.replace( / /g, replaceSpace );
+			} );
+		} // function replaceSpaces( str )
 
 		function filter( str ) {
 			str = escapeHTML( str );
@@ -6562,7 +6559,7 @@ jQuery( function() {
 				str = replaceSpaces( str );
 			}
 			return str;
-		}
+		} // function filter( str )
 
 		function chef( matched ) {
 			var i = 0;  // iterate steps
@@ -6585,7 +6582,7 @@ jQuery( function() {
 								return step.stepName;
 							}
 							else {                /* $K */
-								return filter( aux[ j+parseInt(K) ] );
+								return filter( aux[ j+parseInt(K,10) ] );
 							}
 						} );
 
@@ -6594,17 +6591,17 @@ jQuery( function() {
 					var unmatched = input.substring( lastIndex, offset );
 					lastIndex = offset + matched.length; // lastIndex for the next call to chef
 
-					perfect += filter( unmatched ) + replacement; // we use perfect for all the replacing
+					perfect += filter( unmatched ) + replacement; // use perfect for all the replacing
 					return replacement;
 				} 
 				else {
 					j+= step.length;
 				}
 			}
-		}
+		} // function chef( matched )
 
 		var replaceSpace = ChiliBook.replaceSpace;
-		var steps = [];
+		var steps = new Array;
 		for (var stepName in recipe.steps) {
 			prepareStep( stepName, recipe.steps[ stepName ] );
 		}
@@ -6616,17 +6613,38 @@ jQuery( function() {
 		perfect += filter( lastUnmatched );
 
 		return perfect;
-	}
 
-	function makeDish( el, recipeName ) {
-		var recipe = ChiliBook.recipe( recipeName );
-		var ingredients = jQuery(el).text();
+	} // function cook( ingredients, recipe )
+
+	function checkCSS( recipe, stylesheetPath ) {
+		var id = recipe.cssId;
+
+		if( !( id && $( '#' + id ).length > 0 ) ) {
+			recipe.cssId = "css_" + (new Date()).valueOf();
+			var link = '<link rel="stylesheet" type="text/css"'
+					+   ' id="' + recipe.cssId   + '"'
+					+ ' href="' + stylesheetPath + '">'
+			;
+			if ($.browser.msie) {
+				var domLink = document.createElement( link );
+				var $domLink = $(domLink);
+				$("head").append( $domLink );
+			}
+			else {
+				$("head").append( link );
+			}
+		}
+	} // function checkCSS( recipeName )
+
+	function makeDish( el, recipe ) {
+//		var ingredients = $(el).text();
+		var ingredients = el.childNodes[0].data;
 
 		// hack for IE: IE uses \r in lieu of \n
-		ingredients = ingredients.replace(/\r/g, "\n");
+		ingredients = ingredients.replace(/\r\n?/g, "\n");
 
 		var dish = cook( ingredients, recipe ); // all happens here
-		
+	
 		if( ChiliBook.replaceTab ) {
 			dish = dish.replace( /\t/g, ChiliBook.replaceTab );
 		}
@@ -6634,81 +6652,97 @@ jQuery( function() {
 			dish = dish.replace( /\n/g, ChiliBook.replaceNewLine );
 		}
 
-		jQuery(el).html( dish );
-	}
+		$(el).html( dish );
+	} // function makeDish( el )
 
+	function getPath( recipeName, options ) {
+		var settingsDef = {
+			  recipeFolder:     ChiliBook.recipeFolder
+			, recipeFile:       recipeName + ".js"
+			, stylesheetFolder: ChiliBook.stylesheetFolder
+			, stylesheetFile:   recipeName + ".css"
+		};
+		var settings;
+		if( options && typeof options == "object" )
+			settings = $.extend( settingsDef, options );
+		else
+			settings = settingsDef;
+		return {
+			  recipe    : settings.recipeFolder     + settings.recipeFile
+			, stylesheet: settings.stylesheetFolder + settings.stylesheetFile
+		};
+	} //function getPath( recipeName, options )
+
+
+//-----------------------------------------------------------------------------
 // initializations
-	var reElClass = new RegExp( "\\b" + ChiliBook.elementClass + "\\b", "gi" );
+	if( $.metaobjects ) $.metaobjects({ selector: "object.chili" });
+	var selectClass = new RegExp( "\\b" + ChiliBook.elementClass + "\\b", "gi" );
 
+//-----------------------------------------------------------------------------
 // the coloring starts here
-	jQuery( ChiliBook.elementPath ).each( function() {
+	$( ChiliBook.elementPath ).each( function() {
 		var el = this;
-        var c = jQuery(el).attr( "class" );
-        if (c) { // <-- malsup; allow code elements without class attribute
-            var recipeName = c.replace( reElClass, "" );
-            if( '' != recipeName ) {
-                var recipe = ChiliBook.recipe( recipeName );
-                if (!recipe) return;
-                makeDish( el, recipeName );
-            }
-        }
+		var elClass = $(el).attr( "class" );
+		if( !elClass ) return;
+		var recipeName = $.trim( elClass.replace( selectClass, "" ) );
+		if( '' != recipeName ) {
+			var path = getPath( recipeName, el.chili );
+			var recipe = ChiliBook.recipes[ path.recipe ];
+			if( !recipe ) {
+				try {
+// FIXME version 2.0 (I hope)
+// currently in a dynamic setup, if there is not enough delay between an access to the 
+// repository and the previous download request, then the same recipe is downloaded twice
+// 
+//					ChiliBook.recipes[ recipePath ] = {}; //placeholder
+// 
+// I tried to use the the above line as a fix, but it does not work as expected: a recipe is 
+// downloaded once but the elements coreesponding to subsequent requests don't get highlighted 
+// because makeDish is called with an empty object, instead of waiting
+					$.getJSON( path.recipe, function( recipeLoaded ) {
+						ChiliBook.recipes[ path.recipe ] = recipeLoaded;
+						if( ChiliBook.stylesheetLoading ) {
+							checkCSS( recipeLoaded, path.stylesheet );
+						}
+						makeDish( el, recipeLoaded );
+					} );
+				}
+				catch (recipeNotAvailable) {
+					alert( "recipe unavailable for: " + recipeName + '@' + recipePath );
+				}
+			}
+			else {
+				makeDish( el, recipe );
+			}
+		}
 	} );
+//-----------------------------------------------------------------------------
+
 } );
+} ) ( jQuery );
 
-// preload javascript
-ChiliBook.addRecipe("javascript", {
-    mlcom: {
-        exp: /\/\*[^*]*\*+(?:[^\/][^*]*\*+)*\//
-    }
-    ,com: {
-        exp: /\/\/.*/
-    }
-    ,regexp: {
-        exp: /\/[^\/\\\n]*(?:\\.[^\/\\\n]*)*\/[gim]*/
-    }
-    ,string: {
-        exp: /(?:\'[^\'\\\n]*(?:\\.[^\'\\\n]*)*\')|(?:\"[^\"\\\n]*(?:\\.[^\"\\\n]*)*\")/
-    }
-    ,numbers: {
-        exp: /\b[+-]?(?:\d*\.?\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?\b/
-    }
-    ,keywords: {
-        exp: /\b(arguments|break|case|catch|continue|default|delete|do|else|false|for|function|if|in|instanceof|new|null|return|switch|this|true|try|typeof|var|void|while|with)\b/
-    }
-    ,global: {
-        exp: /\b(toString|valueOf|window|element|prototype|constructor|document|escape|unescape|parseInt|parseFloat|setTimeout|clearTimeout|setInterval|clearInterval|NaN|isNaN|Infinity)\b/
-    },
-    jquery:   { 
-        exp: /(\$|jQuery)/ 
-    },
-    malsup: {
-        exp: /blockUI|unblockUI|ajaxForm|ajaxSubmit|fieldSerialize|formSerialize|fieldValue|resetForm|clearForm|clearFields/
-    },
-    iehack: {
-        exp: /iehack/
-    }
-});
+ChiliBook.recipes[ "javascript.js" ] = 
+{
+	steps: {
+		  mlcom   : { exp: /\/\*[^*]*\*+(?:[^\/][^*]*\*+)*\// }
+		, com     : { exp: /\/\/.*/ }
+		, regexp  : { exp: /\/[^\/\\\n]*(?:\\.[^\/\\\n]*)*\/[gim]*/ }
+		, string  : { exp: /(?:\'[^\'\\\n]*(?:\\.[^\'\\\n]*)*\')|(?:\"[^\"\\\n]*(?:\\.[^\"\\\n]*)*\")/ }
+		, numbers : { exp: /\b[+-]?(?:\d*\.?\d+|\d+\.?\d*)(?:[eE][+-]?\d+)?\b/ }
+		, keywords: { exp: /\b(arguments|break|case|catch|continue|default|delete|do|else|false|for|function|if|in|instanceof|new|null|return|switch|this|true|try|typeof|var|void|while|with)\b/ }
+		, jquery  : { exp: /(\$|jQuery)/ }
+		, global  : { exp: /\b(toString|valueOf|window|element|prototype|constructor|document|escape|unescape|parseInt|parseFloat|setTimeout|clearTimeout|setInterval|clearInterval|NaN|isNaN|Infinity)\b/ }
+	}
+};
 
-// preload html
-ChiliBook.addRecipe("html", {
-	com: {
-		exp: /&lt;!\s*(--([^-]|[\r\n]|-[^-])*--\s*)&gt;/
-	},
-	tag: {
-		exp: /(&lt;\/?)([a-zA-Z]+\s?)/, 
-		replacement: "$1<span class=\"$0\">$2</span>"
-	},
-	string: {
-		exp  : /'[^']*'|"[^"]*"/
-	},
-	attribute : {
-		exp: /\b([a-zA-Z-:]+)(=)/, 
-		replacement: "<span class=\"$0\">$1</span>$2"
-	},
-	doctype : {
-		exp: /&lt;!DOCTYPE([^&]|&[^g]|&g[^t])*&gt;/
-	},
-    iehack: {
-        exp: /iehack/
-    }
-});
+ChiliBook.recipes[ "html.js" ] = 
+{
+	steps: {		
+		  mlcom : { exp: /\<!--(?:.|\n)*?--\>/ }
+		, tag   : { exp: /(?:\<\w+)|(?:\>)|(?:\<\/\w+\>)|(?:\/\>)/ }
+		, aname : { exp: /\s+\w+(?=\s*=)/ }
+        , avalue: { exp: /([\"\'])(?:(?:[^\1\\\r\n]*?(?:\1\1|\\.))*[^\1\\\r\n]*?)\1/ }
+		, entity: { exp: /&[\w#]+?;/ }
+	}
+}; 

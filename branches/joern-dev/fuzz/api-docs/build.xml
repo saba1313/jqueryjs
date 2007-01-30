@@ -22,7 +22,7 @@
             <fileset dir="${SRC_DIR}" includes="jquery.treeview.js" />
         	<fileset dir="${SRC_DIR}" includes="jquery.quicksearch.js" />
         	<fileset dir="${SRC_DIR}" includes="jquery.tabs.js" />
-        	<fileset dir="${SRC_DIR}" includes="chili.mod.js" />
+        	<fileset dir="${SRC_DIR}" includes="chili-1.5.js" />
         </concat>
         <echo message="${BROWSER} built." />
     </target>

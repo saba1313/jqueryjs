@@ -72,7 +72,7 @@
 				<xsl:for-each select="method[not(@private)]">
 					<xsl:sort select="translate(@name,'$.','')"/>
 					<xsl:sort select="count(params)"/>
-					<xsl:call-template name="printMethod" />
+					<xsl:call-template name="printMethod"/>
 				</xsl:for-each>
 				</ul>
 				<xsl:if test="./cat">
@@ -90,26 +90,36 @@
 		<link rel="stylesheet" href="style/screen.css" media="screen,projector" />
 		<link rel="stylesheet" href="style/print.css" media="print" />
 		<!-- 
-		<script type="text/javascript" src="js/jquery.pack.js"></script>
-		<script type="text/javascript" src="js/jquery.tooltip.pack.js"></script>
+		<script type="text/javascript" src="js/jquery.js"></script>
+		<script type="text/javascript" src="js/jquery.tooltip.js"></script>
 		<script type="text/javascript" src="js/jquery.treeview.js"></script>
 		<script type="text/javascript" src="js/jquery.tabs.js"></script>
 		<script type="text/javascript" src="js/jquery.highlight.js"></script>
 		<script type="text/javascript" src="js/jquery.quicksearch.js"></script>
-		<script type="text/javascript" src="js/chili.mod.js"></script>
+		<script type="text/javascript" src="js/chili-1.5.js"></script>
 		 -->
 		<script type="text/javascript" src="js/browser.pack.js"></script>
 		<script type="text/javascript" src="js/doc.js"></script>
 	</head>
 	<body>
-		<h1><a class="logo" href="http://jquery.com">jQuery</a><div><xsl:value-of select="/docs/@version" /> API Browser <span>(<a href="jquery-api-browser.zip">Download</a>)</span></div></h1>
+		<h1><a href="http://jquery.com"><img src="style/images/jquery_logo.gif" alt="jQuery Logo" /></a></h1>
+		<div id="header"><xsl:value-of select="/docs/@version" /> API Browser <span>(<a href="jquery-api-browser.zip">Download</a>)</span></div>
 		<div id="content">
 			<div id="nav">
 				<h2>Navigation</h2>
 				<ul class="tabs-nav">
-					<li><a href="#navAlpha">Alphabetical</a></li>
 					<li><a href="#navCat">Category</a></li>
+					<li><a href="#navAlpha">Alphabetical</a></li>
 				</ul>
+				<div class="navsub" id="navCat">
+					<h3>Categorized</h3>
+					<div class="treecontrol">
+						<a href="#">Collapse All</a>
+						<a href="#">Expand All</a>
+						<a href="#">Toggle All</a>
+					</div>
+					<xsl:call-template name="cats" />
+				</div>
 				<div class="navsub" id="navAlpha">
 					<h3>Alphabetic</h3>
 					<div class="treecontrol">
@@ -122,32 +132,11 @@
 						<xsl:for-each select="//method[not(@private)]">
 							<xsl:variable name="namePrev" select="substring(translate(@name,'$.', ''), 1, 1)" />
 							<xsl:variable name="name" select="substring(translate(@name,'$.', ''), 1, 1)" />
-								<!--
-							<xsl:if test="$current != $name">
-								Irgendwie muss es möglich sein, auf die "current node list" des for-each zuzugreifen
-								mit preceding-sibling wird die sortierreihenfolge der schleife nicht berücksichtigt, das nützt
-								daher nix
-								
-								so oder so muss die schleife über eine liste des alphabets erfolgen, und nur die für
-								buchstaben die passenden methoden ausgeben, die damit anfangen
-								kaka
-								<xsl:value-of select="preceding-sibling::method/@name" />
-							</xsl:if>
-								 -->
 							<xsl:sort select="translate(@name,'$.','')"/>
 							<xsl:sort select="count(params)"/>
 							<xsl:call-template name="printMethod" />
 						</xsl:for-each>
 					</ul>
-				</div>
-				<div class="navsub" id="navCat">
-					<h3>Categorized</h3>
-					<div class="treecontrol">
-						<a href="#">Collapse All</a>
-						<a href="#">Expand All</a>
-						<a href="#">Toggle All</a>
-					</div>
-					<xsl:call-template name="cats" />
 				</div>
 			</div>
 			<ul id="docs">

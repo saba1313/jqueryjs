@@ -17,9 +17,9 @@
  * @desc Validates a form on submit. Rules are read from metadata.
  *
  * @example $("input.blur").blur(function() {
- *   $(this).validate();
+ *   $(this).validate({ focusInvalid: false; });
  * });
- * @desc Validates all input elements on blur event (element looses focus).
+ * @desc Validates all input elements on blur event (element looses focus). Deactivates focus of invalid elements.
  *
  * @example $("myform").validate({
  *   submitHandler: function(form) {
@@ -39,25 +39,23 @@
  *   }
  * });
  * @desc Validate a form on submit. Rules are specified for three element,
- * and a message is customized for the "password" element.
+ * and a message is customized for the "password" element. Inline rules are ignored!
  *
  * @example $("#myform").validate({
  *   errorClass: "invalid",
- *   errorContainer: $("ul#messageBox"),
+ *   errorContainer: $("#messageBox"),
  *   errorWrapper: "li",
  *   debug: true
  * });
- * @desc Validates a form on submit.
- *
- * The class used to search, create and display error labels is changed "invalid".
- * This is also added to invalid elements.
+ * @desc Validates a form on submit. The class used to search, create and display
+ * error labels is changed to "invalid". This is also added to invalid elements.
  *
  * All error labels are displayed inside an unordered list with the ID "messageBox", as
  * specified by the jQuery object passed as errorContainer option. All error elements
  * are wrapped inside an li element, to create a list of messages.
  *
- * To ease the setup of the form, debug option is set to true, prevent a submit
- * of the form no matter if it is valid or not.
+ * To ease the setup of the form, debug option is set to true, preventing a submit
+ * of the form no matter of being valid or not.
  * @before <ul id="messageBox">
  *   <li><label for="firstname" class="invalid">Please specify your firstname!</label></li>
  * </ul>
@@ -75,7 +73,7 @@
  * </form>
  *
  *
- * @param Object options
+ * @param Map options Optional settings to configure validation
  * @option String errorClass Use this class to look for existing error labels and add it to
  *		invalid elements, default is "error"
  * @option jQuery errorContainer Search and append error labels inside or to this container, no default
@@ -117,7 +115,6 @@ $.fn.validate = function(options) {
 		});
 		// validate the form on submit
 		this.submit(function(event) {
-			console.debug("submit");
 			if(validatorInstance.settings.debug) {
 				// prevent form submit to be able to see console output
 				event.preventDefault();
@@ -258,7 +255,7 @@ v.prototype = {
 			try {
 				var method = v.methods[rule.name];
 				if( !method)
-					throw "No method found with name " + rule.name;
+					throw "validateElement() error: No method found with name " + rule.name;
 				if( !method(value, element, rule.parameters) ) {
 					// add the error to the array of errors for the element
 					var id = ( /radio|checkbox/i.test(element.type) ) ? element.name : element.id;
@@ -436,22 +433,23 @@ var getLength = function(value, element) {
  * it refers to input elements of type text, password and file and textareas.
  *
  * Note: When you pass strings as paramters to your methods, explicitly convert them
- * to strings before using them. Strings read from metadata are typeof object, whic
+ * to strings before using them. Strings read from metadata are of type "object", which
  * can cause weird problems. See the equalTo method for an example.
  *
  * @example $.validator.methods.myMethod = function(value, element, parameters, validate) {
- * 	 var isInvalid = ...;
- *   return isInvalid;
+ * 	 var isValid = ...;
+ *   return isValid;
  * }
- * @desc If you only need the value parameter, you can define just function(value) {}
+ * @desc Defines a new method called "myMethod".
  *
- * The parameters are:
- * @param value
- *    the value of the element, eg. the text of a text input
- * @param element
- *    the input element itself, to check for content of attributes other then value
- * @param parameters
- *    an array of parameters, contains all parameters of a rule if specfied
+ * @example $.validator.methods.containsFoobar = function(value) {
+ *   return value == "foobar";
+ * }
+ * @desc If you only need the value parameter, you don't have to specify the other arguments.
+ *
+ * @param String value the value of the element, eg. the text of a text input
+ * @param Element element the input element itself, to check for content of attributes other then value
+ * @param Array<String> parameters an array of parameters, contains all parameters of a rule if specfied
  *    eg. for length:2:5 parameters[0] is 2 and parameters[1] is 5
  *
  * @name $.validator.methods
@@ -708,8 +706,7 @@ for(var key in messages) {
  * inside their own method. If you need lots of slightly different
  * expressions, try to extract a common parameter.
  *
- * Check <a href="http://regexlib.com/DisplayPatterns.aspx">RegExLib.com</a> for a library
- * of regular expressions.
+ * A library of regular expressions: http://regexlib.com/DisplayPatterns.aspx
  *
  * @example $.validator.addMethod("domain", function(value) {
  *   return /^http://mycorporatedomain.com/.test(value);

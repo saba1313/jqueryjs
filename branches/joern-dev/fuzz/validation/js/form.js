@@ -1,12 +1,12 @@
 /*
  * jQuery form plugin
- * @requires jQuery v1.0.2
+ * @requires jQuery v1.0.3
  *
  * Dual licensed under the MIT and GPL licenses:
  *   http://www.opensource.org/licenses/mit-license.php
  *   http://www.gnu.org/licenses/gpl.html
  *
- * Revision: $Id: form.js 938 2007-01-09 01:57:36Z malsup $
+ * Revision: $Id: form.js 1233 2007-01-31 15:20:12Z joern $
  */
 
 /**
@@ -301,7 +301,7 @@ jQuery.fn.ajaxForm = function(options) {
                     $form.clk_x = ev.offsetX;
                     $form.clk_y = ev.offsetY;
                 } else if (typeof jQuery.fn.offset == 'function') { // try to use dimensions plugin
-                    var offset = $(this).offset();
+                    var offset = jQuery(this).offset();
                     $form.clk_x = ev.pageX - offset.left;
                     $form.clk_y = ev.pageY - offset.top;
                 } else {
@@ -357,8 +357,8 @@ jQuery.fn.formToArray = function(semantic) {
     var form = this[0];
     var els = semantic ? form.getElementsByTagName('*') : form.elements;
     if (!els) return a;
-	for(var i=0, max=els.length; i < max; i++) {
-		var el = els[i];
+    for(var i=0, max=els.length; i < max; i++) {
+        var el = els[i];
         var n = el.name;
         if (!n) continue;
 
@@ -376,7 +376,7 @@ jQuery.fn.formToArray = function(semantic) {
         }
         else 
             a.push({name: n, value: v});
-	}
+    }
 
     if (!semantic && form.clk) {
         // input type=='image' are not found in elements array! handle them here
@@ -589,9 +589,9 @@ jQuery.fieldValue = function(el, successful) {
  */
 jQuery.fn.clearForm = function() {
     return this.each(function() {
-        jQuery('input,select,textarea', this).clearInputs();
+        jQuery('input,select,textarea', this).clearFields();
     });
-}
+};
 
 /**
  * Clears the selected form elements.  Takes the following actions on the matched elements:
@@ -601,15 +601,15 @@ jQuery.fn.clearForm = function() {
  *  - inputs of type submit, button, reset, and hidden will *not* be effected
  *  - button elements will *not* be effected
  *
- * @example $('.myInputs').clearInputs();
+ * @example $('.myInputs').clearFields();
  * @desc Clears all inputs with class myInputs
  *
- * @name clearInputs
+ * @name clearFields
  * @type jQuery
  * @cat Plugins/Form
  * @see clearForm
  */
-jQuery.fn.clearInputs = function() {
+jQuery.fn.clearFields = jQuery.fn.clearInputs = function() {
     return this.each(function() {
         var t = this.type, tag = this.tagName.toLowerCase();
         if (t == 'text' || t == 'password' || tag == 'textarea')
@@ -619,7 +619,7 @@ jQuery.fn.clearInputs = function() {
         else if (tag == 'select')
             this.selectedIndex = -1;
     });
-}
+};
 
 
 /**
@@ -640,4 +640,4 @@ jQuery.fn.resetForm = function() {
         if (typeof this.reset == 'function' || (typeof this.reset == 'object' && !this.reset.nodeType)) 
             this.reset();
     });
-}
+};

@@ -104,34 +104,35 @@
 (function($) { 
 
 $.fn.validate = function(options) {
-	var v = new $.validator(options);
+	var validatorInstance = new $.validator(options);
 	if( this.is('form') ) {
 		// select all valid inputs inside the form (no submit or reset buttons)
-		v.elements = $(":input:not(:submit):not(:reset)", this);
+		validatorInstance.elements = $(":input:not(:submit):not(:reset)", this);
 
-		v.currentForm = this[0];
+		validatorInstance.currentForm = this[0];
 
 		// listen for focus events to save reference to last focused element
-		v.elements.focus(function() {
-			v.lastActive = this;
+		validatorInstance.elements.focus(function() {
+			validatorInstance.lastActive = this;
 		});
 		// validate the form on submit
 		this.submit(function(event) {
-			if(v.settings.debug) {
+			console.debug("submit");
+			if(validatorInstance.settings.debug) {
 				// prevent form submit to be able to see console output
 				event.preventDefault();
 			}
-			return v.validateForm();
+			return validatorInstance.validateForm();
 		});
 	} else {
 		// validate all elements immediately
 		this.each(function() {
-			v.hideElementErrors(this);
-			v.validateElement(this);
+			validatorInstance.hideElementErrors(this);
+			validatorInstance.validateElement(this);
 		});
-		v.showErrors();
+		validatorInstance.showErrors();
 	}
-	return v;
+	return validatorInstance;
 };
 
 // constructor for validate object
@@ -140,7 +141,7 @@ var v = $.validator = function(options) {
 	this.errorList = {}
 
 	// override defaults with client settings
-	this.settings = $.extend($.extend({}, $.validator.defaults), options || {});
+	this.settings = $.extend({}, v.defaults, options);
 };
 
 /**
@@ -237,9 +238,9 @@ v.prototype = {
 		}
 
 		// validate elements
-		var v = this;
+		var instance = this;
 		this.elements.each(function() {
-			v.validateElement(this);
+			instance.validateElement(this);
 		});
 
 		// check if the form is valid and return

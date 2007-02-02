@@ -264,7 +264,7 @@ v.prototype = {
 						console.debug(element);
 					}
 					var list = this.errorList[id] || (this.errorList[id] = []);
-					list[list.length] = method.message;
+					list[list.length] = this.formatMessage(method, rule);
 				}
 			} catch(e) {
 				if(this.settings.debug) {
@@ -275,6 +275,10 @@ v.prototype = {
 			}
 		}
 	},
+	
+	formatMessage: function(method, rule) {
+		return method.message.replace("{0}", rule.parameters[0] || "");
+	}
 
 	/*
 	 * Searches for all error labels associated
@@ -299,19 +303,19 @@ v.prototype = {
 		for( var i in this.errorList ) {
 			count++;
 		}
-		// if form has no errors
-		if(count == 0) {
-			// delgate submission if possible
+		// if form has errors
+		if(count) {
+			// form has errors, display them and do not submit
+			this.showErrors();
+			return false;
+		} else {
+			// delgate submission if possible, if it has no errors
 			if(this.settings.submitHandler) {
 				// delegate submission to handler
 				this.settings.submitHandler(this.currentForm);
 				return false;
 			}
 			return true;
-		} else {
-			// form has errors, display them and do not submit
-			this.showErrors();
-			return false;
 		}
 	},
 

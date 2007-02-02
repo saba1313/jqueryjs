@@ -276,9 +276,12 @@ v.prototype = {
 		}
 	},
 	
+	/*
+	 * Replace placeholders in messages, if any.
+	 */
 	formatMessage: function(method, rule) {
-		return method.message.replace("{0}", rule.parameters[0] || "");
-	}
+		return method.message.replace("{n}", rule.parameters || "");
+	},
 
 	/*
 	 * Searches for all error labels associated
@@ -684,8 +687,8 @@ v.methods = {
  */
 var messages = {
 	required: "This field is required.",
-	max: "Please enter a value no longer then {0} characters.",
-	min: "Please enter a value of at least {0} characters.",
+	max: "Please enter a value no longer then {n} characters.",
+	min: "Please enter a value of at least {n} characters.",
 	email: "Please enter a valid email address.",
 	url: "Please enter a valid URL.",
 	date: "Please enter a valid date.",

@@ -13,6 +13,11 @@
  * of elements immediately. 
  * Shows and hides error labels accordingly.
  *
+ * Markup requirements: All form elements to validate need proper IDs assigned.
+ * Can you provide error messages via labels (set for attribute to ID of associated
+ * element), in the title attribute of the element, via the messages option, or just
+ * use the default messages.
+ *
  * @example $("#myform").validate();
  * @desc Validates a form on submit. Rules are read from metadata.
  *
@@ -60,16 +65,20 @@
  *   <li><label for="firstname" class="invalid">Please specify your firstname!</label></li>
  * </ul>
  * <form id="myform" action="/login" method="post">
- *   <label for="firstname">Firstname</label><input id="firstname" name="fname" class="{required:true}" />
- *   <label for="lastname">Lastname</label><input id="lastname" name="lname" title="Your lastname, please!" class="{required:true}" />
+ *   <label for="firstname">Firstname</label>
+ *   <input id="firstname" name="fname" class="{required:true}" />
+ *   <label for="lastname">Lastname</label>
+ *   <input id="lastname" name="lname" title="Your lastname, please!" class="{required:true}" />
  * </form>
  * @result <ul id="messageBox">
  *   <li><label for="firstname" class="invalid">Please specify your firstname!</label></li>
  *   <li><label for="lastname" class="invalid">Your lastname, please!</label></li>
  * </ul>
  * <form id="myform" action="/login" method="post">
- *   <label for="firstname">Firstname</label><input id="firstname" name="fname" class="{required:true}" />
- *   <label for="lastname">Lastname</label><input id="lastname" name="lname" title="Your lastname, please!" class="{required:true}" />
+ *   <label for="firstname">Firstname</label>
+ *   <input id="firstname" name="fname" class="{required:true}" />
+ *   <label for="lastname">Lastname</label>
+ *   <input id="lastname" name="lname" title="Your lastname, please!" class="{required:true}" />
  * </form>
  *
  *
@@ -83,13 +92,13 @@
  * @option Boolean debug If true, the form is not submitted and certain errors are display on the console (requires Firebug or Firebug lite)
  * @option Boolean focusInvalid Focus the last active or first invalid element. Default is true.
  * @option Function submitHandler Callback for handling the actual
- *		submit when the form is valid, default just submits the form
- * @option Object messages Key/value pairs defining custom messages.
+ *		submit when the form is valid. Gets the form as the only argmument. Default just submits the form.
+ * @option Map messages Key/value pairs defining custom messages.
  *		Key is the ID or name (for radio/checkbox inputs) of an element,
  *		value the message to display for that element.
  *		Can be specified for one or more elements. If not present,
  *		the title attribute or the default message for that rule is used.
- * @option Object rules Key/value pairs defining custom rules.
+ * @option Map rules Key/value pairs defining custom rules.
  *		Key is the ID or name (for radio/checkbox inputs) of an element,
  *		value is an object consiting of rule/parameter pairs, eg. {required: true, min: 3}
  *		If not specified, rules are read from metadata via metadata plugin.
@@ -463,7 +472,7 @@ var getLength = function(value, element) {
  * @param Object paramater Some parameter, like a number for min/max rules
  *
  * @name $.validator.methods
- * @type Object<String, Function<Boolean>>
+ * @type Object<String, Function(String,Element,Object):Boolean>
  * @cat Plugins/Validate/Methods
  */
 v.methods = {

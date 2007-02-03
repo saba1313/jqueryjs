@@ -80,7 +80,7 @@
  * @option jQuery errorLabelContainer Search and append error labels inside or to this container, no default;
  *		If specified, this container is used instead of the errorContainer, but both are shown and hidden when necessary
  * @option String errorWrapper Wrap error labels with the specified tagName, eg "li", no default
- * @option Boolean debug If true, the form is not submitted and certain errors are display on the console
+ * @option Boolean debug If true, the form is not submitted and certain errors are display on the console (requires Firebug or Firebug lite)
  * @option Boolean focusInvalid Focus the last active or first invalid element. Default is true.
  * @option Function submitHandler Callback for handling the actual
  *		submit when the form is valid, default just submits the form
@@ -229,7 +229,7 @@ v.prototype = {
 
 		// hide all error labels for the form
 		var labels = $("label." + this.settings.errorClass, this.context).hide();
-		this.elements.removeClass(this.settings.errorClass);
+		this.elements.removeClass(""+this.settings.errorClass);
 		if( this.settings.errorWrapper ) {
 			labels.parents(this.settings.errorWrapper).hide();
 		}
@@ -249,19 +249,17 @@ v.prototype = {
 	 * tests the element to these rules.
 	 */
 	validateElement: function(element) {
-		var value = $(element).val();
 		var rules = this.findRules(element);
 		for( var i=0, rule; rule = rules[i]; i++ ) {
 			try {
 				var method = v.methods[rule.name];
 				if( !method)
 					throw "validateElement() error: No method found with name " + rule.name;
-				if( !method(value, element, rule.parameters) ) {
+				if( !method( $(element).val(), element, rule.parameters ) ) {
 					// add the error to the array of errors for the element
 					var id = ( /radio|checkbox/i.test(element.type) ) ? element.name : element.id;
 					if(!id && this.settings.debug) {
-						console.error("could not find id/name for element, please check the element (see next line)");
-						console.debug(element);
+						console.error("could not find id/name for element, please check the element %o", element);
 					}
 					var list = this.errorList[id] || (this.errorList[id] = []);
 					list[list.length] = this.formatMessage(method, rule);
@@ -365,23 +363,29 @@ v.prototype = {
 	 * Check settings and markup, if the form is invalid, but no error is displayed.
 	 */
 	showError: function(elementID, message) {
+	
+		// find message for this label
+		var m = this.settings.messages;
+		var message = (m && m[elementID]) || $('#'+elementID).attr('title') || message || "<strong>Warning: No message defined for " + elementID + "</strong>";
+		
 		$("#"+elementID).addClass(this.settings.errorClass);
 		var errorLabel = $("label." + this.settings.errorClass, this.context)
 			.filter("[@for=" + elementID + "]");
 		var w = this.settings.errorWrapper;
-		if(errorLabel.size()) {
+		if( errorLabel.length ) {
+			// check if we have a generated label, replace the message then
+			if( errorLabel.attr("generated") ) {
+				errorLabel.text(message);
+			}
 			errorLabel.show();
 			if( w ) {
 				errorLabel.parents(w).show();
 			}
 		} else {
 			// create label with custom message or title or default message
-			var m = this.settings.messages;
-			var message = (m && m[elementID]) || $('#'+elementID).attr('title') || message || "<strong>Warning: No message defined for " + elementID + "</strong>";
 			// display default message
 			// TODO can't change message
-			var errorLabel = $("<label>").attr("for", elementID).addClass("error").html(message);
-			var w = this.settings.errorWrapper;
+			var errorLabel = $("<label>").attr({"for": elementID, generated: true}).addClass("error").html(message);
 			if(w) {
 				errorLabel = errorLabel.show().wrap("<" + w + "></" + w + ">").parent();
 			}
@@ -456,8 +460,7 @@ var getLength = function(value, element) {
  *
  * @param String value the value of the element, eg. the text of a text input
  * @param Element element the input element itself, to check for content of attributes other then value
- * @param Array<String> parameters an array of parameters, contains all parameters of a rule if specfied
- *    eg. for length:2:5 parameters[0] is 2 and parameters[1] is 5
+ * @param Object paramater Some parameter, like a number for min/max rules
  *
  * @name $.validator.methods
  * @type Object<String, Function<Boolean>>
@@ -467,7 +470,7 @@ v.methods = {
 
 	/**
 	 * Return false if the element is empty.
-	 * Works with all kind of text inputs, select and checkbox.
+	 * Works with all kind of text inputs, selects, checkboxes and radio buttons.
 	 *
 	 * To force a user to select an option from a select box, provide
 	 * an empty options like <option value="">Choose...</option>
@@ -480,7 +483,7 @@ v.methods = {
 		switch( element.nodeName.toLowerCase() ) {
 		case 'select':
 			var options = $("option:selected", element);
-			return options.length > 0 && options[0].value.length > 0;
+			return options.length > 0 && ( element.type == "select-multiple" || options[0].value.length > 0);
 		case 'input':
 			switch( element.type.toLowerCase() ) {
 			case 'checkbox':
@@ -502,7 +505,7 @@ v.methods = {
 	 *
 	 * - a select and has not enough options selected
 	 *
-	 * Works with all kind of text inputs and select.
+	 * Works with all kind of text inputs, checkboxes and select.
 	 *
 	 * @param Number length
 	 *
@@ -512,7 +515,7 @@ v.methods = {
 	 */
 	min: function(value, element, param) {
 		var length = getLength(value, element);
-		return length >= param;
+		return !v.methods.required(value, element) || length >= param;
 	},
 
 	/**
@@ -524,7 +527,7 @@ v.methods = {
 	 *
 	 * - a select and has too many options selected
 	 *
-	 * Works with all kind of text inputs and select.
+	 * Works with all kind of text inputs, checkboxes and selects.
 	 *
 	 * @param Number length
 	 *
@@ -534,7 +537,7 @@ v.methods = {
 	 */
 	max: function(value, element, param) {
 		var length = getLength(value, element);
-		return length <= param;
+		return !v.methods.required(value, element) || length <= param;
 	},
 
 	/**
@@ -546,8 +549,8 @@ v.methods = {
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	email: function(value) {
-		return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/i.test(value);
+	email: function(value, element) {
+		return !v.methods.required(value, element) || /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/i.test(value);
 	},
 
 	/**
@@ -561,8 +564,8 @@ v.methods = {
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	url: function(value) {
-		return /^(https?|ftp):\/\/[A-Z0-9](\.?[A-Z0-9能謁[A-Z0-9_\-能謁*)*(\/([A-Z0-9能謁[A-Z0-9_\-\.能謁*)?)*(\?([A-Z0-9能謁[A-Z0-9_\-\.%\+=&能謁*)?)?$/i.test(value);
+	url: function(value, element) {
+		return !v.methods.required(value, element) || /^(https?|ftp):\/\/[A-Z0-9](\.?[A-Z0-9能謁[A-Z0-9_\-能謁*)*(\/([A-Z0-9能謁[A-Z0-9_\-\.能謁*)?)*(\?([A-Z0-9能謁[A-Z0-9_\-\.%\+=&能謁*)?)?$/i.test(value);
 	},
 
 	/**
@@ -576,8 +579,8 @@ v.methods = {
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	date: function(value) {
-		return !/Invalid|NaN/.test(new Date(value));
+	date: function(value, element) {
+		return !v.methods.required(value, element) || !/Invalid|NaN/.test(new Date(value));
 	},
 
 	/**
@@ -598,8 +601,8 @@ v.methods = {
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	dateISO: function(value) {
-		return /^\d{4}[/-]\d{1,2}[/-]\d{1,2}$/.test(value);
+	dateISO: function(value, element) {
+		return !v.methods.required(value, element) || /^\d{4}[/-]\d{1,2}[/-]\d{1,2}$/.test(value);
 	},
 
 	/**
@@ -613,8 +616,8 @@ v.methods = {
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	dateDE: function(value) {
-		return /^\d\d?\.\d\d?\.\d\d\d?\d?$/.test(value);
+	dateDE: function(value, element) {
+		return !v.methods.required(value, element) || /^\d\d?\.\d\d?\.\d\d\d?\d?$/.test(value);
 	},
 
 	/**
@@ -628,8 +631,8 @@ v.methods = {
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	number: function(value) {
-		return /^-?[,0-9]+(\.\d+)?$/.test(value); 
+	number: function(value, element) {
+		return !v.methods.required(value, element) || /^-?[,0-9]+(\.\d+)?$/.test(value); 
 	},
 
 	/**
@@ -643,8 +646,8 @@ v.methods = {
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	numberDE: function(value) {
-		return /^-?[\.0-9]+(,\d+)?$/.test(value);
+	numberDE: function(value, element) {
+		return !v.methods.required(value, element) || /^-?[\.0-9]+(,\d+)?$/.test(value);
 	},
 
 	/**
@@ -656,8 +659,8 @@ v.methods = {
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	digits: function(value) {
-		return /^\d+$/.test(value);
+	digits: function(value, element) {
+		return !v.methods.required(value, element) || /^\d+$/.test(value);
 	},
 	
 	/**

@@ -1,88 +1,96 @@
 test("rule: digit", function() {
 	var rule = $.validator.methods.digits;
-	ok( rule("123"), "Valid digits" );
-	ok(!rule("123.000"), "Invalid digits" );
-	ok(!rule("123.000,00"), "Invalid digits" );
-	ok(!rule("123.0.0,0"), "Invalid digits" );
-	ok(!rule("x123"), "Invalid digits" );
-	ok(!rule("100.100,0,0"), "Invalid digits" );
+	var element = $("#firstname")[0];
+	ok( rule("123", element), "Valid digits" );
+	ok(!rule("123.000", element), "Invalid digits" );
+	ok(!rule("123.000,00", element), "Invalid digits" );
+	ok(!rule("123.0.0,0", element), "Invalid digits" );
+	ok(!rule("x123", element), "Invalid digits" );
+	ok(!rule("100.100,0,0", element), "Invalid digits" );
 });
 
 test("rule: url", function() {
 	var rule = $.validator.methods.url;
-	ok( rule("http://bassistance.de/jquery/plugin.php?bla=blu"), "Valid url" );
-	ok( rule("https://bassistance.de/jquery/plugin.php?bla=blu"), "Valid url" );
-	ok( rule("ftp://bassistance.de/jquery/plugin.php?bla=blu"), "Valid url" );
-	ok( rule("http://bassistance"), "Valid url" );
-	ok(!rule("http://bassistance."), "Invalid url" );
-	ok(!rule("bassistance.de"), "Invalid url" );
+	var element = $("#firstname")[0];
+	ok( rule("http://bassistance.de/jquery/plugin.php?bla=blu", element), "Valid url" );
+	ok( rule("https://bassistance.de/jquery/plugin.php?bla=blu", element), "Valid url" );
+	ok( rule("ftp://bassistance.de/jquery/plugin.php?bla=blu", element), "Valid url" );
+	ok( rule("http://bassistance", element), "Valid url" );
+	ok(!rule("http://bassistance.", element), "Invalid url" );
+	ok(!rule("bassistance.de", element), "Invalid url" );
 });
 
 test("rule: email", function() {
 	var rule = $.validator.methods.email;
-	ok( rule("name@domain.tld"), "Valid email" );
-	ok( rule("name@domain.tl"), "Valid email" );
-	ok( rule("n@d.tld"), "Valid email" );
-	ok(!rule("name"), "Invalid email" );
-	ok(!rule("name@"), "Invalid email" );
-	ok(!rule("name@domain"), "Invalid email" );
-	ok(!rule("name@domain.t"), "Invalid email" );
-	ok(!rule("name@domain.tldef"), "Invalid email" );
+	var element = $("#firstname")[0];
+	ok( rule("name@domain.tld", element), "Valid email" );
+	ok( rule("name@domain.tl", element), "Valid email" );
+	ok( rule("n@d.tld", element), "Valid email" );
+	ok(!rule("name", element), "Invalid email" );
+	ok(!rule("name@", element), "Invalid email" );
+	ok(!rule("name@domain", element), "Invalid email" );
+	ok(!rule("name@domain.t", element), "Invalid email" );
+	ok(!rule("name@domain.tldef", element), "Invalid email" );
 });
 
 test("rule: number", function() {
 	var rule = $.validator.methods.number;
-	ok( rule("123"), "Valid number" );
-	ok( rule("-123"), "Valid number" );
-	ok( rule("123,000"), "Valid number" );
-	ok( rule("-123,000"), "Valid number" );
-	ok( rule("123,000.00"), "Valid number" );
-	ok( rule("-123,000.00"), "Valid number" );
-	ok(!rule("123.000,00"), "Invalid number" );
-	ok(!rule("123.0.0,0"), "Invalid number" );
-	ok(!rule("x123"), "Invalid number" );
-	ok(!rule("100.100,0,0"), "Invalid number" );
+	var element = $("#firstname")[0];
+	ok( rule("123", element), "Valid number" );
+	ok( rule("-123", element), "Valid number" );
+	ok( rule("123,000", element), "Valid number" );
+	ok( rule("-123,000", element), "Valid number" );
+	ok( rule("123,000.00", element), "Valid number" );
+	ok( rule("-123,000.00", element), "Valid number" );
+	ok(!rule("123.000,00", element), "Invalid number" );
+	ok(!rule("123.0.0,0", element), "Invalid number" );
+	ok(!rule("x123", element), "Invalid number" );
+	ok(!rule("100.100,0,0", element), "Invalid number" );
 });
 
 test("rule: numberDE", function() {
 	var rule = $.validator.methods.numberDE;
-	ok( rule("123"), "Valid numberDE" );
-	ok( rule("-123"), "Valid numberDE" );
-	ok( rule("123.000"), "Valid numberDE" );
-	ok( rule("-123.000"), "Valid numberDE" );
-	ok( rule("123.000,00"), "Valid numberDE" );
-	ok( rule("-123.000,00"), "Valid numberDE" );
-	ok(!rule("123,000.00"), "Invalid numberDE" );
-	ok(!rule("123,0,0.0"), "Invalid numberDE" );
-	ok(!rule("x123"), "Invalid numberDE" );
-	ok(!rule("100,100.0.0"), "Invalid numberDE" );
+	var element = $("#firstname")[0];
+	ok( rule("123", element), "Valid numberDE" );
+	ok( rule("-123", element), "Valid numberDE" );
+	ok( rule("123.000", element), "Valid numberDE" );
+	ok( rule("-123.000", element), "Valid numberDE" );
+	ok( rule("123.000,00", element), "Valid numberDE" );
+	ok( rule("-123.000,00", element), "Valid numberDE" );
+	ok(!rule("123,000.00", element), "Invalid numberDE" );
+	ok(!rule("123,0,0.0", element), "Invalid numberDE" );
+	ok(!rule("x123", element), "Invalid numberDE" );
+	ok(!rule("100,100.0.0", element), "Invalid numberDE" );
 });
 
 test("rule: date", function() {
 	var rule = $.validator.methods.date;
-	ok( rule("06/06/1990"), "Valid date" );
-	ok( rule("6/6/06"), "Valid date" );
-	ok(!rule("1990x-06-06"), "Invalid date" );
+	var element = $("#firstname")[0];
+	ok( rule("06/06/1990", element), "Valid date" );
+	ok( rule("6/6/06", element), "Valid date" );
+	ok(!rule("1990x-06-06", element), "Invalid date" );
 });
 
 test("rule: dateISO", function() {
 	var rule = $.validator.methods.dateISO;
-	ok( rule("1990-06-06"), "Valid date" );
-	ok( rule("1990/06/06"), "Valid date" );
-	ok( rule("1990-6-6"), "Valid date" );
-	ok( rule("1990/6/6"), "Valid date" );
-	ok(!rule("1990-106-06"), "Invalid date" );
-	ok(!rule("190-06-06"), "Invalid date" );
+	var element = $("#firstname")[0];
+	ok( rule("1990-06-06", element), "Valid date" );
+	ok( rule("1990/06/06", element), "Valid date" );
+	ok( rule("1990-6-6", element), "Valid date" );
+	ok( rule("1990/6/6", element), "Valid date" );
+	ok(!rule("1990-106-06", element), "Invalid date" );
+	ok(!rule("190-06-06", element), "Invalid date" );
 });
 
 test("rule: dateDE", function() {
 	var rule = $.validator.methods.dateDE;
-	ok( rule("03.06.1984"), "Valid dateDE" );
-	ok( rule("3.6.84"), "Valid dateDE" );
-	ok(!rule("6-6-06"), "Invalid dateDE" );
-	ok(!rule("1990-06-06"), "Invalid dateDE" );
-	ok(!rule("06/06/1990"), "Invalid dateDE" );
-	ok(!rule("6/6/06"), "Invalid dateDE" );
+	var element = $("#firstname")[0];
+	ok( rule("03.06.1984", element), "Valid dateDE" );
+	ok( rule("3.6.84", element), "Valid dateDE" );
+	ok(!rule("6-6-06", element), "Invalid dateDE" );
+	ok(!rule("1990-06-06", element), "Invalid dateDE" );
+	ok(!rule("06/06/1990", element), "Invalid dateDE" );
+	ok(!rule("6/6/06", element), "Invalid dateDE" );
 });
 
 test("rule: required", function() {
@@ -107,6 +115,12 @@ test("rule: required", function() {
 	e = $('#check1, #check2');
 	ok( rule(e[0].value, e[0]), "Valid checkbox" );
 	ok(!rule(e[1].value, e[1]), "Invalid checkbox" );
+	
+	e = $('#select1, #select2, #select3, #select4');
+	ok(!rule(e[0].value, e[0]), "Invalid select" );
+	ok( rule(e[1].value, e[1]), "Valid select" );
+	ok( rule(e[2].value, e[2]), "Valid select" );
+	ok( rule(e[3].value, e[3]), "Valid select" );
 });
 
 test("rule: min", function() {
@@ -118,15 +132,16 @@ test("rule: min", function() {
 	ok( rule(e[2].value, e[2], param), "Valid text input" );
 	
 	e = $('#check1, #check2, #check3');
-	ok( rule(e[0].value, e[0], param), "Valid checkbox" );
-	ok(!rule(e[1].value, e[1], param), "Invalid checkbox" );
+	ok(!rule(e[0].value, e[0], param), "Valid checkbox" );
+	ok( rule(e[1].value, e[1], param), "Valid checkbox" );
 	ok( rule(e[2].value, e[2], param), "Invalid checkbox" );
 	
-	e = $('#select1, #select2, #select3, #select4');
-	ok(!rule(e[0].value, e[0], param), "Invalid select" );
+	e = $('#select1, #select2, #select3, #select4, #select5');
+	ok(rule(e[0].value, e[0], param), "Valid select" );
 	ok(!rule(e[1].value, e[1], param), "Invalid select" );
 	ok( rule(e[2].value, e[2], param), "Valid select" );
-	ok( rule(e[3].value, e[3], param), "Invalid select" );
+	ok( rule(e[3].value, e[3], param), "Valid select" );
+	ok( rule(e[3].value, e[3], param), "Valid select" );
 });
 
 test("rule: max", function() {
@@ -143,8 +158,8 @@ test("rule: max", function() {
 	ok(!rule(e[2].value, e[2], param), "Invalid checkbox" );
 	
 	e = $('#select1, #select2, #select3, #select4');
-	ok( rule(e[0].value, e[0], param), "Invalid select" );
-	ok( rule(e[1].value, e[1], param), "Invalid select" );
+	ok( rule(e[0].value, e[0], param), "Valid select" );
+	ok( rule(e[1].value, e[1], param), "Valid select" );
 	ok( rule(e[2].value, e[2], param), "Valid select" );
 	ok(!rule(e[3].value, e[3], param), "Invalid select" );
 });
@@ -182,6 +197,25 @@ test("validator.validateForm(): simple", function() {
 	ok( !v.validateForm(), 'Invalid form' );
 	$('#firstname').val("hi");
 	$('#lastname').val("hi");
+	ok( v.validateForm(), 'Valid form' );
+});
+
+test("validator.validateForm(): checkboxes: min/required", function() {
+	var form = $('#testForm6')[0];
+	var v = $(form).validate();
+	ok( !v.validateForm(), 'Invalid form' );
+	$('#form6check1').attr("checked", true);
+	ok( !v.validateForm(), 'Invalid form' );
+	$('#form6check2').attr("checked", true);
+	ok( v.validateForm(), 'Valid form' );
+});
+test("validator.validateForm(): selects: min/required", function() {
+	var form = $('#testForm7')[0];
+	var v = $(form).validate();
+	ok( !v.validateForm(), 'Invalid form' );
+	$("#optionxa").attr("selected", true);
+	ok( !v.validateForm(), 'Invalid form' );
+	$("#optionxb").attr("selected", true);
 	ok( v.validateForm(), 'Valid form' );
 });
 

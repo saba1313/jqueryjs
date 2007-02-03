@@ -16,28 +16,28 @@
 	<fieldset>
 		<legend>Validating a complete form</legend>
 		<p>
-			<label for="email">Email</label>
+			<label for="email">Email (optional)</label>
 			<input id="email" name="email" class="{email:true}" />
 		</p>
 		<p>
 			<label for="email2">Email (again)</label>
-			<input id="email2" name="email2" title="Please enter the same Email address as above" class="{email:true,equalTo:'#email'}" />
+			<input id="email2" name="email2" title="Please enter the same Email address as above" class="{equalTo:'#email'}" />
 		</p>
 		<p>
 			<label for="phone">Phone</label>
-			<input id="phone" name="phone" title="Please enter your phone number (between 2 and 8 characters)" class="some styles {number:true,min:2,max:8}" />
+			<input id="phone" name="phone" title="Please enter your phone number (between 2 and 8 characters)" class="some styles {required:true,number:true,min:2,max:8}" />
 		</p>
 		<p>
 			<label for="address">Address</label>
-			<input id="address" name="address" title="Please enter your address (at least 3 characters)" class="some other styles {min:3}" />
+			<input id="address" name="address" title="Please enter your address (at least 3 characters)" class="some other styles {min:3,required:true}" />
 		</p>
 		<p>
 			<label for="birthdate">Birthdate</label>
-			<input id="birthdate" name="birthdate" title="Please enter your correct birthdate" class="{date:true}" />
+			<input id="birthdate" name="birthdate" title="Please enter your correct birthdate" class="{required:true,date:true}" />
 		</p>
 		<p>
 			<label for="birthdateDE">Ihr Geburtstag?</label>
-			<input id="birthdateDE" name="birthdateDE" title="Bitte geben Sie ihr korrektes Geburtsdatum ein." class="{dateDE:true}" />
+			<input id="birthdateDE" name="birthdateDE" title="Bitte geben Sie ihr korrektes Geburtsdatum ein." class="{required:true,dateDE:true}" />
 		</p>
 		<p>
 			<label for="agree">Please agree to our policy</label>
@@ -52,8 +52,8 @@
 			<input id="url" class="{url:true}" title="Please provide a valid URL (we tease you with RFC links otherwise)" value="http://" />
 		</p>
 		<p>
-			<label for="password">Please enter your password</label>
-			<input type="password" id="password" title="You have to provide a password with a least 5 characters" class="{min:5}" />
+			<label for="password">Please enter your password (optional)</label>
+			<input type="password" id="password" title="You have to provide a password with a least 5 characters, or none" class="{min:5}" />
 		</p>
 		<p>
 			<input class="submit" type="submit" value="Submit"/>

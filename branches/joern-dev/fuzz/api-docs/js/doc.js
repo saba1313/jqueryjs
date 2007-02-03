@@ -25,6 +25,9 @@ jQuery(function($){
 	$("#mainQS, #navQS").find("input")
 		.attr("title", 'Filter displayed elements^, eg "$" to display only entries that contain the $ alias. Clear to display all.')
 		.Tooltip({delay: 50});
+	var m = location.search.match(/q=(.+)/);
+	if(m)
+		$("#mainQS input").val(m[1]).trigger("keydown");
 	
 	// navigation tabs ( http://stilbuero.de/tabs/ )
 	$('#nav').tabs();

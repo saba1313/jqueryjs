@@ -763,7 +763,6 @@ v.methods = {
 		// strings read from metadata have typeof object, convert to string
 		return value == $(""+param).val();
 	}
-	
 };
 
 /*

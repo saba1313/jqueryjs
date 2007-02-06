@@ -123,8 +123,8 @@ test("rule: required", function() {
 	ok( rule(e[3].value, e[3]), "Valid select" );
 });
 
-test("rule: min", function() {
-	var rule = $.validator.methods.min,
+test("rule: minLength", function() {
+	var rule = $.validator.methods.minLength,
 		param = 2,
 		e = $('#text1, #text2, #text3');
 	ok( rule(e[0].value, e[0], param), "Valid text input" );
@@ -144,8 +144,8 @@ test("rule: min", function() {
 	ok( rule(e[3].value, e[3], param), "Valid select" );
 });
 
-test("rule: max", function() {
-	var rule = $.validator.methods.max,
+test("rule: maxLength", function() {
+	var rule = $.validator.methods.maxLength,
 		param = 4,
 		e = $('#text1, #text2, #text3');
 	ok( rule(e[0].value, e[0], param), "Valid text input" );
@@ -162,6 +162,42 @@ test("rule: max", function() {
 	ok( rule(e[1].value, e[1], param), "Valid select" );
 	ok( rule(e[2].value, e[2], param), "Valid select" );
 	ok(!rule(e[3].value, e[3], param), "Invalid select" );
+});
+
+test("rule: rangeLength", function() {
+	var rule = $.validator.methods.rangeLength,
+		param = [2, 4],
+		e = $('#text1, #text2, #text3');
+	ok( rule(e[0].value, e[0], param), "Valid text input" );
+	ok(!rule(e[1].value, e[1], param), "Invalid text input" );
+	ok(!rule(e[2].value, e[2], param), "Invalid text input" );
+});
+
+test("rule: minValue", function() {
+	var rule = $.validator.methods.minValue,
+		param = 8,
+		e = $('#value1, #value2, #value3');
+	ok(!rule(e[0].value, e[0], param), "Invalid text input" );
+	ok( rule(e[1].value, e[1], param), "Valid text input" );
+	ok( rule(e[2].value, e[2], param), "Valid text input" );
+});
+
+test("rule: maxValue", function() {
+	var rule = $.validator.methods.maxValue,
+		param = 12,
+		e = $('#value1, #value2, #value3');
+	ok( rule(e[0].value, e[0], param), "Valid text input" );
+	ok( rule(e[1].value, e[1], param), "Valid text input" );
+	ok(!rule(e[2].value, e[2], param), "Invalid text input" );
+});
+
+test("rule: rangeValue", function() {
+	var rule = $.validator.methods.rangeValue,
+		param = [4,12],
+		e = $('#value1, #value2, #value3');
+	ok(!rule(e[0].value, e[0], param), "Invalid text input" );
+	ok( rule(e[1].value, e[1], param), "Valid text input" );
+	ok(!rule(e[2].value, e[2], param), "Invalid text input" );
 });
 
 test("rule: equalTo", function() {
@@ -335,7 +371,7 @@ test("validator.findRules() - internal - input", function() {
 	var rule = v.findRules(element);
 	ok( rule[0].name == "required" );
 	ok( rule[0].parameters == true );
-	ok( rule[1].name == "min" );
+	ok( rule[1].name == "minLength" );
 	ok( rule[1].parameters == 2 );
 });
 
@@ -376,4 +412,25 @@ test("validator.findRules() - external - complete form", function() {
 		}
 	});
 	v.validateForm();
+});
+
+test("validator.findRules() - internal - input", function() {
+	expect(7);
+	var element = $('#form8input')[0];
+	var v = $('#testForm8').validate();
+	var rule = v.findRules(element);
+	ok( rule[0].name == "required" );
+	ok( rule[0].parameters == true );
+	ok( rule[1].name == "number" );
+	ok( rule[1].parameters == true );
+	ok( rule[2].name == "rangeLength" );
+	ok( rule[2].parameters[0] == 2 );
+	ok( rule[2].parameters[1] == 8 );
+});
+
+test("validator.formatMessage", function() {
+	expect(2);
+	var v = $("#form").validate();
+	equals( "Please enter a value no longer then 2 characters.", v.formatMessage("Please enter a value no longer then {0} characters.", 2) );
+	equals( "Please enter a value between 2 and 4.", v.formatMessage("Please enter a value between {0} and {1}.", [2,4]) );
 });

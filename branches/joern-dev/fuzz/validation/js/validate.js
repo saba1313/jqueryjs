@@ -271,7 +271,7 @@ v.prototype = {
 						console.error("could not find id/name for element, please check the element %o", element);
 					}
 					var list = this.errorList[id] || (this.errorList[id] = []);
-					list[list.length] = this.formatMessage(method, rule);
+					list[list.length] = method.message && this.formatMessage(method.message, rule.parameters);
 				}
 			} catch(e) {
 				if(this.settings.debug) {
@@ -285,9 +285,17 @@ v.prototype = {
 	
 	/*
 	 * Replace placeholders in messages, if any.
+	 *
+	 * Currently limited to a maxium of two placeholders.
+	 *
+	 * Expected format: "first placeholder: {0}, second placeholder: {1}, both optional"
+	 *
+	 * @param String message
+	 * @param Array<Object>|Object param
 	 */
-	formatMessage: function(method, rule) {
-		return method.message.replace("{n}", rule.parameters || "");
+	formatMessage: function(message, param) {
+		var first = param.constructor == Array ? param[0] : param;
+		return message.replace("{0}", first || "").replace("{1}", param[1] || "");
 	},
 
 	/*
@@ -516,13 +524,13 @@ v.methods = {
 	 *
 	 * Works with all kind of text inputs, checkboxes and select.
 	 *
-	 * @param Number length
+	 * @param Number min
 	 *
 	 * @name $.validator.methods.min
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	min: function(value, element, param) {
+	minLength: function(value, element, param) {
 		var length = getLength(value, element);
 		return !v.methods.required(value, element) || length >= param;
 	},
@@ -538,17 +546,84 @@ v.methods = {
 	 *
 	 * Works with all kind of text inputs, checkboxes and selects.
 	 *
-	 * @param Number length
+	 * @param Number max
 	 *
 	 * @name $.validator.methods.max
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
 	 */
-	max: function(value, element, param) {
+	maxLength: function(value, element, param) {
 		var length = getLength(value, element);
 		return !v.methods.required(value, element) || length <= param;
 	},
+	
+	/**
+	 * Return false, if the element is
+	 *
+     * - some kind of text input and its value is too short or too long
+     *
+     * - a set of checkboxes has not enough or too many boxes checked
+     *
+     * - a select and has not enough or too many options selected
+     *
+     * Works with all kind of text inputs, checkboxes and selects.
+     *
+     * @param Array<Number> min/max
+     *
+     * @name $.validator.methods.rangeLength
+     * @type Boolean
+     * @cat Plugins/Validate/Methods
+     */
+	rangeLength: function(value, element, param) {
+		var length = getLength(value, element);
+		return !v.methods.required(value, element) || ( length >= param[0] && length <= param[1] );
+	},
 
+	/**
+	 * Return true, if the value is greater than or equal to the specified minimum.
+	 *
+	 * Works with all kind of text inputs.
+	 *
+	 * @param Number min
+	 *
+	 * @name $.validator.methods.minValue
+	 * @type Boolean
+	 * @cat Plugins/Validate/Methods
+	 */
+	minValue: function( value, element, param ) {
+		return !v.methods.required(value, element) || value >= param;
+	},
+	
+	/**
+	 * Return true, if the value is less than or equal to the specified maximum.
+	 *
+	 * Works with all kind of text inputs.
+	 *
+	 * @param Number max
+	 *
+	 * @name $.validator.methods.maxValue
+	 * @type Boolean
+	 * @cat Plugins/Validate/Methods
+	 */
+	maxValue: function( value, element, param ) {
+		return !v.methods.required(value, element) || value <= param;
+	},
+	
+	/**
+	 * Return true, if the value is in the specified range.
+	 *
+	 * Works with all kind of text inputs.
+	 *
+	 * @param Array<Number> min/max
+	 *
+	 * @name $.validator.methods.rangeValue
+	 * @type Boolean
+	 * @cat Plugins/Validate/Methods
+	 */
+	rangeValue: function( value, element, param ) {
+		return !v.methods.required(value, element) || ( value >= param[0] && value <= param[1] );
+	},
+	
 	/**
 	 * Return true, if the value is not a valid email address.
 	 *
@@ -688,6 +763,7 @@ v.methods = {
 		// strings read from metadata have typeof object, convert to string
 		return value == $(""+param).val();
 	}
+	
 };
 
 /*
@@ -699,8 +775,9 @@ v.methods = {
  */
 var messages = {
 	required: "This field is required.",
-	max: "Please enter a value no longer then {n} characters.",
-	min: "Please enter a value of at least {n} characters.",
+	maxLength: "Please enter a value no longer then {0} characters.",
+	minLength: "Please enter a value of at least {0} characters.",
+	rangeLength: "Please enter a value between {0} and {1} characters long.",
 	email: "Please enter a valid email address.",
 	url: "Please enter a valid URL.",
 	date: "Please enter a valid date.",
@@ -709,7 +786,10 @@ var messages = {
 	number: "Please enter a valid number.",
 	numberDE: "Bitte geben Sie eine Nummer ein.",
 	digits: "Please enter only digits",
-	equalTo: "Please enter the same value again."
+	equalTo: "Please enter the same value again.",
+	rangeValue: "Please enter a value between {0} and {1}.",
+	maxValue: "Please enter a value less than or equal to {0}.",
+	minValue: "Please enter a value greater than or equal to {0}."
 };
 for(var key in messages) {
 	v.methods[key].message = messages[key];

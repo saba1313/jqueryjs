@@ -25,11 +25,11 @@
 		</p>
 		<p>
 			<label for="phone">Phone</label>
-			<input id="phone" name="phone" title="Please enter your phone number (between 2 and 8 characters)" class="some styles {required:true,number:true,min:2,max:8}" />
+			<input id="phone" name="phone" title="Please enter your phone number (between 2 and 8 characters)" class="some styles {required:true,number:true,length:[2,8]}" />
 		</p>
 		<p>
 			<label for="address">Address</label>
-			<input id="address" name="address" title="Please enter your address (at least 3 characters)" class="some other styles {min:3,required:true}" />
+			<input id="address" name="address" title="Please enter your address (at least 3 characters)" class="some other styles {minLength:3,required:true}" />
 		</p>
 		<p>
 			<label for="birthdate">Birthdate</label>
@@ -53,7 +53,7 @@
 		</p>
 		<p>
 			<label for="password">Please enter your password (optional)</label>
-			<input type="password" id="password" title="You have to provide a password with a least 5 characters, or none" class="{min:5}" />
+			<input type="password" id="password" title="You have to provide a password with a least 5 characters, or none" class="{minLength:5}" />
 		</p>
 		<p>
 			<input class="submit" type="submit" value="Submit"/>

@@ -111,17 +111,8 @@
 (function($) { 
 
 $.fn.validate = function(options) {
-	var validatorInstance = new $.validator(options);
+	var validatorInstance = new $.validator(options, this);
 	if( this.is('form') ) {
-		// select all valid inputs inside the form (no submit or reset buttons)
-		validatorInstance.elements = $(":input:not(:submit):not(:reset)", this);
-
-		validatorInstance.currentForm = this[0];
-
-		// listen for focus events to save reference to last focused element
-		validatorInstance.elements.focus(function() {
-			validatorInstance.lastActive = this;
-		});
 		// validate the form on submit
 		this.submit(function(event) {
 			if(validatorInstance.settings.debug) {
@@ -142,9 +133,22 @@ $.fn.validate = function(options) {
 };
 
 // constructor for validate object
-var v = $.validator = function(options) {
+var v = $.validator = function(options, form) {
 	// intialize properties
-	this.errorList = {}
+	this.errorList = {};
+	
+	if( form.is('form') ) {
+		// select all valid inputs inside the form (no submit or reset buttons)
+		this.elements = $(":input:not(:submit):not(:reset)", form);
+
+		this.currentForm = form[0];
+		
+		// listen for focus events to save reference to last focused element
+		var instance = this;
+		this.elements.focus(function() {
+			instance.lastActive = this;
+		});
+	}
 
 	// override defaults with client settings
 	this.settings = $.extend({}, v.defaults, options);
@@ -266,7 +270,7 @@ v.prototype = {
 					throw "validateElement() error: No method found with name " + rule.name;
 				if( !method( $(element).val(), element, rule.parameters ) ) {
 					// add the error to the array of errors for the element
-					var id = ( /radio|checkbox/i.test(element.type) ) ? element.name : element.id;
+					var id = ( element.type.match(/radio|checkbox/i) ) ? element.name : element.id;
 					if(!id && this.settings.debug) {
 						console.error("could not find id/name for element, please check the element %o", element);
 					}

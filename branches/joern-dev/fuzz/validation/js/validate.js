@@ -1,5 +1,5 @@
 /*
- * Form Validation: jQuery form validation plug-in v1.0 beta 1
+ * Form Validation: jQuery form validation plug-in v1.0 alpha 2
  *
  * Copyright (c) 2006 Jörn Zaefferer
  *
@@ -9,29 +9,87 @@
  */
 
 /**
- * Validates either a single(!) form on submit or a list
- * of elements immediately. 
- * Shows and hides error labels accordingly.
+ * Validates either a single form on submit or a list of elements immediately.
  *
- * Markup requirements: All form elements to validate need proper IDs assigned.
- * Can you provide error messages via labels (set for attribute to ID of associated
- * element), in the title attribute of the element, via the messages option, or just
- * use the default messages.
+ * The normal behaviour is to validate a form when a submit button is clicked or
+ * the user presses enter when an input of that form is focused.
+ *
+ * It is also possible to validate elements immediately on blur or any other event.
+ *
+ * Following are a few aspects that you should know about when using this plugin.
+ * The examples following demonstrate these aspects.
+ *
+ * Markup recommendations: A good form has labels associated with each input
+ * element: The for attribute of the label has the same value as the id of the input.
+ *
+ * Validation rules: You can specify validation rules via metadata or via plugin
+ * settings (option rules). Its more a matter of taste which way you choose.
+ * Using metadata is good for fast prototyping.
+ *
+ * Validation methods: Included are a set of common validation methods, like required.
+ * Except required itself and equalTo, all validation methods declare an element valid
+ * when it has no value at all. That way you can specify an element input to
+ * contain a valid email adress, or nothing at all. All available methods are documented
+ * below, as well as $.validator.addMethod, which you can use to add your own methods.
+ * 
+ * Error messages: There are three ways to provide error messages. Via the title attribute
+ * of the input element to validate, via error labels and via plugin settings
+ * (option messages). All included validation rules provide a default error message
+ * which you can use for prototyping.
+ *
+ * Error message display: Error messages are handled via label elements with an
+ * additional class (option errorClass). When provided in the markup, they are shown
+ * and hidden accordingly, otherwise created on demand. By default, labels are created
+ * after the invalid element. It is also possible to put them into an error container
+ * (option errorContainer), even a container containing a general warning followed by
+ * the list of errors is possible (option errorContainer together with errorLabelContainer).
+ *
+ * Focusing of invalid elements: By default, the first invalid element in a form is focused
+ * after validating a form with invalid elements. To prevent confusion on the behalf of the user,
+ * the plugin remembers the element that had focus before starting the validation, and focuses
+ * that element. That way the user can try to fill out elements of the form at the end, without
+ * being forced to focus them again and again. Because this doesn't work well when validating
+ * on blur, you can disable the focusing entirely (option focusInvalid).
+ *
+ * Form submit: By default, the form submission is prevented when the form is invalid,
+ * and submitted as normal when it is valid. You can also handle the submission
+ * (option submitHandler) manually.
+ *
+ * Developing and debugging a form: While developing and debugging the form, you should set
+ * the debug option to true. That prevents the form submission on both valid and invalid forms
+ * and outputs some helpful messages to window.console (available via Firebug) that help
+ * debugging. When you have everything setup and don't get any error messages displayed, check if
+ * your rules all accept empty elements as valid (like email or url methods).
+ *
+ * Validation multiple forms on one page: The plugin can handle only one form per call. In case
+ * you have multiple forms on a single page which you want to validate, you can avoid having
+ * to duplicate the plugin settings by modifying the defaults via $.validator.defaults.
+ *
+ * Validator object: The validation plugin returns the instance of the validator object it uses.
+ * That gives you full control over every aspect of the validation. Let me know if you come up
+ * with something that I didn't have in mind. Thats why the plugin has nearly no private methods.
  *
  * @example $("#myform").validate();
+ * @before <form id="myform">
+ *   <input name="firstname" class="{required:true}" />
+ * </form>
  * @desc Validates a form on submit. Rules are read from metadata.
  *
- * @example $("input.blur").blur(function() {
- *   $(this).validate({ focusInvalid: false; });
+ * @example $("input").blur(function() {
+ *   $(this).validate({
+ *     focusInvalid: false
+ *   });
  * });
- * @desc Validates all input elements on blur event (element looses focus). Deactivates focus of invalid elements.
+ * @desc Validates all input elements on blur event (when the element looses focus).
+ * Deactivates focus of invalid elements.
  *
- * @example $("myform").validate({
+ * @example $("#myform").validate({
  *   submitHandler: function(form) {
  *   	$(form).ajaxSubmit();
  *   }
  * });
- * @desc Uses form plugin's ajaxSubmit method to handle the form submit.
+ * @desc Uses form plugin's ajaxSubmit method to handle the form submit, while preventing
+ * the default submit.
  *
  * @example $("#myform").validate({
  *   rules: {
@@ -49,8 +107,7 @@
  * @example $("#myform").validate({
  *   errorClass: "invalid",
  *   errorContainer: $("#messageBox"),
- *   errorWrapper: "li",
- *   debug: true
+ *   errorWrapper: "li"
  * });
  * @desc Validates a form on submit. The class used to search, create and display
  * error labels is changed to "invalid". This is also added to invalid elements.
@@ -61,47 +118,81 @@
  *
  * To ease the setup of the form, debug option is set to true, preventing a submit
  * of the form no matter of being valid or not.
- * @before <ul id="messageBox">
- *   <li><label for="firstname" class="invalid">Please specify your firstname!</label></li>
- * </ul>
+ * @before <ul id="messageBox" />
  * <form id="myform" action="/login" method="post">
- *   <label for="firstname">Firstname</label>
- *   <input id="firstname" name="fname" class="{required:true}" />
- *   <label for="lastname">Lastname</label>
- *   <input id="lastname" name="lname" title="Your lastname, please!" class="{required:true}" />
+ *   <label>Firstname</label>
+ *   <input name="fname" class="{required:true}" />
+ *   <label>Lastname</label>
+ *   <input name="lname" title="Your lastname, please!" class="{required:true}" />
  * </form>
  * @result <ul id="messageBox">
- *   <li><label for="firstname" class="invalid">Please specify your firstname!</label></li>
- *   <li><label for="lastname" class="invalid">Your lastname, please!</label></li>
+ *   <li><label for="fname" class="invalid">Please specify your firstname!</label></li>
+ *   <li><label for="lname" class="invalid">Your lastname, please!</label></li>
  * </ul>
  * <form id="myform" action="/login" method="post">
- *   <label for="firstname">Firstname</label>
- *   <input id="firstname" name="fname" class="{required:true}" />
- *   <label for="lastname">Lastname</label>
- *   <input id="lastname" name="lname" title="Your lastname, please!" class="{required:true}" />
- * </form>
+ *   <label>Firstname</label>
+ *   <input name="fname" class="{required:true} invalid" />
+ *   <label>Lastname</label>
+ *   <input name="lname" title="Your lastname, please!" class="{required:true} invalid" />
+ * </form> 
  *
+ * @example $("#myform").validate({
+ *   errorContainer: $("#messageBox1, #messageBox2"),
+ *   errorLabelContainer: $("#messageBox1 ul"),
+ *   errorWrapper: "li",
+ * });
+ * @desc Validates a form on submit. Similar to the above example, but with an additional
+ * container for error messages. The elements given as the errorContainer are all shown
+ * and hidden when errors occur. But the error labels themselve are added to the element(s)
+ * given as errorLabelContainer, here an unordered list. Therefore the error labels are
+ * also wrapped into li elements (errorWrapper option).
+ *
+ * @before <div id="messageBox1">
+ *   <h3>The are errors in your form!</h3>
+ *   <ul/>
+ * </div>
+ * <form id="myform" action="/login" method="post">
+ *   <label>Firstname</label>
+ *   <input name="fname" class="{required:true}" />
+ *   <label>Lastname</label>
+ *   <input name="lname" title="Your lastname, please!" class="{required:true}" />
+ * </form>
+ * <div id="messageBox2">
+ *   <h3>The are errors in your form, see details above!</h3>
+ * </div>
+ * @result <ul id="messageBox">
+ *   <li><label for="fname" class="error">Please specify your firstname!</label></li>
+ *   <li><label for="lname" class="error">Your lastname, please!</label></li>
+ * </ul>
+ * <form id="myform" action="/login" method="post">
+ *   <label>Firstname</label>
+ *   <input name="fname" class="{required:true} error" />
+ *   <label>Lastname</label>
+ *   <input name="lname" title="Your lastname, please!" class="{required:true} error" />
+ * </form>
  *
  * @param Map options Optional settings to configure validation
  * @option String errorClass Use this class to look for existing error labels and add it to
- *		invalid elements, default is "error"
- * @option jQuery errorContainer Search and append error labels inside or to this container, no default
- * @option jQuery errorLabelContainer Search and append error labels inside or to this container, no default;
+ *		invalid elements. Default: "error"
+ * @option jQuery errorContainer Search and append error labels inside or to this container. Default: none
+ * @option jQuery errorLabelContainer Search and append error labels to this container. Default: none
  *		If specified, this container is used instead of the errorContainer, but both are shown and hidden when necessary
- * @option String errorWrapper Wrap error labels with the specified tagName, eg "li", no default
- * @option Boolean debug If true, the form is not submitted and certain errors are display on the console (requires Firebug or Firebug lite)
- * @option Boolean focusInvalid Focus the last active or first invalid element. Default is true.
+ * @option String errorWrapper Wrap error labels with the specified element, eg "li". Default: none
+ * @option Boolean debug If true, the form is not submitted and certain errors are display on the console (requires Firebug or Firebug lite). Default: none
+ * @option Boolean focusInvalid Focus the last active or first invalid element. Default: true
  * @option Function submitHandler Callback for handling the actual
- *		submit when the form is valid. Gets the form as the only argmument. Default just submits the form.
+ *		submit when the form is valid. Gets the form as the only argmument. Default: normal form submit
  * @option Map messages Key/value pairs defining custom messages.
  *		Key is the ID or name (for radio/checkbox inputs) of an element,
  *		value the message to display for that element.
  *		Can be specified for one or more elements. If not present,
  *		the title attribute or the default message for that rule is used.
+ *      Default: none
  * @option Map rules Key/value pairs defining custom rules.
  *		Key is the ID or name (for radio/checkbox inputs) of an element,
  *		value is an object consiting of rule/parameter pairs, eg. {required: true, min: 3}
  *		If not specified, rules are read from metadata via metadata plugin.
+ *      Default: none
  *
  * @name validate
  * @type $.validator
@@ -132,7 +223,7 @@ $.fn.validate = function(options) {
 	return validatorInstance;
 };
 
-// constructor for validate object
+// constructor for validator
 var v = $.validator = function(options, form) {
 	// intialize properties
 	this.errorList = {};
@@ -163,7 +254,6 @@ var v = $.validator = function(options, form) {
  * @cat Plugins/Validate
  */ 
 v.defaults = {
-
 	/*
 	 * the class used to mark error labels,
 	 * eg. <label for="text" class="error">Error text</label>
@@ -172,50 +262,10 @@ v.defaults = {
 	errorClass: "error",
 
 	/*
-	 * the container to show and hide when 
-	 * displaying errors, a jQuery object
-	 */
-	errorContainer: null,
-
-	/*
-	 * The container to put error labels in, can or should be put inside
-	 * the errorContainer
-	 */
-	errorLabelContainer: null,
-
-	/*
-	 * eg. li to wrap error labels in list element
-	 * currently nothing more then one tagName supported
-	 */
-	errorWrapper: null,
-
-	/*
-	 * Override to true to prevent form submit.
-	 * Very useful to debug rules, a submit would remove
-	 * all console output.
-	 */
-	debug: false,
-
-	/*
 	 * Focus the last active or first invalid element.
 	 * WARNING: Can crash browsers when combined with blur-validation.
 	 */
 	focusInvalid: true,
-
-	/*
-	 * If specified, the form submission is delegated to this handler.
-	 * The callback is called with the current form as an argument.
-	 *
-	 * A callback that uses the form plugin to handle the form
-	 * submission would look like this:
-	 * var handler = function(form) {
-	 * 	 $(form).ajaxSubmit(options);
-	 * };
-	 * $('#myform').validate({
-	 *   submitHandler: handler
-	 * });
-	 */
-	submitHandler: null
 };
 
 // methods for validator object
@@ -237,6 +287,8 @@ v.prototype = {
 		var errorContainer = this.settings.errorLabelContainer || this.settings.errorContainer;
 		if(errorContainer) {
 			errorContainer.hide();
+			// if there is a errorLabelContainer, make sure to hide the normal errorContainer(s) as well
+			this.settings.errorContainer.hide();
 			this.context = errorContainer;
 		}
 
@@ -270,7 +322,7 @@ v.prototype = {
 					throw "validateElement() error: No method found with name " + rule.name;
 				if( !method( $(element).val(), element, rule.parameters ) ) {
 					// add the error to the array of errors for the element
-					var id = ( element.type.match(/radio|checkbox/i) ) ? element.name : element.id;
+					var id = this.findId(element);
 					if(!id && this.settings.debug) {
 						console.error("could not find id/name for element, please check the element %o", element);
 					}
@@ -308,8 +360,7 @@ v.prototype = {
 	 * To hide labels for a form, use hideFormErrors().
 	 */
 	hideElementErrors: function(element) {
-		var id = /radio|checkbox/i.test(element.type) ? element.name : element.id;
-		var errorLabel = $("label." + this.settings.errorClass + "[@for=" + id + "]", this.context).hide();
+		var errorLabel = $("label." + this.settings.errorClass + "[@for=" + this.findId(element) + "]", this.context).hide();
 		if( this.settings.errorWrapper ) {
 			errorLabel.parents(this.settings.errorWrapper).hide();
 		}
@@ -337,6 +388,8 @@ v.prototype = {
 				this.settings.submitHandler(this.currentForm);
 				return false;
 			}
+			if(this.settings.debug && window.console)
+				console.log("form is valid (or rules have errors)")
 			return true;
 		}
 	},
@@ -362,9 +415,9 @@ v.prototype = {
 				// otherwise, find the firt invalid lement
 				else {
 					// focus the first invalid element
-					// does not work with elementID being a name
 					try {
 						var element = $("#"+elementID);
+						// radio/checkbox doesn't have an ID
 						if(!element.length)
 							element = $('[@name='+elementID+']', this.context);
 						element[0].focus();
@@ -428,8 +481,7 @@ v.prototype = {
 	findRules: function(element) {
 		var data;
 		if(this.settings.rules) {
-			var id = ( /radio|checkbox/i.test(element.type) ) ? element.name : element.id;
-			data = this.settings.rules[id];
+			data = this.settings.rules[this.findId(element)];
 		} else {
 			data = $(element).data();
 		}
@@ -442,10 +494,21 @@ v.prototype = {
 			rule.parameters = this;
 		});
 		return rules;
+	},
+	
+	findId: function(element) {
+		var id = ( /radio|checkbox/i.test(element.type) ) ? element.name : element.id;
+		// generate id when none is found
+		if(!id) {
+			var formId = element.form.id;
+			var id = element.id = (formId ? formId.replace(/[^a-zA-Z0-9\-_]/g, "") : "") + element.name.replace(/[^a-zA-Z0-9\-_]/g, "");
+		}
+		return id;
 	}
+	
 };
 
-var getLength = function(value, element) {
+function getLength(value, element) {
 	switch( element.nodeName.toLowerCase() ) {
 	case 'select':
 		return $("option:selected", element).length;
@@ -491,10 +554,37 @@ v.methods = {
 
 	/**
 	 * Return false if the element is empty.
+	 *
 	 * Works with all kind of text inputs, selects, checkboxes and radio buttons.
 	 *
 	 * To force a user to select an option from a select box, provide
 	 * an empty options like <option value="">Choose...</option>
+	 *
+	 * @example <input name="firstname" class="{required:true}" />
+	 * @desc Declares an input element that is required.
+	 *
+	 * @example <fieldset>
+	 * 	<legend>Family</legend>
+	 * 	<label for="family_single">
+	 * 		<input  type="radio" id="family_single" value="s" name="family" validate="required:true" />
+	 * 		Single
+	 * 	</label>
+	 * 	<label for="family_married">
+	 * 		<input  type="radio" id="family_married" value="m" name="family" />
+	 * 		Married
+	 * 	</label>
+	 * 	<label for="family_divorced">
+	 * 		<input  type="radio" id="family_divorced" value="d" name="family" />
+	 * 		Divorced
+	 * 	</label>
+	 * 	<label for="family_weird">
+	 * 		<input  type="radio" id="family_weird" value="w" name="family" />
+	 * 		Something weird
+	 * 	</label>
+	 * 	<label for="family" class="error">Please select your family status.</label>
+	 * </fieldset>
+	 * @desc Specifies a group of radio elements. The validation rule is specified only for the first
+	 * element of the group.
 	 *
 	 * @name $.validator.methods.required
 	 * @type Boolean
@@ -528,8 +618,31 @@ v.methods = {
 	 *
 	 * Works with all kind of text inputs, checkboxes and select.
 	 *
-	 * @param Number min
+	 * @example <input name="firstname" class="{minLength:5}" />
+	 * @desc Declares an optional input element with at least 5 characters (or none at all).
 	 *
+	 * @example <input name="firstname" class="{required:true,minLength:5}" />
+	 * @desc Declares an input element that must have at least 5 characters.
+	 *
+	 * @example <fieldset>
+	 * 	<legend>Spam</legend>
+	 * 	<label for="spam_email">
+	 * 		<input type="checkbox" id="spam_email" value="email" name="spam" validate="required:true,minLength:2" />
+	 * 		Spam via E-Mail
+	 * 	</label>
+	 * 	<label for="spam_phone">
+	 * 		<input type="checkbox" id="spam_phone" value="phone" name="spam" />
+	 * 		Spam via Phone
+	 * 	</label>
+	 * 	<label for="spam_mail">
+	 * 		<input type="checkbox" id="spam_mail" value="mail" name="spam" />
+	 * 		Spam via Mail
+	 * 	</label>
+	 * 	<label for="spam" class="error">Please select at least two types of spam.</label>
+	 * </fieldset>
+	 * @desc Specifies a group of checkboxes. To validate, at least two checkboxes must be selected.
+	 *
+	 * @param Number min
 	 * @name $.validator.methods.min
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
@@ -550,8 +663,13 @@ v.methods = {
 	 *
 	 * Works with all kind of text inputs, checkboxes and selects.
 	 *
-	 * @param Number max
+	 * @example <input name="firstname" class="{maxLength:5}" />
+	 * @desc Declares an input element with at most 5 characters.
 	 *
+	 * @example <input name="firstname" class="{required:true,maxLength:5}" />
+	 * @desc Declares an input element that must have at least one and at most 5 characters.
+	 *
+	 * @param Number max
 	 * @name $.validator.methods.max
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
@@ -572,8 +690,21 @@ v.methods = {
      *
      * Works with all kind of text inputs, checkboxes and selects.
      *
+	 * @example <input name="firstname" class="{rangeLength:[3,5]}" />
+	 * @desc Declares an optional input element with at least 3 and at most 5 characters (or none at all).
+	 *
+	 * @example <input name="firstname" class="{required:true,rangeLength:[3,5]}" />
+	 * @desc Declares an input element that must have at least 3 and at most 5 characters.
+	 *
+	 * @example <select id="cars" class="{required:true,rangeLength:[2,3]}" multiple="multiple">
+	 * 	<option value="m_sl">Mercedes SL</option>
+	 * 	<option value="o_c">Opel Corsa</option>
+	 * 	<option value="vw_p">VW Polo</option>
+	 * 	<option value="t_s">Titanic Skoda</option>
+	 * </select>
+	 * @desc Specifies a select that must have at least two but no more then three options selected.
+	 *
      * @param Array<Number> min/max
-     *
      * @name $.validator.methods.rangeLength
      * @type Boolean
      * @cat Plugins/Validate/Methods
@@ -588,8 +719,13 @@ v.methods = {
 	 *
 	 * Works with all kind of text inputs.
 	 *
-	 * @param Number min
+	 * @example <input name="age" class="{minValue:16}" />
+	 * @desc Declares an optional input element whose value must be at least 16 (or none at all).
 	 *
+	 * @example <input name="age" class="{required:true,minValue:16}" />
+	 * @desc Declares an input element whose value must be at least 16.
+	 *
+	 * @param Number min
 	 * @name $.validator.methods.minValue
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
@@ -603,8 +739,13 @@ v.methods = {
 	 *
 	 * Works with all kind of text inputs.
 	 *
-	 * @param Number max
+	 * @example <input name="age" class="{maxValue:16}" />
+	 * @desc Declares an optional input element whose value must be at most 16 (or none at all).
 	 *
+	 * @example <input name="age" class="{required:true,maxValue:16}" />
+	 * @desc Declares an input element whose required value must be at most 16.
+	 *
+	 * @param Number max
 	 * @name $.validator.methods.maxValue
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
@@ -618,8 +759,13 @@ v.methods = {
 	 *
 	 * Works with all kind of text inputs.
 	 *
-	 * @param Array<Number> min/max
+	 * @example <input name="age" class="{rangeValue:[4,12]}" />
+	 * @desc Declares an optional input element whose value must be at least 4 and at most 12 (or none at all).
 	 *
+	 * @example <input name="age" class="{required:true,rangeValue:[4,12]}" />
+	 * @desc Declares an input element whose required value must be at least 4 and at most 12.
+	 *
+	 * @param Array<Number> min/max
 	 * @name $.validator.methods.rangeValue
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
@@ -632,6 +778,12 @@ v.methods = {
 	 * Return true, if the value is not a valid email address.
 	 *
 	 * Works with all kind of text inputs.
+	 *
+	 * @example <input name="email1" class="{email:true}" />
+	 * @desc Declares an optional input element whose value must be a valid email address (or none at all).
+	 *
+	 * @example <input name="email1" class="{required:true,email:true}" />
+	 * @desc Declares an input element whose value must be a valid email address.
 	 *
 	 * @name $.validator.methods.email
 	 * @type Boolean
@@ -646,7 +798,13 @@ v.methods = {
 	 *
 	 * Works with all kind of text inputs.
 	 *
-	 * @see http://www.w3.org/Addressing/rfc1738.txt
+	 * See http://www.w3.org/Addressing/rfc1738.txt for URL specification.
+	 *
+	 * @example <input name="homepage" class="{url:true}" />
+	 * @desc Declares an optional input element whose value must be a valid URL (or none at all).
+	 *
+	 * @example <input name="homepage" class="{required:true,url:true}" />
+	 * @desc Declares an input element whose value must be a valid URL.
 	 *
 	 * @name $.validator.methods.url
 	 * @type Boolean
@@ -657,11 +815,16 @@ v.methods = {
 	},
 
 	/**
-	 * Return true, if the value is a valid date.
+	 * Return true, if the value is a valid date. Uses JavaScripts built-in
+	 * Date to test if the date is valid, and is therefore very limited.
 	 *
 	 * Works with all kind of text inputs.
 	 *
-	 * WARNING: Limited due to the capability of the JS Date object
+	 * @example <input name="birthdate" class="{date:true}" />
+	 * @desc Declares an optional input element whose value must be a valid date (or none at all).
+	 *
+	 * @example <input name="birthdate" class="{required:true,date:true}" />
+	 * @desc Declares an input element whose value must be a valid date.
 	 *
 	 * @name $.validator.methods.date
 	 * @type Boolean
@@ -685,6 +848,9 @@ v.methods = {
 	 * @example $.validator.methods.date("01.01.1990")
 	 * @result false
 	 *
+	 * @example <input name="birthdate" class="{dateISO:true}" />
+	 * @desc Declares an optional input element whose value must be a valid ISO date (or none at all).
+	 *
 	 * @name $.validator.methods.date
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
@@ -694,11 +860,22 @@ v.methods = {
 	},
 
 	/**
-	 * Return true, if the value is a valid date.
+	 * Return true, if the value is a valid date. Supports german
+	 * dates (29.04.1994 or 1.1.2006). Doesn't make any sanity checks.
 	 *
 	 * Works with all kind of text inputs.
 	 *
-	 * Supports german dates (29.04.1994 or 1.1.2006)
+	 * @example $.validator.methods.date("1990/01/01")
+	 * @result false
+	 *
+	 * @example $.validator.methods.date("01.01.1990")
+	 * @result true
+	 *
+	 * @example $.validator.methods.date("0.1.2345")
+	 * @result true
+	 *
+	 * @example <input name="geburtstag" class="{dateDE:true}" />
+	 * @desc Declares an optional input element whose value must be a valid german date (or none at all).
 	 *
 	 * @name $.validator.methods.dateDE
 	 * @type Boolean
@@ -709,11 +886,13 @@ v.methods = {
 	},
 
 	/**
-	 * Return true, if the value is a valid number.
+	 * Return true, if the value is a valid number. Checks for
+	 * international number format, eg. 100,000.59
 	 *
 	 * Works with all kind of text inputs.
 	 *
-	 * Checks for international number format, eg. 100,000.59
+	 * @example <input name="amount" class="{number:true}" />
+	 * @desc Declares an optional input element whose value must be a valid number (or none at all).
 	 *
 	 * @name $.validator.methods.number
 	 * @type Boolean
@@ -730,6 +909,9 @@ v.methods = {
 	 *
 	 * Checks for german numbers (100.000,59)
 	 *
+	 * @example <input name="menge" class="{numberDE:true}" />
+	 * @desc Declares an optional input element whose value must be a valid german number (or none at all).
+	 *
 	 * @name $.validator.methods.numberDE
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
@@ -743,6 +925,9 @@ v.methods = {
 	 *
 	 * Works with all kind of text inputs.
 	 *
+	 * @example <input name="serialnumber" class="{digits:true}" />
+	 * @desc Declares an optional input element whose value must contain only digits (or none at all).
+	 *
 	 * @name $.validator.methods.digits
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
@@ -755,10 +940,17 @@ v.methods = {
 	 * Returns true if the value has the same value
 	 * as the element specified by the first parameter.
 	 *
+	 * Keep the expression simple to avoid spaces when using metadata.
+	 *
 	 * Works with all kind of text inputs.
 	 *
-	 * @param String selection A jQuery expression
+	 * @example <input name="email" id="email" class="{required:true,email:true'}" />
+	 * <input name="emailAgain" class="{equalTo:'#email'}" />
+	 * @desc Declares two input elements: The first must contain a valid email address,
+	 * the second must contain the same adress, enter once more. The paramter is a
+	 * expression used via jQuery to select the element.
 	 *
+	 * @param String selection A jQuery expression
 	 * @name $.validator.methods.digits
 	 * @type Boolean
 	 * @cat Plugins/Validate/Methods
@@ -799,11 +991,11 @@ for(var key in messages) {
 }
 
 /**
- * Add a new validation method. It must consist of a name (must be a legal javascript identifier)
- * and a Function, the message is optional.
+ * Add a new validation method. It must consist of a name (must be a legal
+ * javascript identifier), a function and a default message.
  *
  * Please note: While the temptation is great to
- * add a regex method that check it's paramter against the value,
+ * add a regex method that checks it's paramter against the value,
  * it is much cleaner to encapsulate those regular expressions
  * inside their own method. If you need lots of slightly different
  * expressions, try to extract a common parameter.

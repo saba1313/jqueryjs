@@ -55,7 +55,7 @@ jQuery.fn.extend({
 		// If the second parameter was provided
 		if ( params )
 			// If it's a function
-			if ( jQuery.isFunction( params.constructor ) ) {
+			if ( jQuery.isFunction( params ) ) {
 				// We assume that it's the callback
 				callback = params;
 				params = null;
@@ -132,7 +132,7 @@ jQuery.fn.extend({
 });
 
 // If IE is used, create a wrapper for the XMLHttpRequest object
-if ( jQuery.browser.msie && typeof XMLHttpRequest == "undefined" )
+if ( !window.XMLHttpRequest )
 	XMLHttpRequest = function(){
 		return new ActiveXObject("Microsoft.XMLHTTP");
 	};
@@ -391,6 +391,11 @@ jQuery.extend({
 	 * @cat Ajax
 	 */
 	post: function( url, data, callback, type ) {
+		if ( jQuery.isFunction( data ) ) {
+			callback = data;
+			data = {};
+		}
+
 		return jQuery.ajax({
 			type: "POST",
 			url: url,
@@ -594,9 +599,12 @@ jQuery.extend({
 			if (s.processData && typeof s.data != "string")
     			s.data = jQuery.param(s.data);
 			// append data to url for get requests
-			if( s.type.toLowerCase() == "get" )
+			if( s.type.toLowerCase() == "get" ) {
 				// "?" + data or "&" + data (in case there are already params)
 				s.url += ((s.url.indexOf("?") > -1) ? "&" : "?") + s.data;
+				// IE likes to send both get and post data, prevent this
+				s.data = null;
+			}
 		}
 
 		// Watch for a new set of requests
@@ -799,7 +807,7 @@ jQuery.extend({
 			// Serialize the key/values
 			for ( var j in a )
 				// If the value is an array then the key names need to be repeated
-				if ( a[j].constructor == Array )
+				if ( a[j] && a[j].constructor == Array )
 					jQuery.each( a[j], function(){
 						s.push( encodeURIComponent(j) + "=" + encodeURIComponent( this ) );
 					});

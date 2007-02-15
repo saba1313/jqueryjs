@@ -69,33 +69,41 @@ jQuery.event = {
 					this.remove( element, j );
 	},
 
-	trigger: function(type,data,element) {
+	trigger: function(type, data, element) {
 		// Clone the incoming data, if any
 		data = jQuery.makeArray(data || []);
 
 		// Handle a global trigger
-		if ( !element ) {
-			var g = this.global[type];
-			if ( g )
-				jQuery.each( g, function(){
-					jQuery.event.trigger( type, data, this );
-				});
+		if ( !element )
+			jQuery.each( this.global[type] || [], function(){
+				jQuery.event.trigger( type, data, this );
+			});
 
 		// Handle triggering a single element
-		} else if ( element["on" + type] ) {
-			// Pass along a fake event
-			data.unshift( this.fix({ type: type, target: element }) );
-	
-			// Trigger the event
-			var val = element["on" + type].apply( element, data );
+		else {
+			var handler = element["on" + type ], val,
+				fn = jQuery.isFunction( element[ type ] );
 
-			if ( val !== false && jQuery.isFunction( element[ type ] ) )
+			if ( handler ) {
+				// Pass along a fake event
+				data.unshift( this.fix({ type: type, target: element }) );
+	
+				// Trigger the event
+				if ( (val = handler.apply( element, data )) !== false )
+					this.triggered = true;
+			}
+
+			if ( fn && val !== false )
 				element[ type ]();
+
+			this.triggered = false;
 		}
 	},
 
 	handle: function(event) {
-		if ( typeof jQuery == "undefined" ) return false;
+		// Handle the second event of a trigger and when
+		// an event is called after a page has unloaded
+		if ( typeof jQuery == "undefined" || jQuery.event.triggered ) return;
 
 		// Empty object is for triggered events with no data
 		event = jQuery.event.fix( event || window.event || {} ); 
@@ -305,9 +313,19 @@ jQuery.fn.extend({
 	 * @before <p click="alert('hello')">Hello</p>
 	 * @result alert('hello')
 	 *
+	 * @example $("p").click(function(event, a, b) {
+	 *   // when a normal click fires, a and b are undefined
+	 *   // for a trigger like below a refers too "foo" and b refers to "bar"
+	 * }).trigger("click", ["foo", "bar"]);
+	 * @desc Example of how to pass arbitrary to an event
+	 * 
+	 * @before <p click="alert('hello')">Hello</p>
+	 * @result alert('hello')
+	 *
 	 * @name trigger
 	 * @type jQuery
 	 * @param String type An event type to trigger.
+	 * @param Array data (optional) Additional data to pass as arguments (after the event object) to the event handler
 	 * @cat Events
 	 */
 	trigger: function( type, data ) {

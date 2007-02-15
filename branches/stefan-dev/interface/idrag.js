@@ -16,35 +16,36 @@
  * @name Draggable
  * @descr Creates draggable elements that can be moved across the page.
  * @param Hash hash A hash of parameters. All parameters are optional.
- * @option String handle The jQuery selector matching the handle that starts the draggable
- * @option DOMElement handle The DOM Element of the handle that starts the draggable
- * @option Boolean revert When true, on stop-drag the element returns to initial position
- * @option Boolean ghosting When true, a copy of the element is moved
- * @option Integer zIndex zIndex depth for the element while it is being dragged
- * @option Float opacity A number between 0 and 1 that indicates the opacity of the element while being dragged
- * @option Integer grid A number of pixels indicating the grid that the element should snap to
- * @option Array grid A number of x-pixels and y-pixels indicating the grid that the element should snap to
- * @option Integer fx Duration for the effect (like ghosting or revert) applied to the draggable
- * @option String containment Define the zone where the draggable can be moved. 'parent' moves it inside parent
+ * @option String handle (optional) The jQuery selector matching the handle that starts the draggable
+ * @option DOMElement handle (optional) The DOM Element of the handle that starts the draggable
+ * @option Boolean revert (optional) When true, on stop-drag the element returns to initial position
+ * @option Boolean ghosting (optional) When true, a copy of the element is moved
+ * @option Integer zIndex (optional) zIndex depth for the element while it is being dragged
+ * @option Float opacity (optional) A number between 0 and 1 that indicates the opacity of the element while being dragged
+ * @option Integer grid (optional) (optional) A number of pixels indicating the grid that the element should snap to
+ * @option Array grid (optional) A number of x-pixels and y-pixels indicating the grid that the element should snap to
+ * @option Integer fx (optional) Duration for the effect (like ghosting or revert) applied to the draggable
+ * @option String containment (optional) Define the zone where the draggable can be moved. 'parent' moves it inside parent
  *                           element, while 'document' prevents it from leaving the document and forcing additional
  *                           scrolling
- * @option Array containment An 4-element array (topm left, width, height) indicating the containment of the element
- * @option String axis Set an axis: vertical (with 'vertically') or horizontal (with 'horizontally')
- * @option Function onStart Callback function triggered when the dragging starts
- * @option Function onStop Callback function triggered when the dragging stops
- * @option Function onChange Callback function triggered when the dragging stop *and* the element was moved at least
+ * @option Array containment An 4-element array (left, top, width, height) indicating the containment of the element
+ * @option String axis (optional) Set an axis: vertical (with 'vertically') or horizontal (with 'horizontally')
+ * @option Function onStart (optional) Callback function triggered when the dragging starts
+ * @option Function onStop (optional) Callback function triggered when the dragging stops
+ * @option Function onChange (optional) Callback function triggered when the dragging stop *and* the element was moved at least
  *                          one pixel
- * @option Function onDrag Callback function triggered while the element is dragged. Receives two parameters: x and y
+ * @option Function onDrag (optional) Callback function triggered while the element is dragged. Receives two parameters: x and y
  *                        coordinates. You can return an object with new coordinates {x: x, y: y} so this way you can
  *                        interact with the dragging process (for instance, build your containment)
  * @option Boolean insideParent Forces the element to remain inside its parent when being dragged (like Google Maps)
- * @option Integer snapDistance The element is not moved unless it is dragged more than snapDistance. You can prevent
+ * @option Integer snapDistance (optional) The element is not moved unless it is dragged more than snapDistance. You can prevent
  *                             accidental dragging and keep regular clicking enabled (for links or form elements, 
  *                             for instance)
- * @option Object cursorAt The dragged element is moved to the cursor position with the offset specified. Accepts value
+ * @option Object cursorAt (optional) The dragged element is moved to the cursor position with the offset specified. Accepts value
  *                        for top, left, right and bottom offset. Basically, this forces the cursor to a particular
  *                        position during the entire drag operation.
- * @option Boolean autoSize When true, the drag helper is resized to its content, instead of the dragged element's sizes
+ * @option Boolean autoSize (optional) When true, the drag helper is resized to its content, instead of the dragged element's sizes
+ * @option String frameClass (optional) When is set the cloned element is hidden so only a frame is dragged
  * @type jQuery
  * @cat Plugins/Interface
  * @author Stefan Petre
@@ -62,6 +63,13 @@ jQuery.iDrag =	{
 					this.dragCfg.dhe.unbind('mousedown', jQuery.iDrag.draginit);
 					this.dragCfg = null;
 					this.isDraggable = false;
+					if(jQuery.browser.msie) {
+						this.unselectable = "off";
+					} else {
+						this.style.MozUserSelect = '';
+						this.style.KhtmlUserSelect = '';
+						this.style.userSelect = '';
+					}
 				}
 			}
 		);
@@ -92,15 +100,15 @@ jQuery.iDrag =	{
 				dy = elm.dragCfg.currentPointer.y - parentPos.y - sliderSize.hb/2 - sliderPos.y;
 				jQuery.iSlider.dragmoveBy(elm, [dx, dy]);
 		}
-		return false;
+		return jQuery.selectKeyHelper||false;
 	},
 
 	dragstart : function(e)
 	{
-		elm = jQuery.iDrag.dragged;
+		var elm = jQuery.iDrag.dragged;
 		elm.dragCfg.init = true;
 
-		dEs = elm.style;
+		var dEs = elm.style;
 
 		elm.dragCfg.oD = jQuery.css(elm,'display');
 		elm.dragCfg.oP = jQuery.css(elm,'position');
@@ -114,7 +122,7 @@ jQuery.iDrag =	{
 		elm.dragCfg.diffX = 0;
 		elm.dragCfg.diffY = 0;
 		if (jQuery.browser.msie) {
-			oldBorder = jQuery.iUtil.getBorder(elm, true);
+			var oldBorder = jQuery.iUtil.getBorder(elm, true);
 			elm.dragCfg.diffX = oldBorder.l||0;
 			elm.dragCfg.diffY = oldBorder.t||0;
 		}
@@ -128,9 +136,8 @@ jQuery.iDrag =	{
 		}
 
 		jQuery.iDrag.helper.empty();
-
-		clonedEl = elm.cloneNode(true);
-		jQuery.iUtil.purgeEvents(clonedEl);
+		var clonedEl = elm.cloneNode(true);
+		
 		jQuery(clonedEl).css(
 			{
 				display:	'block',
@@ -143,11 +150,8 @@ jQuery.iDrag =	{
 		clonedEl.style.marginBottom = '0';
 		clonedEl.style.marginLeft = '0';
 		jQuery.iDrag.helper.append(clonedEl);
-
-		if (elm.dragCfg.onStart)
-			elm.dragCfg.onStart.apply(elm, [clonedEl]);
-
-		dhs = jQuery.iDrag.helper.get(0).style;
+		
+		var dhs = jQuery.iDrag.helper.get(0).style;
 
 		if (elm.dragCfg.autoSize) {
 			dhs.width = 'auto';
@@ -225,6 +229,13 @@ jQuery.iDrag =	{
 				jQuery.iDrag.helper.css('filter', 'alpha(opacity=' + elm.dragCfg.opacity * 100 + ')');
 			}
 		}
+
+		if(elm.dragCfg.frameClass) {
+			jQuery.iDrag.helper.addClass(elm.dragCfg.frameClass);
+			jQuery.iDrag.helper.get(0).firstChild.style.display = 'none';
+		}
+		if (elm.dragCfg.onStart)
+			elm.dragCfg.onStart.apply(elm, [clonedEl, elm.dragCfg.oR.x, elm.dragCfg.oR.y]);
 		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
 			jQuery.iDrop.highlight(elm);
 		}
@@ -242,11 +253,11 @@ jQuery.iDrag =	{
 					{x:0,y:0},
 					jQuery.iUtil.getSize(elm.parentNode)
 				);
-				contBorders = jQuery.iUtil.getBorder(elm.parentNode, true);
+				var contBorders = jQuery.iUtil.getBorder(elm.parentNode, true);
 				elm.dragCfg.cont.w = elm.dragCfg.cont.wb - contBorders.l - contBorders.r;
 				elm.dragCfg.cont.h = elm.dragCfg.cont.hb - contBorders.t - contBorders.b;
 			} else if (elm.dragCfg.containment == 'document') {
-				clnt = jQuery.iUtil.getClient();
+				var clnt = jQuery.iUtil.getClient();
 				elm.dragCfg.cont = {
 					x : 0,
 					y : 0,
@@ -287,7 +298,7 @@ jQuery.iDrag =	{
 		if (jQuery.iDrag.dragged == null) {
 			return;
 		}
-		dragged = jQuery.iDrag.dragged;
+		var dragged = jQuery.iDrag.dragged;
 
 		jQuery.iDrag.dragged = null;
 
@@ -297,20 +308,23 @@ jQuery.iDrag =	{
 		if (dragged.dragCfg.so == true) {
 			jQuery(dragged).css('position', dragged.dragCfg.oP);
 		}
-		dEs = dragged.style;
+		var dEs = dragged.style;
 
 		if (dragged.si) {
 			jQuery.iDrag.helper.css('cursor', 'move');
+		}
+		if(dragged.dragCfg.frameClass) {
+			jQuery.iDrag.helper.removeClass(dragged.dragCfg.frameClass);
 		}
 
 		if (dragged.dragCfg.revert == false) {
 			if (dragged.dragCfg.fx > 0) {
 				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally') {
-					x = new jQuery.fx(dragged,{duration:dragged.dragCfg.fx}, 'left');
+					var x = new jQuery.fx(dragged,{duration:dragged.dragCfg.fx}, 'left');
 					x.custom(dragged.dragCfg.oR.x,dragged.dragCfg.nRx);
 				}
 				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'vertically') {
-					y = new jQuery.fx(dragged,{duration:dragged.dragCfg.fx}, 'top');
+					var y = new jQuery.fx(dragged,{duration:dragged.dragCfg.fx}, 'top');
 					y.custom(dragged.dragCfg.oR.y,dragged.dragCfg.nRy);
 				}
 			} else {
@@ -325,10 +339,9 @@ jQuery.iDrag =	{
 			}
 		} else if (dragged.dragCfg.fx > 0) {
 			dragged.dragCfg.prot = true;
-			if(jQuery.iDrop && jQuery.iDrop.overzone && jQuery.iSort && dragged.dragCfg.so) {
+			var dh = false;
+			if(jQuery.iDrop && jQuery.iSort && dragged.dragCfg.so) {
 				dh = jQuery.iUtil.getPosition(jQuery.iSort.helper.get(0));
-			} else {
-				dh = false;
 			}
 			jQuery.iDrag.helper.animate(
 				{
@@ -355,7 +368,7 @@ jQuery.iDrag =	{
 		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
 			jQuery.iDrop.checkdrop(dragged);
 		}
-		if (jQuery.iSort && jQuery.iDrop.overzone && dragged.dragCfg.so) {
+		if (jQuery.iSort && dragged.dragCfg.so) {
 			jQuery.iSort.check(dragged);
 		}
 		if (dragged.dragCfg.onChange && (dragged.dragCfg.nRx != dragged.dragCfg.oR.x || dragged.dragCfg.nRy != dragged.dragCfg.oR.y)){
@@ -417,11 +430,11 @@ jQuery.iDrag =	{
 			}
 		}
 
-		dx = dragged.dragCfg.currentPointer.x - dragged.dragCfg.pointer.x;
-		dy = dragged.dragCfg.currentPointer.y - dragged.dragCfg.pointer.y;
+		var dx = dragged.dragCfg.currentPointer.x - dragged.dragCfg.pointer.x;
+		var dy = dragged.dragCfg.currentPointer.y - dragged.dragCfg.pointer.y;
 
-		for (i in dragged.dragCfg.onDragModifier) {
-			newCoords = dragged.dragCfg.onDragModifier[i].apply(dragged, [dragged.dragCfg.oR.x + dx, dragged.dragCfg.oR.y + dy, dx, dy]);
+		for (var i in dragged.dragCfg.onDragModifier) {
+			var newCoords = dragged.dragCfg.onDragModifier[i].apply(dragged, [dragged.dragCfg.oR.x + dx, dragged.dragCfg.oR.y + dy, dx, dy]);
 			if (newCoords && newCoords.constructor == Object) {
 				dx = i != 'user' ? newCoords.dx : (newCoords.x - dragged.dragCfg.oR.x);
 				dy = i != 'user' ? newCoords.dy : (newCoords.y - dragged.dragCfg.oR.y);
@@ -448,54 +461,29 @@ jQuery.iDrag =	{
 		}
 		
 		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
-			jQuery.iDrop.checkhover(dragged, clonedEl);
+			jQuery.iDrop.checkhover(dragged);
 		}
 		return false;
 	},
 
 	build : function(o)
 	{
-			/*if (jQuery.browser.msie) {
-				jQuery(window)
-					.bind(
-						'unload',
-						function()
-						{
-							jQuery('body')
-								.unbind('mousemove', jQuery.iDrag.dragmove)
-								.unbind('mouseup', jQuery.iDrag.dragstop);
-							jQuery.iDrag.helper = null;
-							jQuery.iDrag.dragged = null;
-							jQuery('*').each(
-								function()
-								{
-									if (this.dragElem) {
-										jQuery(this).unbind('mousedown', jQuery.iDrag.dragstart);
-										this.dragElem = null;
-										this.onselectstart = null;
-										this.ondragstart = null;
-									}
-								}
-							);
-						}
-					);
-			}*/
 		if (!jQuery.iDrag.helper) {
 			jQuery('body',document).append('<div id="dragHelper"></div>');
 			jQuery.iDrag.helper = jQuery('#dragHelper');
-			el = jQuery.iDrag.helper.get(0);
-			els = el.style;
+			var el = jQuery.iDrag.helper.get(0);
+			var els = el.style;
 			els.position = 'absolute';
 			els.display = 'none';
 			els.cursor = 'move';
 			els.listStyle = 'none';
 			els.overflow = 'hidden';
 			if (window.ActiveXObject) {
-				el.onselectstart = function(){return false;};
-				el.ondragstart = function(){return false;};
+				el.unselectable = "on";
 			} else {
 				els.mozUserSelect = 'none';
 				els.userSelect = 'none';
+				els.KhtmlUserSelect = 'none';
 			}
 		}
 		if (!o) {
@@ -516,9 +504,7 @@ jQuery.iDrag =	{
 					dhe.each(
 						function()
 						{
-							this.onselectstart = function(){return false;};
-							this.ondrag = function(){return false;};
-							this.selectable = "on";
+							this.unselectable = "on";
 						}
 					);
 				} else {
@@ -545,7 +531,9 @@ jQuery.iDrag =	{
 					axis : /vertically|horizontally/.test(o.axis) ? o.axis : false,
 					snapDistance : o.snapDistance ? parseInt(o.snapDistance)||0 : 0,
 					cursorAt: o.cursorAt ? o.cursorAt : false,
-					autoSize : o.autoSize ? true : false
+					autoSize : o.autoSize ? true : false,
+					frameClass : o.frameClass || false
+					
 				};
 				if (o.onDragModifier && o.onDragModifier.constructor == Function)
 					this.dragCfg.onDragModifier.user = o.onDragModifier;

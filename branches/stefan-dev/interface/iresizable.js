@@ -89,7 +89,11 @@ jQuery.iResize = {
 
 		// Callback
 		if (typeof jQuery.iResize.dragged.resizeOptions.onDrag === 'function') {
-			jQuery.iResize.dragged.resizeOptions.onDrag.apply(jQuery.iResize.dragged, [newLeft, newTop]);
+			var newPos = jQuery.iResize.dragged.resizeOptions.onDrag.apply(jQuery.iResize.dragged, [newLeft, newTop]);
+			if (typeof newPos == 'array' && newPos.length == 2) {
+				newLeft = newPos[0];
+				newTop = newPos[1];
+			}
 		}
 
 		// Update the element
@@ -213,7 +217,11 @@ jQuery.iResize = {
 		}
 
 		if (jQuery.iResize.resizeElement.resizeOptions.ratio) {
-			nHeight = jQuery.iResize.getHeightMinMax(newSizes.width * jQuery.iResize.resizeElement.resizeOptions.ratio);
+			if (jQuery.iResize.resizeDirection == 'n' || jQuery.iResize.resizeDirection == 's')
+				nWidth = newSizes.height * jQuery.iResize.resizeElement.resizeOptions.ratio;
+			else
+				nWidth = newSizes.width;
+			nHeight = jQuery.iResize.getHeightMinMax(nWidth * jQuery.iResize.resizeElement.resizeOptions.ratio);
 			nWidth = nHeight / jQuery.iResize.resizeElement.resizeOptions.ratio;
 
 			switch (jQuery.iResize.resizeDirection){
@@ -329,7 +337,7 @@ jQuery.iResize = {
 				el.resizeOptions.minLeft = options.minLeft || -1000;
 				el.resizeOptions.maxRight = options.maxRight || 3000;
 				el.resizeOptions.maxBottom = options.maxBottom || 3000;
-				elPosition = $(el).css('position');
+				elPosition = jQuery(el).css('position');
 				if (!(elPosition == 'relative' || elPosition == 'absolute')) {
 					el.style.position = 'relative';
 				}
@@ -419,7 +427,7 @@ jQuery.fn.extend ({
 		 * @option Integer minLeft (optional) the minmum left position to wich element can be moved to
 		 * @option Integer maxRight (optional) the maximum right position to wich element can be moved to
 		 * @option Integer maxBottom (optional) the maximum bottom position to wich element can be moved to
-		 * @option Float ration (optional) the ratio between width and height to constrain elements sizes to that ratio
+		 * @option Float ratio (optional) the ratio between width and height to constrain elements sizes to that ratio
 		 * @option Mixed dragHandle (optional) true to make the element draggable, string selection for drag handle
 		 * @option Function onDragStart (optional) A function to be executed whenever the dragging starts
 		 * @option Function onDragStop (optional) A function to be executed whenever the dragging stops

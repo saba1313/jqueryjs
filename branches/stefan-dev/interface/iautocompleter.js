@@ -28,6 +28,7 @@
  * @option Function onSelect (optional) A function to be executed whenever an item it is selected
  * @option Function onShow (optional) A function to be executed whenever the suggection box is displayed
  * @option Function onHide (optional) A function to be executed whenever the suggection box is hidden
+ * @option Function onHighlight (optional) A function to be executed whenever an item it is highlighted
  *
  * @type jQuery
  * @cat Plugins/Interface
@@ -73,12 +74,10 @@ jQuery.iAuto = {
 			} else {
 				jQuery.iAuto.helper.hide();
 			}
-			if (jQuery.iAuto.iframe)
-				jQuery.iAuto.iframe.hide();
 			if (jQuery.iAuto.subject.autoCFG.onHide)
 				jQuery.iAuto.subject.autoCFG.onHide.apply(jQuery.iAuto.subject, [jQuery.iAuto.helper, jQuery.iAuto.iframe]);
 		} else {
-			jQuery.iAuto.empty;
+			jQuery.iAuto.empty();
 		}
 		window.clearTimeout(jQuery.iAuto.timer);
 	},
@@ -86,38 +85,45 @@ jQuery.iAuto = {
 	update : function ()
 	{
 		var subject = jQuery.iAuto.subject;
-		if (subject && subject.value != jQuery.iAuto.lastValue && subject.value.length >= subject.autoCFG.minchars) {
-			jQuery.iAuto.lastValue = subject.value;
-			jQuery.iAuto.currentValue = subject.value;
+		var subjectValue = jQuery.iAuto.getFieldValues(subject);
+		//var selectionStart = jQuery.iAuto.getSelectionStart(subject);
+		if (subject && subjectValue.item != jQuery.iAuto.lastValue && subjectValue.item.length >= subject.autoCFG.minchars) {
+			jQuery.iAuto.lastValue = subjectValue.item;
+			jQuery.iAuto.currentValue = subjectValue.item;
 
 			data = {
-				field: $(subject).attr('name')||'field',
-				value: subject.value
+				field: jQuery(subject).attr('name')||'field',
+				value: subjectValue.item
 			};
 
 			jQuery.ajax(
 				{
 					type: 'POST',
-					data: $.param(data),
+					data: jQuery.param(data),
 					success: function(xml)
 					{
-						subject.autoCFG.lastSuggestion = $('item',xml);
+						subject.autoCFG.lastSuggestion = jQuery('item',xml);
 						size = subject.autoCFG.lastSuggestion.size();
 						if (size > 0) {
 							var toWrite = '';
 							subject.autoCFG.lastSuggestion.each(
 								function(nr)
 								{
-									toWrite += '<li rel="' + $('value', this).text() + '" dir="' + nr + '" style="cursor: default;">' + $('text', this).text() + '</li>';
+									toWrite += '<li rel="' + jQuery('value', this).text() + '" dir="' + nr + '" style="cursor: default;">' + jQuery('text', this).text() + '</li>';
 								}
 							);
 							if (subject.autoCFG.autofill) {
-								subject.value = $('value', subject.autoCFG.lastSuggestion.get(0)).text();
-								jQuery.iAuto.selection(subject, jQuery.iAuto.currentValue.length, subject.value.length);
+								var valueToAdd = jQuery('value', subject.autoCFG.lastSuggestion.get(0)).text();
+								subject.value = subjectValue.pre + valueToAdd + subject.autoCFG.multipleSeparator + subjectValue.post;
+								jQuery.iAuto.selection(
+									subject, 
+									subjectValue.item.length != valueToAdd.length ? (subjectValue.pre.length + subjectValue.item.length) : valueToAdd.length,
+									subjectValue.item.length != valueToAdd.length ? (subjectValue.pre.length + valueToAdd.length) : valueToAdd.length
+								);
 							}
 							
 							if (size > 0) {
-								jQuery.iAuto.whiteItems(subject, toWrite);
+								jQuery.iAuto.writeItems(subject, toWrite);
 							} else {
 								jQuery.iAuto.clear();
 							}
@@ -131,31 +137,37 @@ jQuery.iAuto = {
 		}
 	},
 	
-	whiteItems : function(subject, toWrite)
+	writeItems : function(subject, toWrite)
 	{
 		jQuery.iAuto.content.html(toWrite);
-		jQuery.iAuto.items = $('li', jQuery.iAuto.content.get(0));
+		jQuery.iAuto.items = jQuery('li', jQuery.iAuto.content.get(0));
 		jQuery.iAuto.items
 			.mouseover(jQuery.iAuto.hoverItem)
-			.click(jQuery.iAuto.clickItem);
-		position = jQuery.iUtil.getPosition(subject);
-		size = jQuery.iUtil.getSize(subject);
+			.bind('click', jQuery.iAuto.clickItem);
+		var position = jQuery.iUtil.getPosition(subject);
+		var size = jQuery.iUtil.getSize(subject);
 		jQuery.iAuto.helper
 			.css('top', position.y + size.hb + 'px')
 			.css('left', position.x +  'px')
 			.addClass(subject.autoCFG.helperClass);
 		if (jQuery.iAuto.iframe) {
 			jQuery.iAuto.iframe
+				.css('display', 'block')
 				.css('top', position.y + size.hb + 'px')
 				.css('left', position.x +  'px')
-				.css('width', jQuery.iAuto.helper.css('width') + 'px')
-				.css('height', jQuery.iAuto.helper.css('height') + 'px')
-				.css('display', 'block');
+				.css('width', jQuery.iAuto.helper.css('width'))
+				.css('height', jQuery.iAuto.helper.css('height'));
 		}
 		jQuery.iAuto.selectedItem = 0;
 		jQuery.iAuto.items.get(0).className = subject.autoCFG.selectClass;
+		jQuery.iAuto.applyOn(subject,subject.autoCFG.lastSuggestion.get(0), 'onHighlight');
 		
 		if (jQuery.iAuto.helper.css('display') == 'none') {
+			if (subject.autoCFG.inputWidth) {
+				var borders = jQuery.iUtil.getPadding(subject, true);
+				var paddings = jQuery.iUtil.getBorder(subject, true);
+				jQuery.iAuto.helper.css('width', subject.offsetWidth - (jQuery.boxModel ? (borders.l + borders.r + paddings.l + paddings.r) : 0 ) + 'px');
+			}
 			if (subject.autoCFG.fx) {
 				switch(subject.autoCFG.fx.type) {
 					case 'fade':
@@ -189,16 +201,16 @@ jQuery.iAuto = {
 			subject.autoCFG.lastSuggestion.each(
 				function(nr)
 				{
-					value = $('value', this).text().toLowerCase();
+					value = jQuery('value', this).text().toLowerCase();
 					inputValue = subject.value.toLowerCase();
 					if (value.indexOf(inputValue) == 0) {
-						toWrite += '<li rel="' + $('value', this).text() + '" dir="' + nr + '" style="cursor: default;">' + $('text', this).text() + '</li>';
+						toWrite += '<li rel="' + jQuery('value', this).text() + '" dir="' + nr + '" style="cursor: default;">' + jQuery('text', this).text() + '</li>';
 					}
 				}
 			);
 			
 			if (toWrite != '') {
-				jQuery.iAuto.whiteItems(subject, toWrite);
+				jQuery.iAuto.writeItems(subject, toWrite);
 				
 				this.autoCFG.inCache = true;
 				return;
@@ -214,7 +226,7 @@ jQuery.iAuto = {
 			var selRange = field.createTextRange();
 			selRange.collapse(true);
 			selRange.moveStart("character", start);
-			selRange.moveEnd("character", end);
+			selRange.moveEnd("character", - end + start);
 			selRange.select();
 		} else if (field.setSelectionRange) {
 			field.setSelectionRange(start, end);
@@ -226,12 +238,71 @@ jQuery.iAuto = {
 		}
 		field.focus();
 	},
-
+	
+	getSelectionStart : function(field)
+	{
+		if (field.selectionStart)
+			return field.selectionStart;
+		else if(field.createTextRange) {
+			var selRange = document.selection.createRange();
+			var selRange2 = selRange.duplicate();
+			return 0 - selRange2.moveStart('character', -100000);
+			//result.end = result.start + range.text.length;
+			/*var selRange = document.selection.createRange();
+			var isCollapsed = selRange.compareEndPoints("StartToEnd", selRange) == 0;
+			if (!isCollapsed)
+				selRange.collapse(true);
+			var bookmark = selRange.getBookmark();
+			return bookmark.charCodeAt(2) - 2;*/
+		}
+	},
+	
+	getFieldValues : function(field)
+	{
+		var fieldData = {
+			value: field.value,
+			pre: '',
+			post: '',
+			item: ''
+		};
+		
+		if(field.autoCFG.multiple) {
+			var finishedPre = false;
+			var selectionStart = jQuery.iAuto.getSelectionStart(field)||0;
+			var chunks = fieldData.value.split(field.autoCFG.multipleSeparator);
+			for (var i=0; i<chunks.length; i++) {
+				if(
+					(fieldData.pre.length + chunks[i].length >= selectionStart
+					 || 
+					selectionStart == 0)
+					 && 
+					!finishedPre 
+				) {
+					if (fieldData.pre.length <= selectionStart)
+						fieldData.item = chunks[i];
+					else 
+						fieldData.post += chunks[i] + (chunks[i] != '' ? field.autoCFG.multipleSeparator : '');
+					finishedPre = true;
+				} else if (finishedPre){
+					fieldData.post += chunks[i] + (chunks[i] != '' ? field.autoCFG.multipleSeparator : '');
+				}
+				if(!finishedPre) {
+					fieldData.pre += chunks[i] + (chunks.length > 1 ? field.autoCFG.multipleSeparator : '');
+				}
+			}
+		} else {
+			fieldData.item = fieldData.value;
+		}
+		return fieldData;
+	},
+	
 	autocomplete : function(e)
 	{
 		window.clearTimeout(jQuery.iAuto.timer);
-		pressedKey = e.charCode || e.keyCode || -1;
-		if (/13|27|35|36|38|40/.test(pressedKey) && jQuery.iAuto.items) {
+		var subject = jQuery.iAuto.getFieldValues(this);
+				
+		var pressedKey = e.charCode || e.keyCode || -1;
+		if (/13|27|35|36|38|40|9/.test(pressedKey) && jQuery.iAuto.items) {
 			if (window.event) {
 				window.event.cancelBubble = true;
 				window.event.returnValue = false;
@@ -240,31 +311,36 @@ jQuery.iAuto = {
 				e.stopPropagation();
 			}
 			if (jQuery.iAuto.selectedItem != null) 
-				jQuery.iAuto.items.get(jQuery.iAuto.selectedItem).className = '';
+				jQuery.iAuto.items.get(jQuery.iAuto.selectedItem||0).className = '';
 			else
 				jQuery.iAuto.selectedItem = -1;
-				
 			switch(pressedKey) {
 				//enter
+				case 9:
 				case 13:
 					if (jQuery.iAuto.selectedItem == -1)
 						jQuery.iAuto.selectedItem = 0;
-					selectedItem = jQuery.iAuto.items.get(jQuery.iAuto.selectedItem);
-					this.value = selectedItem.getAttribute('rel');
-					jQuery.iAuto.lastValue = this.value;
-					jQuery.iAuto.selection(this, jQuery.iAuto.lastValue.length, this.value.length);
+					var selectedItem = jQuery.iAuto.items.get(jQuery.iAuto.selectedItem||0);
+					var valueToAdd = selectedItem.getAttribute('rel');
+					this.value = subject.pre + valueToAdd + this.autoCFG.multipleSeparator + subject.post;
+					jQuery.iAuto.lastValue = subject.item;
+					jQuery.iAuto.selection(
+						this, 
+						subject.pre.length + valueToAdd.length + this.autoCFG.multipleSeparator.length, 
+						subject.pre.length + valueToAdd.length + this.autoCFG.multipleSeparator.length
+					);
 					jQuery.iAuto.clear();
 					if (this.autoCFG.onSelect) {
 						iteration = parseInt(selectedItem.getAttribute('dir'))||0;
-						jQuery.iAuto.applyOnSelect(this,this.autoCFG.lastSuggestion.get(iteration));
+						jQuery.iAuto.applyOn(this,this.autoCFG.lastSuggestion.get(iteration), 'onSelect');
 					}
 					if (this.scrollIntoView)
 						this.scrollIntoView(false);
-					return false;
+					return pressedKey != 13;
 					break;
 				//escape
 				case 27:
-					this.value = jQuery.iAuto.lastValue;
+					this.value = subject.pre + jQuery.iAuto.lastValue + this.autoCFG.multipleSeparator + subject.post;
 					this.autoCFG.lastSuggestion = null;
 					jQuery.iAuto.clear();
 					if (this.scrollIntoView)
@@ -291,19 +367,26 @@ jQuery.iAuto = {
 						jQuery.iAuto.selectedItem = 0;
 					break;
 			}
-			jQuery.iAuto.items.get(jQuery.iAuto.selectedItem).className = this.autoCFG.selectClass;
-			if (jQuery.iAuto.items.get(jQuery.iAuto.selectedItem).scrollIntoView)
-				jQuery.iAuto.items.get(jQuery.iAuto.selectedItem).scrollIntoView(false);
+			jQuery.iAuto.applyOn(this,this.autoCFG.lastSuggestion.get(jQuery.iAuto.selectedItem||0), 'onHighlight');
+			jQuery.iAuto.items.get(jQuery.iAuto.selectedItem||0).className = this.autoCFG.selectClass;
+			if (jQuery.iAuto.items.get(jQuery.iAuto.selectedItem||0).scrollIntoView)
+				jQuery.iAuto.items.get(jQuery.iAuto.selectedItem||0).scrollIntoView(false);
 			if(this.autoCFG.autofill) {
-				this.value = jQuery.iAuto.items.get(jQuery.iAuto.selectedItem).getAttribute('rel');
-				jQuery.iAuto.selection(this, jQuery.iAuto.lastValue.length, this.value.length);
+				var valToAdd = jQuery.iAuto.items.get(jQuery.iAuto.selectedItem||0).getAttribute('rel');
+				this.value = subject.pre + valToAdd + this.autoCFG.multipleSeparator + subject.post;
+				if(jQuery.iAuto.lastValue.length != valToAdd.length)
+					jQuery.iAuto.selection(
+						this, 
+						subject.pre.length + jQuery.iAuto.lastValue.length, 
+						subject.pre.length + valToAdd.length
+					);
 			}
 			return false;
 		}
 		jQuery.iAuto.checkCache.apply(this);
 		
 		if (this.autoCFG.inCache == false) {
-			if (this.value != jQuery.iAuto.lastValue && this.value.length >= this.autoCFG.minchars)
+			if (subject.item != jQuery.iAuto.lastValue && subject.item.length >= this.autoCFG.minchars)
 				jQuery.iAuto.timer = window.setTimeout(jQuery.iAuto.update, this.autoCFG.delay);
 			if (jQuery.iAuto.items) {
 				jQuery.iAuto.clear();
@@ -312,15 +395,15 @@ jQuery.iAuto = {
 		return true;
 	},
 
-	applyOnSelect : function(field, item)
+	applyOn: function(field, item, type)
 	{
-		if (field.autoCFG.onSelect) {
+		if (field.autoCFG[type]) {
 			var data = {};
 			childs = item.getElementsByTagName('*');
 			for(i=0; i<childs.length; i++){
 				data[childs[i].tagName] = childs[i].firstChild.nodeValue;
 			}
-			field.autoCFG.onSelect.apply(field,[data]);
+			field.autoCFG[type].apply(field,[data]);
 		}
 	},
 	
@@ -328,10 +411,10 @@ jQuery.iAuto = {
 	{
 		if (jQuery.iAuto.items) {
 			if (jQuery.iAuto.selectedItem != null) 
-				jQuery.iAuto.items.get(jQuery.iAuto.selectedItem).className = '';
-			jQuery.iAuto.items.get(jQuery.iAuto.selectedItem).className = '';
+				jQuery.iAuto.items.get(jQuery.iAuto.selectedItem||0).className = '';
+			jQuery.iAuto.items.get(jQuery.iAuto.selectedItem||0).className = '';
 			jQuery.iAuto.selectedItem = parseInt(this.getAttribute('dir'))||0;
-			jQuery.iAuto.items.get(jQuery.iAuto.selectedItem).className = jQuery.iAuto.subject.autoCFG.selectClass;
+			jQuery.iAuto.items.get(jQuery.iAuto.selectedItem||0).className = jQuery.iAuto.subject.autoCFG.selectClass;
 		}
 	},
 
@@ -342,14 +425,19 @@ jQuery.iAuto = {
 		event = event || jQuery.event.fix( window.event );
 		event.preventDefault();
 		event.stopPropagation();
-
-		jQuery.iAuto.subject.value = this.getAttribute('rel');
-		jQuery.iAuto.lastValue = jQuery.iAuto.subject.value;
-		jQuery.iAuto.selection(jQuery.iAuto.subject, jQuery.iAuto.lastValue.length, jQuery.iAuto.subject.value.length);
+		var subject = jQuery.iAuto.getFieldValues(jQuery.iAuto.subject);
+		var valueToAdd = this.getAttribute('rel');
+		jQuery.iAuto.subject.value = subject.pre + valueToAdd + jQuery.iAuto.subject.autoCFG.multipleSeparator + subject.post;
+		jQuery.iAuto.lastValue = this.getAttribute('rel');
+		jQuery.iAuto.selection(
+			jQuery.iAuto.subject, 
+			subject.pre.length + valueToAdd.length + jQuery.iAuto.subject.autoCFG.multipleSeparator.length, 
+			subject.pre.length + valueToAdd.length + jQuery.iAuto.subject.autoCFG.multipleSeparator.length
+		);
 		jQuery.iAuto.clear();
 		if (jQuery.iAuto.subject.autoCFG.onSelect) {
 			iteration = parseInt(this.getAttribute('dir'))||0;
-			jQuery.iAuto.applyOnSelect(jQuery.iAuto.subject,jQuery.iAuto.subject.autoCFG.lastSuggestion.get(iteration));
+			jQuery.iAuto.applyOn(jQuery.iAuto.subject,jQuery.iAuto.subject.autoCFG.lastSuggestion.get(iteration), 'onSelect');
 		}
 
 		return false;
@@ -377,13 +465,13 @@ jQuery.iAuto = {
 		}
 
 		if (!jQuery.iAuto.helper) {
-			if ($.browser.msie) {
-				$('body', document).append('<iframe style="display:none;position:absolute;filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);" id="autocompleteIframe" src="javascript:false;" frameborder="0" scrolling="no"></iframe>');
-				jQuery.iAuto.iframe = $('#autocompleteIframe');
+			if (jQuery.browser.msie) {
+				jQuery('body', document).append('<iframe style="display:none;position:absolute;filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);" id="autocompleteIframe" src="javascript:false;" frameborder="0" scrolling="no"></iframe>');
+				jQuery.iAuto.iframe = jQuery('#autocompleteIframe');
 			}
-			$('body', document).append('<div id="autocompleteHelper" style="position: absolute; top: 0; left: 0; z-index: 30001; display: none;"><ul style="margin: 0;padding: 0; list-style: none; z-index: 30002;">&nbsp;</ul></div>');
-			jQuery.iAuto.helper = $('#autocompleteHelper');
-			jQuery.iAuto.content = $('ul', jQuery.iAuto.helper);
+			jQuery('body', document).append('<div id="autocompleteHelper" style="position: absolute; top: 0; left: 0; z-index: 30001; display: none;"><ul style="margin: 0;padding: 0; list-style: none; z-index: 30002;">&nbsp;</ul></div>');
+			jQuery.iAuto.helper = jQuery('#autocompleteHelper');
+			jQuery.iAuto.content = jQuery('ul', jQuery.iAuto.helper);
 		}
 
 		return this.each(
@@ -399,6 +487,10 @@ jQuery.iAuto = {
 				this.autoCFG.onSelect = options.onSelect && options.onSelect.constructor == Function ? options.onSelect : null;
 				this.autoCFG.onShow = options.onShow && options.onShow.constructor == Function ? options.onShow : null;
 				this.autoCFG.onHide = options.onHide && options.onHide.constructor == Function ? options.onHide : null;
+				this.autoCFG.onHighlight = options.onHighlight && options.onHighlight.constructor == Function ? options.onHighlight : null;
+				this.autoCFG.inputWidth = options.inputWidth||false;
+				this.autoCFG.multiple = options.multiple||false;
+				this.autoCFG.multipleSeparator = this.autoCFG.multiple ? (options.multipleSeparator||', '):'';
 				this.autoCFG.autofill = options.autofill ? true : false;
 				this.autoCFG.delay = Math.abs(parseInt(options.delay)||1000);
 				if (options.fx && options.fx.constructor == Object) {
@@ -419,7 +511,7 @@ jQuery.iAuto = {
 				this.autoCFG.lastSuggestion = null;
 				this.autoCFG.inCache = false;
 
-				$(this)
+				jQuery(this)
 					.attr('autocomplete', 'off')
 					.focus(
 						function()

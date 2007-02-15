@@ -12,59 +12,51 @@
  */
 
 jQuery.iUtil = {
-	getPos : function (e, s)
-	{
-		var l = 0;
-		var t  = 0;
-		var sl = 0;
-		var st  = 0;
-		var w = jQuery.css(e,'width');
-		var h = jQuery.css(e,'height');
-		var wb = e.offsetWidth;
-		var hb = e.offsetHeight;
-		while (e.offsetParent){
-			l += e.offsetLeft + (e.currentStyle?parseInt(e.currentStyle.borderLeftWidth)||0:0);
-			t += e.offsetTop  + (e.currentStyle?parseInt(e.currentStyle.borderTopWidth)||0:0);
-			if (s) {
-				sl += e.parentNode.scrollLeft||0;
-				st += e.parentNode.scrollTop||0;
-			}
-			e = e.offsetParent;
-		}
-		l += e.offsetLeft + (e.currentStyle?parseInt(e.currentStyle.borderLeftWidth)||0:0);
-		t += e.offsetTop  + (e.currentStyle?parseInt(e.currentStyle.borderTopWidth)||0:0);
-		st = t - st;
-		sl = l - sl;
-		return {x:l, y:t, sx:sl, sy:st, w:w, h:h, wb:wb, hb:hb};
-	},
 	getPosition : function(e)
 	{
 		var x = 0;
 		var y = 0;
-		var restoreStyle = false;
 		var es = e.style;
-		if (jQuery(e).css('display') == 'none') {
-			oldVisibility = es.visibility;
-			oldPosition = es.position;
+		var restoreStyles = false;
+		if (jQuery.css(e,'display') == 'none') {
+			var oldVisibility = es.visibility;
+			var oldPosition = es.position;
+			restoreStyles = true;
 			es.visibility = 'hidden';
 			es.display = 'block';
 			es.position = 'absolute';
-			restoreStyle = true;
 		}
 		var el = e;
-		while (el){
-			x += el.offsetLeft + (el.currentStyle && !jQuery.browser.opera ?parseInt(el.currentStyle.borderLeftWidth)||0:0);
-			y += el.offsetTop + (el.currentStyle && !jQuery.browser.opera ?parseInt(el.currentStyle.borderTopWidth)||0:0);
+		if (el.getBoundingClientRect) { // IE
+			var box = el.getBoundingClientRect();
+			x = box.left + Math.max(document.documentElement.scrollLeft, document.body.scrollLeft) - 2;
+			y = box.top + Math.max(document.documentElement.scrollTop, document.body.scrollTop) - 2;
+		} else {
+			x = el.offsetLeft;
+			y = el.offsetTop;
 			el = el.offsetParent;
+			if (e != el) {
+				while (el) {
+					x += el.offsetLeft;
+					y += el.offsetTop;
+					el = el.offsetParent;
+				}
+			}
+			if (jQuery.browser.safari && jQuery.css(e, 'position') == 'absolute' ) {
+				x -= document.body.offsetLeft;
+				y -= document.body.offsetTop;
+			}
+			el = e.parentNode;
+			while (el && el.tagName.toUpperCase() != 'BODY' && el.tagName.toUpperCase() != 'HTML') 
+			{
+				if (jQuery.css(el, 'display') != 'inline') {
+					x -= el.scrollLeft;
+					y -= el.scrollTop;
+				}
+				el = el.parentNode;
+			}
 		}
-		el = e;
-		while (el && el.tagName.toLowerCase() != 'body')
-		{
-			x -= el.scrollLeft||0;
-			y -= el.scrollTop||0;
-			el = el.parentNode;
-		}
-		if (restoreStyle) {
+		if (restoreStyles == true) {
 			es.display = 'none';
 			es.position = oldPosition;
 			es.visibility = oldVisibility;
@@ -87,13 +79,13 @@ jQuery.iUtil = {
 		var h = jQuery.css(e,'height');
 		var wb = 0;
 		var hb = 0;
-		var es = e.style;
-		if (jQuery(e).css('display') != 'none') {
+		if (jQuery.css(e, 'display') != 'none') {
 			wb = e.offsetWidth;
 			hb = e.offsetHeight;
 		} else {
-			oldVisibility = es.visibility;
-			oldPosition = es.position;
+			var es = e.style;
+			var oldVisibility = es.visibility;
+			var oldPosition = es.position;
 			es.visibility = 'hidden';
 			es.display = 'block';
 			es.position = 'absolute';
@@ -107,16 +99,19 @@ jQuery.iUtil = {
 	},
 	getSizeLite : function(el)
 	{
-		return {wb:el.offsetWidth||0,hb:el.offsetHeight||0};
+		return {
+			wb:el.offsetWidth||0,
+			hb:el.offsetHeight||0
+		};
 	},
 	getClient : function(e)
 	{
-		var h, w, de;
+		var h, w;
 		if (e) {
 			w = e.clientWidth;
 			h = e.clientHeight;
 		} else {
-			de = document.documentElement;
+			var de = document.documentElement;
 			w = window.innerWidth || self.innerWidth || (de&&de.clientWidth) || document.body.clientWidth;
 			h = window.innerHeight || self.innerHeight || (de&&de.clientHeight) || document.body.clientHeight;
 		}
@@ -124,16 +119,14 @@ jQuery.iUtil = {
 	},
 	getScroll : function (e)
 	{
-		var t, l, w, h, iw, ih;
+		var t=0, l=0, w=0, h=0, iw=0, ih=0;
 		if (e && e.nodeName.toLowerCase() != 'body') {
 			t = e.scrollTop;
 			l = e.scrollLeft;
 			w = e.scrollWidth;
 			h = e.scrollHeight;
-			iw = 0;
-			ih = 0;
 		} else  {
-			if (document.documentElement && document.documentElement.scrollTop) {
+			if (document.documentElement) {
 				t = document.documentElement.scrollTop;
 				l = document.documentElement.scrollLeft;
 				w = document.documentElement.scrollWidth;
@@ -151,11 +144,10 @@ jQuery.iUtil = {
 	},
 	getMargins : function(e, toInteger)
 	{
-		var el = jQuery(e);
-		var t = el.css('marginTop') || '';
-		var r = el.css('marginRight') || '';
-		var b = el.css('marginBottom') || '';
-		var l = el.css('marginLeft') || '';
+		var t = jQuery.css(e,'marginTop') || '';
+		var r = jQuery.css(e,'marginRight') || '';
+		var b = jQuery.css(e,'marginBottom') || '';
+		var l = jQuery.css(e,'marginLeft') || '';
 		if (toInteger)
 			return {
 				t: parseInt(t)||0,
@@ -168,11 +160,10 @@ jQuery.iUtil = {
 	},
 	getPadding : function(e, toInteger)
 	{
-		var el = jQuery(e);
-		var t = el.css('paddingTop') || '';
-		var r = el.css('paddingRight') || '';
-		var b = el.css('paddingBottom') || '';
-		var l = el.css('paddingLeft') || '';
+		var t = jQuery.css(e,'paddingTop') || '';
+		var r = jQuery.css(e,'paddingRight') || '';
+		var b = jQuery.css(e,'paddingBottom') || '';
+		var l = jQuery.css(e,'paddingLeft') || '';
 		if (toInteger)
 			return {
 				t: parseInt(t)||0,
@@ -185,11 +176,10 @@ jQuery.iUtil = {
 	},
 	getBorder : function(e, toInteger)
 	{
-		var el = jQuery(e);
-		var t = el.css('borderTopWidth') || '';
-		var r = el.css('borderRightWidth') || '';
-		var b = el.css('borderBottomWidth') || '';
-		var l = el.css('borderLeftWidth') || '';
+		var t = jQuery.css(e,'borderTopWidth') || '';
+		var r = jQuery.css(e,'borderRightWidth') || '';
+		var b = jQuery.css(e,'borderBottomWidth') || '';
+		var l = jQuery.css(e,'borderLeftWidth') || '';
 		if (toInteger)
 			return {
 				t: parseInt(t)||0,
@@ -231,23 +221,23 @@ jQuery.iUtil = {
 	},
 	centerEl : function(el, axis)
 	{
-		var clientScroll = $.iUtil.getScroll();
-		var windowSize = $.iUtil.getSize(el);
+		var clientScroll = jQuery.iUtil.getScroll();
+		var windowSize = jQuery.iUtil.getSize(el);
 		if (!axis || axis == 'vertically')
-			$(el).css(
+			jQuery(el).css(
 				{
 					top: clientScroll.t + ((Math.max(clientScroll.h,clientScroll.ih) - clientScroll.t - windowSize.hb)/2) + 'px'
 				}
 			);
 		if (!axis || axis == 'horizontally')
-			$(el).css(
+			jQuery(el).css(
 				{
 					left:	clientScroll.l + ((Math.max(clientScroll.w,clientScroll.iw) - clientScroll.l - windowSize.wb)/2) + 'px'
 				}
 			);
 	},
 	fixPNG : function (el, emptyGIF) {
-		var images = $('img[@src*="png"]', el||document), png;
+		var images = jQuery('img[@src*="png"]', el||document), png;
 		images.each( function() {
 			png = this.src;				
 			this.src = emptyGIF;

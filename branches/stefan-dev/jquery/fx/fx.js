@@ -34,7 +34,7 @@ jQuery.fn.extend({
 	 */
 	show: function(speed,callback){
 		var hidden = this.filter(":hidden");
-		return speed ?
+		speed ?
 			hidden.animate({
 				height: "show", width: "show", opacity: "show"
 			}, speed, callback) :
@@ -44,6 +44,7 @@ jQuery.fn.extend({
 				if ( jQuery.css(this,"display") == "none" )
 					this.style.display = "block";
 			});
+		return this;
 	},
 	
 	/**
@@ -80,7 +81,7 @@ jQuery.fn.extend({
 	 */
 	hide: function(speed,callback){
 		var visible = this.filter(":visible");
-		return speed ?
+		speed ?
 			visible.animate({
 				height: "hide", width: "hide", opacity: "hide"
 			}, speed, callback) :
@@ -91,6 +92,7 @@ jQuery.fn.extend({
 					this.oldblock = "block";
 				this.style.display = "none";
 			});
+		return this;
 	},
 
 	// Save the old toggle function
@@ -411,9 +413,6 @@ jQuery.extend({
 		// Store display property
 		var oldDisplay = jQuery.css(elem, "display");
 
-		// Set display property to block for animation
-		y.display = "block";
-
 		// Make sure that nothing sneaks out
 		y.overflow = "hidden";
 
@@ -426,6 +425,8 @@ jQuery.extend({
 				jQuery.attr(y, "opacity", z.now); // Let attr handle opacity
 			else if ( parseInt(z.now) ) // My hate for IE will never die
 				y[prop] = parseInt(z.now) + "px";
+			
+			y.display = "block"; // Set display property to block for animation
 		};
 
 		// Figure out the maximum number to run to

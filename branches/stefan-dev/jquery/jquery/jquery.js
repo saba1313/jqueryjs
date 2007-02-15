@@ -5,8 +5,8 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt)
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * $Date: 2007-01-15 00:37:33 +0200 (L, 15 ian. 2007) $
- * $Rev: 1073 $
+ * $Date: 2007-01-31 23:48:14 +0200 (Mi, 31 ian. 2007) $
+ * $Rev: 1242 $
  */
 
 // Global undefined variable
@@ -32,20 +32,19 @@ var jQuery = function(a,c) {
 	
 	// HANDLE: $(function)
 	// Shortcut for document ready
-	// Safari reports typeof on DOM NodeLists as a function
-	if ( jQuery.isFunction(a) && !a.nodeType && a[0] == undefined )
+	if ( jQuery.isFunction(a) )
 		return new jQuery(document)[ jQuery.fn.ready ? "ready" : "load" ]( a );
 	
 	// Handle HTML strings
 	if ( typeof a  == "string" ) {
-		var m = /^[^<]*(<.+>)[^>]*$/.exec(a);
-
-		a = m ?
-			// HANDLE: $(html) -> $(array)
-			jQuery.clean( [ m[1] ] ) :
+		// HANDLE: $(html) -> $(array)
+		var m = /^[^<]*(<(.|\s)+>)[^>]*$/.exec(a);
+		if ( m )
+			a = jQuery.clean( [ m[1] ] );
 		
-			// HANDLE: $(expr)
-			jQuery.find( a, c );
+		// HANDLE: $(expr)
+		else
+			return new jQuery( c ).find( a );
 	}
 	
 	return this.setArray(
@@ -258,9 +257,9 @@ jQuery.fn = jQuery.prototype = {
 	 * @cat Core
 	 */
 	pushStack: function( a ) {
-		var ret = jQuery(this);
+		var ret = jQuery(a);
 		ret.prevObject = this;
-		return ret.setArray( a );
+		return ret;
 	},
 	
 	/**
@@ -411,10 +410,16 @@ jQuery.fn = jQuery.prototype = {
 	 * @result <img src="test.jpg" title="test.jpg" />
 	 * @desc Sets title attribute from src attribute.
 	 *
+	 * @example $("img").attr("title", function(index) { return this.title + (i + 1); });
+	 * @before <img title="pic" /><img title="pic" /><img title="pic" />
+	 * @result <img title="pic1" /><img title="pic2" /><img title="pic3" />
+	 * @desc Enumerate title attribute.
+	 *
 	 * @name attr
 	 * @type jQuery
 	 * @param String key The name of the property to set.
 	 * @param Function value A function returning the value to set.
+	 * 	 	  Scope: Current element, argument: Index of current element
 	 * @cat DOM/Attributes
 	 */
 	attr: function( key, value, type ) {
@@ -423,19 +428,19 @@ jQuery.fn = jQuery.prototype = {
 		// Look for the case where we're accessing a style value
 		if ( key.constructor == String )
 			if ( value == undefined )
-				return jQuery[ type || "attr" ]( this[0], key );
+				return this.length && jQuery[ type || "attr" ]( this[0], key ) || undefined;
 			else {
 				obj = {};
 				obj[ key ] = value;
 			}
 		
 		// Check to see if we're setting style values
-		return this.each(function(){
+		return this.each(function(index){
 			// Set all the styles
 			for ( var prop in obj )
 				jQuery.attr(
 					type ? this.style : this,
-					prop, jQuery.prop(this, obj[prop], type)
+					prop, jQuery.prop(this, obj[prop], type, index, prop)
 				);
 		});
 	},
@@ -798,7 +803,7 @@ jQuery.fn = jQuery.prototype = {
 	find: function(t) {
 		return this.pushStack( jQuery.map( this, function(a){
 			return jQuery.find(t,a);
-		}) );
+		}), t );
 	},
 
 	/**
@@ -922,14 +927,14 @@ jQuery.fn = jQuery.prototype = {
 	not: function(t) {
 		return this.pushStack(
 			t.constructor == String &&
-			jQuery.multiFilter(t,this,true) ||
+			jQuery.multiFilter(t, this, true) ||
 
-			jQuery.grep(this,function(a){
-					if ( t.constructor == Array || t.jquery )
-						return jQuery.inArray( t, a ) < 0;
-					else
-						return a != t;
-			}) );
+			jQuery.grep(this, function(a) {
+				return ( t.constructor == Array || t.jquery )
+					? jQuery.inArray( a, t ) < 0
+					: a != t;
+			})
+		);
 	},
 
 	/**
@@ -979,7 +984,10 @@ jQuery.fn = jQuery.prototype = {
 	add: function(t) {
 		return this.pushStack( jQuery.merge(
 			this.get(),
-			typeof t == "string" ? jQuery(t).get() : t )
+			t.constructor == String ?
+				jQuery(t).get() :
+				t.length != undefined && (!t.nodeName || t.nodeName == "FORM") ?
+					t : [t] )
 		);
 	},
 
@@ -1092,7 +1100,7 @@ jQuery.fn = jQuery.prototype = {
 		return this.each(function(){
 			var obj = this;
 
-			if ( table && this.nodeName.toUpperCase() == "TABLE" && a[0].nodeName.toUpperCase() == "TR" )
+			if ( table && jQuery.nodeName(this, "table") && jQuery.nodeName(a[0], "tr") )
 				obj = this.getElementsByTagName("tbody")[0] || this.appendChild(document.createElement("tbody"));
 
 			jQuery.each( a, function(){
@@ -1211,10 +1219,18 @@ jQuery.extend({
 	noConflict: function() {
 		if ( jQuery._$ )
 			$ = jQuery._$;
+		return jQuery;
 	},
 
+	// This may seem like some crazy code, but trust me when I say that this
+	// is the only cross-browser way to do this. --John
 	isFunction: function( fn ) {
-		return fn && typeof fn == "function";
+		return !!fn && typeof fn != "string" &&
+			typeof fn[0] == "undefined" && /function/i.test( fn + "" );
+	},
+
+	nodeName: function( elem, name ) {
+		return elem.nodeName && elem.nodeName.toUpperCase() == name.toUpperCase();
 	},
 
 	/**
@@ -1256,13 +1272,16 @@ jQuery.extend({
 		return obj;
 	},
 	
-	prop: function(elem, value, type){
+	prop: function(elem, value, type, index, prop){
 			// Handle executable functions
 			if ( jQuery.isFunction( value ) )
-				return value.call( elem );
+				return value.call( elem, [index] );
+				
+			// exclude the following css properties to add px
+			var exclude = /z-?index|font-?weight|opacity|zoom|line-?height/i;
 
 			// Handle passing in a number to a CSS property
-			if ( value.constructor == Number && type == "curCSS" )
+			if ( value && value.constructor == Number && type == "curCSS" && !exclude.test(prop) )
 				return value + "px";
 
 			return value;
@@ -1436,7 +1455,7 @@ jQuery.extend({
 						tb = div.childNodes;
 
 					for ( var n = tb.length-1; n >= 0 ; --n )
-						if ( tb[n].nodeName.toUpperCase() == "TBODY" && !tb[n].childNodes.length )
+						if ( jQuery.nodeName(tb[n], "tbody") && !tb[n].childNodes.length )
 							tb[n].parentNode.removeChild(tb[n]);
 					
 				}
@@ -1495,7 +1514,7 @@ jQuery.extend({
 			if ( value != undefined ) elem[fix[name]] = value;
 			return elem[fix[name]];
 
-		} else if ( value == undefined && jQuery.browser.msie && elem.nodeName && elem.nodeName.toUpperCase() == "FORM" && (name == "action" || name == "method") )
+		} else if ( value == undefined && jQuery.browser.msie && jQuery.nodeName(elem, "form") && (name == "action" || name == "method") )
 			return elem.getAttributeNode(name).nodeValue;
 
 		// IE elem.getAttribute passes even for style
@@ -1547,21 +1566,22 @@ jQuery.extend({
 	/**
 	 * Merge two arrays together, removing all duplicates.
 	 *
-	 * The new array is: All the results from the first array, followed
-	 * by the unique results from the second array.
+	 * The result is the altered first argument with
+	 * the unique elements from the second array added.
 	 *
 	 * @example $.merge( [0,1,2], [2,3,4] )
 	 * @result [0,1,2,3,4]
 	 * @desc Merges two arrays, removing the duplicate 2
 	 *
-	 * @example $.merge( [3,2,1], [4,3,2] )
-	 * @result [3,2,1,4]
+	 * @example var array = [3,2,1];
+	 * $.merge( array, [4,3,2] )
+	 * @result array == [3,2,1,4]
 	 * @desc Merges two arrays, removing the duplicates 3 and 2
 	 *
 	 * @name $.merge
 	 * @type Array
-	 * @param Array first The first array to merge.
-	 * @param Array second The second array to merge.
+	 * @param Array first The first array to merge, the unique elements of second added.
+	 * @param Array second The second array to merge into the first, unaltered.
 	 * @cat JavaScript
 	 */
 	merge: function(first, second) {

@@ -71,12 +71,15 @@ jQuery.iSort = {
 		if (jQuery.iDrag.dragged == null) {
 			return;
 		}
-		var i;
+		var shs, margins,c, cs;
 		
 		jQuery.iSort.helper.get(0).className = jQuery.iDrag.dragged.dragCfg.hpc;
 		shs = jQuery.iSort.helper.get(0).style;
 		shs.display = 'block';
-		jQuery.iSort.helper.oC = jQuery.iUtil.getPos(jQuery.iSort.helper.get(0));
+		jQuery.iSort.helper.oC = jQuery.extend(
+			jQuery.iUtil.getPosition(jQuery.iSort.helper.get(0)),
+			jQuery.iUtil.getSize(jQuery.iSort.helper.get(0))
+		);
 		
 		shs.width = jQuery.iDrag.dragged.dragCfg.oC.wb + 'px';
 		shs.height = jQuery.iDrag.dragged.dragCfg.oC.hb + 'px';
@@ -111,14 +114,19 @@ jQuery.iSort = {
 		}
 		jQuery.iSort.helper.removeClass(e.dragCfg.hpc).html('&nbsp;');
 		jQuery.iSort.inFrontOf = null;
-		shs = jQuery.iSort.helper.get(0).style;
+		var shs = jQuery.iSort.helper.get(0).style;
 		shs.display = 'none';
-		ts = [];
-		fnc = false;
+		jQuery.iSort.helper.after(e);
+		if (e.dragCfg.fx > 0) {
+			jQuery(e).fadeIn(e.dragCfg.fx);
+		}
+		jQuery('body').append(jQuery.iSort.helper.get(0));
+		var ts = [];
+		var fnc = false;
 		for(var i=0; i<jQuery.iSort.changed.length; i++){
-			iEL = jQuery.iDrop.zones[jQuery.iSort.changed[i]].get(0);
-			id = jQuery.attr(iEL, 'id');
-			ser = jQuery.iSort.serialize(id);
+			var iEL = jQuery.iDrop.zones[jQuery.iSort.changed[i]].get(0);
+			var id = jQuery.attr(iEL, 'id');
+			var ser = jQuery.iSort.serialize(id);
 			if (iEL.dropCfg.os != ser.hash) {
 				iEL.dropCfg.os = ser.hash;
 				if (fnc == false && iEL.dropCfg.onChange) {
@@ -128,11 +136,10 @@ jQuery.iSort = {
 				ts[ts.length] = ser;
 			}
 		}
+		jQuery.iSort.changed = [];
 		if (fnc != false && ts.length > 0) {
 			fnc(ts);
 		}
-		jQuery.iSort.changed = [];
-		jQuery('body').append(jQuery.iSort.helper.get(0));
 	},
 	
 	checkhover : function(e,o)
@@ -179,17 +186,12 @@ jQuery.iSort = {
 		if (jQuery.iDrag.dragged == null) {
 			return;
 		}
-		var i;
 		e.dropCfg.el.each (
 			function ()
 			{
 				this.pos = jQuery.extend(
-					jQuery.iUtil.getSize(this),
+					jQuery.iUtil.getSizeLite(this),
 					jQuery.iUtil.getPosition(this)
-					/*{
-						x: this.offsetLeft||0 - this.parentNode.scrollLeft||0, 
-						y: this.offsetTop||0 - this.parentNode.scrollTop||0
-					}*/
 				);
 			}
 		);
@@ -263,6 +265,19 @@ jQuery.iSort = {
 		);
 	},
 	
+	destroy: function()
+	{
+		return this.each(
+			function()
+			{
+				jQuery('.' + this.sortCfg.accept).DraggableDestroy();
+				jQuery(this).DroppableDestroy();
+				this.sortCfg = null;
+				this.isSortable = null;
+			}
+		);
+	},
+	
 	build : function (o)
 	{
 		if (o.accept && jQuery.iUtil && jQuery.iDrag && jQuery.iDrop) {
@@ -277,13 +292,13 @@ jQuery.iSort = {
 					activeclass : o.activeclass ? o.activeclass : false,
 					hoverclass : o.hoverclass ? o.hoverclass : false,
 					helperclass : o.helperclass ? o.helperclass : false,
-					onDrop: function (drag, fx) 
+					/*onDrop: function (drag, fx) 
 							{
 								jQuery.iSort.helper.after(drag);
 								if (fx > 0) {
 									jQuery(drag).fadeIn(fx);
 								}
-							},
+							},*/
 					onHover: o.onHover||o.onhover,
 					onOut: o.onOut||o.onout,
 					sortable : true,
@@ -297,7 +312,7 @@ jQuery.iSort = {
 			return this.each(
 				function()
 				{
-					dragCfg = {
+					var dragCfg = {
 						revert : o.revert? true : false,
 						zindex : 3000,
 						opacity : o.opacity ? parseFloat(o.opacity) : false,
@@ -308,6 +323,7 @@ jQuery.iSort = {
 						handle: o.handle ? o.handle : null,
 						containment: o.containment ? o.containment : null,
 						onStart : o.onStart && o.onStart.constructor == Function ? o.onStart : false,
+						onDrag : o.onDrag && o.onDrag.constructor == Function ? o.onDrag : false,
 						onStop : o.onStop && o.onStop.constructor == Function ? o.onStop : false,
 						axis : /vertically|horizontally/.test(o.axis) ? o.axis : false,
 						snapDistance : o.snapDistance ? parseInt(o.snapDistance)||0 : false,
@@ -335,22 +351,30 @@ jQuery.iSort = {
 	}
 };
 
-/**
- * A new item can be added to a sortable by adding it to the DOM and then adding it via
- * SortableAddItem. 
- *
- * @name SortableAddItem
- * @param DOMElement elem A DOM Element to add to the sortable list
- * @example $('#sortable1').append('<li id="newitem">new item</li>')
- *                         .SortableAddItem($("#new_item")[0])
- * @type jQuery
- * @cat Plugins/Interface
- */
-
 jQuery.fn.extend(
 	{
 		Sortable : jQuery.iSort.build,
-		SortableAddItem : jQuery.iSort.addItem
+		/**
+		 * A new item can be added to a sortable by adding it to the DOM and then adding it via
+		 * SortableAddItem. 
+		 *
+		 * @name SortableAddItem
+		 * @param DOMElement elem A DOM Element to add to the sortable list
+		 * @example $('#sortable1').append('<li id="newitem">new item</li>')
+		 *                         .SortableAddItem($("#new_item")[0])
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 */
+		SortableAddItem : jQuery.iSort.addItem,
+		/**
+		 * Destroy a sortable
+		 *
+		 * @name SortableDestroy
+		 * @example $('#sortable1').SortableDestroy();
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 */
+		SortableDestroy: jQuery.iSort.destroy
 	}
 );
 

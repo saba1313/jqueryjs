@@ -192,7 +192,13 @@
  *		Key is the ID or name (for radio/checkbox inputs) of an element,
  *		value is an object consiting of rule/parameter pairs, eg. {required: true, min: 3}
  *		If not specified, rules are read from metadata via metadata plugin.
- *      Default: none
+ *		Default: none
+ * @option String event The event on which to validate. If anything is specified, like
+ *		blur or keypress, each element is validated on that event. Default: submit,
+ *		validates the entire form on submit
+ * @option String metaWrapper In case you use metadata for other plugins, too, you
+ *		want to wrap your validation rules
+ *		into their own object that can be specified via this option. Default: none
  *
  * @name validate
  * @type $.validator
@@ -235,6 +241,7 @@ var v = $.validator = function(options, form) {
 	this.elements = $(":input:not(:submit):not(:reset)", form);
 
 	this.currentForm = form[0];
+	// find the element to look for error labels
 	this.errorContext = settings.errorLabelContainer.length && settings.errorLabelContainer
 		|| settings.errorContainer.length && settings.errorContainer
 		|| this.currentForm;
@@ -423,13 +430,12 @@ v.prototype = {
 	 * Check settings and markup, if the form is invalid, but no error is displayed.
 	 */
 	showError: function(elementID, message) {
-		var element = $("#" + elementID);
+		var element = $("#" + elementID).addClass(this.settings.errorClass);
 	
 		// find message for this label
 		var m = this.settings.messages;
 		var message = (m && m[elementID]) || element.attr('title') || message || "<strong>Warning: No message defined for " + elementID + "</strong>";
 		
-		element.addClass(this.settings.errorClass);
 		var errorLabel = $("label." + this.settings.errorClass, this.errorContext)
 			.filter("[@for=" + elementID + "]");
 		var w = this.settings.errorWrapper;
@@ -450,7 +456,7 @@ v.prototype = {
 			if(w) {
 				errorLabel = errorLabel.show().wrap("<" + w + "></" + w + ">").parent();
 			}
-			if(this.settings.errorLabelContainer.append(errorLabel).length + this.settings.errorContainer.append(errorLabel).length == 0) 
+			if(!this.errorContext.append(errorLabel).length) 
 				errorLabel.insertAfter(element);
 			errorLabel.show();
 		}
@@ -466,6 +472,9 @@ v.prototype = {
 			data = this.settings.rules[this.findId(element)];
 		} else {
 			data = $(element).data();
+			var meta = this.settings.metaWrapper;
+			if(meta)
+				data = data[meta];
 		}
 		var rules = [];
 		if(!data)

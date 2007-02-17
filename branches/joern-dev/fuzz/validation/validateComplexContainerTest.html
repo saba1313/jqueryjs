@@ -41,19 +41,19 @@ div.error ol li {
 		<legend>Validating a complete form</legend>
 		<p>
 			<label for="email">Email</label>
-			<input id="email" name="email" class="{required:true,email:true}" />
+			<input id="email" name="email" class="{validate:{required:true,email:true}}" />
 		</p>
 		<p>
 			<label for="phone">Phone</label>
-			<input id="phone" name="phone" class="some styles {required:true,number:true, rangeLength:[2,8]}" />
+			<input id="phone" name="phone" class="some styles {validate:{required:true,number:true, rangeLength:[2,8]}}" />
 		</p>
 		<p>
 			<label for="address">Address</label>
-			<input id="address" name="address" class="some other styles {required:true,minLength:3}" />
+			<input id="address" name="address" class="some other styles {validate:{required:true,minLength:3}}" />
 		</p>
 		<p>
 			<label for="agree">Please agree to our policy</label>
-			<input type="checkbox" id="agree" title="Please agree to our policy!" name="agree" class="{required:true}" />
+			<input type="checkbox" id="agree" title="Please agree to our policy!" name="agree" class="{validate:{required:true}}" />
 		</p>
 		<p>
 			<input class="submit" type="submit" value="Submit"/>
@@ -74,7 +74,8 @@ div.error ol li {
 			debug: true,
 			errorContainer: container,
 			errorLabelContainer: $("ol", container),
-			errorWrapper: 'li'
+			errorWrapper: 'li',
+			metaWrapper: "validate"
 		}
 		$("#form1").validate(options);
 	});

@@ -202,47 +202,49 @@
 (function($) { 
 
 $.fn.validate = function(options) {
-	var validatorInstance = new $.validator(options, this);
-	if( this.is('form') ) {
+	var validator = new $.validator(options, this);
+	if( !validator.settings.event ) {
 		// validate the form on submit
 		this.submit(function(event) {
-			if(validatorInstance.settings.debug) {
+			if(validator.settings.debug) {
 				// prevent form submit to be able to see console output
 				event.preventDefault();
 			}
-			return validatorInstance.validateForm();
+			return validator.validateForm();
 		});
 	} else {
-		// validate all elements immediately
-		this.each(function() {
-			validatorInstance.hideElementErrors(this);
-			validatorInstance.validateElement(this);
+		// validate all elements on some other event like blur or keypress
+		validator.elements[validator.settings.event](function() {
+			validator.errorList = {};
+			validator.hideElementErrors(this);
+			validator.validateElement(this);
+			validator.showErrors();
 		});
-		validatorInstance.showErrors();
 	}
-	return validatorInstance;
+	return validator;
 };
 
 // constructor for validator
 var v = $.validator = function(options, form) {
-	// intialize properties
 	this.errorList = {};
-	
-	if( form.is('form') ) {
-		// select all valid inputs inside the form (no submit or reset buttons)
-		this.elements = $(":input:not(:submit):not(:reset)", form);
-
-		this.currentForm = form[0];
-		
-		// listen for focus events to save reference to last focused element
-		var instance = this;
-		this.elements.focus(function() {
-			instance.lastActive = this;
-		});
-	}
 
 	// override defaults with client settings
-	this.settings = $.extend({}, v.defaults, options);
+	var settings = this.settings = $.extend({}, v.defaults, options);
+	
+	// select all valid inputs inside the form (no submit or reset buttons)
+	this.elements = $(":input:not(:submit):not(:reset)", form);
+
+	this.currentForm = form[0];
+	this.errorContext = settings.errorLabelContainer.length && settings.errorLabelContainer
+		|| settings.errorContainer.length && settings.errorContainer
+		|| this.currentForm;
+	
+	// listen for focus events to save reference to last focused element
+	var instance = this;
+	this.elements.focus(function() {
+		instance.lastActive = this;
+	});
+
 };
 
 /**
@@ -254,18 +256,10 @@ var v = $.validator = function(options, form) {
  * @cat Plugins/Validate
  */ 
 v.defaults = {
-	/*
-	 * the class used to mark error labels,
-	 * eg. <label for="text" class="error">Error text</label>
-	 * and fields with errors
-	 */
 	errorClass: "error",
-
-	/*
-	 * Focus the last active or first invalid element.
-	 * WARNING: Can crash browsers when combined with blur-validation.
-	 */
 	focusInvalid: true,
+	errorContainer: $([]),
+	errorLabelContainer: $([])
 };
 
 // methods for validator object
@@ -281,20 +275,13 @@ v.prototype = {
 		// reset errors
 		this.errorList = {};
 
-		// set a reference to the current form, to be used as a search context
-		this.context = this.currentForm;
-
-		var errorContainer = this.settings.errorLabelContainer || this.settings.errorContainer;
-		if(errorContainer) {
-			errorContainer.hide();
-			// if there is a errorLabelContainer, make sure to hide the normal errorContainer(s) as well
-			this.settings.errorContainer.hide();
-			this.context = errorContainer;
-		}
+		// TODO try to move some more of these into validateElement
+		
+		this.settings.errorLabelContainer.hide();
+		this.settings.errorContainer.hide();
 
 		// hide all error labels for the form
-		var labels = $("label." + this.settings.errorClass, this.context).hide();
-		this.elements.removeClass(""+this.settings.errorClass);
+		var labels = $("label." + this.settings.errorClass, this.errorContext).hide();
 		if( this.settings.errorWrapper ) {
 			labels.parents(this.settings.errorWrapper).hide();
 		}
@@ -314,12 +301,13 @@ v.prototype = {
 	 * tests the element to these rules.
 	 */
 	validateElement: function(element) {
+		$(element).removeClass(this.settings.errorClass);
 		var rules = this.findRules(element);
 		for( var i=0, rule; rule = rules[i]; i++ ) {
 			try {
 				var method = v.methods[rule.name];
 				if( !method)
-					throw "validateElement() error: No method found with name " + rule.name;
+					throw("validateElement() error: No method found with name " + rule.name);
 				if( !method( $(element).val(), element, rule.parameters ) ) {
 					// add the error to the array of errors for the element
 					var id = this.findId(element);
@@ -360,9 +348,9 @@ v.prototype = {
 	 * To hide labels for a form, use hideFormErrors().
 	 */
 	hideElementErrors: function(element) {
-		var errorLabel = $("label." + this.settings.errorClass + "[@for=" + this.findId(element) + "]", this.context).hide();
+		var errorLabel = $("label." + this.settings.errorClass + "[@for=" + this.findId(element) + "]", this.errorContext).hide();
 		if( this.settings.errorWrapper ) {
-			errorLabel.parents(this.settings.errorWrapper).hide();
+			errorLabel.parent(this.settings.errorWrapper).hide();
 		}
 	},
 
@@ -401,10 +389,8 @@ v.prototype = {
 	 * The first invalid element is also focused.
 	 */
 	showErrors: function() {
-		if(this.settings.errorContainer)
-			this.settings.errorContainer.show();
-		if(this.settings.errorLabelContainer)
-			this.settings.errorLabelContainer.show();
+		this.settings.errorContainer.show();
+		this.settings.errorLabelContainer.show();
 		var first = true;
 		for(var elementID in this.errorList) {
 			if( first && this.settings.focusInvalid ) {
@@ -419,7 +405,7 @@ v.prototype = {
 						var element = $("#"+elementID);
 						// radio/checkbox doesn't have an ID
 						if(!element.length)
-							element = $('[@name='+elementID+']', this.context);
+							element = $('[@name='+elementID+']', this.currentForm);
 						element[0].focus();
 					} catch(e) { if( this.settings.debug ) console.error(e); }
 				}
@@ -437,13 +423,14 @@ v.prototype = {
 	 * Check settings and markup, if the form is invalid, but no error is displayed.
 	 */
 	showError: function(elementID, message) {
+		var element = $("#" + elementID);
 	
 		// find message for this label
 		var m = this.settings.messages;
-		var message = (m && m[elementID]) || $('#'+elementID).attr('title') || message || "<strong>Warning: No message defined for " + elementID + "</strong>";
+		var message = (m && m[elementID]) || element.attr('title') || message || "<strong>Warning: No message defined for " + elementID + "</strong>";
 		
-		$("#"+elementID).addClass(this.settings.errorClass);
-		var errorLabel = $("label." + this.settings.errorClass, this.context)
+		element.addClass(this.settings.errorClass);
+		var errorLabel = $("label." + this.settings.errorClass, this.errorContext)
 			.filter("[@for=" + elementID + "]");
 		var w = this.settings.errorWrapper;
 		if( errorLabel.length ) {
@@ -463,13 +450,8 @@ v.prototype = {
 			if(w) {
 				errorLabel = errorLabel.show().wrap("<" + w + "></" + w + ">").parent();
 			}
-			if(this.settings.errorLabelContainer) {
-				this.settings.errorLabelContainer.append(errorLabel);
-			} else if(this.settings.errorContainer) {
-				this.settings.errorContainer.append(errorLabel);
-			} else {
-				errorLabel.insertAfter("#"+elementID);
-			}
+			if(this.settings.errorLabelContainer.append(errorLabel).length + this.settings.errorContainer.append(errorLabel).length == 0) 
+				errorLabel.insertAfter(element);
 			errorLabel.show();
 		}
 	},

@@ -25,7 +25,7 @@
 		textarea
 		<textarea id="textarea" cols="25" rows="5"
 			title="Please enter a date with at least 3 and max 15 characters! (length and date)"
-			test="minLength:3, maxLength:15, number:true"></textarea>
+			test="required:true, minLength:3, maxLength:15, number:true"></textarea>
 		<br/>
 	</div>
 	
@@ -79,16 +79,14 @@
 	$.meta.setType("attr", "test");
 
 	$(document).ready(function() {
+		$.validator.defaults.debug = true;
 		var options = {
-			debug: true,
 			// important: combining focus with validation on blur can crash browsers
-			focusInvalid: false
+			focusInvalid: false,
+			event: "blur"
 		};
 		
-		// validate on blur!
-		$(":input").blur(function() {
-			$(this).validate(options);
-		});
+		$("#texttests").validate(options);
 		
 	});
 </script>

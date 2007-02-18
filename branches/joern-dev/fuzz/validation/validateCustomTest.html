@@ -14,7 +14,7 @@
 </head>
 <body>
 
-<div id="texttests">
+<form action="foo.html" id="texttests">
 
 	<h2>Some more tests with text and textarea and validating on blur</h2>
 	<p>All error labels are nested inside additional markup (might be necessary for presentation).
@@ -24,7 +24,7 @@
 	<div>
 		textarea
 		<textarea id="textarea" cols="25" rows="5"
-			title="Please enter a date with at least 3 and max 15 characters! (length and date)"
+			title="Please enter a number with at least 3 and max 15 characters!"
 			test="required:true, minLength:3, maxLength:15, number:true"></textarea>
 		<br/>
 	</div>
@@ -57,8 +57,8 @@
 		</label>
 		<label for="family" class="error">Please select your family status.</label>
 	</div>
-
-</div>
+	<input type="submit" />
+</form>
 
 <script type="text/javascript">
 	
@@ -80,13 +80,13 @@
 
 	$(document).ready(function() {
 		$.validator.defaults.debug = true;
-		var options = {
+		
+		$("#texttests").validate({
 			// important: combining focus with validation on blur can crash browsers
 			focusInvalid: false,
-			event: "blur"
-		};
-		
-		$("#texttests").validate(options);
+			event: "blur",
+			onsbumit: false
+		});
 		
 	});
 </script>

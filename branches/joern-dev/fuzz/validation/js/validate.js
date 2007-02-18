@@ -9,40 +9,48 @@
  */
 
 /**
- * Validates either a single form on submit or a list of elements immediately.
+ * Validates either a single form on submit or a list of elements on a user-defined event.
  *
  * The normal behaviour is to validate a form when a submit button is clicked or
  * the user presses enter when an input of that form is focused.
  *
- * It is also possible to validate elements immediately on blur or any other event.
+ * It is also possible to validate each individual element of that form, eg. on blur or keyup.
  *
  * Following are a few aspects that you should know about when using this plugin.
  * The examples following demonstrate these aspects.
  *
  * Markup recommendations: A good form has labels associated with each input
  * element: The for attribute of the label has the same value as the id of the input.
+ * If IDs aren't provided, they are generated, combining the ID of the containing
+ * form (if any) with the name of the element, with the exception of radio and checkbox
+ * inputs.
  *
- * Validation rules: You can specify validation rules via metadata or via plugin
- * settings (option rules). Its more a matter of taste which way you choose.
- * Using metadata is good for fast prototyping.
- *
- * Validation methods: Included are a set of common validation methods, like required.
+ * Validation methods: A valiation method decides whether an element is valid.
+ * Included are a set of common validation methods, like required.
  * Except required itself and equalTo, all validation methods declare an element valid
  * when it has no value at all. That way you can specify an element input to
  * contain a valid email adress, or nothing at all. All available methods are documented
  * below, as well as $.validator.addMethod, which you can use to add your own methods.
+ *
+ * Validation rules: A validation rule applies one or more validation methods to an
+ * input element. You can specify validation rules via metadata or via plugin
+ * settings (option rules). It is more a matter of taste which way you choose.
+ * Using metadata is good for fast prototyping. Plugin settings are good for perfect
+ * clean markup. Valid markup results from both approaches.
  * 
- * Error messages: There are three ways to provide error messages. Via the title attribute
- * of the input element to validate, via error labels and via plugin settings
- * (option messages). All included validation rules provide a default error message
- * which you can use for prototyping.
+ * Error messages: An error message displays a hint for the user about invalid
+ * elements, and what is wrong. There are three ways to provide error messages.
+ * Via the title attribute of the input element to validate, via error labels and
+ * via plugin settings (option messages). All included validation rules provide a
+ * default error message which you can use for prototyping, because it is used when
+ * no specific message is provided.
  *
  * Error message display: Error messages are handled via label elements with an
  * additional class (option errorClass). When provided in the markup, they are shown
  * and hidden accordingly, otherwise created on demand. By default, labels are created
  * after the invalid element. It is also possible to put them into an error container
  * (option errorContainer), even a container containing a general warning followed by
- * the list of errors is possible (option errorContainer together with errorLabelContainer).
+ * a list of errors is possible (option errorContainer together with errorLabelContainer).
  *
  * Focusing of invalid elements: By default, the first invalid element in a form is focused
  * after validating a form with invalid elements. To prevent confusion on the behalf of the user,
@@ -53,7 +61,11 @@
  *
  * Form submit: By default, the form submission is prevented when the form is invalid,
  * and submitted as normal when it is valid. You can also handle the submission
- * (option submitHandler) manually.
+ * manually (option submitHandler).
+ *
+ * Validation event: By default, forms are validated on submit, triggered by the user clicking
+ * the submit button or pressing enter when a form input is focused. Instead, each element can
+ * be validated on a certain event like blur or keyup (option event).
  *
  * Developing and debugging a form: While developing and debugging the form, you should set
  * the debug option to true. That prevents the form submission on both valid and invalid forms
@@ -61,11 +73,12 @@
  * debugging. When you have everything setup and don't get any error messages displayed, check if
  * your rules all accept empty elements as valid (like email or url methods).
  *
- * Validation multiple forms on one page: The plugin can handle only one form per call. In case
+ * Validating multiple forms on one page: The plugin can handle only one form per call. In case
  * you have multiple forms on a single page which you want to validate, you can avoid having
- * to duplicate the plugin settings by modifying the defaults via $.validator.defaults.
+ * to duplicate the plugin settings by modifying the defaults via $.validator.defaults. Use
+ * $.extend($.validator.defaults, {...}) to override multiple settings at once.
  *
- * Validator object: The validation plugin returns the instance of the validator object it uses.
+ * Validator object: The validation plugin method returns the instance of the validator object it uses.
  * That gives you full control over every aspect of the validation. Let me know if you come up
  * with something that I didn't have in mind. Thats why the plugin has nearly no private methods.
  *
@@ -75,10 +88,9 @@
  * </form>
  * @desc Validates a form on submit. Rules are read from metadata.
  *
- * @example $("input").blur(function() {
- *   $(this).validate({
- *     focusInvalid: false
- *   });
+ * @example $("input").validate({
+ * 		focusInvalid: false,
+ * 		event: blur
  * });
  * @desc Validates all input elements on blur event (when the element looses focus).
  * Deactivates focus of invalid elements.
@@ -196,6 +208,8 @@
  * @option String event The event on which to validate. If anything is specified, like
  *		blur or keypress, each element is validated on that event. Default: submit,
  *		validates the entire form on submit
+ * @option Boolean onsubmit Validate the form on submit. Set to false to use only other
+ *		events for validation (option event). Default: true
  * @option String metaWrapper In case you use metadata for other plugins, too, you
  *		want to wrap your validation rules
  *		into their own object that can be specified via this option. Default: none
@@ -209,7 +223,7 @@
 
 $.fn.validate = function(options) {
 	var validator = new $.validator(options, this);
-	if( !validator.settings.event ) {
+	if( validator.settings.onsubmit ) {
 		// validate the form on submit
 		this.submit(function(event) {
 			if(validator.settings.debug) {
@@ -218,7 +232,8 @@ $.fn.validate = function(options) {
 			}
 			return validator.validateForm();
 		});
-	} else {
+	}
+	if( validator.settings.event ) {
 		// validate all elements on some other event like blur or keypress
 		validator.elements[validator.settings.event](function() {
 			validator.errorList = {};
@@ -242,9 +257,10 @@ var v = $.validator = function(options, form) {
 
 	this.currentForm = form[0];
 	// find the element to look for error labels
-	this.errorContext = settings.errorLabelContainer.length && settings.errorLabelContainer
+	this.errorContainer = settings.errorLabelContainer.length && settings.errorLabelContainer
 		|| settings.errorContainer.length && settings.errorContainer
-		|| this.currentForm;
+		|| $([])
+	this.errorContext = this.errorContainer.length && this.errorContainer || form;
 	
 	// listen for focus events to save reference to last focused element
 	var instance = this;
@@ -266,7 +282,8 @@ v.defaults = {
 	errorClass: "error",
 	focusInvalid: true,
 	errorContainer: $([]),
-	errorLabelContainer: $([])
+	errorLabelContainer: $([]),
+	onsubmit: true
 };
 
 // methods for validator object
@@ -322,7 +339,7 @@ v.prototype = {
 						console.error("could not find id/name for element, please check the element %o", element);
 					}
 					var list = this.errorList[id] || (this.errorList[id] = []);
-					list[list.length] = method.message && this.formatMessage(method.message, rule.parameters);
+					list[list.length] = method.message && this.formatMessage(method.message, rule, id);
 				}
 			} catch(e) {
 				if(this.settings.debug) {
@@ -344,8 +361,16 @@ v.prototype = {
 	 * @param String message
 	 * @param Array<Object>|Object param
 	 */
-	formatMessage: function(message, param) {
-		var first = param.constructor == Array ? param[0] : param;
+	formatMessage: function(message, rule, id) {
+		var m = this.settings.messages,
+			param = rule.parameters,
+			first = param.constructor == Array ? param[0] : param;
+		if(m && m[id]) {
+			if(m[id].constructor == String)
+				message = m[id];
+			else
+				message = m[id][rule.name];
+		}
 		return message.replace("{0}", first || "").replace("{1}", param[1] || "");
 	},
 
@@ -383,8 +408,6 @@ v.prototype = {
 				this.settings.submitHandler(this.currentForm);
 				return false;
 			}
-			if(this.settings.debug && window.console)
-				console.log("form is valid (or rules have errors)")
 			return true;
 		}
 	},
@@ -430,33 +453,29 @@ v.prototype = {
 	 * Check settings and markup, if the form is invalid, but no error is displayed.
 	 */
 	showError: function(elementID, message) {
-		var element = $("#" + elementID).addClass(this.settings.errorClass);
-	
-		// find message for this label
-		var m = this.settings.messages;
-		var message = (m && m[elementID]) || element.attr('title') || message || "<strong>Warning: No message defined for " + elementID + "</strong>";
-		
-		var errorLabel = $("label." + this.settings.errorClass, this.errorContext)
-			.filter("[@for=" + elementID + "]");
-		var w = this.settings.errorWrapper;
+		var element = $("#" + elementID).addClass(this.settings.errorClass),
+			// find message for this label
+			message = element.attr('title') || message || "<strong>Warning: No message defined for " + elementID + "</strong>",
+			errorLabel = $("label." + this.settings.errorClass, this.errorContext).filter("[@for=" + elementID + "]"),
+			wrapper = this.settings.errorWrapper;
 		if( errorLabel.length ) {
 			// check if we have a generated label, replace the message then
 			if( errorLabel.attr("generated") ) {
 				errorLabel.text(message);
 			}
 			errorLabel.show();
-			if( w ) {
-				errorLabel.parents(w).show();
+			if(wrapper) {
+				errorLabel.parents(wrapper).show();
 			}
 		} else {
 			// create label with custom message or title or default message
 			// display default message
 			// TODO can't change message
 			var errorLabel = $("<label>").attr({"for": elementID, generated: true}).addClass("error").html(message);
-			if(w) {
-				errorLabel = errorLabel.show().wrap("<" + w + "></" + w + ">").parent();
+			if(wrapper) {
+				errorLabel = errorLabel.show().wrap("<" + wrapper + "></" + wrapper + ">").parent();
 			}
-			if(!this.errorContext.append(errorLabel).length) 
+			if(!this.errorContainer.append(errorLabel).length) 
 				errorLabel.insertAfter(element);
 			errorLabel.show();
 		}
@@ -472,17 +491,17 @@ v.prototype = {
 			data = this.settings.rules[this.findId(element)];
 		} else {
 			data = $(element).data();
-			var meta = this.settings.metaWrapper;
-			if(meta)
-				data = data[meta];
+			var metaWrapper = this.settings.metaWrapper;
+			if(metaWrapper)
+				data = data[metaWrapper];
 		}
 		var rules = [];
 		if(!data)
 			return rules;
-		$.each(data, function(key) {
+		$.each(data, function(key, value) {
 			var rule = rules[rules.length] = {};
 			rule.name = key;
-			rule.parameters = this;
+			rule.parameters = value;
 		});
 		return rules;
 	},
@@ -491,8 +510,9 @@ v.prototype = {
 		var id = ( /radio|checkbox/i.test(element.type) ) ? element.name : element.id;
 		// generate id when none is found
 		if(!id) {
-			var formId = element.form.id;
-			var id = element.id = (formId ? formId.replace(/[^a-zA-Z0-9\-_]/g, "") : "") + element.name.replace(/[^a-zA-Z0-9\-_]/g, "");
+			var formId = element.form.id,
+				idcleanup = /[^a-zA-Z0-9\-_]/g;
+			id = element.id = (formId ? formId.replace(idcleanup, "") : "") + element.name.replace(idcleanup, "");
 		}
 		return id;
 	}
@@ -594,7 +614,7 @@ v.methods = {
 				return getLength(value, element) > 0;
 			}
 		default:
-			return value.length > 0;
+			return $.trim(value).length > 0;
 		}
 	},
 

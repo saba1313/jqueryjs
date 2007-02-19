@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Sortables</title>
+		<link rel="stylesheet" media="screen" href="style.css">
+		<script type="text/javascript" src="../firebug/firebug.js"></script>
+		<script type="text/javascript" src="../../../../trunk/jquery/src/jquery/jquery.js"></script>
+		<script type="text/javascript" src="../../../../trunk/jquery/src/selector/selector.js"></script>
+		<script type="text/javascript" src="../../../../trunk/jquery/src/event/event.js"></script>
+		<script type="text/javascript" src="../../../../trunk/jquery/src/fx/fx.js"></script>
+		<script type="text/javascript" src="../../../../trunk/jquery/src/ajax/ajax.js"></script>
+		<script type="text/javascript" src="../../../../trunk/plugins/dimensions/dimensions.js"></script>
+		<script type="text/javascript" src="../draggables.js"></script>
+		<script type="text/javascript">
+		$(document).ready(function() {
+			$('.draggable').draggable({ appendTo: "body", onStart: function(d) { $(d).css("z-index", "3000"); } });
+			
+			$('.draggable').droppable({
+				accept: "draggable",
+				onHover: function(d) {
+					
+					$(this).after(d);
+					var of = $(d).offset({ border: false });
+					$("<div class='dsind'></div>").css("position", "absolute").css("top", of.top).css("left", of.left).css("width", d.offsetWidth-2).css("height", d.offsetHeight-2).
+					css("background", "#fff").
+					css("border", "1px dotted black").
+					appendTo("body");
+					
+				},
+				onOut: function(d) {
+					$("div.dsind").remove();
+				},
+				onDrop: function(d) {
+					$("div.dsind").remove();
+				}
+			});		
+		});
+		</script>
+	</head>
+	<body>
+	<div id="sidebar">
+		<div class="draggable">Sortable 1</div>
+		<div class="draggable">Sortable 2</div>
+		<div class="draggable">Sortable 3</div>
+		<div class="draggable">Sortable 4</div>
+		<div class="draggable">Sortable 5</div>
+	</div>
+	</body>
+</html>

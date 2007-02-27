@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
 <?xml-stylesheet type='text/xsl' href='style/cat.xsl'?>
-<docs version='1.1.1'>
+<docs version='1.1.2'>
 <cat value='Core'>
 <method cat='Core' type='jQuery' short='This function accepts a string containing a CSS or
 basic XPath selector which is then used to match a set of elements.' name='$'>
@@ -13,8 +13,12 @@ The most basic use of this function is to pass in an expression
 (usually consisting of CSS or XPath), which then finds all matching
 elements.
 
-By default, $() looks for DOM elements within the context of the
-current HTML document.</desc>
+By default, if no context is specified, $() looks for DOM elements within the context of the
+current HTML document. If you do specify a context, such as a DOM
+element or jQuery object, the expression will be matched against
+the contents of that context.
+
+See [[DOM/Traversing/Selectors]] for the allowed CSS/XPath syntax for expressions.</desc>
 <see>$(Element)</see>
 <see>$(Element&lt;Array&gt;)</see>
 <params type='String' name='expr'>
@@ -45,10 +49,10 @@ current HTML document.</desc>
 </params>
 <examples>
 <desc>Creates a div element (and all of its contents) dynamically, 
-and appends it to the element with the ID of body. Internally, an
-element is created and it's innerHTML property set to the given markup.
+and appends it to the body element. Internally, an
+element is created and its innerHTML property set to the given markup.
 It is therefore both quite flexible and limited.</desc>
-<code>$("&lt;div&gt;&lt;p&gt;Hello&lt;/p&gt;&lt;/div&gt;").appendTo("#body")</code>
+<code>$("&lt;div&gt;&lt;p&gt;Hello&lt;/p&gt;&lt;/div&gt;").appendTo("body")</code>
 </examples>
 </method>
 <method cat='Core' type='jQuery' short='Wrap jQuery functionality around a single or multiple DOM Element(s).' name='$'>
@@ -61,7 +65,7 @@ as valid arguments (even though they are not DOM Elements).</desc>
 </params>
 <examples>
 <desc>Sets the background color of the page to black.</desc>
-<code>$(document.body).background( "black" );</code>
+<code>$(document.body).css( "background", "black" );</code>
 </examples>
 <examples>
 <desc>Hides all the input elements within a form</desc>
@@ -72,8 +76,10 @@ as valid arguments (even though they are not DOM Elements).</desc>
 <desc>A shorthand for $(document).ready(), allowing you to bind a function
 to be executed when the DOM document has finished loading. This function
 behaves just like $(document).ready(), in that it should be used to wrap
-all of the other $() operations on your page. While this function is,
-technically, chainable - there really isn't much use for chaining against it.
+other $() operations on your page that depend on the DOM being ready to be
+operated on. While this function is, technically, chainable - there really
+isn't much use for chaining against it.
+
 You can have as many $(document).ready events on your page as you like.
 
 See ready(Function) for details about the ready event.</desc>
@@ -99,25 +105,28 @@ global alias.</desc>
 <desc>The current version of jQuery.</desc>
 </method>
 <method property='1' cat='Core' type='Number' short='The number of elements currently matched.' name='length'>
-<desc>The number of elements currently matched.</desc>
+<desc>The number of elements currently matched. The size function will return the same value.</desc>
 <examples>
 <code>$("img").length;</code>
 <result>2</result>
 <before>&lt;img src="test1.jpg"/&gt; &lt;img src="test2.jpg"/&gt;</before>
 </examples>
 </method>
-<method cat='Core' type='Number' short='The number of elements currently matched.' name='size'>
-<desc>The number of elements currently matched.</desc>
+<method cat='Core' type='Number' short='Get the number of elements currently matched.' name='size'>
+<desc>Get the number of elements currently matched. This returns the same
+number as the 'length' property of the jQuery object.</desc>
 <examples>
 <code>$("img").size();</code>
 <result>2</result>
 <before>&lt;img src="test1.jpg"/&gt; &lt;img src="test2.jpg"/&gt;</before>
 </examples>
 </method>
-<method cat='Core' type='Array&lt;Element&gt;' short='Access all matched elements.' name='get'>
-<desc>Access all matched elements. This serves as a backwards-compatible
+<method cat='Core' type='Array&lt;Element&gt;' short='Access all matched DOM elements.' name='get'>
+<desc>Access all matched DOM elements. This serves as a backwards-compatible
 way of accessing all matched elements (other than the jQuery object
-itself, which is, in fact, an array of elements).</desc>
+itself, which is, in fact, an array of elements).
+
+It is useful if you need to operate on the DOM elements themselves instead of using built-in jQuery functions.</desc>
 <examples>
 <desc>Selects all images in the document and returns the DOM Elements as an Array</desc>
 <before>&lt;img src="test1.jpg"/&gt; &lt;img src="test2.jpg"/&gt;</before>
@@ -125,9 +134,10 @@ itself, which is, in fact, an array of elements).</desc>
 <result>[ &lt;img src="test1.jpg"/&gt; &lt;img src="test2.jpg"/&gt; ]</result>
 </examples>
 </method>
-<method cat='Core' type='Element' short='Access a single matched element.' name='get'>
-<desc>Access a single matched element. num is used to access the
-Nth element matched.</desc>
+<method cat='Core' type='Element' short='Access a single matched DOM element at a specified index in the matched set.' name='get'>
+<desc>Access a single matched DOM element at a specified index in the matched set.
+This allows you to extract the actual DOM element and operate on it
+directly without necessarily using jQuery functionality on it.</desc>
 <params type='Number' name='num'>
 <desc>Access the element in the Nth position.</desc>
 </params>
@@ -135,7 +145,7 @@ Nth element matched.</desc>
 <desc>Selects all images in the document and returns the first one</desc>
 <before>&lt;img src="test1.jpg"/&gt; &lt;img src="test2.jpg"/&gt;</before>
 <code>$("img").get(0);</code>
-<result>[ &lt;img src="test1.jpg"/&gt; ]</result>
+<result>&lt;img src="test1.jpg"/&gt;</result>
 </examples>
 </method>
 <method cat='Core' type='jQuery' short='Set the jQuery object to an array of elements, while maintaining
@@ -166,11 +176,11 @@ the jQuery stack.</desc>
 <desc>Execute a function within the context of every matched element.
 This means that every time the passed-in function is executed
 (which is once for every element matched) the 'this' keyword
-points to the specific element.
+points to the specific DOM element.
 
 Additionally, the function, when executed, is passed a single
 argument representing the position of the element in the matched
-set.</desc>
+set (integer, zero-index).</desc>
 <params type='Function' name='fn'>
 <desc>A function to execute</desc>
 </params>
@@ -227,7 +237,7 @@ Returns -1 if the object wasn't found.</desc>
 </method>
 <method cat='Core' type='Object' short='Extends the jQuery object itself.' name='$.extend'>
 <desc>Extends the jQuery object itself. Can be used to add functions into
-the jQuery namespace and to add plugin methods (plugins).</desc>
+the jQuery namespace and to [[Plugins/Authoring|add plugin methods]] (plugins).</desc>
 <params type='Object' name='prop'>
 <desc>The object that will be merged into the jQuery object</desc>
 </params>
@@ -332,7 +342,10 @@ starts at 0 and goes to length - 1.</desc>
 <method cat='DOM/Attributes' type='Object' short='Access a property on the first matched element.' name='attr'>
 <desc>Access a property on the first matched element.
 This method makes it easy to retrieve a property value
-from the first matched element.</desc>
+from the first matched element.
+
+If the element does not have an attribute with such a
+name, undefined is returned.</desc>
 <params type='String' name='name'>
 <desc>The name of the property to access.</desc>
 </params>
@@ -361,8 +374,6 @@ on all matched elements.</desc>
 <method cat='DOM/Attributes' type='jQuery' short='Set a single property to a value, on all matched elements.' name='attr'>
 <desc>Set a single property to a value, on all matched elements.
 
-Can compute values provided as ${formula}, see second example.
-
 Note that you can't set the name property of input elements in IE.
 Use $(html) or .append(html) or .html(html) to create elements
 on the fly including the name property.</desc>
@@ -378,17 +389,13 @@ on the fly including the name property.</desc>
 <code>$("img").attr("src","test.jpg");</code>
 <result>&lt;img src="test.jpg"/&gt;</result>
 </examples>
-<examples>
-<desc>Sets title attribute from src attribute, a shortcut for attr(String,Function)</desc>
-<before>&lt;img src="test.jpg" /&gt;</before>
-<code>$("img").attr("title", "${this.src}");</code>
-<result>&lt;img src="test.jpg" title="test.jpg" /&gt;</result>
-</examples>
 </method>
 <method cat='DOM/Attributes' type='jQuery' short='Set a single property to a computed value, on all matched elements.' name='attr'>
 <desc>Set a single property to a computed value, on all matched elements.
 
-Instead of a value, a function is provided, that computes the value.</desc>
+Instead of supplying a string value as described
+[[DOM/Attributes#attr.28_key.2C_value_.29|above]],
+a function is provided that computes the value.</desc>
 <params type='String' name='key'>
 <desc>The name of the property to set.</desc>
 </params>
@@ -440,16 +447,23 @@ HTML entities).</desc>
 <result>&lt;p&gt;Some new text.&lt;/p&gt;</result>
 </examples>
 </method>
-<method cat='DOM/Attributes' type='String' short='Get the current value of the first matched element.' name='val'>
-<desc>Get the current value of the first matched element.</desc>
+<method cat='DOM/Attributes' type='String' short='Get the content of the value attribute of the first matched element.' name='val'>
+<desc>Get the content of the value attribute of the first matched element.
+
+Use caution when relying on this function to check the value of
+multiple-select elements and checkboxes in a form. While it will
+still work as intended, it may not accurately represent the value
+the server will receive because these elements may send an array
+of values. For more robust handling of field values, see the
+[http://www.malsup.com/jquery/form/#fields fieldValue function of the Form Plugin].</desc>
 <examples>
 <code>$("input").val();</code>
 <result>"some text"</result>
 <before>&lt;input type="text" value="some text"/&gt;</before>
 </examples>
 </method>
-<method cat='DOM/Attributes' type='jQuery' short='Set the value of every matched element.' name='val'>
-<desc>Set the value of every matched element.</desc>
+<method cat='DOM/Attributes' type='jQuery' short='	Set the value attribute of every matched element.' name='val'>
+<desc>	Set the value attribute of every matched element.</desc>
 <params type='String' name='val'>
 <desc>Set the property to the specified value.</desc>
 </params>
@@ -804,13 +818,18 @@ Can be filtered with an optional expressions.</desc>
 </method>
 </cat>
 <cat value='Traversing'>
-<method cat='DOM/Traversing' type='jQuery' short='End the most recent &apos;destructive&apos; operation, reverting the list of matched elements
-back to its previous state.' name='end'>
-<desc>End the most recent 'destructive' operation, reverting the list of matched elements
-back to its previous state. After an end operation, the list of matched elements will
-revert to the last state of matched elements.
+<method cat='DOM/Traversing' type='jQuery' short='Revert the most recent &apos;destructive&apos; operation, changing the set of matched elements
+to its previous state (right before the destructive operation).' name='end'>
+<desc>Revert the most recent 'destructive' operation, changing the set of matched elements
+to its previous state (right before the destructive operation).
 
-If there was no destructive operation before, an empty set is returned.</desc>
+If there was no destructive operation before, an empty set is returned.
+
+A 'destructive' operation is any operation that changes the set of
+matched jQuery elements. These functions are: &lt;code&gt;add&lt;/code&gt;,
+&lt;code&gt;children&lt;/code&gt;, &lt;code&gt;clone&lt;/code&gt;, &lt;code&gt;filter&lt;/code&gt;,
+&lt;code&gt;find&lt;/code&gt;, &lt;code&gt;not&lt;/code&gt;, &lt;code&gt;next&lt;/code&gt;,
+&lt;code&gt;parent&lt;/code&gt;, &lt;code&gt;parents&lt;/code&gt;, &lt;code&gt;prev&lt;/code&gt; and &lt;code&gt;siblings&lt;/code&gt;.</desc>
 <examples>
 <desc>Selects all paragraphs, finds span elements inside these, and reverts the
 selection back to the paragraphs.</desc>
@@ -909,7 +928,10 @@ elements from a jQuery object.</desc>
 of matched elements.' name='not'>
 <desc>Removes any elements inside the array of elements from the set
 of matched elements. This method is used to remove one or more
-elements from a jQuery object.</desc>
+elements from a jQuery object.
+
+Please note: the expression cannot use a reference to the
+element name. See the two examples below.</desc>
 <params type='jQuery' name='elems'>
 <desc>A set of elements to remove from the jQuery set of matched elements.</desc>
 </params>
@@ -928,9 +950,13 @@ to the set of matched elements.</desc>
 <desc>An expression whose matched elements are added</desc>
 </params>
 <examples>
+<desc>Compare the above result to the result of &lt;code&gt;$('p')&lt;/code&gt;,
+which would just result in &lt;code&gt;&lt;nowiki&gt;[ &lt;p&gt;Hello&lt;/p&gt; ]&lt;/nowiki&gt;&lt;/code&gt;.
+Using add(), matched elements of &lt;code&gt;$('span')&lt;/code&gt; are simply
+added to the returned jQuery-object.</desc>
+<before>(HTML) &lt;p&gt;Hello&lt;/p&gt;&lt;span&gt;Hello Again&lt;/span&gt;</before>
 <code>$("p").add("span")</code>
-<result>[ &lt;p&gt;Hello&lt;/p&gt;, &lt;span&gt;Hello Again&lt;/span&gt; ]</result>
-<before>&lt;p&gt;Hello&lt;/p&gt;&lt;span&gt;Hello Again&lt;/span&gt;</before>
+<result>(jQuery object matching 2 elements) [ &lt;p&gt;Hello&lt;/p&gt;, &lt;span&gt;Hello Again&lt;/span&gt; ]</result>
 </examples>
 </method>
 <method cat='DOM/Traversing' type='jQuery' short='Adds more elements, created on the fly, to the set of
@@ -992,7 +1018,7 @@ set of elements.' name='parent'>
 <desc>Get a set of elements containing the unique parents of the matched
 set of elements.
 
-Can be filtered with an optional expressions.</desc>
+You may use an optional expression to filter the set of parent elements that will match.</desc>
 <params type='String' name='expr'>
 <desc>(optional) An expression to filter the parents with</desc>
 </params>
@@ -1014,7 +1040,7 @@ set of elements (except for the root element).' name='parents'>
 <desc>Get a set of elements containing the unique ancestors of the matched
 set of elements (except for the root element).
 
-Can be filtered with an optional expressions.</desc>
+The matched elements can be filtered with an optional expression.</desc>
 <params type='String' name='expr'>
 <desc>(optional) An expression to filter the ancestors with</desc>
 </params>
@@ -1036,9 +1062,10 @@ matched set of elements.' name='next'>
 <desc>Get a set of elements containing the unique next siblings of each of the
 matched set of elements.
 
-It only returns the very next sibling, not all next siblings.
+It only returns the very next sibling for each element, not all
+next siblings.
 
-Can be filtered with an optional expressions.</desc>
+You may provide an optional expression to filter the match.</desc>
 <params type='String' name='expr'>
 <desc>(optional) An expression to filter the next Elements with</desc>
 </params>
@@ -1060,9 +1087,9 @@ matched set of elements.' name='prev'>
 <desc>Get a set of elements containing the unique previous siblings of each of the
 matched set of elements.
 
-Can be filtered with an optional expressions.
+Use an optional expression to filter the matched set.
 
-It only returns the immediately previous sibling, not all previous siblings.</desc>
+	Only the immediately previous sibling is returned, not all previous siblings.</desc>
 <params type='String' name='expr'>
 <desc>(optional) An expression to filter the previous Elements with</desc>
 </params>
@@ -1106,7 +1133,8 @@ matched set of elements.' name='children'>
 <desc>Get a set of elements containing all of the unique children of each of the
 matched set of elements.
 
-Can be filtered with an optional expressions.</desc>
+This set can be filtered with an optional expression that will cause
+only elements matching the selector to be collected.</desc>
 <params type='String' name='expr'>
 <desc>(optional) An expression to filter the child Elements with</desc>
 </params>
@@ -1253,8 +1281,8 @@ was specified (like 'em' or '%') then "px" is added to the width.</desc>
 <before>&lt;p&gt;This is just a test.&lt;/p&gt;</before>
 </examples>
 </method>
-<method cat='CSS' type='jQuery' short='Set the CSS width of every matched element.' name='height'>
-<desc>Set the CSS width of every matched element. If no explicit unit
+<method cat='CSS' type='jQuery' short='Set the CSS height of every matched element.' name='height'>
+<desc>Set the CSS height of every matched element. If no explicit unit
 was specified (like 'em' or '%') then "px" is added to the width.</desc>
 <params type='String|Number' name='val'>
 <desc>Set the CSS property to the specified value.</desc>
@@ -1300,9 +1328,9 @@ var settings = jQuery.extend({}, defaults, options);</code>
 <result>settings == { validate: true, limit: 5, name: "bar" }</result>
 </examples>
 </method>
-<method cat='JavaScript' type='Object' short='A generic iterator function, which can be used to seemlessly
+<method cat='JavaScript' type='Object' short='A generic iterator function, which can be used to seamlessly
 iterate over both objects and arrays.' name='$.each'>
-<desc>A generic iterator function, which can be used to seemlessly
+<desc>A generic iterator function, which can be used to seamlessly
 iterate over both objects and arrays. This function is not the same
 as $().each() - which is used to iterate, exclusively, over a jQuery
 object. This function can be used to iterate over anything.
@@ -1456,7 +1484,7 @@ has to return false.
 
 In most cases, you can define your event handlers as anonymous functions
 (see first example). In cases where that is not possible, you can pass additional
-data as the second paramter (and the handler function as the third), see 
+data as the second parameter (and the handler function as the third), see 
 second example.</desc>
 <params type='String' name='type'>
 <desc>An event type</desc>
@@ -1563,14 +1591,38 @@ only that specific event handler is removed.</desc>
 </examples>
 </method>
 <method cat='Events' type='jQuery' short='Trigger a type of event on every matched element.' name='trigger'>
-<desc>Trigger a type of event on every matched element.</desc>
+<desc>Trigger a type of event on every matched element. This will also cause
+the default action of the browser with the same name (if one exists)
+to be executed. For example, passing 'submit' to the trigger()
+function will also cause the browser to submit the form. This
+default action can be prevented by returning false from one of
+the functions bound to the event.
+
+You can also trigger custom events registered with bind.</desc>
 <params type='String' name='type'>
 <desc>An event type to trigger.</desc>
+</params>
+<params type='Array' name='data'>
+<desc>(optional) Additional data to pass as arguments (after the event object) to the event handler</desc>
 </params>
 <examples>
 <code>$("p").trigger("click")</code>
 <result>alert('hello')</result>
 <before>&lt;p click="alert('hello')"&gt;Hello&lt;/p&gt;</before>
+</examples>
+<examples>
+<desc>Example of how to pass arbitrary data to an event</desc>
+<code>$("p").click(function(event, a, b) {
+  // when a normal click fires, a and b are undefined
+  // for a trigger like below a refers too "foo" and b refers to "bar"
+}).trigger("click", ["foo", "bar"]);</code>
+</examples>
+<examples>
+<code>$("p").bind("myEvent",function(event,message1,message2) {
+	alert(message1 + ' ' + message2);
+});
+$("p").trigger("myEvent",["Hello","World"]);</code>
+<result>alert('Hello World') // One for each paragraph</result>
 </examples>
 </method>
 <method cat='Events' type='jQuery' short='Toggle between two function calls every other click.' name='toggle'>
@@ -1615,9 +1667,9 @@ and if it is, it will continue to 'hover', and not move out
 </params>
 <examples>
 <code>$("p").hover(function(){
-  $(this).addClass("over");
+  $(this).addClass("hover");
 },function(){
-  $(this).addClass("out");
+  $(this).removeClass("hover");
 });</code>
 </examples>
 </method>
@@ -1629,13 +1681,13 @@ function included in the event module, as it can greatly improve
 the response times of your web applications.
 
 In a nutshell, this is a solid replacement for using window.onload, 
-and attaching a function to that. By using this method, your bound Function 
+and attaching a function to that. By using this method, your bound function 
 will be called the instant the DOM is ready to be read and manipulated, 
-which is exactly what 99.99% of all Javascript code needs to run.
+which is when what 99.99% of all JavaScript code needs to run.
 
 There is one argument passed to the ready event handler: A reference to
 the jQuery function. You can name that argument whatever you like, and
-can therefore stick with the $ alias without risc of naming collisions.
+can therefore stick with the $ alias without risk of naming collisions.
 
 Please ensure you have no code in your &lt;body&gt; onload event handler, 
 otherwise $(document).ready() may not fire.
@@ -1651,7 +1703,7 @@ The functions are then executed in the order they were added.</desc>
 <code>$(document).ready(function(){ Your code here... });</code>
 </examples>
 <examples>
-<desc>Uses both the shortcut for $(document).ready() and the argument
+<desc>Uses both the [[Core#.24.28_fn_.29|shortcut]] for $(document).ready() and the argument
 to write failsafe jQuery code using the $ alias, without relying on the
 global alias.</desc>
 <code>jQuery(function($) {
@@ -1685,12 +1737,14 @@ global alias.</desc>
 </method>
 <method cat='Events' type='jQuery' short='Trigger the submit event of each matched element.' name='submit'>
 <desc>Trigger the submit event of each matched element. This causes all of the functions
-that have been bound to thet submit event to be executed.
+that have been bound to that submit event to be executed, and calls the browser's
+default submit action on the matching element(s). This default action can be prevented
+by returning false from one of the functions bound to the submit event.
 
 Note: This does not execute the submit method of the form element! If you need to
 submit the form via code, you have to use the DOM method, eg. $("form")[0].submit();</desc>
 <examples>
-<desc>Triggers all submit events registered for forms, but does not submit the form</desc>
+<desc>Triggers all submit events registered to the matched form(s), and submits them.</desc>
 <code>$("form").submit();</code>
 </examples>
 </method>
@@ -1774,7 +1828,9 @@ focus an element via code, you have to use the DOM method, eg. $("#myinput")[0].
 </method>
 <method cat='Events' type='jQuery' short='Trigger the blur event of each matched element.' name='blur'>
 <desc>Trigger the blur event of each matched element. This causes all of the functions
-that have been bound to thet blur event to be executed.
+that have been bound to that blur event to be executed, and calls the browser's
+default blur action on the matching element(s). This default action can be prevented
+by returning false from one of the functions bound to the blur event.
 
 Note: This does not execute the blur method of the underlying elements! If you need to
 blur an element via code, you have to use the DOM method, eg. $("#myinput")[0].blur();</desc>
@@ -1808,7 +1864,9 @@ blur an element via code, you have to use the DOM method, eg. $("#myinput")[0].b
 </method>
 <method cat='Events' type='jQuery' short='Trigger the select event of each matched element.' name='select'>
 <desc>Trigger the select event of each matched element. This causes all of the functions
-that have been bound to thet select event to be executed.</desc>
+that have been bound to that select event to be executed, and calls the browser's
+default select action on the matching element(s). This default action can be prevented
+by returning false from one of the functions bound to the select event.</desc>
 <examples>
 <code>$("p").select();</code>
 <result>alert('Hello');</result>
@@ -2156,16 +2214,19 @@ and width associated with them.</desc>
 });</code>
 </examples>
 </method>
-<method cat='Effects' type='jQuery' short='A function for making your own, custom, animations.' name='animate'>
-<desc>A function for making your own, custom, animations. The key aspect of
+<method cat='Effects' type='jQuery' short='A function for making your own, custom animations.' name='animate'>
+<desc>A function for making your own, custom animations. The key aspect of
 this function is the object of style properties that will be animated,
 and to what end. Each key within the object represents a style property
 that will also be animated (for example: "height", "top", or "opacity").
 
+Note that properties should be specified using camel case
+eg. marginLeft instead of margin-left.
+
 The value associated with the key represents to what end the property
 will be animated. If a number is provided as the value, then the style
 property will be transitioned from its current state to that new number.
-Oterwise if the string "hide", "show", or "toggle" is provided, a default
+Otherwise if the string "hide", "show", or "toggle" is provided, a default
 animation will be constructed for that property.</desc>
 <params type='Hash' name='params'>
 <desc>A set of style attributes that you wish to animate, and to what end.</desc>
@@ -2250,9 +2311,10 @@ and a callback that is executed when the data was loaded.</desc>
 This will serialize all given elements.
 
 A serialization similar to the form submit of a browser is
-provided by the form plugin. It also takes multiple-selects 
+provided by the [http://www.malsup.com/jquery/form/ Form Plugin].
+It also takes multiple-selects 
 into account, while this method recognizes only a single option.</desc>
-<examples after='name=John&amp;location=Boston'>
+<examples after='name=John&amp;amp;location=Boston'>
 <desc>Serialize a selection of input elements to a string</desc>
 <before>&lt;input type='text' name='name' value='John'/&gt;
 &lt;input type='text' name='location' value='Boston'/&gt;</before>
@@ -2354,7 +2416,14 @@ as arguments to the callback.</desc>
 </examples>
 </method>
 <method cat='Ajax' type='XMLHttpRequest' short='Load a remote page using an HTTP GET request.' name='$.get'>
-<desc>Load a remote page using an HTTP GET request.</desc>
+<desc>Load a remote page using an HTTP GET request.
+
+This is an easy way to send a simple GET request to a server
+without having to use the more complex $.ajax function. It
+allows a single callback function to be specified that will
+be executed when the request is complete (and only if the response
+has a successful response code). If you need to have both error
+and success callbacks, you may want to use $.ajax.</desc>
 <params type='String' name='url'>
 <desc>The URL of the page to load.</desc>
 </params>
@@ -2362,7 +2431,7 @@ as arguments to the callback.</desc>
 <desc>(optional) Key/value pairs that will be sent to the server.</desc>
 </params>
 <params type='Function' name='callback'>
-<desc>(optional) A function to be executed whenever the data is loaded.</desc>
+<desc>(optional) A function to be executed whenever the data is loaded successfully.</desc>
 </params>
 <examples>
 <code>$.get("test.cgi");</code>
@@ -2395,7 +2464,7 @@ been modified since it was last retrieved.</desc>
 <desc>(optional) Key/value pairs that will be sent to the server.</desc>
 </params>
 <params type='Function' name='callback'>
-<desc>(optional) A function to be executed whenever the data is loaded.</desc>
+<desc>(optional) A function to be executed whenever the data is loaded successfully.</desc>
 </params>
 <examples>
 <code>$.getIfModified("test.html");</code>
@@ -2420,14 +2489,14 @@ been modified since it was last retrieved.</desc>
 <method cat='Ajax' type='XMLHttpRequest' short='Loads, and executes, a remote JavaScript file using an HTTP GET request.' name='$.getScript'>
 <desc>Loads, and executes, a remote JavaScript file using an HTTP GET request.
 
-Warning: Safari &lt;= 2.0.x is unable to evalulate scripts in a global
+Warning: Safari &lt;= 2.0.x is unable to evaluate scripts in a global
 context synchronously. If you load functions via getScript, make sure
 to call them after a delay.</desc>
 <params type='String' name='url'>
 <desc>The URL of the page to load.</desc>
 </params>
 <params type='Function' name='callback'>
-<desc>(optional) A function to be executed whenever the data is loaded.</desc>
+<desc>(optional) A function to be executed whenever the data is loaded successfully.</desc>
 </params>
 <examples>
 <code>$.getScript("test.js");</code>
@@ -2447,7 +2516,7 @@ to call them after a delay.</desc>
 <desc>(optional) Key/value pairs that will be sent to the server.</desc>
 </params>
 <params type='Function' name='callback'>
-<desc>A function to be executed whenever the data is loaded.</desc>
+<desc>A function to be executed whenever the data is loaded successfully.</desc>
 </params>
 <examples>
 <code>$.getJSON("test.js", function(json){
@@ -2472,7 +2541,7 @@ to call them after a delay.</desc>
 <desc>(optional) Key/value pairs that will be sent to the server.</desc>
 </params>
 <params type='Function' name='callback'>
-<desc>(optional) A function to be executed whenever the data is loaded.</desc>
+<desc>(optional) A function to be executed whenever the data is loaded successfully.</desc>
 </params>
 <examples>
 <code>$.post("test.cgi");</code>
@@ -2536,15 +2605,17 @@ $.ajax({ data: myData });</code>
 <desc>Load a remote page using an HTTP request.
 
 This is jQuery's low-level AJAX implementation. See $.get, $.post etc. for
-higher-level abstractions.
+higher-level abstractions that are often easier to understand and use,
+but don't offer as much functionality (such as error callbacks).
 
 $.ajax() returns the XMLHttpRequest that it creates. In most cases you won't
 need that object to manipulate directly, but it is available if you need to
 abort the request manually.
 
-Note: Make sure the server sends the right mimetype (eg. xml as
-"text/xml"). Sending the wrong mimetype will get you into serious
-trouble that jQuery can't solve.
+'''Note:''' If you specify the dataType option described below, make sure
+the server sends the correct MIME type in the response (eg. xml as "text/xml").
+Sending the wrong MIME type can lead to unexpected problems in your script.
+See [[Specifying the Data Type for AJAX Requests]] for more information.
 
 Supported datatypes are (see dataType option):
 
@@ -2634,8 +2705,8 @@ XMLHttpRequest is passed as the only argument.</desc>
 </examples>
 <examples>
 <desc>Loads data synchronously. Blocks the browser while the requests is active.
-It is better to block user interaction with others means when synchronization is
-necessary, instead to block the complete browser.</desc>
+It is better to block user interaction by other means when synchronization is
+necessary.</desc>
 <code>var html = $.ajax({
  url: "some.php",
  async: false

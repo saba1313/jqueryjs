@@ -12,6 +12,7 @@ public class Exporter {
 		TransformerFactory factory = TransformerFactory.newInstance();
 		Transformer transformer = factory.newTransformer( new StreamSource(path + "style/cat.xsl"));
 		transformer.transform(new StreamSource(path + "cat.xml"), new StreamResult(path + "index.html"));
+		transformer.transform(new StreamSource(path + "plugins.xml"), new StreamResult(path + "plugins.html"));
 	}
 	
 }

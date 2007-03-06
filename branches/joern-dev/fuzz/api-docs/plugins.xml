@@ -250,6 +250,105 @@ $('a.pretty').Tooltip({
 </examples>
 </method>
 </cat>
+<cat value='Treeview'>
+<method cat='Plugins/Treeview' type='jQuery' short='Takes an unordered list and makes all branches collapsable.' name='Treeview'>
+<options type='String|Number' name='speed'>
+<desc>Speed of animation, see animate() for details. Default: none, no animation</desc>
+</options>
+<options type='Boolean' name='collapsed'>
+<desc>Start with all branches collapsed. Default: none, all expanded</desc>
+</options>
+<options type='&lt;Content&gt;' name='control'>
+<desc>Container for a treecontrol, see last example.</desc>
+</options>
+<options type='Boolean' name='unique'>
+<desc>Set to allow only one branch on one level to be open (closing siblings which opening). Default: none</desc>
+</options>
+<options type='Function' name='toggle'>
+<desc>Callback when toggling a branch. Arguments: "this" refers to the UL that was shown or hidden. Works only with speed option set (set speed: 1 to enable callback without animations). Default: none</desc>
+</options>
+<desc>Takes an unordered list and makes all branches collapsable.
+
+The "treeview" class is added if not already present.
+
+To hide branches on first display, mark their li elements with
+the class "closed". If the "collapsed" option is used, mark intially open
+branches with class "open".</desc>
+<params type='Map' name='options'>
+<desc>Optional settings to configure treeview</desc>
+</params>
+<examples>
+<desc>The following styles are necessary in your stylesheet. There is are alternative sets of images available.</desc>
+<code>.treeview, .treeview ul { 
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}	
+
+.treeview li { 
+	margin: 0;
+	padding: 4px 0 3px 20px;
+}
+
+.treeview li { background: url(images/tv-item.gif) 0 0 no-repeat; }
+.treeview .collapsable { background-image: url(images/tv-collapsable.gif); }
+.treeview .expandable { background-image: url(images/tv-expandable.gif); }
+.treeview .last { background-image: url(images/tv-item-last.gif); }
+.treeview .lastCollapsable { background-image: url(images/tv-collapsable-last.gif); }
+.treeview .lastExpandable { background-image: url(images/tv-expandable-last.gif); }</code>
+</examples>
+<examples>
+<desc>Basic usage example</desc>
+<code>$("ul").Treeview();</code>
+<before>&lt;ul&gt;
+  &lt;li&gt;Item 1
+    &lt;ul&gt;
+      &lt;li&gt;Item 1.1&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li class="closed"&gt;Item 2 (starts closed)
+    &lt;ul&gt;
+      &lt;li&gt;Item 2.1
+        &lt;ul&gt;
+          &lt;li&gt;Item 2.1.1&lt;/li&gt;
+          &lt;li&gt;Item 2.1.2&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;Item 2.2&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Item 3&lt;/li&gt;
+&lt;/ul&gt;</before>
+</examples>
+<examples>
+<desc>Create a treeview that starts collapsed. Toggling branches is animated.</desc>
+<code>$("ul").Treeview({ speed: "fast", collapsed: true});</code>
+<before>&lt;ul&gt;
+  &lt;li class="open"&gt;Item 1 (starts open)
+    &lt;ul&gt;
+      &lt;li&gt;Item 1.1&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Item 2
+    &lt;ul&gt;
+      &lt;li&gt;Item 2.1&lt;/li&gt;
+      &lt;li&gt;Item 2.2&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;</before>
+</examples>
+<examples>
+<desc>Creates a treeview that can be controlled with a few links.
+Very likely to be changed/improved in future versions.</desc>
+<code>$("ul").Treeview({ control: #treecontrol });</code>
+<before>&lt;div id="treecontrol"&gt;
+  &lt;a href="#"&gt;Collapse All&lt;/a&gt;
+  &lt;a href="#"&gt;Expand All&lt;/a&gt;
+  &lt;a href="#"&gt;Toggle All&lt;/a&gt;
+&lt;/div&gt;</before>
+</examples>
+</method>
+</cat>
 <cat value='Validate'>
 <cat value='Methods'>
 <method property='1' cat='Plugins/Validate/Methods' type='Object&lt;String, Function(String,Element,Object):Boolean&gt;' short='Defines a standard set of useful validation methods.' name='jQuery.validator.methods'>

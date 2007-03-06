@@ -11,7 +11,8 @@
 <h1>
 <a href="http://jquery.com"><img src="style/images/jquery_logo.gif" alt="jQuery Logo"></a>
 </h1>
-<div id="header"><a href="http://bassistance.de/">bassistance.de</a> jQuery Plugins API Browser</div>
+<div id="header"><a href="http://bassistance.de/">bassistance.de</a> jQuery Plugins API Browser
+</div>
 <div id="content">
 <div id="nav">
 <h2>Navigation</h2>
@@ -55,6 +56,12 @@
 <li>Tooltip<ul>
 <li>
 <a href="#TooltipObject">Tooltip(<span class="arg-type tooltip">Object</span>)</a>
+</li>
+</ul>
+</li>
+<li>Treeview<ul>
+<li>
+<a href="#TreeviewMap">Treeview(<span class="arg-type tooltip">Map</span>)</a>
 </li>
 </ul>
 </li>
@@ -228,6 +235,9 @@
 </li>
 <li>
 <a href="#TooltipObject">Tooltip(<span class="arg-type tooltip">Object</span>)</a>
+</li>
+<li>
+<a href="#TreeviewMap">Treeview(<span class="arg-type tooltip">Map</span>)</a>
 </li>
 <li>
 <a href="#validateMap">validate(<span class="arg-type tooltip">Map</span>)</a>
@@ -1040,6 +1050,115 @@ $('a.pretty').Tooltip({
  $('img.pretty').Tooltip({
 	 extraClass: "fancy-img",
 });</code>
+</pre>
+</div>
+</div>
+</li>
+<li id="TreeviewMap">
+<span class="fn"><a class="name" href="#TreeviewMap">Treeview</a>( <span class="arg-type tooltip" title="A Javascript object that contains key/value pairs in the form of properties and values.">Map</span> <span class="arg-name tooltip" title="Optional settings to configure treeview">options</span> ) returns <span class="type"><span class="tooltip" title="A jQuery object.">jQuery</span></span></span>
+<div class="more">
+<div class="desc">Takes an unordered list and makes all branches collapsable.<br>
+<br>The "treeview" class is added if not already present.<br>
+<br>To hide branches on first display, mark their li elements with
+the class "closed". If the "collapsed" option is used, mark intially open
+branches with class "open".</div>
+<h3>Options</h3>
+<ul class="options">
+<li>speed (<span class="arg-type tooltip" title="A string of characters or a number.">String|Number</span>): Speed of animation, see animate() for details. Default: none, no animation</li>
+<li>collapsed (<span class="arg-type tooltip" title="true or false.">Boolean</span>): Start with all branches collapsed. Default: none, all expanded</li>
+<li>control (<span class="arg-type tooltip" title="A String (to generate HTML on-the-fly), a DOM Element, an Array of DOM Elements or a jQuery object.">&lt;Content&gt;</span>): Container for a treecontrol, see last example.</li>
+<li>unique (<span class="arg-type tooltip" title="true or false.">Boolean</span>): Set to allow only one branch on one level to be open (closing siblings which opening). Default: none</li>
+<li>toggle (<span class="arg-type tooltip" title="A reference to a Javascript function.">Function</span>): Callback when toggling a branch. Arguments: "this" refers to the UL that was shown or hidden. Works only with speed option set (set speed: 1 to enable callback without animations). Default: none</li>
+</ul>
+<div class="example">
+<h3>Example:</h3>
+<p>The following styles are necessary in your stylesheet. There is are alternative sets of images available.</p>
+<pre>
+<code class="javascript">.treeview, .treeview ul { 
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}	
+
+.treeview li { 
+	margin: 0;
+	padding: 4px 0 3px 20px;
+}
+
+.treeview li { background: url(images/tv-item.gif) 0 0 no-repeat; }
+.treeview .collapsable { background-image: url(images/tv-collapsable.gif); }
+.treeview .expandable { background-image: url(images/tv-expandable.gif); }
+.treeview .last { background-image: url(images/tv-item-last.gif); }
+.treeview .lastCollapsable { background-image: url(images/tv-collapsable-last.gif); }
+.treeview .lastExpandable { background-image: url(images/tv-expandable-last.gif); }</code>
+</pre>
+</div>
+<div class="example">
+<h3>Example:</h3>
+<p>Basic usage example</p>
+<pre>
+<code class="javascript">$("ul").Treeview();</code>
+</pre>
+<h4>HTML:</h4>
+<pre>
+<code class="html">&lt;ul&gt;
+  &lt;li&gt;Item 1
+    &lt;ul&gt;
+      &lt;li&gt;Item 1.1&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li class="closed"&gt;Item 2 (starts closed)
+    &lt;ul&gt;
+      &lt;li&gt;Item 2.1
+        &lt;ul&gt;
+          &lt;li&gt;Item 2.1.1&lt;/li&gt;
+          &lt;li&gt;Item 2.1.2&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;Item 2.2&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Item 3&lt;/li&gt;
+&lt;/ul&gt;</code>
+</pre>
+</div>
+<div class="example">
+<h3>Example:</h3>
+<p>Create a treeview that starts collapsed. Toggling branches is animated.</p>
+<pre>
+<code class="javascript">$("ul").Treeview({ speed: "fast", collapsed: true});</code>
+</pre>
+<h4>HTML:</h4>
+<pre>
+<code class="html">&lt;ul&gt;
+  &lt;li class="open"&gt;Item 1 (starts open)
+    &lt;ul&gt;
+      &lt;li&gt;Item 1.1&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Item 2
+    &lt;ul&gt;
+      &lt;li&gt;Item 2.1&lt;/li&gt;
+      &lt;li&gt;Item 2.2&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;</code>
+</pre>
+</div>
+<div class="example">
+<h3>Example:</h3>
+<p>Creates a treeview that can be controlled with a few links.
+Very likely to be changed/improved in future versions.</p>
+<pre>
+<code class="javascript">$("ul").Treeview({ control: #treecontrol });</code>
+</pre>
+<h4>HTML:</h4>
+<pre>
+<code class="html">&lt;div id="treecontrol"&gt;
+  &lt;a href="#"&gt;Collapse All&lt;/a&gt;
+  &lt;a href="#"&gt;Expand All&lt;/a&gt;
+  &lt;a href="#"&gt;Toggle All&lt;/a&gt;
+&lt;/div&gt;</code>
 </pre>
 </div>
 </div>

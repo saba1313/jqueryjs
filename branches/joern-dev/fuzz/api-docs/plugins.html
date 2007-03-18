@@ -2,7 +2,7 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>bassistance.de jQuery Plugins API Browser</title>
+<title>jQuery  API Browser </title>
 <link rel="stylesheet" href="style/screen.css" media="screen,projector">
 <link rel="stylesheet" href="style/print.css" media="print">
 <script type="text/javascript" src="js/browser.pack.js"></script><script type="text/javascript" src="js/doc.js"></script>
@@ -11,7 +11,7 @@
 <h1>
 <a href="http://jquery.com"><img src="style/images/jquery_logo.gif" alt="jQuery Logo"></a>
 </h1>
-<div id="header"><a href="http://bassistance.de/">bassistance.de</a> jQuery Plugins API Browser
+<div id="header"> API Browser <span>(<a href="jquery-api-browser.zip">Download</a>)</span>
 </div>
 <div id="content">
 <div id="nav">
@@ -39,17 +39,8 @@
 <li>
 <a href="#activateNumber">activate(<span class="arg-type tooltip">Number</span>)</a>
 </li>
-</ul>
-</li>
-<li>Format<ul>
 <li>
-<a href="#htmlStringString">html(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#jQueryformatStringArrayString">jQuery.format(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Array&lt;String&gt;</span>)</a>
-</li>
-<li>
-<a href="#textStringString">text(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">String</span>)</a>
+<a href="#setDefaultsMap">setDefaults(<span class="arg-type tooltip">Map</span>)</a>
 </li>
 </ul>
 </li>
@@ -67,13 +58,25 @@
 </li>
 <li>Validate<ul>
 <li>
+<a href="#:blank">:blank</a>
+</li>
+<li>
+<a href="#:filled">:filled</a>
+</li>
+<li>
 <a href="#jQueryvalidatoraddMethodStringFunctionString">jQuery.validator.addMethod(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>, <span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#jQueryvalidatormessages">jQuery.validator.messages</a>
 </li>
 <li>
 <a href="#jQueryvalidatorprotoypeelementStringElement">jQuery.validator.protoype.element(<span class="arg-type tooltip">String|Element</span>)</a>
 </li>
 <li>
 <a href="#jQueryvalidatorprotoypeform">jQuery.validator.protoype.form()</a>
+</li>
+<li>
+<a href="#jQueryvalidatorprotoyperesetForm">jQuery.validator.protoype.resetForm()</a>
 </li>
 <li>
 <a href="#jQueryvalidatorprotoypeshowErrorsMap">jQuery.validator.protoype.showErrors(<span class="arg-type tooltip">Map</span>)</a>
@@ -153,19 +156,22 @@
 </div>
 <ul>
 <li>
+<a href="#:blank">:blank</a>
+</li>
+<li>
+<a href="#:filled">:filled</a>
+</li>
+<li>
 <a href="#AccordionMap">Accordion(<span class="arg-type tooltip">Map</span>)</a>
 </li>
 <li>
 <a href="#activateNumber">activate(<span class="arg-type tooltip">Number</span>)</a>
 </li>
 <li>
-<a href="#htmlStringString">html(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">String</span>)</a>
-</li>
-<li>
-<a href="#jQueryformatStringArrayString">jQuery.format(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Array&lt;String&gt;</span>)</a>
-</li>
-<li>
 <a href="#jQueryvalidatoraddMethodStringFunctionString">jQuery.validator.addMethod(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">Function</span>, <span class="arg-type tooltip">String</span>)</a>
+</li>
+<li>
+<a href="#jQueryvalidatormessages">jQuery.validator.messages</a>
 </li>
 <li>
 <a href="#jQueryvalidatormethodsStringElementObject">jQuery.validator.methods</a>
@@ -225,13 +231,16 @@
 <a href="#jQueryvalidatorprotoypeform">jQuery.validator.protoype.form()</a>
 </li>
 <li>
+<a href="#jQueryvalidatorprotoyperesetForm">jQuery.validator.protoype.resetForm()</a>
+</li>
+<li>
 <a href="#jQueryvalidatorprotoypeshowErrorsMap">jQuery.validator.protoype.showErrors(<span class="arg-type tooltip">Map</span>)</a>
 </li>
 <li>
 <a href="#jQueryvalidatorsetDefaultsObjectString,">jQuery.validator.setDefaults(<span class="arg-type tooltip">Object&lt;String,</span>)</a>
 </li>
 <li>
-<a href="#textStringString">text(<span class="arg-type tooltip">String</span>, <span class="arg-type tooltip">String</span>)</a>
+<a href="#setDefaultsMap">setDefaults(<span class="arg-type tooltip">Map</span>)</a>
 </li>
 <li>
 <a href="#TooltipObject">Tooltip(<span class="arg-type tooltip">Object</span>)</a>
@@ -246,6 +255,46 @@
 </div>
 </div>
 <ul id="docs">
+<li id=":blank">
+<span class="fn"><a class="name" href="#:blank">:blank</a> returns <span class="type"><span class="tooltip" title="A string of characters.">String</span></span></span>
+<div class="more">
+<div class="desc">Custom expression to filter for blank fields.</div>
+<div class="example">
+<h3>Example:</h3>
+<pre>
+<code class="javascript">jQuery("input:blank").length</code>
+</pre>
+<h4>HTML:</h4>
+<pre>
+<code class="html">&lt;input value="" /&gt;&lt;input value="  " /&gt;&lt;input value="abc" /&gt;</code>
+</pre>
+<h4>Result:</h4>
+<pre>
+<code class="html">2</code>
+</pre>
+</div>
+</div>
+</li>
+<li id=":filled">
+<span class="fn"><a class="name" href="#:filled">:filled</a> returns <span class="type"><span class="tooltip" title="A string of characters.">String</span></span></span>
+<div class="more">
+<div class="desc">Custom expression to filter for filled fields.</div>
+<div class="example">
+<h3>Example:</h3>
+<pre>
+<code class="javascript">jQuery("input:filled").length</code>
+</pre>
+<h4>HTML:</h4>
+<pre>
+<code class="html">&lt;input value="" /&gt;&lt;input value="  " /&gt;&lt;input value="abc" /&gt;</code>
+</pre>
+<h4>Result:</h4>
+<pre>
+<code class="html">1</code>
+</pre>
+</div>
+</div>
+</li>
 <li id="AccordionMap">
 <span class="fn"><a class="name" href="#AccordionMap">Accordion</a>( <span class="arg-type tooltip" title="A Javascript object that contains key/value pairs in the form of properties and values.">Map</span> <span class="arg-name tooltip" title="key/value pairs of optional settings.">options</span> ) returns <span class="type"><span class="tooltip" title="A jQuery object.">jQuery</span></span></span>
 <div class="more">
@@ -258,7 +307,10 @@ all.<br>
 <br>If your structure uses the same elements for header and
 content or uses some kind of nested structure, you have to
 specify the header elements, eg. via class, see the second example.<br>
-<br>Use activate(Number) to change the active content programmatically.</div>
+<br>Use activate(Number) to change the active content programmatically.<br>
+<br>A change event is triggered everytime the accordion changes. Apart from
+the event object, all arguments are jQuery objects.
+Arguments: event, newHeader, oldHeader, newContent, oldContent</div>
 <h3>Options</h3>
 <ul class="options">
 <li>active (<span class="arg-type tooltip" title="">String|Element|jQuery|Boolean</span>): Selector for the active element, default is the first child, set to false to display none at start</li>
@@ -268,12 +320,13 @@ specify the header elements, eg. via class, see the second example.<br>
 <li>selectedClass (<span class="arg-type tooltip" title="A string of characters.">String</span>): Class for active header elements, default is 'selected'</li>
 <li>alwaysOpen (<span class="arg-type tooltip" title="true or false.">Boolean</span>): Whether there must be one content element open, default is true.</li>
 <li>animated (<span class="arg-type tooltip" title="true or false.">Boolean</span>): Set to false to disable animations. Default: true</li>
+<li>event (<span class="arg-type tooltip" title="A string of characters.">String</span>): The event on which to trigger the accordion, eg. "mouseover". Default: "click"</li>
 </ul>
 <div class="example">
 <h3>Example:</h3>
 <p>Creates an Accordion from the given definition list</p>
 <pre>
-<code class="javascript">$('#nav').Accordion();</code>
+<code class="javascript">jQuery('#nav').Accordion();</code>
 </pre>
 <h4>HTML:</h4>
 <pre>
@@ -289,7 +342,7 @@ specify the header elements, eg. via class, see the second example.<br>
 <h3>Example:</h3>
 <p>Creates an Accordion from the given div structure</p>
 <pre>
-<code class="javascript">$('#nav').Accordion({
+<code class="javascript">jQuery('#nav').Accordion({
   header: 'div.title'
 });</code>
 </pre>
@@ -311,7 +364,7 @@ specify the header elements, eg. via class, see the second example.<br>
 <h3>Example:</h3>
 <p>Creates an Accordion from the given navigation list</p>
 <pre>
-<code class="javascript">$('#nav').Accordion({
+<code class="javascript">jQuery('#nav').Accordion({
   header: 'a.head'
 });</code>
 </pre>
@@ -337,10 +390,10 @@ specify the header elements, eg. via class, see the second example.<br>
 </div>
 <div class="example">
 <h3>Example:</h3>
-<p>Updates the #status element with the text of the selected header every time the accordion changes</p>
+<p>Updates the element with id status with the text of the selected header every time the accordion changes</p>
 <pre>
-<code class="javascript">$('#accordion').Accordion().change(function(event, newHeader, oldHeader, newContent, oldContent) {
-  $('#status').html(newHeader.text());
+<code class="javascript">jQuery('#accordion').Accordion().change(function(event, newHeader, oldHeader, newContent, oldContent) {
+  jQuery('#status').html(newHeader.text());
 });</code>
 </pre>
 </div>
@@ -356,55 +409,16 @@ nothing happens.</div>
 <h3>Example:</h3>
 <p>Activate the second content of the Accordion contained in &lt;div id="accordion"&gt;.</p>
 <pre>
-<code class="javascript">$('#accordion').activate(1);</code>
+<code class="javascript">jQuery('#accordion').activate(1);</code>
 </pre>
 </div>
 <div class="example">
 <h3>Example:</h3>
 <p>Activate the first content of the Accordion contained in &lt;ul id="nav"&gt;.</p>
 <pre>
-<code class="javascript">$('#nav').activate();</code>
+<code class="javascript">jQuery('#nav').activate();</code>
 </pre>
 </div>
-</div>
-</li>
-<li id="htmlStringString">
-<span class="fn"><a class="name" href="#htmlStringString">html</a>( <span class="arg-type tooltip" title="A string of characters.">String</span> <span class="arg-name tooltip" title="The HTML to set and format">html</span>, <span class="arg-type tooltip" title="A string of characters.">String</span> <span class="arg-name tooltip" title="Any number of arguments to place into the HTML">[...]</span> ) returns <span class="type"><span class="tooltip" title="A string of characters.">String</span></span></span>
-<div class="more">
-<div class="desc">Extends jQuery's built-in html method to accept additional
-arguments and use them to replace any percent-signs found in the
-html string.</div>
-<div class="example">
-<h3>Example:</h3>
-<p>Basic usage example</p>
-<pre>
-<code class="javascript">jQuery("div").html("Hi &lt;strong&gt;%&lt;/strong&gt; in the year %?", name, new Date().getYear() + 1900);</code>
-</pre>
-<h4>Result:</h4>
-<pre>
-<code class="html">[ &lt;div&gt;Hi &lt;strong&gt;Peter&lt;/strong&gt; in the year 2007?&lt;/div&gt; ]</code>
-</pre>
-</div>
-<div class="example">
-<h3>Example:</h3>
-<p>Escaping of placeholder</p>
-<pre>
-<code class="javascript">jQuery("div").html("% %% done.", 56);</code>
-</pre>
-<h4>Result:</h4>
-<pre>
-<code class="html">[ &lt;div&gt;56 % done.&lt;/div&gt; ]</code>
-</pre>
-</div>
-</div>
-</li>
-<li id="jQueryformatStringArrayString">
-<span class="fn"><a class="name" href="#jQueryformatStringArrayString">jQuery.format</a>( <span class="arg-type tooltip" title="A string of characters.">String</span> <span class="arg-name tooltip" title="A template, containing percent-characters to indicate placeholders">value</span>, <span class="arg-type tooltip" title="An Array of strings.">Array&lt;String&gt;</span> <span class="arg-name tooltip" title="An array of strings to replace the placeholders with">[...]</span> ) returns <span class="type"><span class="tooltip" title="A string of characters.">String</span></span></span>
-<div class="more">
-<div class="desc">The formatter used by extended text() and html(). It replaces all
-placeholders found in the first argument by the elements of the array from the
-second argument. Would be the base to extend other HTML transforming methods
-as append().</div>
 </div>
 </li>
 <li id="jQueryvalidatoraddMethodStringFunctionString">
@@ -435,6 +449,14 @@ expressions, try to extract a common parameter.<br>
 }, "Please enter the correct value for this simple question.");</code>
 </pre>
 </div>
+</div>
+</li>
+<li id="jQueryvalidatormessages">
+<span class="fn"><a class="name" href="#jQueryvalidatormessages">jQuery.validator.messages</a> returns <span class="type"><span class="tooltip" title="A string of characters.">String</span></span></span>
+<div class="more">
+<div class="desc">Default messages for all default methods.<br>
+<br>User addMethod() to add methods with messages.<br>
+<br>Replace these messages for localization.</div>
 </div>
 </li>
 <li id="jQueryvalidatormethodsStringElementObject">
@@ -930,6 +952,22 @@ element of the group.</p>
 </div>
 </div>
 </li>
+<li id="jQueryvalidatorprotoyperesetForm">
+<span class="fn"><a class="name" href="#jQueryvalidatorprotoyperesetForm">jQuery.validator.protoype.resetForm</a>(  ) returns <span class="type"><span class="tooltip" title=""></span></span></span>
+<div class="more">
+<div class="desc">Resets the controlled form, including resetting input fields
+to their original value (requires form plugin), removing classes
+indicating invalid elements and hiding error messages.</div>
+<div class="example">
+<h3>Example:</h3>
+<p>Reset the form controlled by this validator.</p>
+<pre>
+<code class="javascript">var validator = $("#myform").validate();
+validator.resetForm();</code>
+</pre>
+</div>
+</div>
+</li>
 <li id="jQueryvalidatorprotoypeshowErrorsMap">
 <span class="fn"><a class="name" href="#jQueryvalidatorprotoypeshowErrorsMap">jQuery.validator.protoype.showErrors</a>( <span class="arg-type tooltip" title="A Javascript object that contains key/value pairs in the form of properties and values.">Map</span> <span class="arg-name tooltip" title="One or more key/value pairs of identifiers (IDs or names) and messages">errors</span> ) returns <span class="type"><span class="tooltip" title=""></span></span></span>
 <div class="more">
@@ -939,8 +977,7 @@ element of the group.</p>
 <p>Adds and shows error message programmatically.</p>
 <pre>
 <code class="javascript">var validator = $("#myform").validate();
-validator.addErrors({"firstname": "I know that your firstname is Pete, Pete!"});
-validator.showErrors();</code>
+validator.showErrors({"firstname": "I know that your firstname is Pete, Pete!"});</code>
 </pre>
 </div>
 </div>
@@ -960,32 +997,17 @@ validator.showErrors();</code>
 </div>
 </div>
 </li>
-<li id="textStringString">
-<span class="fn"><a class="name" href="#textStringString">text</a>( <span class="arg-type tooltip" title="A string of characters.">String</span> <span class="arg-name tooltip" title="The text to set and format">text</span>, <span class="arg-type tooltip" title="A string of characters.">String</span> <span class="arg-name tooltip" title="Any number of arguments to place into the text">[...]</span> ) returns <span class="type"><span class="tooltip" title="A string of characters.">String</span></span></span>
+<li id="setDefaultsMap">
+<span class="fn"><a class="name" href="#setDefaultsMap">setDefaults</a>( <span class="arg-type tooltip" title="A Javascript object that contains key/value pairs in the form of properties and values.">Map</span> <span class="arg-name tooltip" title="key/value pairs of optional settings, see Accordion() for details">options</span> ) returns <span class="type"><span class="tooltip" title="A jQuery object.">jQuery</span></span></span>
 <div class="more">
-<div class="desc">Extends jQuery's built-in text method to accept additional
-arguments and use them to replace any percent-signs found in the
-text string.</div>
+<div class="desc">Override the default settings of the Accordion. Affects only following plugin calls.</div>
 <div class="example">
 <h3>Example:</h3>
-<p>Basic usage example</p>
 <pre>
-<code class="javascript">jQuery("div").text("Hi &lt;strong&gt;%&lt;/strong&gt; in the year %?", "Peter", new Date().getYear() + 1900);</code>
-</pre>
-<h4>Result:</h4>
-<pre>
-<code class="html">[ &lt;div&gt;Hi &amp;lt;strong&amp;gt;Peter&amp;lt;/strong&amp;gt; in the year 2007?&lt;/div&gt; ]</code>
-</pre>
-</div>
-<div class="example">
-<h3>Example:</h3>
-<p>Escaping of placeholder</p>
-<pre>
-<code class="javascript">jQuery("div").text("% %% done.", 56);</code>
-</pre>
-<h4>Result:</h4>
-<pre>
-<code class="html">[ &lt;div&gt;56 % done.&lt;/div&gt; ]</code>
+<code class="javascript">jQuery.Accordion.setDefaults({
+	showSpeed: 1000,
+	hideSpeed: 150
+});</code>
 </pre>
 </div>
 </div>
@@ -1069,6 +1091,7 @@ branches with class "open".</div>
 <li>control (<span class="arg-type tooltip" title="A String (to generate HTML on-the-fly), a DOM Element, an Array of DOM Elements or a jQuery object.">&lt;Content&gt;</span>): Container for a treecontrol, see last example.</li>
 <li>unique (<span class="arg-type tooltip" title="true or false.">Boolean</span>): Set to allow only one branch on one level to be open (closing siblings which opening). Default: none</li>
 <li>toggle (<span class="arg-type tooltip" title="A reference to a Javascript function.">Function</span>): Callback when toggling a branch. Arguments: "this" refers to the UL that was shown or hidden. Works only with speed option set (set speed: 1 to enable callback without animations). Default: none</li>
+<li>store (<span class="arg-type tooltip" title="">Boolean|Object</span>): When set, stores the tree-state in a cookie when leaving/reloading the page, and restoring that state when loading the page. By default, no state is stored. Only one tree-per-page can be stored. When specifying the option as a boolean-true, the default setting for cookie-storage is used, saving the state for the browser session. To set a different expiration, set the option to an object with a "expiration" property. Refer to the cookie plugin for details about possible values of that object.</li>
 </ul>
 <div class="example">
 <h3>Example:</h3>
@@ -1207,7 +1230,7 @@ Deactivates focus of invalid elements.</p>
 <pre>
 <code class="javascript">$("input").validate({
 		focusInvalid: false,
-		event: blur
+		event: "blur"
 });</code>
 </pre>
 </div>
@@ -1225,16 +1248,17 @@ the default submit.</p>
 </div>
 <div class="example">
 <h3>Example:</h3>
-<p>Validate a form on submit. Rules are specified for three element,
-and a message is customized for the "password" and the "age" elements.
-Inline rules are ignored. The password is only required when the age is lower
-then 18.</p>
+<p>Validate a form on submit and each element on keyup. Rules are specified
+for three elements, and a message is customized for the "password" and the
+"age" elements. Inline rules are ignored. The password is only required when the age is lower
+then 18. The age is only required when the firstname is blank.</p>
 <pre>
 <code class="javascript">$("#myform").validate({
+ event: "keyup"
 	rules: {
 		firstname: { required: true },
 		age: {
-			required: true,
+			required: "#firstname:blank",
 			number: true,
 			minValue: 3
 		},
@@ -1277,7 +1301,7 @@ of the form no matter of being valid or not.</p>
 </pre>
 <h4>HTML:</h4>
 <pre>
-<code class="html">&lt;ul id="messageBox" /&gt;
+<code class="html">&lt;ul id="messageBox"&gt;&lt;/ul&gt;
 &lt;form id="myform" action="/login" method="post"&gt;
   &lt;label&gt;Firstname&lt;/label&gt;
   &lt;input name="fname" class="{required:true}" /&gt;
@@ -1305,8 +1329,8 @@ of the form no matter of being valid or not.</p>
 by appending them to the next table cell.</p>
 <pre>
 <code class="javascript">$("#myform").validate({
-	errorPlacement: function(error, id) {
-		error.appendTo( $("#" + id).parent("td").next("td") );
+	errorPlacement: function(error, element) {
+		error.appendTo( element.parent("td").next("td") );
 	}
 });</code>
 </pre>
@@ -1363,7 +1387,7 @@ also wrapped into li elements (wrapper option).</p>
 <pre>
 <code class="html">&lt;div id="messageBox1"&gt;
   &lt;h3&gt;The are errors in your form!&lt;/h3&gt;
-  &lt;ul/&gt;
+  &lt;ul&gt;&lt;/ul&gt;
 &lt;/div&gt;
 &lt;form id="myform" action="/login" method="post"&gt;
   &lt;label&gt;Firstname&lt;/label&gt;

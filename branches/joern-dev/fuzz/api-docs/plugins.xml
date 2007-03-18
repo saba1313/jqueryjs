@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
 <?xml-stylesheet type='text/xsl' href='style/cat.xsl'?>
-<docs version='1.1.2'>
+<docs>
 <cat value='Plugins'>
 <cat value='Accordion'>
-<method cat='Plugins/Accordion' type='jQuery' see='activate(Number)' short='Make the selected elements Accordion widgets.' name='Accordion' event='change Called everytime the accordion changes, params: event, newHeader, oldHeader, newContent, oldContent'>
+<method cat='Plugins/Accordion' type='jQuery' see='activate(Number)' short='Make the selected elements Accordion widgets.' name='Accordion'>
 <options type='String|Element|jQuery|Boolean' name='active'>
 <desc>Selector for the active element, default is the first child, set to false to display none at start</desc>
 </options>
@@ -25,6 +25,9 @@
 <options type='Boolean' name='animated'>
 <desc>Set to false to disable animations. Default: true</desc>
 </options>
+<options type='String' name='event'>
+<desc>The event on which to trigger the accordion, eg. "mouseover". Default: "click"</desc>
+</options>
 <desc>Make the selected elements Accordion widgets.
 
 Semantic requirements:
@@ -38,13 +41,17 @@ If your structure uses the same elements for header and
 content or uses some kind of nested structure, you have to
 specify the header elements, eg. via class, see the second example.
 
-Use activate(Number) to change the active content programmatically.</desc>
+Use activate(Number) to change the active content programmatically.
+
+A change event is triggered everytime the accordion changes. Apart from
+the event object, all arguments are jQuery objects.
+Arguments: event, newHeader, oldHeader, newContent, oldContent</desc>
 <params type='Map' name='options'>
 <desc>key/value pairs of optional settings.</desc>
 </params>
 <examples>
 <desc>Creates an Accordion from the given definition list</desc>
-<code>$('#nav').Accordion();</code>
+<code>jQuery('#nav').Accordion();</code>
 <before>&lt;dl id="nav"&gt;
   &lt;dt&gt;Header 1&lt;/dt&gt;
   &lt;dd&gt;Content 1&lt;/dd&gt;
@@ -54,7 +61,7 @@ Use activate(Number) to change the active content programmatically.</desc>
 </examples>
 <examples>
 <desc>Creates an Accordion from the given div structure</desc>
-<code>$('#nav').Accordion({
+<code>jQuery('#nav').Accordion({
   header: 'div.title'
 });</code>
 <before>&lt;div id="nav"&gt;
@@ -70,7 +77,7 @@ Use activate(Number) to change the active content programmatically.</desc>
 </examples>
 <examples>
 <desc>Creates an Accordion from the given navigation list</desc>
-<code>$('#nav').Accordion({
+<code>jQuery('#nav').Accordion({
   header: 'a.head'
 });</code>
 <before>&lt;ul id="nav"&gt;
@@ -91,9 +98,9 @@ Use activate(Number) to change the active content programmatically.</desc>
 &lt;/ul&gt;</before>
 </examples>
 <examples>
-<desc>Updates the #status element with the text of the selected header every time the accordion changes</desc>
-<code>$('#accordion').Accordion().change(function(event, newHeader, oldHeader, newContent, oldContent) {
-  $('#status').html(newHeader.text());
+<desc>Updates the element with id status with the text of the selected header every time the accordion changes</desc>
+<code>jQuery('#accordion').Accordion().change(function(event, newHeader, oldHeader, newContent, oldContent) {
+  jQuery('#status').html(newHeader.text());
 });</code>
 </examples>
 </method>
@@ -107,72 +114,24 @@ nothing happens.</desc>
 </params>
 <examples>
 <desc>Activate the second content of the Accordion contained in &lt;div id="accordion"&gt;.</desc>
-<code>$('#accordion').activate(1);</code>
+<code>jQuery('#accordion').activate(1);</code>
 </examples>
 <examples>
 <desc>Activate the first content of the Accordion contained in &lt;ul id="nav"&gt;.</desc>
-<code>$('#nav').activate();</code>
+<code>jQuery('#nav').activate();</code>
 </examples>
 </method>
-</cat>
-<cat value='Format'>
-<method cat='Plugins/Format' type='String' short='Extends jQuery&apos;s built-in html method to accept additional
-arguments and use them to replace any percent-signs found in the
-html string.' name='html'>
-<desc>Extends jQuery's built-in html method to accept additional
-arguments and use them to replace any percent-signs found in the
-html string.</desc>
-<params type='String' name='html'>
-<desc>The HTML to set and format</desc>
-</params>
-<params type='String' name='[...]'>
-<desc>Any number of arguments to place into the HTML</desc>
+<method cat='Plugins/Accordion' type='jQuery' short='Override the default settings of the Accordion.' name='setDefaults'>
+<desc>Override the default settings of the Accordion. Affects only following plugin calls.</desc>
+<params type='Map' name='options'>
+<desc>key/value pairs of optional settings, see Accordion() for details</desc>
 </params>
 <examples>
-<desc>Basic usage example</desc>
-<code>jQuery("div").html("Hi &lt;strong&gt;%&lt;/strong&gt; in the year %?", name, new Date().getYear() + 1900);</code>
-<result>[ &lt;div&gt;Hi &lt;strong&gt;Peter&lt;/strong&gt; in the year 2007?&lt;/div&gt; ]</result>
+<code>jQuery.Accordion.setDefaults({
+	showSpeed: 1000,
+	hideSpeed: 150
+});</code>
 </examples>
-<examples>
-<desc>Escaping of placeholder</desc>
-<code>jQuery("div").html("% %% done.", 56);</code>
-<result>[ &lt;div&gt;56 % done.&lt;/div&gt; ]</result>
-</examples>
-</method>
-<method cat='Plugins/Format' type='String' short='Extends jQuery&apos;s built-in text method to accept additional
-arguments and use them to replace any percent-signs found in the
-text string.' name='text'>
-<desc>Extends jQuery's built-in text method to accept additional
-arguments and use them to replace any percent-signs found in the
-text string.</desc>
-<params type='String' name='text'>
-<desc>The text to set and format</desc>
-</params>
-<params type='String' name='[...]'>
-<desc>Any number of arguments to place into the text</desc>
-</params>
-<examples>
-<desc>Basic usage example</desc>
-<code>jQuery("div").text("Hi &lt;strong&gt;%&lt;/strong&gt; in the year %?", "Peter", new Date().getYear() + 1900);</code>
-<result>[ &lt;div&gt;Hi &amp;lt;strong&amp;gt;Peter&amp;lt;/strong&amp;gt; in the year 2007?&lt;/div&gt; ]</result>
-</examples>
-<examples>
-<desc>Escaping of placeholder</desc>
-<code>jQuery("div").text("% %% done.", 56);</code>
-<result>[ &lt;div&gt;56 % done.&lt;/div&gt; ]</result>
-</examples>
-</method>
-<method cat='Plugins/Format' type='String' short='The formatter used by extended text() and html().' name='jQuery.format'>
-<desc>The formatter used by extended text() and html(). It replaces all
-placeholders found in the first argument by the elements of the array from the
-second argument. Would be the base to extend other HTML transforming methods
-as append().</desc>
-<params type='String' name='value'>
-<desc>A template, containing percent-characters to indicate placeholders</desc>
-</params>
-<params type='Array&lt;String&gt;' name='[...]'>
-<desc>An array of strings to replace the placeholders with</desc>
-</params>
 </method>
 </cat>
 <cat value='Tooltip'>
@@ -266,6 +225,9 @@ $('a.pretty').Tooltip({
 </options>
 <options type='Function' name='toggle'>
 <desc>Callback when toggling a branch. Arguments: "this" refers to the UL that was shown or hidden. Works only with speed option set (set speed: 1 to enable callback without animations). Default: none</desc>
+</options>
+<options type='Boolean|Object' name='store'>
+<desc>When set, stores the tree-state in a cookie when leaving/reloading the page, and restoring that state when loading the page. By default, no state is stored. Only one tree-per-page can be stored. When specifying the option as a boolean-true, the default setting for cookie-storage is used, saving the state for the browser session. To set a different expiration, set the option to an object with a "expiration" property. Refer to the cookie plugin for details about possible values of that object.</desc>
 </options>
 <desc>Takes an unordered list and makes all branches collapsable.
 
@@ -798,7 +760,7 @@ It is also possible to validate each individual element of that form, eg. on blu
 Deactivates focus of invalid elements.</desc>
 <code>$("input").validate({
 		focusInvalid: false,
-		event: blur
+		event: "blur"
 });</code>
 </examples>
 <examples>
@@ -811,15 +773,16 @@ the default submit.</desc>
 });</code>
 </examples>
 <examples>
-<desc>Validate a form on submit. Rules are specified for three element,
-and a message is customized for the "password" and the "age" elements.
-Inline rules are ignored. The password is only required when the age is lower
-then 18.</desc>
+<desc>Validate a form on submit and each element on keyup. Rules are specified
+for three elements, and a message is customized for the "password" and the
+"age" elements. Inline rules are ignored. The password is only required when the age is lower
+then 18. The age is only required when the firstname is blank.</desc>
 <code>$("#myform").validate({
+ event: "keyup"
 	rules: {
 		firstname: { required: true },
 		age: {
-			required: true,
+			required: "#firstname:blank",
 			number: true,
 			minValue: 3
 		},
@@ -851,7 +814,7 @@ are wrapped inside an li element, to create a list of messages.
 
 To ease the setup of the form, debug option is set to true, preventing a submit
 of the form no matter of being valid or not.</desc>
-<before>&lt;ul id="messageBox" /&gt;
+<before>&lt;ul id="messageBox"&gt;&lt;/ul&gt;
 &lt;form id="myform" action="/login" method="post"&gt;
   &lt;label&gt;Firstname&lt;/label&gt;
   &lt;input name="fname" class="{required:true}" /&gt;
@@ -892,8 +855,8 @@ by appending them to the next table cell.</desc>
 	&lt;/table&gt;
 &lt;/form&gt;</before>
 <code>$("#myform").validate({
-	errorPlacement: function(error, id) {
-		error.appendTo( $("#" + id).parent("td").next("td") );
+	errorPlacement: function(error, element) {
+		error.appendTo( element.parent("td").next("td") );
 	}
 });</code>
 <result>&lt;form id="myform" action="/login" method="post"&gt;
@@ -919,7 +882,7 @@ given as errorLabelContainer, here an unordered list. Therefore the error labels
 also wrapped into li elements (wrapper option).</desc>
 <before>&lt;div id="messageBox1"&gt;
   &lt;h3&gt;The are errors in your form!&lt;/h3&gt;
-  &lt;ul/&gt;
+  &lt;ul&gt;&lt;/ul&gt;
 &lt;/div&gt;
 &lt;form id="myform" action="/login" method="post"&gt;
   &lt;label&gt;Firstname&lt;/label&gt;
@@ -947,6 +910,22 @@ also wrapped into li elements (wrapper option).</desc>
 &lt;/form&gt;</result>
 </examples>
 </method>
+<method property='1' cat='Plugins/Validate' type='String' short='Custom expression to filter for blank fields.' name=':blank'>
+<desc>Custom expression to filter for blank fields.</desc>
+<examples>
+<code>jQuery("input:blank").length</code>
+<result>2</result>
+<before>&lt;input value="" /&gt;&lt;input value="  " /&gt;&lt;input value="abc" /&gt;</before>
+</examples>
+</method>
+<method property='1' cat='Plugins/Validate' type='String' short='Custom expression to filter for filled fields.' name=':filled'>
+<desc>Custom expression to filter for filled fields.</desc>
+<examples>
+<code>jQuery("input:filled").length</code>
+<result>1</result>
+<before>&lt;input value="" /&gt;&lt;input value="  " /&gt;&lt;input value="abc" /&gt;</before>
+</examples>
+</method>
 <method cat='Plugins/Validate' type='undefined' short='Modify default settings for validation.' name='jQuery.validator.setDefaults'>
 <desc>Modify default settings for validation.</desc>
 <params type='Object&lt;String,' name='Object&gt;'>
@@ -958,6 +937,13 @@ also wrapped into li elements (wrapper option).</desc>
 	debug: true
 );</code>
 </examples>
+</method>
+<method property='1' cat='Plugins/Validate' type='String' short='Default messages for all default methods.' name='jQuery.validator.messages'>
+<desc>Default messages for all default methods.
+
+User addMethod() to add methods with messages.
+
+Replace these messages for localization.</desc>
 </method>
 <method cat='Plugins/Validate' type='Boolean True when the form is valid, otherwise false' short='Validate on instant the entire form.' name='jQuery.validator.protoype.form'>
 <desc>Validate on instant the entire form.</desc>
@@ -984,8 +970,19 @@ also wrapped into li elements (wrapper option).</desc>
 <examples>
 <desc>Adds and shows error message programmatically.</desc>
 <code>var validator = $("#myform").validate();
-validator.addErrors({"firstname": "I know that your firstname is Pete, Pete!"});
-validator.showErrors();</code>
+validator.showErrors({"firstname": "I know that your firstname is Pete, Pete!"});</code>
+</examples>
+</method>
+<method short='Resets the controlled form, including resetting input fields
+to their original value (requires form plugin), removing classes
+indicating invalid elements and hiding error messages.' name='jQuery.validator.protoype.resetForm' cat='Plugins/Validate'>
+<desc>Resets the controlled form, including resetting input fields
+to their original value (requires form plugin), removing classes
+indicating invalid elements and hiding error messages.</desc>
+<examples>
+<desc>Reset the form controlled by this validator.</desc>
+<code>var validator = $("#myform").validate();
+validator.resetForm();</code>
 </examples>
 </method>
 <method cat='Plugins/Validate' type='undefined' see='jQuery.validator.methods' short='Add a new validation method.' name='jQuery.validator.addMethod'>

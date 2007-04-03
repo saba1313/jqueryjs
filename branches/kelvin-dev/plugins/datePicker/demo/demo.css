@@ -1,0 +1,49 @@
+
+* {
+	margin: 0;
+	padding: 0;
+}
+body {
+	background: #666;
+	font-family: Verdana, sans;
+}
+h1 {
+	font-size: 1.6em;
+	margin: 0 0 1em;
+	padding: 0 0 .3em;
+	border-bottom: 4px solid #ccc;
+}
+p {
+	margin: 1em 0;
+}
+#container {
+	width: 758px;
+	margin: 0 auto;
+	padding: 10px 20px;
+	background: #fff;
+}
+
+fieldset {
+	margin: 1em 0;
+	padding: 0 1em;
+	width: 160px;
+}
+label {
+	width: 160px;
+	display: inline-block;
+	line-height: 1.8;
+	vertical-align: top;
+}
+#chooseDateForm li {
+	list-style: none;
+	padding: 5px;
+}
+select {
+	width: 100px;
+}
+input {
+	margin: 5px 0;
+}
+#calendar-me {
+	margin: 20px;
+}

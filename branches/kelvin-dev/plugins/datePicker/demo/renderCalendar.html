@@ -4,6 +4,9 @@
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 		<title>jQuery datePicker renderCalendar demo</title>
 		
+		<!-- firebug lite -->
+		<script type="text/javascript" src="firebug/firebug.js"></script>
+
         <!-- jQuery -->
 		<script type="text/javascript" src="jquery-1.1.2.js"></script>
         
@@ -34,8 +37,8 @@
                     'submit',
                     function()
                     {
-                        var month = this.month.options[this.month.selectedIndex].value;
-                        var year = this.year.options[this.year.selectedIndex].value;
+                        var month = Number(this.month.options[this.month.selectedIndex].value);
+                        var year = Number(this.year.options[this.year.selectedIndex].value);
                         
                         $('#calendar-me').renderCalendar({month:month, year:year});
                         

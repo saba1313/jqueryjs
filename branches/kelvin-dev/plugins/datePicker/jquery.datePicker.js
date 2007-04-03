@@ -15,35 +15,28 @@
 		SHOW_HEADER_LONG	:	2,
 		/* locale */
 		locale      :   {
-			firstDayOfWeek      :   1,
-			/*
-			* TODO:
-			* it makes sense to store the month and day names here so people can
-			* localise by simply providing a new $.datePicker.locale but I don't want
-			* to duplicate the names that already appear in date.js. What's the best
-			* approach?
-			**/
-			days				:	['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+			firstDayOfWeek      :   1
 		}
 	}
     
 	$.fn.extend({
+		/**
+		 * Render a calendar table into any matched elements
+		 *
+		 * @param Object s (optional) Customize your calendars
+		 * @option Number month The month to render (NOTE that months are zero based). Default is today's month.
+		 * @option Number year The year to render. Default is today's year.
+		 * @option Function renderCallback A reference to a function that is called as each cell is rendered and which can add classes and event listeners to the created nodes. Default is no callback.
+		 * @option Number showHeader Whether or not to show the header row, possible values are: SHOW_HEADER_NONE (no header), SHOW_HEADER_SHORT (first letter of each day) and SHOW_HEADER_LONG (full name of each day). Default is SHOW_HEADER_SHORT.
+		 **/
 		renderCalendar  :   function(s)
 		{
 			s = $.extend(
 				{
-					month           : null,								// the month to render, null == today's month
-																		// NOTE: Months are zero based as in JS generally
-					year			: null,								// the year to render, null == today's year
-					renderCallback  : null,								// a function that is called as each cell is
-																		// rendered and which can add classes and event
-																		// listeners to the created nodes,
-																		// null == no callback
-					showHeader		: $.datePicker.SHOW_HEADER_SHORT	// Whether or not to show the header row.
-																		// Possible values: SHOW_HEADER_NONE (no header)
-																		// SHOW_HEADER_SHORT (first letter of each day),
-																		// SHOW_HEADER_LONG (full name of each day).
-																		// default SHOW_HEADER_SHORT
+					month           : null,
+					year			: null,
+					renderCallback  : null,
+					showHeader		: $.datePicker.SHOW_HEADER_SHORT
 				}
 				, s
 			);
@@ -54,7 +47,7 @@
 				var headRow = $('<tr></tr>');
 				for (var i=locale.firstDayOfWeek; i<locale.firstDayOfWeek+7; i++) {
 					var weekday = i%7;
-					var day = locale.days[weekday];
+					var day = Date.dayNames[weekday];
 					headRow.append(
 						jQuery("<th></th>").attr({'scope':'col', 'abbr':day, 'title':day, 'class':(weekday == 0 || weekday == 6 ? 'weekend' : 'weekday')}).html(s.showHeader == $.datePicker.SHOW_HEADER_SHORT ? day.substr(0, 1) : day)
 					);
@@ -84,7 +77,7 @@
 			today.setSeconds(0);
 			today.setMilliseconds(0);
 			
-			var month = s.month || today.getMonth();
+			var month = s.month == undefined ? today.getMonth() : s.month;
 			var year = s.year || today.getFullYear();
 			
 			var currentDate = new Date(year, month, 1);
@@ -92,7 +85,7 @@
 			
 			var firstDayOffset = locale.firstDayOfWeek - currentDate.getDay() + 1;
 			if (firstDayOffset > 1) firstDayOffset -= 7;
-			currentDate.setDate(firstDayOffset);
+			currentDate.addDays(firstDayOffset-1);
 			
 			var w = 0;
 			while (w++<6) {
@@ -109,7 +102,7 @@
 						s.renderCallback(d, currentDate, month, year);
 					}
 					r.append(d);
-					currentDate.setDate(currentDate.getDate()+1);
+					currentDate.addDays(1);
 				}
 				tbody.append(r);
 			}

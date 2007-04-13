@@ -266,7 +266,7 @@
 	 * @cat Plugins/Interface
 	 * @author Stefan Petre
 	 */
-	$.registerPluginFunction("selectables", "selectNone", function(options) {
+	$.registerPluginFunction("selectable", "selectNone", function(options) {
 		if (this.DB && this.DB.subjects && typeof this.DB.selected != 'undefined') {
 			$(this.DB.subject, this).removeClass(this.DB.selectedClass);
 		}

@@ -27,58 +27,29 @@
    * have another clearText() for some other plugin, which will not be called for textfieldwidgets.
    */
   
-  /**
-   * If you register multiple plugins with the same function name, and call the function, the following
-   * happens:
-   * 
-   * 1) For each element, the bound plugin function is fired
-   *    a) The responses for each plugin are pushed into an array
-   *    b) When done, we have an object like: {plugin1: [1,2], plugin2: [3,4]}, where
-   *       1, 2 are the return results for plugin1 and 3, 4 are the return results for plugin2
-   * 2) If one exists, the original ("default") function is called on the entire jQuery object
-   *    a) The results are put added to the object returned in step 1 under the plugin name
-   *       "default"
-   * 3) For any plugin (except default), if the array of results has only one element, return
-   *    just the element.
-   * 4) If no plugin returns any results, the original object is returned to allow for chaining
-   * 5) If any plugin returns results, the results object is returned
-   *    a) Again, the keys of this object are the plugin names (including "default")
-   *    b) and the values of each pair are either a single value (if only one value was returned),
-   *       or an array of all of the values that were returned.
-   * 6) In other words, if you have a function that is designed to return some information 
-   *    about a single element only, it will return only a single value for that plugin. 
-   *    If you call such a function on a jQuery object containing multiple elements, it will
-   *    return an array of values, one for each element in the jQuery object.
-   * 7) Even if only one plugin is bound to an element, an object like {plugin1: "response"} will
-   *    be returned. This is so that the same response is returned regardless of whether or not
-   *    another plugin exists using the same function name (plugin writers should not *need* to
-   *    know what other plugins are registered).       
-   */
-  
   $.registeredPlugins = {
     runFunctions: function(fnName) {
       return function() {
-        var params = arguments;
-        var ret = {};
+        var params = [].slice.apply(arguments);
+        var ret = [];
         this.each(function() {
           var thisPlugins = this.registeredPlugins || [];
-          for(i=0,j=thisPlugins.length; i<j; i++) {
-            var plugin = thisPlugins[i];
-            ret[plugin] = ret[plugin] || [] 
-            if($.registeredPlugins[plugin][fnName])
-              ret[plugin].push($.registeredPlugins[plugin][fnName].apply(this, params));
-          }
+          var plugin = thisPlugins[params[0]] || thisPlugins[0];
+          if($.registeredPlugins[plugin] && $.registeredPlugins[plugin][fnName])
+            ret.push($.registeredPlugins[plugin][fnName].apply(this, params.slice(1)));
         });
-        if($.registeredPlugins["defaultFn"][fnName]) {
-          ret["default"] = $.registeredPlugins["defaultFn"][fnName].call(this);
+        
+        var usingDefault = false;
+        
+        if($.registeredPlugins["defaultFn"][fnName] && (ret.length == 0 || params[0] === undefined || params[0] == "default")) {
+          ret = $.registeredPlugins["defaultFn"][fnName].call(this);
+          usingDefault = true;
         }
-        var toChain = true, pluginCount = 0;
-        for(plugin in ret) {
-          pluginCount += 1;
-          if(ret[plugin].length > 0 && !(ret[plugin].length == 1 && ret[plugin][0] === undefined)) toChain = false; 
-          if(ret[plugin].length == 1 && plugin != "default") ret[plugin] = ret[plugin][0];
-          else if(ret[plugin].length == 0) delete ret[plugin];
-        }
+        var toChain = true;
+        if(ret.length > 0 && !(ret.length == 1 && ret[0] === undefined)) toChain = false;
+        if(ret.length == 1 && usingDefault == false) ret = ret[0];
+        else if(ret.length == 0) ret == undefined;
+        
         if(toChain) return this;
         else return ret;
       };

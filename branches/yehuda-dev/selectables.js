@@ -208,11 +208,10 @@
 	 * @author Stefan Petre
 	 */
 	$.registerPluginFunction("selectable", "sortableSerialize", function(options) {
-		var el = this.get(0);
 		var hash = [];
-		if (el && el.DB && el.DB.subjects && typeof el.DB.selected != 'undefined') {
-			$(el.DB.subject, el)
-				.filter('.' + el.DB.selectedClass)
+		if (this && this.DB && this.DB.subjects && typeof this.DB.selected != 'undefined') {
+			$(this.DB.subject, this)
+				.filter('.' + this.DB.selectedClass)
 				.each(function(){
 					hash[hash.length] = $(this).attr('id');
 				});

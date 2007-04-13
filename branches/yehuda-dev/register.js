@@ -4,12 +4,24 @@
     runFunctions: function(fnName) {
       return function() {
         var params = arguments;
-        return this.each(function() {
+        var ret = {};
+        this.each(function() {
           var thisPlugins = this.registeredPlugins || [];
           for(i=0,j=thisPlugins.length; i<j; i++) {
-            $.registeredPlugins[thisPlugins[i]][fnName].apply(this, params);
-          }  
+            var plugin = thisPlugins[i];
+            ret[plugin] = ret[plugin] || [] 
+            if($.registeredPlugins[plugin][fnName])
+              ret[plugin].push($.registeredPlugins[plugin][fnName].apply(this, params));
+          }
         });
+        var toChain = true;
+        for(plugin in ret) {
+          if(ret[plugin].length > 0 && !(ret[plugin].length == 1 && ret[plugin][0] === undefined)) toChain = false; 
+          if(ret[plugin].length == 1) ret[plugin] = ret[plugin][0];
+          else if(ret[plugin].length == 0) delete ret[plugin];
+        }
+        if(toChain) return this;
+        else return ret;
       };
     }
   };

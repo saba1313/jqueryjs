@@ -229,13 +229,12 @@
 	 * @cat Plugins/Interface
 	 * @author Stefan Petre
 	 */
-	$.fn.getSelection = function(options) {
-		var el = this.get(0);
-		if (el && el.DB && el.DB.subjects && typeof el.DB.selected != 'undefined') {
-			return $(el.DB.subject, el).filter('.' + el.DB.selectedClass);
+	$.registerPluginFunction("selectable", "getSelection", function(options) {
+		if (this && this.DB && this.DB.subjects && typeof this.DB.selected != 'undefined') {
+			return $(this.DB.subject, this).filter('.' + this.DB.selectedClass);
 		}
 		return false;
-	};
+	});
 	/**
 	 * Select all elements that are eligible for selection.
 	 * 

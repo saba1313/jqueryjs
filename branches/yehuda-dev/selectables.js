@@ -196,6 +196,8 @@
 	 * Serialize the selected elements of a selectable container. This function targets the
 	 * container of the selectables, not the individual selectable elements themselves.
 	 * 
+	 * If no element is selected, this function will return false.
+	 * 
 	 * @name sortableSerialize
 	 * @descr Serialize a selectable selection.
 	 * @example $("#msd").sortableSerialize()
@@ -205,7 +207,7 @@
 	 * @cat Plugins/Interface
 	 * @author Stefan Petre
 	 */
-	$.fn.sortableSerialize = function(options) {
+	$.registerPluginFunction("selectable", "sortableSerialize", function(options) {
 		var el = this.get(0);
 		var hash = [];
 		if (el && el.DB && el.DB.subjects && typeof el.DB.selected != 'undefined') {
@@ -217,9 +219,11 @@
 			return hash;
 		}
 		return false;
-	};
+	});
 	/**
 	 * Get the individual DOM Elements that are selected.
+	 * 
+	 * If no element is selected, this function will return false.
 	 * 
 	 * @name getSelection
 	 * @descr Get the selected elements of a Selectable.

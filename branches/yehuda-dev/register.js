@@ -14,12 +14,14 @@
               ret[plugin].push($.registeredPlugins[plugin][fnName].apply(this, params));
           }
         });
-        var toChain = true;
+        var toChain = true, pluginCount = 0;
         for(plugin in ret) {
+          pluginCount += 1;
           if(ret[plugin].length > 0 && !(ret[plugin].length == 1 && ret[plugin][0] === undefined)) toChain = false; 
           if(ret[plugin].length == 1) ret[plugin] = ret[plugin][0];
           else if(ret[plugin].length == 0) delete ret[plugin];
         }
+        if(pluginCount == 0) throw "The plugin function " + fnName + " was not defined for any elements in the jQuery object";
         if(toChain) return this;
         else return ret;
       };

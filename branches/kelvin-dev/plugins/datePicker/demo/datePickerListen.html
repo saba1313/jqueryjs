@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title>jQuery datePicker datePickerListen demo</title>
+		
+		<!-- firebug lite -->
+		<script type="text/javascript" src="firebug/firebug.js"></script>
+
+        <!-- jQuery -->
+		<script type="text/javascript" src="jquery-1.1.2.js"></script>
+        
+        <!-- required plugins -->
+		<script type="text/javascript" src="date.js"></script>
+		<script type="text/javascript" src="dimensions.js"></script>
+        
+        <!-- jquery.datePicker.js -->
+		<script type="text/javascript" src="../jquery.datePicker.js"></script>
+        
+        <!-- datePicker required styles -->
+		<link rel="stylesheet" type="text/css" media="screen" href="datePicker.css">
+		
+        <!-- page specific styles -->
+		<link rel="stylesheet" type="text/css" media="screen" href="demo.css">
+        
+        <!-- page specific scripts -->
+		<script type="text/javascript" charset="utf-8">
+            $(function()
+            {
+				
+				$('.date-pick')
+					.datePicker({showButton:false})
+					.bind('click',
+						function()
+						{
+							$(this).dpDisplay();
+							this.blur();
+							return false;
+						}
+					)
+					.bind('dateSelected',
+						function(e, selectedDate, $td)
+						{
+							alert('You selected ' + selectedDate);
+						}
+					);
+            });
+		</script>
+		
+	</head>
+	<body>
+        <div id="container">
+            <h1>jquery.datePicker example: datePicker with listener</h1>
+            <p>
+                The following example displays basic use of the datePicker command. A datePicker is created associated
+				with our link elements. When the links are clicked we call the $().dpDisplay function to make a calendar
+				pop up. When a date is selected on the calendar our custom "dateSelected" function is fired and
+				we have a function bound to listen to it and alert the selected date.
+            </p>
+			<p>
+				<a href="noJs.html" class="date-pick">Click here</a> to see a date picker pop up next to
+				that link. You can also <a href="noJs.html" class="date-pick">click here</a> to see another
+				date picker pop up.
+			</p>
+        </div>
+	</body>
+</html>

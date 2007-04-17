@@ -26,13 +26,16 @@
 		<script type="text/javascript" charset="utf-8">
             $(function()
             {
+				// update the firstDayOfWeek when the day of week select changes
 				$('#dow').bind(
 					'change',
 					function()
 					{
-						$.datePicker.locale.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
+						Date.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
 					}
 				);
+				// when the choose date form is submitted grab the chosen month and year
+				// from the select elements and call renderCalendar...
                 $('#chooseDateForm').bind(
                     'submit',
                     function()
@@ -53,11 +56,10 @@
         <div id="container">
             <h1>jquery.datePicker example: renderCalendar</h1>
             <p>
-                The following example demonstrates the use of $().renderCalendar as introduced by jquery.datePicker.js
-                (view source to see what's going on).
+                The following example demonstrates the use of $().renderCalendar as introduced by jquery.datePicker.js.
             </p>
             <div id="calendar-me">
-                The contents of this div will be replaced with a call to $('#calendar-me').renderCalendar().
+                This is a div with an id of "calendar-me".
             </div>
             <form name="chooseDateForm" id="chooseDateForm" action="#">
                 <fieldset>
@@ -124,6 +126,33 @@
                     </ol>
                 </fieldset>
             </form>
+			<h2>Page sourcecode</h2>
+			<pre class="sourcecode">
+$(function()
+{
+	// update the firstDayOfWeek when the day of week select changes
+	$('#dow').bind(
+		'change',
+		function()
+		{
+			$.datePicker.locale.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
+		}
+	);
+	// when the choose date form is submitted grab the chosen month and year
+	// from the select elements and call renderCalendar...
+	$('#chooseDateForm').bind(
+		'submit',
+		function()
+		{
+			var month = Number(this.month.options[this.month.selectedIndex].value);
+			var year = Number(this.year.options[this.year.selectedIndex].value);
+			
+			$('#calendar-me').renderCalendar({month:month, year:year});
+			
+			return false;
+		}
+	);
+});</pre>
         </div>
 	</body>
 </html>

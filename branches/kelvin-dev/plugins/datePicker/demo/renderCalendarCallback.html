@@ -35,7 +35,7 @@
 					'change',
 					function()
 					{
-						$.datePicker.locale.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
+						Date.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
 					}
 				);
 				var testCallback = function($td, thisDate, month, year)

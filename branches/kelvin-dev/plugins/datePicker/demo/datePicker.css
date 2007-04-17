@@ -24,3 +24,49 @@ table.jCalendar td.today {
 	color: #fff;
 	font-weight: bold;
 }
+
+/* For the popup */
+
+div#dp-popup {
+	position: absolute;
+	font-size: 10px;
+	font-family: arial, sans-serif;
+	background: #ccc;
+	padding: 2px;
+}
+div#dp-popup h2 {
+	font-size: 12px;
+	text-align: center;
+	margin: 2px 0;
+	padding: 0;
+}
+div#dp-popup a {
+	color: #000;
+	text-decoration: none;
+	padding: 3px 2px 0;
+}
+div#dp-popup div#dp-nav-prev {
+	position: absolute;
+	top: 2px;
+	left: 4px;
+	width: 100px;
+}
+div#dp-popup div#dp-nav-prev a {
+	float: left;
+}
+div#dp-popup div#dp-nav-next {
+	position: absolute;
+	top: 2px;
+	right: 4px;
+	width: 100px;
+}
+div#dp-popup div#dp-nav-next a {
+	float: right;
+}
+div#dp-popup a.disabled {
+	cursor: default;
+	color: #aaa;
+}
+div#dp-popup td {
+	cursor: pointer;
+}

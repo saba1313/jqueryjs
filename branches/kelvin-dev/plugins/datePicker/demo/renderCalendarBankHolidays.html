@@ -35,7 +35,7 @@
 					'change',
 					function()
 					{
-						$.datePicker.locale.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
+						Date.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
 					}
 				);
 				var bankHolidays = {};
@@ -69,7 +69,7 @@
                         var month = this.month.options[this.month.selectedIndex].value;
                         var year = this.year.options[this.year.selectedIndex].value;
                         
-                        $('#calendar-me').renderCalendar({month:month, year:year, renderCallback:markBankHolidays, showHeader:$.datePicker.SHOW_HEADER_LONG});
+                        $('#calendar-me').renderCalendar({month:month, year:year, renderCallback:markBankHolidays, showHeader:$.dpConst.SHOW_HEADER_LONG});
                         
                         return false;
                     }

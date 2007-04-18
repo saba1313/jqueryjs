@@ -364,9 +364,11 @@
 					'click',
 					function()
 					{
-						$(c.ele).trigger('dateSelected', [d, $td]);
-						if (c.closeOnSelect) {
-							c._closeCalendar();
+						if (!$(this).is('.disabled')) {
+							$(c.ele).trigger('dateSelected', [d, $td]);
+							if (c.closeOnSelect) {
+								c._closeCalendar();
+							}
 						}
 					}
 				);
@@ -405,11 +407,30 @@
 					}
 				);
 				
-				// update the status of the control buttons...
+				// update the status of the control buttons and disable dates before startDate or after endDate...
 				// TODO: When should the year buttons be disabled? When you can't go forward a whole year from where you are or is that annoying?
 				if (this.displayedYear == this.startDate.getFullYear() && this.displayedMonth == this.startDate.getMonth()) {
 					$('#dp-nav-prev-year').addClass('disabled');
 					$('#dp-nav-prev-month').addClass('disabled');
+					$('#dp-calendar td.other-month').each(
+						function()
+						{
+							$this = $(this);
+							if (Number($this.text()) > 20) {
+								$this.addClass('disabled');
+							}
+						}
+					);
+					var d = this.startDate.getDate();
+					$('#dp-calendar td.current-month').each(
+						function()
+						{
+							$this = $(this);
+							if (Number($this.text()) < d) {
+								$this.addClass('disabled');
+							}
+						}
+					);
 				} else {
 					$('#dp-nav-prev-year').removeClass('disabled');
 					$('#dp-nav-prev-month').removeClass('disabled');
@@ -417,6 +438,25 @@
 				if (this.displayedYear == this.endDate.getFullYear() && this.displayedMonth == this.endDate.getMonth()) {
 					$('#dp-nav-next-year').addClass('disabled');
 					$('#dp-nav-next-month').addClass('disabled');
+					$('#dp-calendar td.other-month').each(
+						function()
+						{
+							$this = $(this);
+							if (Number($this.text()) < 14) {
+								$this.addClass('disabled');
+							}
+						}
+					);
+					var d = this.endDate.getDate();
+					$('#dp-calendar td.current-month').each(
+						function()
+						{
+							$this = $(this);
+							if (Number($this.text()) > d) {
+								$this.addClass('disabled');
+							}
+						}
+					);
 				} else {
 					$('#dp-nav-next-year').removeClass('disabled');
 					$('#dp-nav-next-month').removeClass('disabled');

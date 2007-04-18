@@ -2,6 +2,7 @@
 
 table.jCalendar {
 	border: 1px solid #000;
+	background: #aaa;
 }
 table.jCalendar th {
 	background: #333;
@@ -10,19 +11,27 @@ table.jCalendar th {
 	padding: 3px 5px;
 }
 table.jCalendar td {
-	background: #ddd;
+	background: #ccc;
 	color: #000;
 	padding: 3px 5px;
 	text-align: center;
 }
 table.jCalendar td.other-month {
-	background: #eee;
+	background: #ddd;
 	color: #aaa;
 }
 table.jCalendar td.today {
 	background: #666;
 	color: #fff;
 	font-weight: bold;
+}
+table.jCalendar td:hover {
+	background: #fff;
+	color: #000;
+}
+table.jCalendar td.disabled, table.jCalendar td.disabled:hover {
+	background: #bbb;
+	color: #888;
 }
 
 /* For the popup */
@@ -69,4 +78,7 @@ div#dp-popup a.disabled {
 }
 div#dp-popup td {
 	cursor: pointer;
+}
+div#dp-popup td.disabled {
+	cursor: default;
 }

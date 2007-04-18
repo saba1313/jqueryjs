@@ -114,7 +114,10 @@
 					renderCallback		: [],
 					createButton		: true,
 					showYearNavigation	: true,
-					closeOnSelect		: true
+					closeOnSelect		: true,
+					displayClose		: false,
+					verticalPosition	: $.dpConst.POS_TOP,
+					horizontalPosition	: $.dpConst.POS_LEFT
 				}
 				, s
 			);
@@ -161,6 +164,10 @@
 		{
 			return _w.call(this, 'setRenderCallback', a);
 		},
+		dpSetPosition : function(v, h)
+		{
+			return _w.call(this, 'setPosition', v, h);
+		},
 		// private function called on unload to clean up any expandos etc and prevent memory links...
 		_dpDestroy : function()
 		{
@@ -170,14 +177,14 @@
 	
 	// private internal function to cut down on the amount of code needed where we forward
 	// wp* methods on the jQuery object on to the relevant DatePicker controllers...
-	var _w = function(f, a)
+	var _w = function(f, a1, a2)
 	{
 		return this.each(
 			function()
 			{
 				var c = _getController(this);
 				if (c) {
-					c[f](a);
+					c[f](a1, a2);
 				}
 			}
 		);
@@ -195,8 +202,11 @@
 			startDate			:	null,
 			endDate				:	null,
 			renderCallback		:	[],
-			showYearNavigation	:	true,
-			closeOnSelect		:	true,
+			showYearNavigation	:	null,
+			closeOnSelect		:	null,
+			displayClose		:	null,
+			verticalPosition	:	null,
+			horizontalPosition	:	null,
 			
 			init : function(s)
 			{
@@ -206,6 +216,9 @@
 				this.setRenderCallback(s.renderCallback);
 				this.showYearNavigation = s.showYearNavigation;
 				this.closeOnSelect = s.closeOnSelect;
+				this.displayClose = s.displayClose;
+				this.verticalPosition = s.verticalPosition;
+				this.horizontalPosition = s.horizontalPosition;
 			},
 			setStartDate : function(d)
 			{
@@ -227,6 +240,11 @@
 				if (this.endDate.getTime() < this.startDate.getTime()) {
 					this.endDate = this.startDate;
 				}
+			},
+			setPosition : function(v, h)
+			{
+				this.verticalPosition = v;
+				this.horizontalPosition = h;
 			},
 			setDisplayedMonth : function(m, y)
 			{
@@ -341,10 +359,33 @@
 									.attr('id', 'dp-calendar')
 							)
 						);
+					
+				var $pop = $('#dp-popup');
+				
 				if (this.showYearNavigation == false) {
 					$('#dp-nav-prev-year, #dp-nav-next-year').css('display', 'none');
 				}
+				if (this.displayClose) {
+					$pop.append(
+						$('<a href="#" id="dp-close">' + $.dpText.TEXT_CLOSE + '</a>')
+							.bind(
+								'click',
+								function()
+								{
+									c._closeCalendar();
+								}
+							)
+					);
+				}
 				c._renderCalendar();
+				
+				if (this.verticalPosition == $.dpConst.POS_BOTTOM) {
+					$pop.css('top', eleOffset.top + $ele.height() - $pop.height());
+				}
+				if (this.horizontalPosition == $.dpConst.POS_RIGHT) {
+					$pop.css('left', eleOffset.left + $ele.width() - $pop.width());
+				}
+				
 				$(document).bind('mousedown', this._checkMouse);
 			},
 			setRenderCallback : function(a)
@@ -483,13 +524,18 @@
 	$.dpConst = {
 		SHOW_HEADER_NONE	:	0,
 		SHOW_HEADER_SHORT	:	1,
-		SHOW_HEADER_LONG	:	2
+		SHOW_HEADER_LONG	:	2,
+		POS_TOP				:	0,
+		POS_BOTTOM			:	1,
+		POS_LEFT			:	0,
+		POS_RIGHT			:	1
 	}
 	$.dpText = {
 		TEXT_PREV_YEAR		:	'Previous year',
 		TEXT_PREV_MONTH		:	'Previous month',
 		TEXT_NEXT_YEAR		:	'Next year',
-		TEXT_NEXT_MONTH		:	'Next month'
+		TEXT_NEXT_MONTH		:	'Next month',
+		TEXT_CLOSE			:	'Close'
 	}
 
 	function _getController(ele)

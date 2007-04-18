@@ -49,6 +49,15 @@ div#dp-popup h2 {
 	margin: 2px 0;
 	padding: 0;
 }
+a#dp-close {
+	font-size: 11px;
+	padding: 4px 0;
+	text-align: center;
+	display: block;
+}
+a#dp-close:hover {
+	text-decoration: underline;
+}
 div#dp-popup a {
 	color: #000;
 	text-decoration: none;

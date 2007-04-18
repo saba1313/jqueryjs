@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
-		<title>jQuery datePicker datePickerListen demo</title>
+		<title>jQuery datePicker datePickerPosition demo</title>
 		
 		<!-- firebug lite -->
 		<script type="text/javascript" src="firebug/firebug.js"></script>
@@ -36,31 +36,28 @@
 							this.blur();
 							return false;
 						}
-					)
-					.bind('dateSelected',
-						function(e, selectedDate, $td)
-						{
-							alert('You selected ' + selectedDate);
-						}
 					);
+				// tl is the default so don't bother setting it's position
+				$('#tr').dpSetPosition($.dpConst.POS_TOP, $.dpConst.POS_RIGHT);
+				$('#bl').dpSetPosition($.dpConst.POS_BOTTOM, $.dpConst.POS_LEFT);
+				$('#br').dpSetPosition($.dpConst.POS_BOTTOM, $.dpConst.POS_RIGHT);
             });
 		</script>
 		
 	</head>
 	<body>
         <div id="container">
-            <h1>jquery.datePicker example: datePicker with listener</h1>
+            <h1>jquery.datePicker example: datePicker with different positioning</h1>
             <p>
-                The following example displays basic use of the datePicker command. A datePicker is created associated
-				with our link elements. When the links are clicked we call the $().dpDisplay function to make a calendar
-				pop up. When a date is selected on the calendar our custom "dateSelected" function is fired and
-				we have a function bound to listen to it and alert the selected date.
+                The following example demonstrates how you can alter the position that the date picker pops up
+				relative to it's related element. Click on the following links...
             </p>
 			<p>
-				<a href="noJs.html" class="date-pick">Click here</a> to see a date picker pop up next to
-				that link. You can also <a href="noJs.html" class="date-pick">click here</a> to see another
-				date picker pop up.
-			</p>
+				<a href="noJs.html" class="date-pick" id="tl">#tl</a>
+				<a href="noJs.html" class="date-pick" id="tr">#tr</a>
+				<a href="noJs.html" class="date-pick" id="bl">#bl</a>
+				<a href="noJs.html" class="date-pick" id="br">#br</a>
+			</ul>
 			<h2>Page sourcecode</h2>
 			<pre class="sourcecode">
 $(function()
@@ -74,13 +71,11 @@ $(function()
 				this.blur();
 				return false;
 			}
-		)
-		.bind('dateSelected',
-			function(e, selectedDate, $td)
-			{
-				alert('You selected ' + selectedDate);
-			}
 		);
+	// tl is the default so don't bother setting it's position
+	$('#tr').dpSetPosition($.dpConst.POS_TOP, $.dpConst.POS_RIGHT);
+	$('#bl').dpSetPosition($.dpConst.POS_BOTTOM, $.dpConst.POS_LEFT);
+	$('#br').dpSetPosition($.dpConst.POS_BOTTOM, $.dpConst.POS_RIGHT);
 });</pre>
         </div>
 	</body>

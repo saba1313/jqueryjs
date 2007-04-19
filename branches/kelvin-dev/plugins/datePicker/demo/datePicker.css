@@ -25,6 +25,15 @@ table.jCalendar td.today {
 	color: #fff;
 	font-weight: bold;
 }
+table.jCalendar td.selected {
+	background: #f66;
+	color: #fff;
+	font-weight: bold;
+}
+table.jCalendar td.selected:hover {
+	background: #f33;
+	color: #fff;
+}
 table.jCalendar td:hover {
 	background: #fff;
 	color: #000;

@@ -30,7 +30,7 @@
 				$('.date-pick')
 					.datePicker(
 						{
-							showButton:false,
+							createButton:false,
 							renderCallback:function($td, thisDate, month, year)
 							{
 								if (thisDate.isWeekend()) {
@@ -51,7 +51,7 @@
 					.bind('dateSelected',
 						function(e, selectedDate, $td)
 						{
-							alert('You selected ' + selectedDate);
+							console.log('You selected ' + selectedDate);
 						}
 					);
             });
@@ -73,6 +73,10 @@
 				the date picker. In this case I add a class of "weekend" to the cells which fall on a weekend and
 				I also add the class "disabled". This is a special class which prevents those days from being selectable.
             </p>
+			<p>
+				<strong>NOTE</strong>: You will need firebug to see the results of the demo - firebug lite is included in this page
+				so whatever browser you are in just press F12 to open up the firebug console.
+			</p>
 			<p>
 				<a href="noJs.html" class="date-pick">Click here</a>.
 			</p>

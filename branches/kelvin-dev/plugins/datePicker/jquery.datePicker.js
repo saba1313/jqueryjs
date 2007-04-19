@@ -116,6 +116,7 @@
 					showYearNavigation	: true,
 					closeOnSelect		: true,
 					displayClose		: false,
+					selectMultiple		: false,
 					verticalPosition	: $.dpConst.POS_TOP,
 					horizontalPosition	: $.dpConst.POS_LEFT,
 					verticalOffset		: 0,
@@ -233,23 +234,26 @@
 	function DatePicker(ele)
 	{
 		this.ele = ele;
+		
+		// initial values...
+		this.displayedMonth		=	null;
+		this.displayedYear		=	null;
+		this.startDate			=	null;
+		this.endDate			=	null;
+		this.showYearNavigation	=	null;
+		this.closeOnSelect		=	null;
+		this.displayClose		=	null;
+		this.selectMultiple		=	null;
+		this.verticalPosition	=	null;
+		this.horizontalPosition	=	null;
+		this.verticalOffset		=	null;
+		this.horizontalOffset	=	null;
+		this.renderCallback		=	[];
+		this.selectedDates		=	{};
 	}
 	$.extend(
 		DatePicker.prototype,
-		{
-			displayedMonth		:	null,
-			displayedYear		:	null,
-			startDate			:	null,
-			endDate				:	null,
-			renderCallback		:	[],
-			showYearNavigation	:	null,
-			closeOnSelect		:	null,
-			displayClose		:	null,
-			verticalPosition	:	null,
-			horizontalPosition	:	null,
-			verticalOffset		:	null,
-			horizontalOffset	:	null,
-			
+		{	
 			init : function(s)
 			{
 				this.setStartDate(s.startDate);
@@ -259,6 +263,7 @@
 				this.showYearNavigation = s.showYearNavigation;
 				this.closeOnSelect = s.closeOnSelect;
 				this.displayClose = s.displayClose;
+				this.selectMultiple = s.selectMultiple;
 				this.verticalPosition = s.verticalPosition;
 				this.horizontalPosition = s.horizontalPosition;
 				this.setOffset(s.verticalOffset, s.horizontalOffset);
@@ -327,6 +332,17 @@
 				this.displayedMonth = t.getMonth();
 				this.displayedYear = t.getFullYear();
 			},
+			setSelected : function(d, v)
+			{
+				if (this.selectMultiple == false) {
+					this.selectedDates = {};
+				}
+				this.selectedDates[d.getTime()] = v;
+			},
+			isSelected : function(t)
+			{
+				return this.selectedDates[t];
+			},
 			display : function(eleAlignTo)
 			{
 				eleAlignTo = eleAlignTo || this.ele;
@@ -352,7 +368,7 @@
 				};
 				this._checkMouse = _checkMouse;
 				
-				this._closeCalendar();
+				this._closeCalendar(true);
 				
 				$('body')
 					.append(
@@ -423,6 +439,7 @@
 								function()
 								{
 									c._closeCalendar();
+									return false;
 								}
 							)
 					);
@@ -437,6 +454,16 @@
 				}
 				
 				$(document).bind('mousedown', this._checkMouse);
+			},
+			getSelected : function()
+			{
+				var r = [];
+				for(t in this.selectedDates) {
+					if (this.selectedDates[t] == true) {
+						r.push(new Date(Number(t)));
+					}
+				}
+				return r;
 			},
 			setRenderCallback : function(a)
 			{
@@ -455,14 +482,23 @@
 					'click',
 					function()
 					{
-						if (!$(this).is('.disabled')) {
-							$(c.ele).trigger('dateSelected', [d, $td]);
+						var $this = $(this);
+						if (!$this.is('.disabled')) {
+							c.setSelected(d, !$this.is('.selected') || !c.selectMultiple);
+							var s = c.isSelected(d.getTime());
+							$(c.ele).trigger('dateSelected', [d, $td, s]);
 							if (c.closeOnSelect) {
 								c._closeCalendar();
+							} else {
+								$this[s ? 'addClass' : 'removeClass']('selected');
 							}
 						}
 					}
 				);
+				
+				if (c.isSelected(d.getTime())) {
+					$td.addClass('selected');
+				}
 				
 				// call any extra renderCallbacks that were passed in
 				for (var i=0; i<c.renderCallback.length; i++) {
@@ -554,17 +590,22 @@
 				}
 				
 			},
-			_closeCalendar : function()
+			_closeCalendar : function(programatic)
 			{
 				$(document).unbind('mousedown', this._checkMouse);
 				this._clearCalendar();
+				$('#dp-popup a').unbind();
 				$('#dp-popup').empty().remove();
+				if (!programatic) {
+					$(this.ele).trigger('dpClosed', [this.getSelected()]);
+				}
 			},
 			// empties the current dp-calendar div and makes sure that all events are unbound
 			// and expandos removed to avoid memory leaks...
 			_clearCalendar : function()
 			{
 				// TODO.
+				$('#dp-calendar td').unbind();
 				$('#dp-calendar').empty();
 			}
 		}
@@ -580,6 +621,7 @@
 		POS_LEFT			:	0,
 		POS_RIGHT			:	1
 	}
+	// localisable text
 	$.dpText = {
 		TEXT_PREV_YEAR		:	'Previous year',
 		TEXT_PREV_MONTH		:	'Previous month',
@@ -588,6 +630,8 @@
 		TEXT_CLOSE			:	'Close',
 		TEXT_CHOOSE_DATE	:	'Choose date'
 	}
+	// version
+	$.dpVersion = '$Id$';
 
 	function _getController(ele)
 	{

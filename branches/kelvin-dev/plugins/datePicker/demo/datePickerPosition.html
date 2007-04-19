@@ -41,6 +41,7 @@
 				$('#tr').dpSetPosition($.dpConst.POS_TOP, $.dpConst.POS_RIGHT);
 				$('#bl').dpSetPosition($.dpConst.POS_BOTTOM, $.dpConst.POS_LEFT);
 				$('#br').dpSetPosition($.dpConst.POS_BOTTOM, $.dpConst.POS_RIGHT);
+				$('#custom-offset').dpSetOffset(10, 300);
             });
 		</script>
 		
@@ -57,7 +58,19 @@
 				<a href="noJs.html" class="date-pick" id="tr">#tr</a>
 				<a href="noJs.html" class="date-pick" id="bl">#bl</a>
 				<a href="noJs.html" class="date-pick" id="br">#br</a>
-			</ul>
+			</p>
+			<p>
+				You can also pass an arbitary vertical and horizontal offset which describes how far away from
+				the default position the calendar will pop up:
+			</p>
+			<p>
+				<a href="noJs.html" class="date-pick" id="custom-offset">#custom-offset</a>
+			</p>
+			<p>
+				In addition to the $().dpSetPosition and $().dpSetOffset functions you can pass the desired values
+				into the <i>verticalPosition</i>, <i>horizontalPosition</i>, <i>verticalOffset</i> and
+				<i>horizontalOffset</i> attributes of the settings object passed into $().datePicker.			
+			</p>	
 			<h2>Page sourcecode</h2>
 			<pre class="sourcecode">
 $(function()
@@ -76,6 +89,7 @@ $(function()
 	$('#tr').dpSetPosition($.dpConst.POS_TOP, $.dpConst.POS_RIGHT);
 	$('#bl').dpSetPosition($.dpConst.POS_BOTTOM, $.dpConst.POS_LEFT);
 	$('#br').dpSetPosition($.dpConst.POS_BOTTOM, $.dpConst.POS_RIGHT);
+	$('#custom-offset').dpSetOffset(10, 300);
 });</pre>
         </div>
 	</body>

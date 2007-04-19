@@ -117,7 +117,9 @@
 					closeOnSelect		: true,
 					displayClose		: false,
 					verticalPosition	: $.dpConst.POS_TOP,
-					horizontalPosition	: $.dpConst.POS_LEFT
+					horizontalPosition	: $.dpConst.POS_LEFT,
+					verticalOffset		: 0,
+					horizontalOffset	: 0
 				}
 				, s
 			);
@@ -168,6 +170,10 @@
 		{
 			return _w.call(this, 'setPosition', v, h);
 		},
+		dpSetOffset : function(v, h)
+		{
+			return _w.call(this, 'setOffset', v, h);
+		},
 		// private function called on unload to clean up any expandos etc and prevent memory links...
 		_dpDestroy : function()
 		{
@@ -207,6 +213,8 @@
 			displayClose		:	null,
 			verticalPosition	:	null,
 			horizontalPosition	:	null,
+			verticalOffset		:	null,
+			horizontalOffset	:	null,
 			
 			init : function(s)
 			{
@@ -219,6 +227,7 @@
 				this.displayClose = s.displayClose;
 				this.verticalPosition = s.verticalPosition;
 				this.horizontalPosition = s.horizontalPosition;
+				this.setOffset(s.verticalOffset, s.horizontalOffset);
 			},
 			setStartDate : function(d)
 			{
@@ -245,6 +254,11 @@
 			{
 				this.verticalPosition = v;
 				this.horizontalPosition = h;
+			},
+			setOffset : function(v, h)
+			{
+				this.verticalOffset = parseInt(v) || 0;
+				this.horizontalOffset = parseInt(h) || 0;
 			},
 			setDisplayedMonth : function(m, y)
 			{
@@ -311,8 +325,8 @@
 							.attr('id', 'dp-popup')
 							.css(
 								{
-									'top'	:	eleOffset.top,
-									'left'	:	eleOffset.left
+									'top'	:	eleOffset.top + c.verticalOffset,
+									'left'	:	eleOffset.left + c.horizontalOffset
 								}
 							)
 							.append(
@@ -380,10 +394,10 @@
 				c._renderCalendar();
 				
 				if (this.verticalPosition == $.dpConst.POS_BOTTOM) {
-					$pop.css('top', eleOffset.top + $ele.height() - $pop.height());
+					$pop.css('top', eleOffset.top + $ele.height() - $pop.height() + c.verticalOffset);
 				}
 				if (this.horizontalPosition == $.dpConst.POS_RIGHT) {
-					$pop.css('left', eleOffset.left + $ele.width() - $pop.width());
+					$pop.css('left', eleOffset.left + $ele.width() - $pop.width() + c.horizontalOffset);
 				}
 				
 				$(document).bind('mousedown', this._checkMouse);

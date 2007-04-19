@@ -354,6 +354,7 @@
 									'left'	:	eleOffset.left + c.horizontalOffset
 								}
 							)
+							.bgIframe()
 							.append(
 								$('<h2></h2>'),
 								$('<div id="dp-nav-prev"></div>')
@@ -582,6 +583,12 @@
 	{
 		if (ele._dpId) return $.event._dpCache[ele._dpId];
 		return false;
+	}
+	
+	// make it so that no error is thrown if bgIframe plugin isn't included (allows you to use conditional
+	// comments to only include bgIframe where it is needed in IE without breaking this plugin).
+	if ($.fn.bgIframe == undefined) {
+		$.fn.bgIframe = function() {return this; };
 	}
 
 

@@ -155,13 +155,23 @@
 					}
 					
 					if ($this.is(':text')) {
-						$this.bind(
-							'dateSelected',
-							function(e, selectedDate, $td)
-							{
-								this.value = selectedDate.asString();
-							}
-						);
+						$this
+							.bind(
+								'dateSelected',
+								function(e, selectedDate, $td)
+								{
+									this.value = selectedDate.asString();
+								}
+							).bind(
+								'change',
+								function()
+								{
+									var d = Date.fromString(this.value);
+									if (d) {
+										controller.setDisplayedMonth(d.getMonth(), d.getFullYear());
+									}
+								}
+							);
 					}
 					
 					$this.addClass('dp-applied');
@@ -354,7 +364,6 @@
 									'left'	:	eleOffset.left + c.horizontalOffset
 								}
 							)
-							.bgIframe()
 							.append(
 								$('<h2></h2>'),
 								$('<div id="dp-nav-prev"></div>')
@@ -398,6 +407,7 @@
 								$('<div></div>')
 									.attr('id', 'dp-calendar')
 							)
+							.bgIframe()
 						);
 					
 				var $pop = $('#dp-popup');

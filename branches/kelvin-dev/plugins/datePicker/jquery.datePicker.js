@@ -127,7 +127,7 @@
 			return this.each(
 				function()
 				{
-					$this = $(this);
+					var $this = $(this);
 					
 					if (!this._dpId) {
 						this._dpId = $.event.guid++;
@@ -140,7 +140,31 @@
 					
 					if (s.createButton) {
 						// create it!
+						$this.after(
+							$('<a href="#" class="dp-choose-date" title="' + $.dpText.TEXT_CHOOSE_DATE + '">' + $.dpText.TEXT_CHOOSE_DATE + '</a>')
+								.bind(
+									'click',
+									function()
+									{
+										$this.dpDisplay(this);
+										this.blur();
+										return false;
+									}
+								)
+						);
 					}
+					
+					if ($this.is(':text')) {
+						$this.bind(
+							'dateSelected',
+							function(e, selectedDate, $td)
+							{
+								this.value = selectedDate.asString();
+							}
+						);
+					}
+					
+					$this.addClass('dp-applied');
 					
 				}
 			)
@@ -158,9 +182,9 @@
 		{
 			return _w.call(this, 'setDisplayedMonth', Number(m), Number(y));
 		},
-		dpDisplay : function()
+		dpDisplay : function(e)
 		{
-			return _w.call(this, 'display');
+			return _w.call(this, 'display', e);
 		},
 		dpSetRenderCallback : function(a)
 		{
@@ -182,7 +206,7 @@
 	});
 	
 	// private internal function to cut down on the amount of code needed where we forward
-	// wp* methods on the jQuery object on to the relevant DatePicker controllers...
+	// dp* methods on the jQuery object on to the relevant DatePicker controllers...
 	var _w = function(f, a1, a2)
 	{
 		return this.each(
@@ -293,10 +317,11 @@
 				this.displayedMonth = t.getMonth();
 				this.displayedYear = t.getFullYear();
 			},
-			display : function()
+			display : function(eleAlignTo)
 			{
+				eleAlignTo = eleAlignTo || this.ele;
 				var c = this;
-				var $ele = $(this.ele);
+				var $ele = $(eleAlignTo);
 				var eleOffset = $ele.offset();
 				
 				
@@ -470,7 +495,7 @@
 					$('#dp-calendar td.other-month').each(
 						function()
 						{
-							$this = $(this);
+							var $this = $(this);
 							if (Number($this.text()) > 20) {
 								$this.addClass('disabled');
 							}
@@ -480,7 +505,7 @@
 					$('#dp-calendar td.current-month').each(
 						function()
 						{
-							$this = $(this);
+							var $this = $(this);
 							if (Number($this.text()) < d) {
 								$this.addClass('disabled');
 							}
@@ -496,7 +521,7 @@
 					$('#dp-calendar td.other-month').each(
 						function()
 						{
-							$this = $(this);
+							var $this = $(this);
 							if (Number($this.text()) < 14) {
 								$this.addClass('disabled');
 							}
@@ -506,7 +531,7 @@
 					$('#dp-calendar td.current-month').each(
 						function()
 						{
-							$this = $(this);
+							var $this = $(this);
 							if (Number($this.text()) > d) {
 								$this.addClass('disabled');
 							}
@@ -549,7 +574,8 @@
 		TEXT_PREV_MONTH		:	'Previous month',
 		TEXT_NEXT_YEAR		:	'Next year',
 		TEXT_NEXT_MONTH		:	'Next month',
-		TEXT_CLOSE			:	'Close'
+		TEXT_CLOSE			:	'Close',
+		TEXT_CHOOSE_DATE	:	'Choose date'
 	}
 
 	function _getController(ele)

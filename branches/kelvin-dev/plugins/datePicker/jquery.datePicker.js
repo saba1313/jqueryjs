@@ -170,6 +170,7 @@
 									var d = Date.fromString(this.value);
 									if (d) {
 										controller.setDisplayedMonth(d.getMonth(), d.getFullYear());
+										controller.setSelected(d, true);
 									}
 								}
 							);
@@ -276,6 +277,7 @@
 				if (!this.startDate) {
 					this.startDate = (new Date()).zeroTime();
 				}
+				this.setDisplayedMonth(this.displayedMonth, this.displayedYear);
 			},
 			setEndDate : function(d)
 			{
@@ -288,6 +290,7 @@
 				if (this.endDate.getTime() < this.startDate.getTime()) {
 					this.endDate = this.startDate;
 				}
+				this.setDisplayedMonth(this.displayedMonth, this.displayedYear);
 			},
 			setPosition : function(v, h)
 			{
@@ -301,6 +304,9 @@
 			},
 			setDisplayedMonth : function(m, y)
 			{
+				if (this.startDate == undefined || this.endDate == undefined) {
+					return;
+				}
 				var s = new Date(this.startDate.getTime());
 				s.setDate(1);
 				var e = new Date(this.endDate.getTime());
@@ -342,6 +348,16 @@
 			isSelected : function(t)
 			{
 				return this.selectedDates[t];
+			},
+			getSelected : function()
+			{
+				var r = [];
+				for(t in this.selectedDates) {
+					if (this.selectedDates[t] == true) {
+						r.push(new Date(Number(t)));
+					}
+				}
+				return r;
 			},
 			display : function(eleAlignTo)
 			{
@@ -454,16 +470,6 @@
 				}
 				
 				$(document).bind('mousedown', this._checkMouse);
-			},
-			getSelected : function()
-			{
-				var r = [];
-				for(t in this.selectedDates) {
-					if (this.selectedDates[t] == true) {
-						r.push(new Date(Number(t)));
-					}
-				}
-				return r;
 			},
 			setRenderCallback : function(a)
 			{

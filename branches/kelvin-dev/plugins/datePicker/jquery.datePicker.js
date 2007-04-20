@@ -117,6 +117,7 @@
 					closeOnSelect		: true,
 					displayClose		: false,
 					selectMultiple		: false,
+					clickInput			: false,
 					verticalPosition	: $.dpConst.POS_TOP,
 					horizontalPosition	: $.dpConst.POS_LEFT,
 					verticalOffset		: 0,
@@ -173,6 +174,15 @@
 									}
 								}
 							);
+						if (s.clickInput) {
+							$this.bind(
+								'click',
+								function()
+								{
+									$this.dpDisplay();
+								}
+							);
+						}
 					}
 					
 					$this.addClass('dp-applied');

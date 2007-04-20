@@ -169,8 +169,7 @@
 								{
 									var d = Date.fromString(this.value);
 									if (d) {
-										controller.setDisplayedMonth(d.getMonth(), d.getFullYear());
-										controller.setSelected(d, true);
+										controller.setSelected(d, true, true);
 									}
 								}
 							);
@@ -189,6 +188,10 @@
 		dpSetEndDate : function(d)
 		{
 			return _w.call(this, 'setEndDate', d);
+		},
+		dpSetSelected : function(d)
+		{
+			return _w.call(this, 'setSelected', d, true, true);
 		},
 		dpSetDisplayedMonth : function(m, y)
 		{
@@ -219,14 +222,14 @@
 	
 	// private internal function to cut down on the amount of code needed where we forward
 	// dp* methods on the jQuery object on to the relevant DatePicker controllers...
-	var _w = function(f, a1, a2)
+	var _w = function(f, a1, a2, a3)
 	{
 		return this.each(
 			function()
 			{
 				var c = _getController(this);
 				if (c) {
-					c[f](a1, a2);
+					c[f](a1, a2, a3);
 				}
 			}
 		);
@@ -338,10 +341,13 @@
 				this.displayedMonth = t.getMonth();
 				this.displayedYear = t.getFullYear();
 			},
-			setSelected : function(d, v)
+			setSelected : function(d, v, moveToMonth)
 			{
 				if (this.selectMultiple == false) {
 					this.selectedDates = {};
+				}
+				if (moveToMonth) {
+					this.setDisplayedMonth(d.getMonth(), d.getFullYear());
 				}
 				this.selectedDates[d.getTime()] = v;
 			},

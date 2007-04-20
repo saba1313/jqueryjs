@@ -68,6 +68,7 @@
 	<body>
         <div id="container">
             <h1>jquery.datePicker example: datePicker with custom cell renderer</h1>
+			<p><a href="index.html">&lt; date picker home</a></p>
             <p>
                 The following example displays how you can use a custom cell renderer to control the behaviour of
 				the date picker. In this case I add a class of "weekend" to the cells which fall on a weekend and
@@ -87,7 +88,7 @@ $(function()
 	$('.date-pick')
 		.datePicker(
 			{
-				showButton:false,
+				createButton:false,
 				renderCallback:function($td, thisDate, month, year)
 				{
 					if (thisDate.isWeekend()) {
@@ -108,7 +109,7 @@ $(function()
 		.bind('dateSelected',
 			function(e, selectedDate, $td)
 			{
-				alert('You selected ' + selectedDate);
+				console.log('You selected ' + selectedDate);
 			}
 		);
 });</pre>

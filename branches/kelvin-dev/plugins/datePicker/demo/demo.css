@@ -13,14 +13,34 @@ h1 {
 	padding: 0 0 .3em;
 	border-bottom: 4px solid #ccc;
 }
+h1.home {
+	margin: 0;
+	border: none;
+}
 h2 {
 	font-size: 1.2em;
 	margin: 1em 0 1em;
 	padding: 0 0 .3em;
 	border-bottom: 2px solid #ccc;
 }
+h3 {
+	font-size: 1.1em;
+	font-weight: normal;
+	padding: 0 0 10px;
+	border-bottom: 2px solid #ccc;
+}
 p {
 	margin: 1em 0;
+}
+ul {
+	margin: 0 0 0 20px;
+}
+dt {
+	margin: 1em 0 .2em;
+	font-weight: bold;
+}
+dd {
+	margin: .2em 0 1em;
 }
 #container {
 	width: 758px;

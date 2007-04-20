@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<title>jQuery datePicker home</title>
+		
+        <!-- jQuery -->
+		<script type="text/javascript" src="jquery-1.1.2.js"></script>
+        
+        <!-- required plugins -->
+		<script type="text/javascript" src="date.js"></script>
+		<script type="text/javascript" src="dimensions.js"></script>
+		<!--[if IE]><script type="text/javascript" src="jquery.bgiframe.js"></script><![endif]-->
+        
+        <!-- jquery.datePicker.js -->
+		<script type="text/javascript" src="../jquery.datePicker.js"></script>
+		
+        <!-- page specific styles -->
+		<link rel="stylesheet" type="text/css" media="screen" href="demo.css">
+        
+        <!-- page specific scripts -->
+		<script type="text/javascript" charset="utf-8">
+            $(function()
+            {
+				$('#dp-version').text('[' + $.dpVersion + ']');
+            });
+		</script>
+		
+	</head>
+	<body>
+        <div id="container">
+            <h1 class="home">jQuery date picker plug-in</h1>
+			<h3>A flexible unobtrusive calendar component for jQuery</h3>
+            <p>
+                Welcome to the homepage for version 2 of the <a href="http://jquery.com">jQuery</a> datePicker plugin.
+				This is a complete re-write from the ground up to add power and flexibility to the date picker.
+            </p>
+			<h2>Requirements</h2>
+			<ul>
+				<li><a href="jquery-1.1.2.js">jQuery</a> - tested against 1.1.2.</li>
+				<li>The <a href="http://dev.jquery.com/browser/trunk/plugins/methods/date.js?format=txt">date methods</a>.</li>
+				<li>The <a href="http://jquery.com/dev/svn/trunk/plugins/dimensions/dimensions.js?format=txt">dimensions plugin</a>.</li>
+				<li>The <a href="http://dev.jquery.com/browser/trunk/plugins/bgiframe/jquery.bgiframe.js?format=txt">bgiframe plugin</a> (if you have SELECT elements on your page and don't want them to shine through the date pickers for users of IE).</li>
+				<li>Optionally some <a href="http://dev.jquery.com/browser/trunk/plugins/methods">localised date methods</a>.</li>
+			</ul>
+			<h2>Download</h2>
+			<ul>
+				<li><a href="../jquery.datePicker.js">jquery.datePicker.js</a> <span id="dp-version"></span></li>
+			</ul>
+			<h2>Usage</h2>
+			<p>
+				Simply reference the relevant files at the head of your page like so:
+			</p>
+			<pre>
+&lt;!-- jQuery --&gt;
+&lt;script type="text/javascript" src="jquery-1.1.2.js"&gt;&lt;/script&gt;
+
+&lt;!-- required plugins --&gt;
+&lt;script type="text/javascript" src="date.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="dimensions.js"&gt;&lt;/script&gt;
+&lt;!--[if IE]&gt;&lt;script type="text/javascript" src="jquery.bgiframe.js"&gt;&lt;/script&gt;&lt;![endif]--&gt;
+
+&lt;!-- jquery.datePicker.js --&gt;
+&lt;script type="text/javascript" src="jquery.datePicker.js"&gt;&lt;/script&gt;</pre>
+			<p>
+				(note that I am using IE's conditional compilation to include the bgiframe plugin as it isn't necessary
+				for other browsers so it seems pointless for them to download it)
+			</p>
+			<p>Then simply instantiate the date picker as you like - see the demos below for inspiration...</p>
+			<h2>Demos</h2>
+			<p>
+				A picture is worth a thousand words and so is a demo! So here are a bunch of demos showing
+				some of the many ways that you can use the datePicker plugin. Some of the demos are very simple
+				and just illustrate one optional parameter while some are more complicated and illustrate completely
+				different ways of using the plugin.
+			</p>
+			<dl>
+				<dt><a href="datePicker.html">simple datePicker</a></dt>
+				<dd>A simple example showing the basic use of a date picker tied to an input field.</dd>
+				<dt><a href="datePickerPosition.html">datePicker with position</a></dt>
+				<dd>This example shows how you can control where (relative to the associated element) the date picker appears.</dd>
+				<dt><a href="datePickerClickInput.html">datePicker with a clickable input field</a></dt>
+				<dd>An very simple example showing how you can make the date picker pop up when you click on the input field (rather than the associated button).</dd>
+				<dt><a href="datePickerDateFormat.html">datePicker with a different dateFormat</a></dt>
+				<dd>A very simple example showing how you can change the date format and first day of the week displayed for the date picker.</dd>
+				<dt><a href="datePickerLocalised.html">Localised datePicker</a></dt>
+				<dd>A very simple example showing how you can localise the date picker.</dd>
+				<dt><a href="datePickerListen.html">datePicker with custom listener</a></dt>
+				<dd>This example shows how you can bind a date picker to any element and register a event listener which is informed whenever a date is selected.</dd>
+				<dt><a href="datePickerCustomCellRender.html">datePicker with a custom cell renderer</a></dt>
+				<dd>This demo shows how you can have a date picker with a custom cell renderer to change the appearance and behaviour (in this case I make the weekends look different and be unselectable).</dd>
+				<dt><a href="datePickerMultiple.html">datePicker with multiple select</a></dt>
+				<dd>This shows the simple script necessary to use the date picker to be able to select multiple dates.</dd>
+				<dt><a href="datePickerStartEnd.html">Start and end date pickers</a></dt>
+				<dd>This example shows how you can tied two date pickers together so that the date selected in one influences the dates that can be selected in the other.</dd>
+				<dt><a href="datePickerIntoSelects.html">datePicker linked to select elements</a></dt>
+				<dd>An example showing how you can bind a date picker to three select elements rather than to an input.</dd>
+				<dt><a href="renderCalendar.html">renderCalendar</a></dt>
+				<dd>The date picker also exposes a method for rendering a month view calendar into any element.</dd>
+				<dt><a href="renderCalendarCallback.html">renderCalendar with callbacks</a></dt>
+				<dd>You can optionally use callbacks when rendering a calendar to control the look and behaviour of the rendered calendar.</dd>
+				<dt><a href="renderCalendarBankHolidays.html">renderCalendar displaying bank holidays</a></dt>
+				<dd>This example shows how you can use the renderCalendar callbacks to add extra data to the rendered calendar (in this case bank holidays are marked)</dd>
+			</dl>
+			<h2>Credits</h2>
+			<p>
+				Thanks to <a href="http://ejohn.org/">John Resig</a> and the other members of the
+				<a href="http://docs.jquery.com/Contributors#Development_Team">jQuery developement team</a>
+				for an awesome library.
+			</p>
+			<p>
+				Further thanks to <a href="http://brandonaaron.net/">Brandon Aaron</a> for the
+				<a href="http://brandon.jquery.com/plugins/bgiframe/">bgiframe</a> plugin and to
+				Brandon and <a href="http://www.paulbakaus.com/">Paul Bakaus</a> for the
+				<a href="http://jquery.com/dev/svn/trunk/plugins/dimensions/dimensions.js?format=txt">dimensions</a>
+				plugin.
+			</p>
+			<p>
+				And a big thanks to <a href="http://bassistance.de">Jörn Zaefferer</a> for feedback during the planning
+				stage and code review. Also to Brandon Aaron and Paul McLanahan for their input.
+			</p>
+        </div>
+	</body>
+</html>

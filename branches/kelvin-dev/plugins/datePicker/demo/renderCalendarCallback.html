@@ -6,12 +6,14 @@
 		
 		<!-- firebug lite -->
 		<script type="text/javascript" src="firebug/firebug.js"></script>
-		
+
         <!-- jQuery -->
 		<script type="text/javascript" src="jquery-1.1.2.js"></script>
         
         <!-- required plugins -->
 		<script type="text/javascript" src="date.js"></script>
+		<script type="text/javascript" src="dimensions.js"></script>
+		<!--[if IE]><script type="text/javascript" src="jquery.bgiframe.js"></script><![endif]-->
         
         <!-- jquery.datePicker.js -->
 		<script type="text/javascript" src="../jquery.datePicker.js"></script>
@@ -72,6 +74,7 @@
 	<body>
         <div id="container">
             <h1>jquery.datePicker example: renderCalendarCallback</h1>
+			<p><a href="index.html">&lt; date picker home</a></p>
             <p>
                 The following example demonstrates the use of $().renderCalendar as introduced by jquery.datePicker.js
                 - we supply a <strong>renderCallback</strong> parameter so that we have control over how each day is
@@ -154,6 +157,45 @@
                     </ol>
                 </fieldset>
             </form>
+			<h2>Page sourcecode</h2>
+			<pre class="sourcecode">
+$(function()
+{
+	$('#dow').bind(
+		'change',
+		function()
+		{
+			Date.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
+		}
+	);
+	var testCallback = function($td, thisDate, month, year)
+	{
+		if ($td.is('.current-month') && thisDate.getDay() == 4) {
+			var d = thisDate.getDate();
+			$td.bind(
+				'click',
+				function()
+				{
+					alert('You clicked on ' + d + '/' + (Number(month)+1) + '/' + year);
+				}
+			).addClass('thursday');
+		} else if (thisDate.getDay() == 5) {
+			$td.html('Friday the ' + $td.html() + 'th');
+		}
+	}
+	$('#chooseDateForm').bind(
+		'submit',
+		function()
+		{
+			var month = this.month.options[this.month.selectedIndex].value;
+			var year = this.year.options[this.year.selectedIndex].value;
+			
+			$('#calendar-me').renderCalendar({month:month, year:year, renderCallback:testCallback});
+			
+			return false;
+		}
+	);
+});</pre>
         </div>
 	</body>
 </html>

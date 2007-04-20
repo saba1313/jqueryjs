@@ -13,6 +13,7 @@
         <!-- required plugins -->
 		<script type="text/javascript" src="date.js"></script>
 		<script type="text/javascript" src="dimensions.js"></script>
+		<!--[if IE]><script type="text/javascript" src="jquery.bgiframe.js"></script><![endif]-->
         
         <!-- jquery.datePicker.js -->
 		<script type="text/javascript" src="../jquery.datePicker.js"></script>
@@ -52,6 +53,7 @@
 	<body>
         <div id="container">
             <h1>jquery.datePicker example: datePicker with listener</h1>
+			<p><a href="index.html">&lt; date picker home</a></p>
             <p>
                 The following example displays basic use of the datePicker command. A datePicker is created associated
 				with our link elements. When the links are clicked we call the $().dpDisplay function to make a calendar
@@ -72,7 +74,7 @@
 $(function()
 {
 	$('.date-pick')
-		.datePicker({showButton:false})
+		.datePicker({createButton:false})
 		.bind(
 			'click',
 			function()
@@ -86,7 +88,7 @@ $(function()
 			'dateSelected',
 			function(e, selectedDate, $td)
 			{
-				alert('You selected ' + selectedDate);
+				console.log('You selected ' + selectedDate);
 			}
 		);
 });</pre>

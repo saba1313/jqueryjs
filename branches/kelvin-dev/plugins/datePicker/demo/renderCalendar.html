@@ -12,6 +12,8 @@
         
         <!-- required plugins -->
 		<script type="text/javascript" src="date.js"></script>
+		<script type="text/javascript" src="dimensions.js"></script>
+		<!--[if IE]><script type="text/javascript" src="jquery.bgiframe.js"></script><![endif]-->
         
         <!-- jquery.datePicker.js -->
 		<script type="text/javascript" src="../jquery.datePicker.js"></script>
@@ -55,6 +57,7 @@
 	<body>
         <div id="container">
             <h1>jquery.datePicker example: renderCalendar</h1>
+			<p><a href="index.html">&lt; date picker home</a></p>
             <p>
                 The following example demonstrates the use of $().renderCalendar as introduced by jquery.datePicker.js.
             </p>
@@ -135,7 +138,7 @@ $(function()
 		'change',
 		function()
 		{
-			$.datePicker.locale.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
+			Date.firstDayOfWeek = Number(this.options[this.selectedIndex].value);
 		}
 	);
 	// when the choose date form is submitted grab the chosen month and year

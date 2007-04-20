@@ -35,7 +35,7 @@
 					{
 						var d = selectedDates[0];
 						if (d) {
-							$('#end-date').dpSetStartDate(d.asString());
+							$('#end-date').dpSetStartDate(d.addDays(1).asString());
 						}
 					}
 				);
@@ -45,7 +45,7 @@
 					{
 						var d = selectedDates[0];
 						if (d) {
-							$('#start-date').dpSetEndDate(d.asString());
+							$('#start-date').dpSetEndDate(d.addDays(-1).asString());
 						}
 					}
 				);
@@ -87,7 +87,7 @@
 			</form>
 			<h2>Page sourcecode</h2>
 			<pre class="sourcecode">
-$(function()
+ $(function()
 {
 	$('.date-pick').datePicker()
 	$('#start-date').bind(
@@ -96,7 +96,7 @@ $(function()
 		{
 			var d = selectedDates[0];
 			if (d) {
-				$('#end-date').dpSetStartDate(d.asString());
+				$('#end-date').dpSetStartDate(d.addDays(1).asString());
 			}
 		}
 	);
@@ -106,7 +106,7 @@ $(function()
 		{
 			var d = selectedDates[0];
 			if (d) {
-				$('#start-date').dpSetEndDate(d.asString());
+				$('#start-date').dpSetEndDate(d.addDays(-1).asString());
 			}
 		}
 	);

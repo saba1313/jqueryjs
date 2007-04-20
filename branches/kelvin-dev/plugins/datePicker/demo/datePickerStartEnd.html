@@ -59,7 +59,8 @@
             <p>
                 The following example displays how you can synchronise two date pickers together. A common
 				scenario for an online date picker is when booking flights or something where you need to input
-				outbound and inbound dates. The inbound date must be after the outbound date.
+				outbound and inbound dates. The start date must be before the end date and vice versa. We can enforce
+				this rule with a very simple little bit of script.
             </p>
 			<form name="chooseDateForm" id="chooseDateForm" action="#">
 				<fieldset>
@@ -89,6 +90,26 @@
 $(function()
 {
 	$('.date-pick').datePicker()
+	$('#start-date').bind(
+		'dpClosed',
+		function(e, selectedDates)
+		{
+			var d = selectedDates[0];
+			if (d) {
+				$('#end-date').dpSetStartDate(d.asString());
+			}
+		}
+	);
+	$('#end-date').bind(
+		'dpClosed',
+		function(e, selectedDates)
+		{
+			var d = selectedDates[0];
+			if (d) {
+				$('#start-date').dpSetEndDate(d.asString());
+			}
+		}
+	);
 });</pre>
 			<h2>Page CSS</h2>
 			<pre class="sourcecode">

@@ -567,6 +567,23 @@
 				} else {
 					$('#dp-nav-prev-year').removeClass('disabled');
 					$('#dp-nav-prev-month').removeClass('disabled');
+					var d = this.startDate.getDate();
+					if (d > 20) {
+						// check if the startDate is last month as we might need to add some disabled classes...
+						var sd = new Date(this.startDate.getTime());
+						sd.addMonths(1);
+						if (this.displayedYear == sd.getFullYear() && this.displayedMonth == sd.getMonth()) {
+							$('#dp-calendar td.other-month').each(
+								function()
+								{
+									var $this = $(this);
+									if (Number($this.text()) < d) {
+										$this.addClass('disabled');
+									}
+								}
+							);
+						}
+					}
 				}
 				if (this.displayedYear == this.endDate.getFullYear() && this.displayedMonth == this.endDate.getMonth()) {
 					$('#dp-nav-next-year').addClass('disabled');
@@ -593,6 +610,23 @@
 				} else {
 					$('#dp-nav-next-year').removeClass('disabled');
 					$('#dp-nav-next-month').removeClass('disabled');
+					var d = this.endDate.getDate();
+					if (d < 13) {
+						// check if the endDate is next month as we might need to add some disabled classes...
+						var ed = new Date(this.endDate.getTime());
+						ed.addMonths(-1);
+						if (this.displayedYear == ed.getFullYear() && this.displayedMonth == ed.getMonth()) {
+							$('#dp-calendar td.other-month').each(
+								function()
+								{
+									var $this = $(this);
+									if (Number($this.text()) > d) {
+										$this.addClass('disabled');
+									}
+								}
+							);
+						}
+					}
 				}
 				
 			},

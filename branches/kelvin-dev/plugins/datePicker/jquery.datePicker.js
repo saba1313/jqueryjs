@@ -189,9 +189,11 @@
 		{
 			return _w.call(this, 'setEndDate', d);
 		},
-		dpSetSelected : function(d)
+		dpSetSelected : function(d, v, m)
 		{
-			return _w.call(this, 'setSelected', d, true, true);
+			if (v == undefined) v=true;
+			if (m == undefined) m=true;
+			return _w.call(this, 'setSelected', d, v, m);
 		},
 		dpSetDisplayedMonth : function(m, y)
 		{

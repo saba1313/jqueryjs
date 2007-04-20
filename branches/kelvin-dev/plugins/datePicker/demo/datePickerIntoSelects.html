@@ -27,12 +27,7 @@
         <!-- page specific scripts -->
 		<script type="text/javascript" charset="utf-8">
             $(function()
-            {
-				// default the position of the selects to today
-				var today = new Date();
-				($('#d')[0]).selectedIndex = today.getDate() - 1;
-				($('#m')[0]).selectedIndex = today.getMonth();
-				($('#y')[0]).selectedIndex = today.getFullYear() - 2005;
+			{
 				
 				// initialise the "Select date" link
 				$('#date-pick')
@@ -79,7 +74,16 @@
 							$('#date-pick').dpSetSelected(d);
 						}
 					);
-            });
+				
+				// default the position of the selects to today
+				var today = new Date();
+				($('#d')[0]).selectedIndex = today.getDate() - 1;
+				($('#m')[0]).selectedIndex = today.getMonth();
+				($('#y')[0]).selectedIndex = today.getFullYear() - 2005;
+				
+				// and update the datePicker to reflect it...
+				$('#d').trigger('change');
+			});
 		</script>
 		
 	</head>
@@ -167,11 +171,6 @@
 			<pre class="sourcecode">
 $(function()
 {
-	// default the position of the selects to today
-	var today = new Date();
-	($('#d')[0]).selectedIndex = today.getDate() - 1;
-	($('#m')[0]).selectedIndex = today.getMonth();
-	($('#y')[0]).selectedIndex = today.getFullYear() - 2005;
 	
 	// initialise the "Select date" link
 	$('#date-pick')
@@ -218,6 +217,15 @@ $(function()
 				$('#date-pick').dpSetSelected(d);
 			}
 		);
+	
+	// default the position of the selects to today
+	var today = new Date();
+	($('#d')[0]).selectedIndex = today.getDate() - 1;
+	($('#m')[0]).selectedIndex = today.getMonth();
+	($('#y')[0]).selectedIndex = today.getFullYear() - 2005;
+	
+	// and update the datePicker to reflect it...
+	$('#d').trigger('change');
 });</pre>
         </div>
 	</body>

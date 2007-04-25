@@ -545,7 +545,9 @@
 				$e = $(this.ele);
 				$e[s ? 'addClass' : 'removeClass']('dp-disabled');
 				if (this.button) {
-					$(this.button)[s ? 'addClass' : 'removeClass']('dp-disabled');
+					$but = $(this.button);
+					$but[s ? 'addClass' : 'removeClass']('dp-disabled');
+					$but.attr('title', s ? '' : $.dpText.TEXT_CHOOSE_DATE);
 				}
 				if ($e.is(':text')) {
 					$e.attr('disabled', s ? 'disabled' : '');

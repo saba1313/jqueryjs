@@ -43,6 +43,7 @@
 						'click',
 						function()
 						{
+							updateSelects($(this).dpGetSelected()[0]);
 							$(this).dpDisplay();
 							return false;
 						}
@@ -51,15 +52,25 @@
 						'dateSelected',
 						function(e, selectedDate, $td, state)
 						{
-							var d = selectedDate.getDate();
-							var m = selectedDate.getMonth();
-							var y = selectedDate.getFullYear();
-							($('#d')[0]).selectedIndex = d - 1;
-							($('#m')[0]).selectedIndex = m;
-							($('#y')[0]).selectedIndex = y - 2005;
+							updateSelects(selectedDate);
+						}
+					).bind(
+						'dpClosed',
+						function(e, selected)
+						{
+							updateSelects(selected[0]);
 						}
 					);
-				
+					
+				var updateSelects = function (selectedDate)
+				{
+					var d = selectedDate.getDate();
+					var m = selectedDate.getMonth();
+					var y = selectedDate.getFullYear();
+					($('#d')[0]).selectedIndex = d - 1;
+					($('#m')[0]).selectedIndex = m;
+					($('#y')[0]).selectedIndex = y - 2005;
+				}
 				// listen for when the selects are changed and update the picker
 				$('#d, #m, #y')
 					.bind(
@@ -187,6 +198,7 @@ $(function()
 			'click',
 			function()
 			{
+				updateSelects($(this).dpGetSelected()[0]);
 				$(this).dpDisplay();
 				return false;
 			}
@@ -195,15 +207,25 @@ $(function()
 			'dateSelected',
 			function(e, selectedDate, $td, state)
 			{
-				var d = selectedDate.getDate();
-				var m = selectedDate.getMonth();
-				var y = selectedDate.getFullYear();
-				($('#d')[0]).selectedIndex = d - 1;
-				($('#m')[0]).selectedIndex = m;
-				($('#y')[0]).selectedIndex = y - 2005;
+				updateSelects(selectedDate);
+			}
+		).bind(
+			'dpClosed',
+			function(e, selected)
+			{
+				updateSelects(selected[0]);
 			}
 		);
-	
+		
+	var updateSelects = function (selectedDate)
+	{
+		var d = selectedDate.getDate();
+		var m = selectedDate.getMonth();
+		var y = selectedDate.getFullYear();
+		($('#d')[0]).selectedIndex = d - 1;
+		($('#m')[0]).selectedIndex = m;
+		($('#y')[0]).selectedIndex = y - 2005;
+	}
 	// listen for when the selects are changed and update the picker
 	$('#d, #m, #y')
 		.bind(

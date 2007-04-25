@@ -315,6 +315,27 @@
 			return _w.call(this, 'setEndDate', d);
 		},
 /**
+ * Gets a list of Dates currently selected by this datePicker. This will be an empty array if no dates are currently selected or NULL if there is no datePicker associated with the matched element.
+ *
+ * @type Array
+ * @name dpGetSelected
+ * @cat plugins/datePicker
+ * @author Kelvin Luck (http://www.kelvinluck.com/)
+ *
+ * @example $('.date-picker').datePicker();
+ * alert($('.date-picker').dpGetSelected());
+ * @desc Will alert an empty array (as nothing is selected yet)
+ **/
+		dpGetSelected : function()
+		{
+			var c = _getController(this[0]);
+			console.log(c);
+			if (c) {
+				return c.getSelected();
+			}
+			return null;
+		},
+/**
  * Selects or deselects a date on any matched element's date pickers. Deselcting is only useful on date pickers where selectMultiple==true. Selecting will only work if the passed date is within the startDate and endDate boundries for a given date picker.
  *
  * @param String d A string representing the date you want to select (formatted according to Date.format).

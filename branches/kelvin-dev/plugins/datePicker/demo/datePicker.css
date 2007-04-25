@@ -53,6 +53,8 @@ div#dp-popup {
 	font-family: arial, sans-serif;
 	background: #ccc;
 	padding: 2px;
+	min-height: 172px;
+	min-width: 171px;
 }
 div#dp-popup h2 {
 	font-size: 12px;

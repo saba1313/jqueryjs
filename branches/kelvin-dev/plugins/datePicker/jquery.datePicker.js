@@ -47,6 +47,12 @@
  **/
 		renderCalendar  :   function(s)
 		{
+			
+			var dc = function(a)
+			{
+				return document.createElement(a);
+			}
+			
 			s = $.extend(
 				{
 					month			: null,
@@ -59,17 +65,17 @@
 			);
 			
 			if (s.showHeader != $.dpConst.SHOW_HEADER_NONE) {
-				var headRow = $('<tr></tr>');
+				var headRow = $(dc('tr'));
 				for (var i=Date.firstDayOfWeek; i<Date.firstDayOfWeek+7; i++) {
 					var weekday = i%7;
 					var day = Date.dayNames[weekday];
 					headRow.append(
-						jQuery("<th></th>").attr({'scope':'col', 'abbr':day, 'title':day, 'class':(weekday == 0 || weekday == 6 ? 'weekend' : 'weekday')}).html(s.showHeader == $.dpConst.SHOW_HEADER_SHORT ? day.substr(0, 1) : day)
+						jQuery(dc('th')).attr({'scope':'col', 'abbr':day, 'title':day, 'class':(weekday == 0 || weekday == 6 ? 'weekend' : 'weekday')}).html(s.showHeader == $.dpConst.SHOW_HEADER_SHORT ? day.substr(0, 1) : day)
 					);
 				}
 			}
 			
-			var calendarTable = $("<table></table>")
+			var calendarTable = $(dc('table'))
 									.attr(
 										{
 											'cellspacing':2,
@@ -78,13 +84,13 @@
 									)
 									.append(
 										(s.showHeader != $.dpConst.SHOW_HEADER_NONE ? 
-											$("<thead></thead>")
+											$(dc('thead'))
 												.append(headRow)
 											:
-											'<thead></thead>'
+											dc('thead')
 										)
 									);
-			var tbody = $('<tbody></tbody>');
+			var tbody = $(dc('tbody'));
 			
 			var today = (new Date()).zeroTime();
 			
@@ -100,10 +106,11 @@
 			
 			var w = 0;
 			while (w++<6) {
-				var r = jQuery("<tr></tr>");
+				var r = jQuery(dc('tr'));
 				for (var i=0; i<7; i++) {
 					var thisMonth = currentDate.getMonth() == month;
-					var d = $('<td>' + currentDate.getDate() + '</td>')
+					var d = $(dc('td'))
+								.text(currentDate.getDate() + '')
 								.attr('className', (thisMonth ? 'current-month ' : 'other-month ') +
 													(currentDate.isWeekend() ? 'weekend ' : 'weekday ') +
 													(thisMonth && currentDate.getTime() == today.getTime() ? 'today ' : '')
@@ -813,7 +820,6 @@
 						}
 					}
 				}
-				
 			},
 			_closeCalendar : function(programatic)
 			{

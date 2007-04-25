@@ -28,7 +28,7 @@
 		<script type="text/javascript" charset="utf-8">
             $(function()
             {
-				$('.date-pick').datePicker()
+				$('.date-pick').datePicker().bind('dpMonthChanged', function() { console.log(arguments); });
             });
 		</script>
 		

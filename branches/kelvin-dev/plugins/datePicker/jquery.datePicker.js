@@ -136,6 +136,17 @@
 /**
  * Create a datePicker associated with each of the matched elements.
  *
+ * The matched element will receive a few custom events with the following signatures:
+ *
+ * dateSelected(event, date, $td, status)
+ * Triggered when a date is selected. event is a reference to the event, date is the Date selected, $td is a jquery object wrapped around the TD that was clicked on and status is whether the date was selected (true) or deselected (false)
+ * 
+ * dpClosed(event, selected)
+ * Triggered when the date picker is closed. event is a reference to the event and selected is an Array containing Date objects.
+ *
+ * dpMonthChanged(event, displayedMonth, displayedYear)
+ * Triggered when the month of the popped up calendar is changed. event is a reference to the event, displayedMonth is the number of the month now displayed (zero based) and displayedYear is the year of the month.
+ *
  * @param Object s (optional) Customize your date pickers.
  * @option Number month The month to render when the date picker is opened (NOTE that months are zero based). Default is today's month.
  * @option Number year The year to render when the date picker is opened. Default is today's year.
@@ -743,6 +754,7 @@
 					this.setDisplayedMonth(this.displayedMonth + m, this.displayedYear + y);
 					this._clearCalendar();
 					this._renderCalendar();
+					$(this.ele).trigger('dpMonthChanged', [this.displayedMonth, this.displayedYear]);
 				}
 				ele.blur();
 				return false;

@@ -205,8 +205,7 @@
 					
 					if (s.createButton) {
 						// create it!
-						$this.after(
-							$('<a href="#" class="dp-choose-date" title="' + $.dpText.TEXT_CHOOSE_DATE + '">' + $.dpText.TEXT_CHOOSE_DATE + '</a>')
+						controller.button = $('<a href="#" class="dp-choose-date" title="' + $.dpText.TEXT_CHOOSE_DATE + '">' + $.dpText.TEXT_CHOOSE_DATE + '</a>')
 								.bind(
 									'click',
 									function()
@@ -215,8 +214,8 @@
 										this.blur();
 										return false;
 									}
-								)
-						);
+								);
+						$this.after(controller.button);
 					}
 					
 					if ($this.is(':text')) {
@@ -252,6 +251,23 @@
 					
 				}
 			)
+		},
+/**
+ * Disables or enables this date picker
+ *
+ * @param Boolean s Whether to disable (true) or enable (false) this datePicker
+ * @type jQuery
+ * @name dpSetDisabled
+ * @cat plugins/datePicker
+ * @author Kelvin Luck (http://www.kelvinluck.com/)
+ *
+ * @example $('.date-picker').datePicker();
+ * $('.date-picker').dpSetDisabled(true);
+ * @desc Prevents this date picker from displaying and adds a class of dp-disabled to it (and it's associated button if it has one) for styling purposes. If the matched element is an input field then it will also set the disabled attribute to stop people directly editing the field.
+ **/
+		dpSetDisabled : function(s)
+		{
+			return _w.call(this, 'setDisabled', s);
 		},
 /**
  * Updates the first selectable date for any date pickers on any matched elements.
@@ -438,6 +454,7 @@
 		this.horizontalPosition	=	null;
 		this.verticalOffset		=	null;
 		this.horizontalOffset	=	null;
+		this.button				=	null;
 		this.renderCallback		=	[];
 		this.selectedDates		=	{};
 	}
@@ -490,6 +507,17 @@
 			{
 				this.verticalOffset = parseInt(v) || 0;
 				this.horizontalOffset = parseInt(h) || 0;
+			},
+			setDisabled : function(s)
+			{
+				$e = $(this.ele);
+				$e[s ? 'addClass' : 'removeClass']('dp-disabled');
+				if (this.button) {
+					$(this.button)[s ? 'addClass' : 'removeClass']('dp-disabled');
+				}
+				if ($e.is(':text')) {
+					$e.attr('disabled', s ? 'disabled' : '');
+				}
 			},
 			setDisplayedMonth : function(m, y)
 			{
@@ -553,6 +581,8 @@
 			},
 			display : function(eleAlignTo)
 			{
+				if ($(this.ele).is('.dp-disabled')) return;
+				
 				eleAlignTo = eleAlignTo || this.ele;
 				var c = this;
 				var $ele = $(eleAlignTo);

@@ -20,7 +20,7 @@
 			return this.each(function() {
 				this.dropOptions = {
 					accept: o.accept && o.accept.constructor == Function ? o.accept : function(dragEl) {
-						return dragEl.className.match(new RegExp('(\\s|^)'+o.accept+'(\\s|$)'));	
+						return $(dragEl).is(o.accept);	
 					},
 					onHover: o.onHover && o.onHover.constructor == Function ? o.onHover : false,
 					onOut: o.onOut && o.onOut.constructor == Function ? o.onOut : function(drag,helper) {
@@ -129,7 +129,7 @@
 					dragPreventionOn: o.dragPreventionOn ? o.dragPreventionOn.toLowerCase().split(",") : ["input","textarea","button"],
 					cursorAt: { top: ((o.cursorAt && o.cursorAt.top) ? o.cursorAt.top : 0), left: ((o.cursorAt && o.cursorAt.left) ? o.cursorAt.left : 0), bottom: ((o.cursorAt && o.cursorAt.bottom) ? o.cursorAt.bottom : 0), right: ((o.cursorAt && o.cursorAt.right) ? o.cursorAt.right : 0) },
 					cursorAtIgnore: (!o.cursorAt) ? true : false, //Internal property
-					iframeFix: o.iframeFix != undefined ? o.iframeFix : true,
+					fixIframes: o.fixIframes != undefined ? o.fixIframes : true,
 					wrapHelper: o.wrapHelper != undefined ? o.wrapHelper : true,
 					scroll: o.scroll != undefined ? o.scroll : 20,
 					appendTo: o.appendTo ? o.appendTo : "parent",
@@ -161,7 +161,7 @@
 				this.dragOptions.handle.bind("mousedown", f.evClick);
 				
 				/* Link the original element to the handle for later reference */
-				this.dragOptions.handle.get(0).dragEl = this;				
+				this.dragOptions.handle.get(0).dragEl = this;		
 			
 			});
 		},
@@ -170,7 +170,7 @@
 		},
 		evClick: function(e) {
 			/* Prevent execution on defined elements */
-			var targetName = (e.target) ? e.target.nodeName.toLowerCase() : e.srcElement.nodeName.toLowerCase();
+			var targetName = e.target.nodeName.toLowerCase();
 			for(var i=0;i<this.dragEl.dragOptions.dragPreventionOn.length;i++) {
 				if(targetName == this.dragEl.dragOptions.dragPreventionOn[i]) return false;
 			}
@@ -178,13 +178,16 @@
 			/* Set f.current to the current element */
 			f.current = this.dragEl;
 
+			/* Prevent text selection for IE on the current direct target */
+			if($.browser.msie){ $(e.target).attr("unselectable", "on"); }
+
 			/* Bind mouseup and mousemove events */
 			$(document).bind("mouseup", f.evStop);
 			$(document).bind("mousemove", f.evDrag);
 
 			/* Get the original mouse position */
 			f.oldPosition = (e.pageX) ? [e.pageX,e.pageY] : [e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft,e.clientY + document.body.scrollTop + document.documentElement.scrollTop];
-		
+
 			return false;
 		},
 		evStart: function(e) {
@@ -195,7 +198,7 @@
 				
 			/* Append a helper div if helper is not a function */
 			if(typeof o.helper == "function") {
-				f.helper = o.helper(f.current);
+				f.helper = o.helper.apply(f.current, []);
 			} else {
 				/* It's not a custom helper, then clone the original element
 				 * or drag the original
@@ -208,7 +211,7 @@
 			if(o.appendTo == "parent") {
 				var curParent = f.current.parentNode;
 				while (curParent) {
-					if(curParent.style && (curParent.style.position == "relative" || curParent.style.position == "absolute")) {
+					if($(curParent).css("position") == "relative" || $(curParent).css("position") == "absolute") {
 						o.positionedParent = curParent;
 						o.positionedParentOffset = $(curParent).offset({ border: false });
 						break;	
@@ -260,14 +263,14 @@
 			if(o.cursorAt.bottom && !o.cursorAt.top) o.cursorAt.top = f.helper.offsetHeight+o.margins.top+o.margins.bottom - o.cursorAt.bottom;
 
 			/* Make clones on top of iframes (only if we are not in slowMode) */
-			if(!f.slowMode && o.iframeFix) {
-				if(o.iframeFix.constructor == Array) {
-					for(var i=0;i<o.iframeFix.length;i++) {
-						var curOffset = $(o.iframeFix[i]).offset({ border: false });
-						$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", $(o.iframeFix[i])[0].offsetWidth+"px").css("height", $(o.iframeFix[i])[0].offsetHeight+"px").css("position", "absolute").css("opacity", "0.001").css("z-index", "1000").css("top", curOffset.top+"px").css("left", curOffset.left+"px").appendTo("body");
+			if(!f.slowMode && o.fixIframes) {
+				if(o.fixIframes.constructor == Array) {
+					for(var i=0;i<o.fixIframes.length;i++) {
+						var curOffset = $(o.fixIframes[i]).offset({ border: false });
+						$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", $(o.fixIframes[i])[0].offsetWidth+"px").css("height", $(o.fixIframes[i])[0].offsetHeight+"px").css("position", "absolute").css("opacity", "0.001").css("z-index", "1000").css("top", curOffset.top+"px").css("left", curOffset.left+"px").appendTo("body");
 					}		
 				} else {
-					$("iframe").each(function() {					
+					$("iframe:visible").each(function() {					
 						var curOffset = $(this).offset({ border: false });
 						$("<div class='DragDropIframeFix' style='background: #fff;'></div>").css("width", this.offsetWidth+"px").css("height", this.offsetHeight+"px").css("position", "absolute").css("opacity", "0.001").css("z-index", "1000").css("top", curOffset.top+"px").css("left", curOffset.left+"px").appendTo("body");
 					});							
@@ -297,6 +300,8 @@
 			/* Unbind the mouse events */
 			$(document).unbind("mouseup");
 			$(document).unbind("mousemove");
+
+			/* Remove text selection prevention */
 			
 			/* If init is false, don't do the following, just set properties to null */
 			if(o.init == false)
@@ -321,7 +326,7 @@
 			if(f.helper != f.current && !f.helper.keepMe) $(f.helper).remove();	
 			
 			/* Remove frame helpers */
-			if(o.iframeFix) $("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			
+			if(o.fixIframes) $("div.DragDropIframeFix").each(function() { this.parentNode.removeChild(this); });			
 
 			/* Clear temp variables */
 			o.init = false;

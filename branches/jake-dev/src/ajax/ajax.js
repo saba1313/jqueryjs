@@ -701,6 +701,10 @@ jQuery.extend({
 				if(s.async)
 					xml = null;
 			}
+			else if (xml && xml.readyState == 3){
+				if (s.partial)
+					s.partial( xml, 'partial' );
+			}
 		};
 		
 		// don't attach the handler to the request, just poll it instead

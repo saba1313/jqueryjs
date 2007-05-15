@@ -329,7 +329,6 @@
 		dpGetSelected : function()
 		{
 			var c = _getController(this[0]);
-			console.log(c);
 			if (c) {
 				return c.getSelected();
 			}

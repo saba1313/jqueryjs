@@ -51,7 +51,7 @@
 			var dc = function(a)
 			{
 				return document.createElement(a);
-			}
+			};
 			
 			s = $.extend(
 				{
@@ -73,7 +73,7 @@
 						jQuery(dc('th')).attr({'scope':'col', 'abbr':day, 'title':day, 'class':(weekday == 0 || weekday == 6 ? 'weekend' : 'weekday')}).html(s.showHeader == $.dpConst.SHOW_HEADER_SHORT ? day.substr(0, 1) : day)
 					);
 				}
-			}
+			};
 			
 			var calendarTable = $(dc('table'))
 									.attr(
@@ -466,7 +466,7 @@
 				}
 			}
 		);
-	}
+	};
 	
 	function DatePicker(ele)
 	{
@@ -488,7 +488,7 @@
 		this.button				=	null;
 		this.renderCallback		=	[];
 		this.selectedDates		=	{};
-	}
+	};
 	$.extend(
 		DatePicker.prototype,
 		{	
@@ -915,7 +915,7 @@
 		POS_BOTTOM			:	1,
 		POS_LEFT			:	0,
 		POS_RIGHT			:	1
-	}
+	};
 	// localisable text
 	$.dpText = {
 		TEXT_PREV_YEAR		:	'Previous year',
@@ -924,7 +924,7 @@
 		TEXT_NEXT_MONTH		:	'Next month',
 		TEXT_CLOSE			:	'Close',
 		TEXT_CHOOSE_DATE	:	'Choose date'
-	}
+	};
 	// version
 	$.dpVersion = '$Id$';
 
@@ -932,13 +932,13 @@
 	{
 		if (ele._dpId) return $.event._dpCache[ele._dpId];
 		return false;
-	}
+	};
 	
 	// make it so that no error is thrown if bgIframe plugin isn't included (allows you to use conditional
 	// comments to only include bgIframe where it is needed in IE without breaking this plugin).
 	if ($.fn.bgIframe == undefined) {
 		$.fn.bgIframe = function() {return this; };
-	}
+	};
 
 
 	// clean-up

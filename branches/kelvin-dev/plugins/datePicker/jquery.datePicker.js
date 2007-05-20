@@ -147,6 +147,9 @@
  * dpMonthChanged(event, displayedMonth, displayedYear)
  * Triggered when the month of the popped up calendar is changed. event is a reference to the event, displayedMonth is the number of the month now displayed (zero based) and displayedYear is the year of the month.
  *
+ * dpDisplayed(event, $datePickerDiv)
+ * Triggered when the date picker is created. $datePickerDiv is the div containing the date picker. Use this event to add custom content/ listeners to the popped up date picker.
+ *
  * @param Object s (optional) Customize your date pickers.
  * @option Number month The month to render when the date picker is opened (NOTE that months are zero based). Default is today's month.
  * @option Number year The year to render when the date picker is opened. Default is today's year.
@@ -723,6 +726,8 @@
 				if (this.horizontalPosition == $.dpConst.POS_RIGHT) {
 					$pop.css('left', eleOffset.left + $ele.width() - $pop.width() + c.horizontalOffset);
 				}
+				
+				$(this.ele).trigger('dpDisplayed', $pop);
 				
 				$(document).bind('mousedown', this._checkMouse);
 			},

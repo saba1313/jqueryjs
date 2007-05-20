@@ -34,7 +34,7 @@ table.jCalendar td.selected:hover {
 	background: #f33;
 	color: #fff;
 }
-table.jCalendar td:hover {
+table.jCalendar td:hover, table.jCalendar td.dp-hover {
 	background: #fff;
 	color: #000;
 }

@@ -17,6 +17,7 @@
  * @option Number year The year to render. Default is today's year.
  * @option Function renderCallback A reference to a function that is called as each cell is rendered and which can add classes and event listeners to the created nodes. Default is no callback.
  * @option Number showHeader Whether or not to show the header row, possible values are: $.dpConst.SHOW_HEADER_NONE (no header), $.dpConst.SHOW_HEADER_SHORT (first letter of each day) and $.dpConst.SHOW_HEADER_LONG (full name of each day). Default is $.dpConst.SHOW_HEADER_SHORT.
+ * @option String hoverClass The class to attach to each cell when you hover over it (to allow you to use hover effects in IE6 which doesn't support the :hover pseudo-class on elements other than links). Default is dp-hover. Pass false if you don't want a hover class.
  * @type jQuery
  * @name renderCalendar
  * @cat plugins/datePicker
@@ -47,7 +48,6 @@
  **/
 		renderCalendar  :   function(s)
 		{
-			
 			var dc = function(a)
 			{
 				return document.createElement(a);
@@ -59,7 +59,8 @@
 					year			: null,
 					renderCallback	: null,
 					showHeader		: $.dpConst.SHOW_HEADER_SHORT,
-					dpController	: null
+					dpController	: null,
+					hoverClass		: 'dp-hover'
 				}
 				, s
 			);
@@ -104,6 +105,19 @@
 			if (firstDayOffset > 1) firstDayOffset -= 7;
 			currentDate.addDays(firstDayOffset-1);
 			
+			var doHover = function()
+			{
+				if (s.hoverClass) {
+					$(this).addClass(s.hoverClass);
+				}
+			};
+			var unHover = function()
+			{
+				if (s.hoverClass) {
+					$(this).removeClass(s.hoverClass);
+				}
+			};
+			
 			var w = 0;
 			while (w++<6) {
 				var r = jQuery(dc('tr'));
@@ -115,6 +129,7 @@
 													(currentDate.isWeekend() ? 'weekend ' : 'weekday ') +
 													(thisMonth && currentDate.getTime() == today.getTime() ? 'today ' : '')
 								)
+								.hover(doHover, unHover)
 							;
 					if (s.renderCallback) {
 						s.renderCallback(d, currentDate, month, year);
@@ -166,6 +181,7 @@
  * @option Number verticalOffset The number of pixels offset from the defined verticalPosition of this date picker that it should pop up in. Default in 0.
  * @option Number horizontalOffset The number of pixels offset from the defined horizontalPosition of this date picker that it should pop up in. Default in 0.
  * @option (Function|Array) renderCallback A reference to a function (or an array of seperate functions) that is called as each cell is rendered and which can add classes and event listeners to the created nodes. Each callback function will receive four arguments; a jquery object wrapping the created TD, a Date object containing the date this TD represents, a number giving the currently rendered month and a number giving the currently rendered year. Default is no callback.
+ * @option String hoverClass The class to attach to each cell when you hover over it (to allow you to use hover effects in IE6 which doesn't support the :hover pseudo-class on elements other than links). Default is dp-hover. Pass false if you don't want a hover class.
  * @type jQuery
  * @name datePicker
  * @cat plugins/datePicker
@@ -198,7 +214,8 @@
 					verticalPosition	: $.dpConst.POS_TOP,
 					horizontalPosition	: $.dpConst.POS_LEFT,
 					verticalOffset		: 0,
-					horizontalOffset	: 0
+					horizontalOffset	: 0,
+					hoverClass			: 'dp-hover'
 				}
 				, s
 			);
@@ -507,6 +524,7 @@
 				this.selectMultiple = s.selectMultiple;
 				this.verticalPosition = s.verticalPosition;
 				this.horizontalPosition = s.horizontalPosition;
+				this.hoverClass = s.hoverClass;
 				this.setOffset(s.verticalOffset, s.horizontalOffset);
 			},
 			setStartDate : function(d)
@@ -797,7 +815,8 @@
 						month			: this.displayedMonth,
 						year			: this.displayedYear,
 						renderCallback	: this.cellRender,
-						dpController	: this
+						dpController	: this,
+						hoverClass		: this.hoverClass
 					}
 				);
 				

@@ -290,7 +290,7 @@
  * @author Kelvin Luck (http://www.kelvinluck.com/)
  *
  * @example $('.date-picker').datePicker();
- * $('.date-picker').setStartDate('01/01/2000');
+ * $('.date-picker').dpSetStartDate('01/01/2000');
  * @desc Creates a date picker associated with all elements with a class of "date-picker" then sets the first selectable date for each of these to the first day of the millenium.
  **/
 		dpSetStartDate : function(d)
@@ -307,7 +307,7 @@
  * @author Kelvin Luck (http://www.kelvinluck.com/)
  *
  * @example $('.date-picker').datePicker();
- * $('.date-picker').setEndDate('01/01/2010');
+ * $('.date-picker').dpSetEndDate('01/01/2010');
  * @desc Creates a date picker associated with all elements with a class of "date-picker" then sets the last selectable date for each of these to the first Janurary 2010.
  **/
 		dpSetEndDate : function(d)

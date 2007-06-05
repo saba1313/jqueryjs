@@ -373,7 +373,7 @@
 		{
 			if (v == undefined) v=true;
 			if (m == undefined) m=true;
-			return _w.call(this, 'setSelected', d, v, m);
+			return _w.call(this, 'setSelected', Date.fromString(d), v, m);
 		},
 /**
  * Sets the month that will be displayed when the date picker is next opened. If the passed month is before startDate then the month containing startDate will be displayed instead. If the passed month is after endDate then the month containing the endDate will be displayed instead.
@@ -431,7 +431,7 @@
 			return _w.call(this, 'setRenderCallback', a);
 		},
 /**
- * Displays the date picker associated with the matched elements. Since only one date picker can be displayed at once then the date picker associated with the last matched element will be the one that is displayed.
+ * Sets the position that the datePicker will pop up (relative to it's associated element)
  *
  * @param Number v The vertical alignment of the created date picker to it's associated element. Possible values are $.dpConst.POS_TOP and $.dpConst.POS_BOTTOM
  * @param Number h The horizontal alignment of the created date picker to it's associated element. Possible values are $.dpConst.POS_LEFT and $.dpConst.POS_RIGHT
@@ -449,7 +449,7 @@
 			return _w.call(this, 'setPosition', v, h);
 		},
 /**
- * Displays the date picker associated with the matched elements. Since only one date picker can be displayed at once then the date picker associated with the last matched element will be the one that is displayed.
+ * Sets the offset that the popped up date picker will have from it's default position relative to it's associated element (as set by dpSetPosition)
  *
  * @param Number v The vertical offset of the created date picker.
  * @param Number h The horizontal offset of the created date picker.

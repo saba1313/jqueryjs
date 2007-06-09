@@ -617,34 +617,34 @@ jQuery.extend({
 
 		// Create the request object; Microsoft failed to properly
 		// implement the XMLHttpRequest in IE7, so we use the ActiveXObject when it is available
-		var xml = window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
+		var xhr = window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
 
 		// Open the socket
-		xml.open(s.type, s.url, s.async);
+		xhr.open(s.type, s.url, s.async);
 
 		// Set the correct header, if data is being sent
 		if ( s.data )
-			xml.setRequestHeader("Content-Type", s.contentType);
+			xhr.setRequestHeader("Content-Type", s.contentType);
 
 		// Set the If-Modified-Since header, if ifModified mode.
 		if ( s.ifModified )
-			xml.setRequestHeader("If-Modified-Since",
+			xhr.setRequestHeader("If-Modified-Since",
 				jQuery.lastModified[s.url] || "Thu, 01 Jan 1970 00:00:00 GMT" );
 
 		// Set header so the called script knows that it's an XMLHttpRequest
-		xml.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+		xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
 		// Allow custom headers/mimetypes
 		if( s.beforeSend )
-			s.beforeSend(xml);
+			s.beforeSend(xhr);
 			
 		if ( s.global )
-		    jQuery.event.trigger("ajaxSend", [xml, s]);
+		    jQuery.event.trigger("ajaxSend", [xhr, s]);
 
 		// Wait for a response to come back
 		var onreadystatechange = function(isTimeout){
 			// The transfer is complete and the data is available, or the request timed out
-			if ( xml && (xml.readyState == 4 || isTimeout == "timeout") ) {
+			if ( xhr && (xhr.readyState == 4 || isTimeout == "timeout") ) {
 				requestDone = true;
 				
 				// clear poll interval
@@ -655,21 +655,21 @@ jQuery.extend({
 				
 				var status;
 				try {
-					status = jQuery.httpSuccess( xml ) && isTimeout != "timeout" ?
-						s.ifModified && jQuery.httpNotModified( xml, s.url ) ? "notmodified" : "success" : "error";
+					status = jQuery.httpSuccess( xhr ) && isTimeout != "timeout" ?
+						s.ifModified && jQuery.httpNotModified( xhr, s.url ) ? "notmodified" : "success" : "error";
 					// Make sure that the request was successful or notmodified
 					if ( status != "error" ) {
 						// Cache Last-Modified header, if ifModified mode.
 						var modRes;
 						try {
-							modRes = xml.getResponseHeader("Last-Modified");
+							modRes = xhr.getResponseHeader("Last-Modified");
 						} catch(e) {} // swallow exception thrown by FF if header is not available
 	
 						if ( s.ifModified && modRes )
 							jQuery.lastModified[s.url] = modRes;
 	
-						// process the data (runs the xml through httpData regardless of callback)
-						var data = jQuery.httpData( xml, s.dataType );
+						// process the data (runs the xhr through httpData regardless of callback)
+						var data = jQuery.httpData( xhr, s.dataType );
 	
 						// If a local callback was specified, fire it and pass it the data
 						if ( s.success )
@@ -677,17 +677,17 @@ jQuery.extend({
 	
 						// Fire the global callback
 						if( s.global )
-							jQuery.event.trigger( "ajaxSuccess", [xml, s] );
+							jQuery.event.trigger( "ajaxSuccess", [xhr, s] );
 					} else
-						jQuery.handleError(s, xml, status);
+						jQuery.handleError(s, xhr, status);
 				} catch(e) {
 					status = "error";
-					jQuery.handleError(s, xml, status, e);
+					jQuery.handleError(s, xhr, status, e);
 				}
 
 				// The request was completed
 				if( s.global )
-					jQuery.event.trigger( "ajaxComplete", [xml, s] );
+					jQuery.event.trigger( "ajaxComplete", [xhr, s] );
 
 				// Handle the global AJAX counter
 				if ( s.global && ! --jQuery.active )
@@ -695,15 +695,15 @@ jQuery.extend({
 
 				// Process result
 				if ( s.complete )
-					s.complete(xml, status);
+					s.complete(xhr, status);
 
 				// Stop memory leaks
 				if(s.async)
-					xml = null;
+					xhr = null;
 			}
-			else if (xml && xml.readyState == 3){
+			else if (xhr && xhr.readyState == 3){
 				if (s.partial)
-					s.partial( xml, 'partial' );
+					s.partial( xhr, 'partial' );
 			}
 		};
 		
@@ -714,9 +714,9 @@ jQuery.extend({
 		if ( s.timeout > 0 )
 			setTimeout(function(){
 				// Check to see if the request is still happening
-				if ( xml ) {
+				if ( xhr ) {
 					// Cancel the request
-					xml.abort();
+					xhr.abort();
 
 					if( !requestDone )
 						onreadystatechange( "timeout" );
@@ -725,9 +725,9 @@ jQuery.extend({
 			
 		// Send the data
 		try {
-			xml.send(s.data);
+			xhr.send(s.data);
 		} catch(e) {
-			jQuery.handleError(s, xml, null, e);
+			jQuery.handleError(s, xhr, null, e);
 		}
 		
 		// firefox 1.5 doesn't fire statechange for sync requests
@@ -735,39 +735,39 @@ jQuery.extend({
 			onreadystatechange();
 		
 		// return XMLHttpRequest to allow aborting the request etc.
-		return xml;
+		return xhr;
 	},
 
-	handleError: function( s, xml, status, e ) {
+	handleError: function( s, xhr, status, e ) {
 		// If a local callback was specified, fire it
-		if ( s.error ) s.error( xml, status, e );
+		if ( s.error ) s.error( xhr, status, e );
 
 		// Fire the global callback
 		if ( s.global )
-			jQuery.event.trigger( "ajaxError", [xml, s, e] );
+			jQuery.event.trigger( "ajaxError", [xhr, s, e] );
 	},
 
 	// Counter for holding the number of active queries
 	active: 0,
 
 	// Determines if an XMLHttpRequest was successful or not
-	httpSuccess: function( r ) {
+	httpSuccess: function( xhr ) {
 		try {
-			return !r.status && location.protocol == "file:" ||
-				( r.status >= 200 && r.status < 300 ) || r.status == 304 ||
-				jQuery.browser.safari && r.status == undefined;
+			return !xhr.status && location.protocol == "file:" ||
+				( xhr.status >= 200 && xhr.status < 300 ) || xhr.status == 304 ||
+				jQuery.browser.safari && xhr.status == undefined;
 		} catch(e){}
 		return false;
 	},
 
 	// Determines if an XMLHttpRequest returns NotModified
-	httpNotModified: function( xml, url ) {
+	httpNotModified: function( xhr, url ) {
 		try {
-			var xmlRes = xml.getResponseHeader("Last-Modified");
+			var xmlRes = xhr.getResponseHeader("Last-Modified");
 
 			// Firefox always returns 200. check Last-Modified date
-			return xml.status == 304 || xmlRes == jQuery.lastModified[url] ||
-				jQuery.browser.safari && xml.status == undefined;
+			return xhr.status == 304 || xmlRes == jQuery.lastModified[url] ||
+				jQuery.browser.safari && xhr.status == undefined;
 		} catch(e){}
 		return false;
 	},
@@ -778,10 +778,10 @@ jQuery.extend({
 	 * (String) data - The type of data that you're expecting back,
 	 * (e.g. "xml", "html", "script")
 	 */
-	httpData: function( r, type ) {
-		var ct = r.getResponseHeader("content-type");
+	httpData: function( xhr, type ) {
+		var ct = xhr.getResponseHeader("content-type");
 		var data = !type && ct && ct.indexOf("xml") >= 0;
-		data = type == "xml" || data ? r.responseXML : r.responseText;
+		data = type == "xml" || data ? xhr.responseXML : xhr.responseText;
 
 		// If the type is "script", eval it in global context
 		if ( type == "script" )

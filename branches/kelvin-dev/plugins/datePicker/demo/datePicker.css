@@ -3,6 +3,8 @@
 table.jCalendar {
 	border: 1px solid #000;
 	background: #aaa;
+    border-collapse: separate;
+    border-spacing: 2px;
 }
 table.jCalendar th {
 	background: #333;

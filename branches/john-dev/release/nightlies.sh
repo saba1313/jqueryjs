@@ -29,7 +29,7 @@ echo "--- Setting to current nightly"
 cp -f jquery-$CURDATE.build.zip jquery-nightly.build.zip
 cp -f jquery-$CURDATE.release.zip jquery-nightly.release.zip
 cp -f jquery-$CURDATE.pack.js jquery-nightly.pack.js
-cp -f jquery-$CURDATE.js query-nightly.js
+cp -f jquery-$CURDATE.js jquery-nightly.js
 
 cd ..
 

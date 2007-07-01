@@ -27,11 +27,11 @@
 
 <script type="text/javascript" src="jquery.js""></script>
 <script type="text/javascript">
-jQuery(function() {
-	var tooltip = jQuery("#tooltip").hide();
+$(document).ready(function() {
+	var tooltip = $("#tooltip").hide();
 	var title;
 	function over(event) {
-		var current = jQuery(this);
+		var current = $(this);
 		title = current.attr("title");
 		current.attr("title", "");
 		tooltip.find("h3").html( current.text() );
@@ -42,10 +42,10 @@ jQuery(function() {
 		}).show();
 	}
 	function out() {
-		jQuery(this).attr("title", title);
+		$(this).attr("title", title);
 		tooltip.hide();
 	}
-	jQuery("a[@title]").hover( over, out );
+	$("a[@title]").hover( over, out );
 });
 </script>
 
@@ -53,10 +53,6 @@ jQuery(function() {
 <body>
 <a title="Alles Lesenswerte anzeigen" href="lesenswertes.html">Lesenswertes</a>
 <br/>
-<a title="Alles Langweilige anziegen" href="langweilig.html">Langweiliges</a>
-<div id="tooltip">
-	<h3>Lesenswertes</h3>
-	<p>Alles Lesenswerte anzeigen</p>
-</div>
+<a title="Alles Langweilige anzeigen" href="langweilig.html">Langweiliges</a>
 </body>
 </html>

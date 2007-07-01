@@ -2,20 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-<title>Tooltips</title>
+<title>Autocomplete</title>
 
 <link rel="stylesheet" type="text/css" href="jquery.autocomplete.css" />
 <style type="text/css">
 
 </style>
 
-<script type="text/javascript" src="jquery.js""></script>
+<script type="text/javascript" src="jquery.js"></script>
 <script type='text/javascript' src='jquery.bgiframe.min.js'></script>
-<script type='text/javascript' src='dimensions.js'></script>
+<script type='text/javascript' src='jquery.below.js'></script>
 <script type="text/javascript" src="jquery.autocomplete.js""></script>
 <script type="text/javascript">
-jQuery().ready(function() {
-	jQuery("#wetter").autocomplete([
+$(document).ready(function() {
+	$("#wetter").autocomplete([
 		"Sonnig",
 		"Bewölkt",
 		"Regnerisch",

@@ -5,9 +5,9 @@
 # Run inside a full SVN checkout.
 # By John Resig
 
-#echo $1 > trunk/jquery/version.txt
-#svn cp trunk/jquery tags/$1
-#svn commit -m "Tagging the $1 release."
+echo $1 > trunk/jquery/version.txt
+svn cp trunk/jquery tags/$1
+svn commit -m "Tagging the $1 release."
 
 cd tags/$1
 

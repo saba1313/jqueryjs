@@ -1,5 +1,5 @@
 <?php
-// $Id: logintoboggan.module,v 1.83.2.3 2007/02/28 02:36:01 thehunmonkgroup Exp $
+// $Id: logintoboggan.module,v 1.83.2.9 2007/07/12 01:18:47 thehunmonkgroup Exp $
 
 /**
  * @todo
@@ -120,7 +120,7 @@ function logintoboggan_form_alter($form_id, &$form) {
     // This will reset the the site 403 variable to the default if the module is disabled and the toboggan redirect on acccess
     // denied is enabled.
     case 'system_modules':
-      if ($_POST && !$_POST['edit']['status']['logintoboggan'] && (db_result(db_query("SELECT status FROM {system} WHERE name = 'logintoboggan'")) == 1) && (variable_get('site_403', '') == 'toboggan/denied')) {
+      if ($_POST && !$_POST['status']['logintoboggan'] && (db_result(db_query("SELECT status FROM {system} WHERE name = 'logintoboggan'")) == 1) && (variable_get('site_403', '') == 'toboggan/denied')) {
         variable_set('site_403', '');
       }
       break;
@@ -144,7 +144,7 @@ function logintoboggan_form_alter($form_id, &$form) {
     case 'user_login_block':
       //Grab the message from settings if there is one to display at the top of the login block.
       if ($login_msg = variable_get('toboggan_block_msg', '')) {
-        $form['message'] = array('#value' => $login_msg,
+        $form['message'] = array('#value' => filter_xss_admin($login_msg),
                              '#weight' => -50,
                            );
       }
@@ -185,7 +185,6 @@ function logintoboggan_form_alter($form_id, &$form) {
         if ($mail) {
           $form['conf_mail'] = array('#type' => 'textfield',
             '#title' => t('Confirm e-mail address'),
-            '#size' => 30,
             '#weight' => -28,
             '#maxlength' => 64,
             '#description' => t('Please re-type your e-mail address to confirm it is accurate.'),
@@ -195,6 +194,7 @@ function logintoboggan_form_alter($form_id, &$form) {
           // Weight things properly so that the order is name, mail, conf_mail, then pass
           if (isset($form['account'])) {
             $form['account']['#weight'] = -50;  // Make sure account form group is at the top of the display.
+            $form['account']['user_registration_help']['#weight'] = -40;
             $form['account']['name']['#weight'] = -30;
             $form['account']['mail']['#weight'] = -29;
             $form['account']['conf_mail'] = $form['conf_mail'];
@@ -202,6 +202,7 @@ function logintoboggan_form_alter($form_id, &$form) {
             $form['account']['conf_mail']['#weight'] = -28;
           }
           else {
+            $form['user_registration_help']['#weight'] = -40;
             $form['name']['#weight'] = -30;
             $form['mail']['#weight'] = -29;
           }
@@ -502,7 +503,7 @@ function logintoboggan_block($op = 'list', $delta = 0, $edit = array()) {
 
 function theme_lt_loggedinblock(){
   global $user;
-  return $user->name .' | ' . l(t('Log out'), 'logout');
+  return check_plain($user->name) .' | ' . l(t('Log out'), 'logout');
 }
 
 /**
@@ -548,7 +549,7 @@ function _logintoboggan_toggleboggan_js() {
 }
 
 function logintoboggan_main_settings() {
-  $version .= str_replace(array('$Re'.'vision:', '$Da'.'te:', '$'), array('', '', ''), '<p style="font-size:x-small">Login Toboggan version: <b>$Revision: 1.83.2.3 $</b>, $Date: 2007/02/28 02:36:01 $</p>');
+  $version .= str_replace(array('$Re'.'vision:', '$Da'.'te:', '$'), array('', '', ''), '<p style="font-size:x-small">Login Toboggan version: <b>$Revision: 1.83.2.9 $</b>, $Date: 2007/07/12 01:18:47 $</p>');
 
   $_disabled = t('disabled');
   $_enabled = t('enabled');
@@ -756,6 +757,10 @@ function logintoboggan_validate_email($uid, $timestamp, $hashed_pass, $action = 
       // Remove the pre-auth role from the user, unless they haven't been approved yet.
       if ($account->status) {
         db_query("DELETE FROM {users_roles} WHERE uid = %d AND rid = %d", $account->uid, logintoboggan_validating_id());
+        // Allow other modules to react to email validation by invoking the user update hook.
+        $edit = array();
+        $account->logintoboggan_email_validated = TRUE;
+        user_module_invoke('update', $edit, $account);
       }
 
       // Where do we redirect after confirming the account?
@@ -878,7 +883,7 @@ function logintoboggan_resend_validation($uid) {
 
   // Variables to replace in e-mail
   $pass = t('If required, you may reset your password from: !url', array('!url' => url('user/password', NULL, NULL, TRUE)));
-  $variables = array('%username' => $account->name, '%site' => variable_get('site_name', 'drupal'), '%password' => $pass, '%uri' => $base_url, '%uri_brief' => substr($base_url, strlen(_logintoboggan_protocol() .'://')), '%mailto' => $account->mail, '%date' => format_date(time()), '%login_uri' => url('user', NULL, NULL, TRUE), '%edit_uri' => url('user/'. $account->uid .'/edit', NULL, NULL, TRUE), '%login_url' => logintoboggan_eml_validate_url($account));
+  $variables = array('!username' => $account->name, '!site' => variable_get('site_name', 'drupal'), '!password' => $pass, '!uri' => $base_url, '!uri_brief' => substr($base_url, strlen(_logintoboggan_protocol() .'://')), '!mailto' => $account->mail, '!date' => format_date(time()), '!login_uri' => url('user', NULL, NULL, TRUE), '!edit_uri' => url('user/'. $account->uid .'/edit', NULL, NULL, TRUE), '!login_url' => logintoboggan_eml_validate_url($account));
 
   // Prepare and send e-mail.
   $from = variable_get('site_mail', ini_get('sendmail_from'));

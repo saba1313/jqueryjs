@@ -1,10 +1,10 @@
-; $Id: logintoboggan.info,v 1.2.2.1 2006/12/21 04:27:05 thehunmonkgroup Exp $
+; $Id: logintoboggan.info,v 1.2.2.2 2007/06/18 23:06:50 dww Exp $
 
 name = "LoginToboggan"
 description = "Improves Drupal's login system."
-version = "$Name: DRUPAL-5 $" 
 
-; Information added by drupal.org packaging script on 2007-02-28
-version = "5.x-1.x-dev"
+; Information added by drupal.org packaging script on 2007-07-12
+version = "5.x-1.0"
 project = "logintoboggan"
+datestamp = "1184208612"
 

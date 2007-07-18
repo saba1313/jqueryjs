@@ -32,13 +32,14 @@
  */
 $.fn.delicious = function(user,options,fName){
 	$.delicious.$this = this;
-	var opts = $.extend($.delicious.opts,options),
-		fn = fName || 'jQuery.delicious.parsers.'+opts.type;
-	$.delicious(user,opts,fn);
+	$.delicious(user,options,fName);
+	return this;
 };
 
-$.delicious = function(user,options,fn){
+$.delicious = function(user,options,fName){
+	options.user = user;
 	var opts = $.extend($.delicious.opts,options),
+		fn = fName || 'jQuery.delicious.parsers.'+opts.type,
 		url = 'http://del.icio.us/feeds/json/' + (opts.type=='posts'?'':opts.type+'/') + user
 			+ (opts.type=='posts' && opts.tag? '/'+opts.tag : '') + '?',
 		rOpts = $.extend({raw:'true',callback:fn},$.delicious.types[opts.type]);
@@ -101,13 +102,12 @@ $.extend($.delicious,{
 			$.delicious.add($obj);
 		},
 		tags : function(data){
-			alert('called tags');
 			var $obj = $($.delicious.opts.wrapTag),
 				opts = $.delicious.opts;
 			$.each(data,function(name){
 				var item = [];
 				item[item.length] = '<a href="';
-				item[item.length] = this.u;
+				item[item.length] = 'http://del.icio.us/'+opts.user+'/'+name;
 				item[item.length] = '">';
 				item[item.length] = name + ' ('+this+')';
 				item[item.length] = '</a>';

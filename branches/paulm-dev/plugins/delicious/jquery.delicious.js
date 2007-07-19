@@ -34,20 +34,16 @@
  * @cat Plugins/Delicious
  *
  */
-$.fn.delicious = function(user,options,tOptions,fName){
+$.fn.delicious = function(user,options,tOptions,cbFnc){
 	//options.instance = $.delicious.these.length;
-	$.delicious.these[0] = this;
-	$.delicious(user,options,tOptions,fName);
-	return this;
-};
-
-$.delicious = function(user,options,tOptions,fName){
+	//$.delicious(user,options,tOptions,fName);
 	options.user = user;
-	var opts = $.extend($.delicious.opts,options),
-		fn = fName || 'jQuery.delicious.parsers.'+opts.type,
+	var opts = $.extend({},$.delicious.opts,options),
+		$self = this,
+		fn = cbFnc || jQuery.delicious.parsers[opts.type],
 		url = 'http://del.icio.us/feeds/json/' + (opts.type=='posts'?'':opts.type+'/') + user
 			+ (opts.type=='posts' && opts.tag? '/'+opts.tag : '') + '?',
-		rOpts = $.extend({raw:'true',callback:fn},$.delicious.types[opts.type],tOptions);
+		rOpts = $.extend({raw:'true',callback:name(fn)},$.delicious.types[opts.type],tOptions);
 
 	url += $.param(rOpts);
 	if(document.createElement){
@@ -55,12 +51,30 @@ $.delicious = function(user,options,tOptions,fName){
 		oScript.src = url;
 		document.body.appendChild(oScript);
 	}
-	else
-		$('body').append('<scr'+'ipt type="text/javascript" src="'+url+'"><\/script>');
+	else $('body').append('<scr'+'ipt type="text/javascript" src="'+url+'"><\/script>');
+	
+	return $self;
+	
+	// Ingenious name() closure function from Michael Geary
+	// http://mg.to/2006/01/25/json-for-jquery
+	function name( callback ) {
+		var id = (new Date).getTime();
+		var name = 'deliciuos_' + id;
+		
+		var cb = $.delicious.callbacks[id] = function( json ) {
+			delete $.delicious.callbacks[id];
+			eval( 'delete ' + name );
+			$self.each( function() { callback.apply(this,[json,opts]); } );
+		};
+		
+		eval( name + ' = cb' );
+		return name;
+	};
 };
 
-$.extend($.delicious,{
-	these : [],
+$.delicious = {
+	callbacks : {},
+	
 	opts : {
 		type : 'posts', // possible values = posts, tags, url, network, or fans
 		itemTag : 'li',
@@ -82,11 +96,10 @@ $.extend($.delicious,{
 		fans : {}
 	},
 	
-	parsers : {
-		posts : function(data){
-			var opts = $.delicious.opts,
-				lis = [];
-				
+	// Prebuilt Callback Functions
+	parsers : { 
+		posts : function(data,opts){
+			var lis = [];
 			$.each(data,function(){
 				var fIcon, oSpan;
 				if(opts.favicon)
@@ -120,13 +133,19 @@ $.extend($.delicious,{
 				*/
 			});
 			
-			$.delicious.add($[opts.wrapTag.toUpperCase()]({},lis));
+			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
 			//$.delicious.add($obj);
 		},
-		tags : function(data){
-			var $obj = $($.delicious.opts.wrapTag),
-				opts = $.delicious.opts;
+		tags : function(data,opts){
+			var lis = [];
 			$.each(data,function(name){
+				var fIcon, oSpan;
+				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+					$.A({href:'http://del.icio.us/'+opts.user+'/'+name}, 
+						name + ' ('+this+')'
+					)
+				);
+				/*
 				var item = [];
 				item[item.length] = '<a href="';
 				item[item.length] = 'http://del.icio.us/'+opts.user+'/'+name;
@@ -134,8 +153,9 @@ $.extend($.delicious,{
 				item[item.length] = name + ' ('+this+')';
 				item[item.length] = '</a>';
 				$obj.append($(opts.itemTag).append(item.join('')));
+				*/
 			});
-			$.delicious.add($obj);
+			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
 		},
 		network : function(){
 		
@@ -145,14 +165,12 @@ $.extend($.delicious,{
 		}
 	},
 	
-	add : function(obj){
-	// TODO: figure out a way to have more than one per page
-	//		the 'these' variable was a failed attempt at that.
-		var opts = $.delicious.opts;
-		$.delicious.these[0][opts.append?'append':'html'](obj);
+	add : function(elm,obj,opts){
+		console.trace();
+		$(elm)[opts.append?'append':'html'](obj);
 	}
 	
-});
+};
 
 
 

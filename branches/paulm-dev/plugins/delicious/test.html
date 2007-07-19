@@ -45,14 +45,18 @@ div.container{
 <script src="jquery.delicious.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(function(){
-	$('#delicious').delicious('pmclanahan',{tag:'javascript'});
+	$('#delicious-posts').delicious('pmclanahan',{tag:'javascript'});
+	$('#delicious-tags').delicious('pmclanahan',{type:'tags'});
 })
 </script>
 </head>
 
 <body>
 <div class="container">
-	<div id="delicious"><h2>This is Del.icio.us!</h2></div>
+	<div id="delicious-tags"><h2>This is Del.icio.us Tags!</h2></div>
+</div>
+<div class="container">
+	<div id="delicious-posts"><h2>This is Del.icio.us Posts!</h2></div>
 </div>
 </body>
 </html>

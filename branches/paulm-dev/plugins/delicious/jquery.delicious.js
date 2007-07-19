@@ -63,8 +63,8 @@ $.extend($.delicious,{
 	these : [],
 	opts : {
 		type : 'posts', // possible values = posts, tags, url, network, or fans
-		itemTag : '<li>',
-		wrapTag : '<ul>',
+		itemTag : 'li',
+		wrapTag : 'ul',
 		append : true,
 		favicon : true
 	},
@@ -85,9 +85,24 @@ $.extend($.delicious,{
 	parsers : {
 		posts : function(data){
 			var opts = $.delicious.opts,
-				$obj = $(opts.wrapTag);
+				lis = [];
 				
 			$.each(data,function(){
+				var fIcon, oSpan;
+				if(opts.favicon)
+					fIcon = $.IMG({src:this.u.split('/').splice(0,3).join('/')+'/favicon.ico',height:16,width:16,border:0})
+				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+					$.A({href:this.u}, opts.favicon ? fIcon : '',
+						oSpan = $.SPAN({},this.d)
+					)
+				);
+				if(opts.favicon){
+					$(fIcon).css({display:'none',position:'absolute'})
+						.bind('load',function(){$(this).show('slow')});
+					$(oSpan).css('margin-left','20px');
+				}
+				
+				/*
 				var item = [];
 				item[item.length] = '<a href="';
 				item[item.length] = this.u;
@@ -102,9 +117,11 @@ $.extend($.delicious,{
 					item[item.length] = '</span>';
 				item[item.length] = '</a>';
 				$obj.append($(opts.itemTag).append(item.join(''))).find('img').bind('load',function(){$(this).show('slow')});
+				*/
 			});
 			
-			$.delicious.add($obj);
+			$.delicious.add($[opts.wrapTag.toUpperCase()]({},lis));
+			//$.delicious.add($obj);
 		},
 		tags : function(data){
 			var $obj = $($.delicious.opts.wrapTag),
@@ -128,11 +145,11 @@ $.extend($.delicious,{
 		}
 	},
 	
-	add : function($obj){
+	add : function(obj){
 	// TODO: figure out a way to have more than one per page
 	//		the 'these' variable was a failed attempt at that.
 		var opts = $.delicious.opts;
-		$.delicious.these[0][opts.append?'append':'html']($obj);
+		$.delicious.these[0][opts.append?'append':'html'](obj);
 	}
 	
 });

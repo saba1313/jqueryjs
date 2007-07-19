@@ -166,7 +166,6 @@ $.delicious = {
 	},
 	
 	add : function(elm,obj,opts){
-		console.trace();
 		$(elm)[opts.append?'append':'html'](obj);
 	}
 	

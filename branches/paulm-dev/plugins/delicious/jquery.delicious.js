@@ -69,7 +69,8 @@ $.fn.delicious = function(user,options,tOptions,cbFnc){
 	};
 };
 
-$.delicious = {
+$.delicious = {};
+$.extend($.delicious,{
 
 	callbacks : [],
 	
@@ -98,68 +99,53 @@ $.delicious = {
 	parsers : { 
 		posts : function(data,opts){
 			var lis = [];
-			$.each(data,function(){
+			$.each(data,function(i,oPost){
 				var fIcon, oSpan;
 				if(opts.favicon)
-					fIcon = $.IMG({src:this.u.split('/').splice(0,3).join('/')+'/favicon.ico',height:16,width:16,border:0})
+					fIcon = $.IMG({src:oPost.u.split('/').splice(0,3).join('/')+'/favicon.ico',height:16,width:16,border:0})
 				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
-					$.A({href:this.u}, opts.favicon ? fIcon : '',
-						oSpan = $.SPAN({},this.d)
+					$.A({href:oPost.u}, opts.favicon ? fIcon : '',
+						oSpan = $.SPAN({},oPost.d)
 					)
 				);
 				if(opts.favicon){
 					$(fIcon).css({display:'none',position:'absolute'})
 						.bind('load',function(){$(this).show('slow')});
-					$(oSpan).css('margin-left','20px');
+					$(oSpan).css({marginLeft:'20px',display:'block'});
 				}
-				
-				/*
-				var item = [];
-				item[item.length] = '<a href="';
-				item[item.length] = this.u;
-				item[item.length] = '">';
-				if(opts.favicon){
-					item[item.length] = '<img src="';
-					item[item.length] = this.u.split('/').splice(0,3).join('/')+'/favicon.ico';
-					item[item.length] = '" style="display:none;position:absolute" height="16" width="16" border="0" /><span style="margin-left:20px">';
-				}
-				item[item.length] = this.d;
-				if(opts.favicon)
-					item[item.length] = '</span>';
-				item[item.length] = '</a>';
-				$obj.append($(opts.itemTag).append(item.join(''))).find('img').bind('load',function(){$(this).show('slow')});
-				*/
 			});
 			
 			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
-			//$.delicious.add($obj);
 		},
 		tags : function(data,opts){
 			var lis = [];
-			$.each(data,function(name){
+			$.each(data,function(tName,tCount){
 				var fIcon, oSpan;
 				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
-					$.A({href:'http://del.icio.us/'+opts.user+'/'+name}, 
-						name + ' ('+this+')'
+					$.A({href:'http://del.icio.us/'+opts.user+'/'+tName}, 
+						tName + ' ('+tCount+')'
 					)
 				);
-				/*
-				var item = [];
-				item[item.length] = '<a href="';
-				item[item.length] = 'http://del.icio.us/'+opts.user+'/'+name;
-				item[item.length] = '">';
-				item[item.length] = name + ' ('+this+')';
-				item[item.length] = '</a>';
-				$obj.append($(opts.itemTag).append(item.join('')));
-				*/
 			});
 			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
 		},
-		network : function(){
-		
+		network : function(data,opts){
+			var lis = [];
+			$.each(data,function(i,name){
+				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+					$.A({href:'http://del.icio.us/'+name}, name)
+				);
+			});
+			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
 		},
-		fans : function(){
-		
+		fans : function(data,opts){
+			var lis = [];
+			$.each(data,function(i,name){
+				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+					$.A({href:'http://del.icio.us/'+name}, name)
+				);
+			});
+			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
 		}
 	},
 	
@@ -167,8 +153,8 @@ $.delicious = {
 		$(elm)[opts.append?'append':'html'](obj);
 	}
 	
-};
-
+});
+//$.delicious.parsers.fans = $.delicious.parsers.network;
 
 
 // DOM element creator for jQuery and Prototype by Michael Geary

@@ -14,8 +14,8 @@
 (function($){
 
 /**
- * Load a list of bookmarks or tags from del.icio.us for
- * a specific user.
+ * Load a list of bookmarks, tags, network members, or fans from del.icio.us for
+ * a specific user using JSON, and without need for any server-side component.
  *
  * @param String user The del.icio.us user who's bookmarks you want to load.
  * @param Map options key/value pairs of optional settings for the list display.

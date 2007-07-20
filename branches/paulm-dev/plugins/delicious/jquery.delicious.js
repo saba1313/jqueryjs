@@ -65,7 +65,7 @@ $.fn.delicious = function(user,options,tOptions,cbFnc){
 			$self.each( function() { callback.apply(this,[json,opts]); } );
 		};
 		
-		return '$.delicious.callbacks['+i+']';
+		return 'jQuery.delicious.callbacks['+i+']';
 	};
 };
 

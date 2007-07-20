@@ -58,22 +58,20 @@ $.fn.delicious = function(user,options,tOptions,cbFnc){
 	// Ingenious name() closure function from Michael Geary
 	// http://mg.to/2006/01/25/json-for-jquery
 	function name( callback ) {
-		var id = (new Date).getTime();
-		var name = 'deliciuos_' + id;
+		var i = $.delicious.callbacks.length;
 		
-		var cb = $.delicious.callbacks[id] = function( json ) {
-			delete $.delicious.callbacks[id];
-			eval( 'delete ' + name );
+		$.delicious.callbacks[i] = function( json ) {
+			delete $.delicious.callbacks[i];
 			$self.each( function() { callback.apply(this,[json,opts]); } );
 		};
 		
-		eval( name + ' = cb' );
-		return name;
+		return '$.delicious.callbacks['+i+']';
 	};
 };
 
 $.delicious = {
-	callbacks : {},
+
+	callbacks : [],
 	
 	opts : {
 		type : 'posts', // possible values = posts, tags, url, network, or fans

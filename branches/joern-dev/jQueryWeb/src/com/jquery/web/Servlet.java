@@ -28,9 +28,9 @@ public class Servlet extends HttpServlet {
 		Context rhinoContext = Context.enter();
 //		ScriptableObject scope = rhinoContext.initStandardObjects();
 		ScriptableObject scope = new ImporterTopLevel(rhinoContext);
-		Globals.init(scope);
+		Globals.init(scope, request.getContextPath(), getServletContext().getRealPath("WEB-INF/"));
 		ScriptableObject.putProperty(scope, "realPath", realPath);
-		ScriptableObject.putProperty(scope, "contextPath", request.getContextPath());
+//		ScriptableObject.putProperty(scope, "contextPath", request.getContextPath());
 		Object result = eval(rhinoContext, scope, "blog", realPath);
 		response.getWriter().write(result.toString());
 		Context.exit();

@@ -6,7 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.mxcit.jsf.util.RequestUtil;
+
 public class Blog {
+	
+	private int pagesize = 3;
 
 	private String name;
 
@@ -31,7 +35,34 @@ public class Blog {
 	}
 
 	public List<Post> getRecentPosts() {
-		return getPosts().subList(0, posts.size() < 3 ? posts.size() : 3);
+		return getPosts().subList(start(), posts.size() - start() < pagesize ? posts.size() : start() + pagesize);
+	}
+	
+	private int start() {
+		int page = page();
+		if (page == 0) {
+			return 0;
+		}
+		return (page - 1) * pagesize;
+	}
+	
+	private int page() {
+		String page = (String) RequestUtil.get("page");
+		if (page == null) {
+			return 0;
+		}
+		return Integer.parseInt(page);
+	}
+	
+	public int previousPage() {
+		return page() == 0
+			? 2
+			: (page() - 1) * pagesize + pagesize > posts.size()
+				? -1
+				: page() + 1;
+	}
+	public int nextPage() {
+		return page() - 1;
 	}
 
 	public List<Post> getPosts() {

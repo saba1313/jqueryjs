@@ -12,13 +12,26 @@ $("link[@href]").contextPath("href", /^../);
 var dateformat = new java.text.SimpleDateFormat("dd. MMMM yyyy");
 var entry = $("div.entry").remove();
 importPackage(Packages.de.bassistance.blog.domain);
-var posts = new BlogService().getRecentPosts();
-$.each(posts, function(index, post) {
+var blog = new BlogService().getBlog();
+$.each(blog.getRecentPosts().toArray(), function(index, post) {
 	var current = entry.clone().appendTo("div.col");
 	current.find(".entrymeta").html("" + dateformat.format(post.getDate()));
-	current.find(".entrytitle a").html("" + post.getTitle());
+	current.find(".entrytitle a").html("" + post.getTitle()).attr("href", "?post=" + post.getId());
 	current.find(".entrybody").html("" + post.getBody());
 });
-$("div.bottommeta").appendTo("div.col");
+var meta = $("div.bottommeta").appendTo("div.col");
+var prev = meta.find("a:first");
+if ( blog.previousPage() == -1 )
+	prev.remove();
+else
+	prev.attr("href", "?page=" + blog.previousPage());
+	
+var next = meta.find("a:last")
+switch(blog.nextPage()) {
+	case -1:
+	case 0: next.remove(); break;
+	case 1: next.attr("href", "."); break;
+	default: next.attr("href", "?page=" + blog.nextPage())
+}
 
 document.innerHTML

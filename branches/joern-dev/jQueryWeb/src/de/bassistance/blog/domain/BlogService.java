@@ -11,8 +11,10 @@ public class BlogService {
 		blog = new Blog();
 		blog.setName("bassistance.de");
 		blog.setDescription("Bass, Geeks and Rock'n'Roll");
-		blog.addBlogEntry(new Post("1", "Release: Accordion menu plugin 1.4",
-				"Its out! Get it while its hot.", date(2007, 7, 9)));
+		blog.addBlogEntry(new Post("-2", "Release!", "Its out!.", date(2007, 7, 9)));
+		blog.addBlogEntry(new Post("-1", "Release!", "Its out!.", date(2007, 7, 9)));
+		blog.addBlogEntry(new Post("0", "Release!", "Its out!.", date(2007, 7, 9)));
+		blog.addBlogEntry(new Post("1", "Release!", "Its out!.", date(2007, 7, 9)));
 		blog.addBlogEntry(new Post(
 						"2",
 						"Surface Computing",
@@ -50,8 +52,4 @@ public class BlogService {
 		return blog;
 	}
 	
-	public Post[] getRecentPosts() {
-		return blog.getRecentPosts().toArray(new Post[0]);
-	}
-
 }

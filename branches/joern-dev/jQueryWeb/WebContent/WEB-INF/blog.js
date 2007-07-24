@@ -31,6 +31,14 @@ var page = {
 		$("link[@href]").contextPath("href", /^../);
 		$("#header h1 a, #navmenu a:first").attr("href", ".");
 		$("#navmenu a:not(:first)").remove();
+		$("#navcol ul:gt(1)").remove();
+	},
+	categories: function(categories) {
+		var container = $("#navcol ul:eq(1)").empty();
+		var template = String.format("<li><a href='?category={0}' title='{1}'>{2}</a></li>");
+		$.each(categories, function(index, category) {
+			$(template(category.getId(), category.getTitle(), category.getName())).appendTo(container);
+		});
 	},
 	posts: function(template, posts) {
 		template.remove();
@@ -38,15 +46,15 @@ var page = {
 			var dateformat = new java.text.SimpleDateFormat("dd. MMMM yyyy");
 			var current = template.clone().appendTo("div.col");
 			current.find(".entrymeta").html("" + dateformat.format(post.getDate()));
-			current.find(".entrytitle a").html("" + post.getTitle()).attr("href", "?post=" + post.getId());
+			current.find(".entrytitle a").html("" + post.getTitle()).attr("href", "?post=" + post.getId()).attr("title", "Link zu " + post.getTitle());
 			current.find(".entrybody").html("" + post.getBody());
 		});
 	},
 	sidebar: function(posts) {
-		var recentPosts = $("#navcol ul:first").empty();
+		var container = $("#navcol ul:first").empty();
 		var template = String.format("<li><a href='?post={0}' title='Beitrag {1} ansehen'>{1}</a></li>");
 		$.each(posts, function(index, post) {
-			$(template(post.getId(), post.getTitle())).appendTo(recentPosts);
+			$(template(post.getId(), post.getTitle())).appendTo(container);
 		});
 	},
 	bottomNavigation: function(blog) {
@@ -70,6 +78,7 @@ var page = {
 importPackage(Packages.de.bassistance.blog.domain);
 var blog = new BlogService().getBlog();
 page.header();
+page.categories(blog.getCategories());
 page.posts($("div.entry"), blog.getRecentPosts().toArray());
 page.sidebar(blog.getPosts().toArray());
 page.bottomNavigation(blog);

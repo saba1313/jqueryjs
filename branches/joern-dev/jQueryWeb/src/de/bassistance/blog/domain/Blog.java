@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import de.mxcit.jsf.util.RequestUtil;
 
@@ -69,6 +71,14 @@ public class Blog {
 		List result = new ArrayList<Post>(posts.values());
 		Collections.reverse(result);
 		return result;
+	}
+	
+	public Category[] getCategories() {
+		SortedSet<Category> categories = new TreeSet<Category>();
+		for (Post post : posts.values()) {
+			categories.addAll(post.getCategories());
+		}
+		return categories.toArray(new Category[categories.size()]);
 	}
 
 	public void addBlogEntry(Post post) {

@@ -11,10 +11,10 @@ public class BlogService {
 		blog = new Blog();
 		blog.setName("bassistance.de");
 		blog.setDescription("Bass, Geeks and Rock'n'Roll");
-		blog.addBlogEntry(new Post("-2", "Release!", "Its out!.", date(2007, 7, 9)));
-		blog.addBlogEntry(new Post("-1", "Release!", "Its out!.", date(2007, 7, 9)));
-		blog.addBlogEntry(new Post("0", "Release!", "Its out!.", date(2007, 7, 9)));
-		blog.addBlogEntry(new Post("1", "Release!", "Its out!.", date(2007, 7, 9)));
+		blog.addBlogEntry(new Post("-2", "Random post #1", "Nothing noteworthy.", date(2007, 3, 11)));
+		blog.addBlogEntry(new Post("-1", "Random post #2", "Nothing noteworthy.", date(2007, 4, 3)));
+		blog.addBlogEntry(new Post("0", "Random post #3", "Nothing noteworthy.", date(2007, 5, 23)));
+		blog.addBlogEntry(new Post("1", "Random post #4", "Nothing noteworthy.", date(2007, 6, 3)));
 		blog.addBlogEntry(new Post(
 						"2",
 						"Surface Computing",
@@ -31,6 +31,9 @@ public class BlogService {
 				"<p>While glancing over Dr. Dobb's article Getting Started With jQuery I read this:</p><blockquote>Whether the motivation behind making their labors freely available is a matter of seeking recognition, resume building, free advertising for other services, bragging rights, or just plain old-fashioned altruism, we can gratefully take advantage of these tools. jQuery is one such tool.</blockquote><p>Cool.</p>",
 				date(2007, 7, 13));
 		blog.addBlogEntry(whyOS);
+		whyOS.addCategory(new Category("1", "Allgemein", "Was sonst nirgends reinpasst"));
+		whyOS.addCategory(new Category("2", "Lesenswertes", "Am Anfang war das Wort..."));
+		whyOS.addCategory(new Category("3", "jQuery", "New Wave JavaScript"));
 		whyOS.addComment(new Comment("Hike Halsup", "Open-source changed my life!", date(2007, 7, 13)));
 		whyOS.addComment(new Comment("anonymous user", "http://google.com", "mail@google.com", "No way!", date(2007, 7, 24)));
 	}

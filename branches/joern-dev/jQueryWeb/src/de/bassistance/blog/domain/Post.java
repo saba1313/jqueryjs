@@ -15,6 +15,8 @@ public class Post {
 
 	private Date date;
 	
+	private final List<Category> categories = new ArrayList<Category>();
+	
 	private final List<Comment> comments = new ArrayList<Comment>();
 
 	public Post(String id, String title, String body, Date date) {
@@ -26,6 +28,14 @@ public class Post {
 	
 	public void addComment(Comment comment) {
 		comments.add(comment);
+	}
+	
+	public void addCategory(Category category) {
+		categories.add(category);
+	}
+	
+	public List<Category> getCategories() {
+		return Collections.unmodifiableList(categories);
 	}
 	
 	public List<Comment> getComments() {

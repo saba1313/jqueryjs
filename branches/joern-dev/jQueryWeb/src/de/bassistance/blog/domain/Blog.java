@@ -66,6 +66,18 @@ public class Blog {
 	public int nextPage() {
 		return page() - 1;
 	}
+	
+	public Post previousPost() {
+		return currentPostIndex() + 1 == getPosts().size() ? null : getPosts().get(currentPostIndex() + 1);
+	}
+	
+	public Post nextPost() {
+		return currentPostIndex() == 0 ? null : getPosts().get(currentPostIndex() - 1);
+	}
+	
+	private int currentPostIndex() {
+		return getPosts().indexOf(getCurrentPost());
+	}
 
 	public List<Post> getPosts() {
 		List result = new ArrayList<Post>(posts.values());
@@ -87,5 +99,9 @@ public class Blog {
 
 	public Post getPost(String id) {
 		return posts.get(id);
+	}
+	
+	public Post getCurrentPost() {
+		return getPost((String) RequestUtil.get("post"));
 	}
 }

@@ -19,21 +19,30 @@ import org.mozilla.javascript.ScriptableObject;
 
 public class Servlet extends HttpServlet {
 	
-	
-	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html; charset=UTF-8");
-		
-		String realPath = getServletContext().getRealPath("WEB-INF/");
+		String realPath = realPath();
 		Context rhinoContext = Context.enter();
-//		ScriptableObject scope = rhinoContext.initStandardObjects();
 		ScriptableObject scope = new ImporterTopLevel(rhinoContext);
-		Globals.init(scope, request.getContextPath(), getServletContext().getRealPath("WEB-INF/"));
-		ScriptableObject.putProperty(scope, "realPath", realPath);
-//		ScriptableObject.putProperty(scope, "contextPath", request.getContextPath());
-		Object result = eval(rhinoContext, scope, "blog", realPath);
+		Globals.init(scope, request.getContextPath(), realPath(), page(request));
+		eval(rhinoContext, scope, "blog", realPath);
+		Object result = eval(rhinoContext, scope, page(request), realPath);
 		response.getWriter().write(result.toString());
 		Context.exit();
+	}
+
+	private String realPath() {
+		return getServletContext().getRealPath("WEB-INF/");
+	}
+	
+	private String page(HttpServletRequest request) {
+		String page = request.getParameter("post");
+		if ( page != null)
+			return "post";
+		page = request.getParameter("category");
+		if ( page != null)
+			return "category";
+		return "index";
 	}
 
 	private Object eval(Context context, Scriptable scope, String name, String realPath) {

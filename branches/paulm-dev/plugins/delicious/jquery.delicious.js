@@ -7,15 +7,15 @@
  *   http://www.opensource.org/licenses/mit-license.php
  *   http://www.gnu.org/licenses/gpl.html
  *
- * Revision: $Id$
- *
+ * $Id$
  */
 
 (function($){
 
 /**
- * Load a list of bookmarks, tags, network members, or fans from del.icio.us for
- * a specific user using JSON, and without need for any server-side component.
+ * Load a list of bookmarks, tags, network members, and/or fans from del.icio.us for
+ * a specific user using the del.icio.us JSON feeds (http://del.icio.us/help/json/), 
+ * and without need for any server-side component.
  *
  * @param String user The del.icio.us user who's bookmarks you want to load.
  * @param Map options key/value pairs of optional settings for the list display.
@@ -44,6 +44,9 @@ $.fn.delicious = function(user,options,tOptions,cbFnc){
 			+ (opts.type=='posts' && opts.tag? '/'+opts.tag : '') + '?',
 		rOpts = $.extend({raw:'true',callback:name(fn)},$.delicious.types[opts.type],tOptions);
 
+	// prepare tag names for DOM Creator
+	opts.itemTag = opts.itemTag.toUpperCase();
+	opts.wrapTag = opts.wrapTag.toUpperCase();
 	url += $.param(rOpts);
 	if(document.createElement){
 		var oScript = document.createElement("script");
@@ -68,8 +71,7 @@ $.fn.delicious = function(user,options,tOptions,cbFnc){
 	};
 };
 
-$.delicious = {};
-$.extend($.delicious,{
+$.delicious = {
 
 	callbacks : [],
 	
@@ -102,7 +104,7 @@ $.extend($.delicious,{
 				var fIcon, oSpan;
 				if(opts.favicon)
 					fIcon = $.IMG({src:oPost.u.split('/').splice(0,3).join('/')+'/favicon.ico',height:16,width:16,border:0})
-				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+				lis[lis.length] = $[opts.itemTag]({},
 					$.A({href:oPost.u}, opts.favicon ? fIcon : '',
 						oSpan = $.SPAN({},oPost.d)
 					)
@@ -114,56 +116,56 @@ $.extend($.delicious,{
 				}
 			});
 			if(!lis.length){
-				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+				lis[lis.length] = $[opts.itemTag]({},
 					'No posts available'
 				);
 			}
-			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
+			$.delicious.add(this,$[opts.wrapTag]({},lis),opts);
 		},
 		tags : function(data,opts){
 			var lis = [];
 			$.each(data,function(tName,tCount){
 				var fIcon, oSpan;
-				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+				lis[lis.length] = $[opts.itemTag]({},
 					$.A({href:'http://del.icio.us/'+opts.user+'/'+tName}, 
 						tName + ' ('+tCount+')'
 					)
 				);
 			});
 			if(!lis.length){
-				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+				lis[lis.length] = $[opts.itemTag]({},
 					'No tags available'
 				);
 			}
-			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
+			$.delicious.add(this,$[opts.wrapTag]({},lis),opts);
 		},
 		network : function(data,opts){
 			var lis = [];
 			$.each(data,function(i,name){
-				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+				lis[lis.length] = $[opts.itemTag]({},
 					$.A({href:'http://del.icio.us/'+name}, name)
 				);
 			});
 			if(!lis.length){
-				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+				lis[lis.length] = $[opts.itemTag]({},
 					'Nothing in network'
 				);
 			}
-			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
+			$.delicious.add(this,$[opts.wrapTag]({},lis),opts);
 		},
 		fans : function(data,opts){
 			var lis = [];
 			$.each(data,function(i,name){
-				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+				lis[lis.length] = $[opts.itemTag]({},
 					$.A({href:'http://del.icio.us/'+name}, name)
 				);
 			});
 			if(!lis.length){
-				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+				lis[lis.length] = $[opts.itemTag]({},
 					'No fans'
 				);
 			}
-			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
+			$.delicious.add(this,$[opts.wrapTag]({},lis),opts);
 		}
 	},
 	
@@ -171,9 +173,12 @@ $.extend($.delicious,{
 		$(elm)[opts.append?'append':'html'](obj);
 	}
 	
-});
-//$.delicious.parsers.fans = $.delicious.parsers.network;
+};
 
+/*
+ * Code below by Michael Geary
+ * Included for convenience 
+ */
 
 // DOM element creator for jQuery and Prototype by Michael Geary
 // http://mg.to/topics/programming/javascript/jquery

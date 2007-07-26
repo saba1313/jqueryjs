@@ -689,7 +689,7 @@ new function() {
 	};
 
 	// Check to see if the W3C box model is being used
-	jQuery.boxModel = !jQuery.browser.msie || document.compatMode == "CSS1Compat";
+	jQuery.boxModel = !jQuery.browser.msie;
 
 	jQuery.styleFloat = jQuery.browser.msie ? "styleFloat" : "cssFloat",
 
@@ -1585,66 +1585,8 @@ new function(){
 			
 	});
 	
-	// If Mozilla is used
-	if ( jQuery.browser.mozilla || jQuery.browser.opera )
-		// Use the handy event callback
-		document.addEventListener( "DOMContentLoaded", jQuery.ready, false );
-	
-	// If IE is used, use the excellent hack by Matthias Miller
-	// http://www.outofhanwell.com/blog/index.php?title=the_window_onload_problem_revisited
-	else if ( jQuery.browser.msie ) {
-	
-		// Only works if you document.write() it
-		document.write("<scr" + "ipt id=__ie_init defer=true " + 
-			"src=//:><\/script>");
-	
-		// Use the defer script hack
-		var script = document.getElementById("__ie_init");
-		
-		// script does not exist if jQuery is loaded dynamically
-		if ( script ) 
-			script.onreadystatechange = function() {
-				if ( document.readyState != "complete" ) return;
-				jQuery.ready();
-			};
-	
-		// Clear from memory
-		script = null;
-	
-	// If Safari  is used
-	} else if ( jQuery.browser.safari )
-		// Continually check to see if the document.readyState is valid
-		jQuery.safariTimer = setInterval(function(){
-			// loaded and complete are both valid states
-			if ( document.readyState == "loaded" || 
-				document.readyState == "complete" ) {
-	
-				// If either one are found, remove the timer
-				clearInterval( jQuery.safariTimer );
-				jQuery.safariTimer = null;
-	
-				// and execute any waiting functions
-				jQuery.ready();
-			}
-		}, 10); 
-
-	// A fallback to window.onload, that will always work
-	jQuery.event.add( window, "load", jQuery.ready );
-	
 };
 
-// Clean up after IE to avoid memory leaks
-if (jQuery.browser.msie)
-	jQuery(window).one("unload", function() {
-		var global = jQuery.event.global;
-		for ( var type in global ) {
-			var els = global[type], i = els.length;
-			if ( i && type != 'unload' )
-				do
-					els[i-1] && jQuery.event.remove(els[i-1], type);
-				while (--i);
-		}
-	});
 jQuery.fn.extend({
 
 	show: function(speed,callback){

@@ -62,6 +62,9 @@ public class Servlet extends HttpServlet {
 		page = request.getParameter("category");
 		if ( page != null)
 			return "category";
+		page = request.getParameter("feed");
+		if ( page != null)
+			return "feed";
 		return "index";
 	}
 

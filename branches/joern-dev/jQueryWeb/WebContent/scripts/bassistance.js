@@ -17,15 +17,17 @@ $(function() {
 		});
 	};
 	$("#s").search();
-	$("#commentsform").validate({
-		rules: {
-			author: "required",
-			email: {
-				required: true,
-				email: true
-			},
-			url: "url",
-			body: "required"
-		}
-	});
+	if($.fn.validate) {
+		$("#commentsform").validate({
+			rules: {
+				author: "required",
+				email: {
+					required: true,
+					email: true
+				},
+				url: "url",
+				body: "required"
+			}
+		});
+	}
 });

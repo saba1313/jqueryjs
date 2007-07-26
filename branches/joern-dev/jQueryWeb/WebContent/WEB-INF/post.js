@@ -1,3 +1,5 @@
+window.document = new DOMDocument(request.realPath + "/" + request.page + ".html");
+load(request.realPath + "/jquery.js");
 
 importPackage(Packages.de.bassistance.blog.domain);
 var blog = new BlogService().getBlog();

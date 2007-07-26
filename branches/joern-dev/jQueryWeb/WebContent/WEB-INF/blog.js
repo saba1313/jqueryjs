@@ -1,5 +1,4 @@
 load(request.realPath + "/env.js");
-window.document = new DOMDocument(request.realPath + "/" + request.page + ".html");
 load(request.realPath + "/jquery.js");
 
 $.fn.contextPath = function(attr, prefix) {
@@ -49,6 +48,7 @@ var Page = {
 		$("#header h1 a, #navmenu a:first").attr("href", ".");
 		$("#navmenu a:not(:first)").remove();
 		$("#navcol ul:gt(1)").remove();
+		$("#navcol .feedlink").attr("href", "?feed");
 	},
 	categories: function(categories) {
 		var container = $("#navcol ul:eq(1)").empty();
@@ -57,13 +57,34 @@ var Page = {
 			$(template(category.getId(), category.getTitle(), category.getName())).appendTo(container);
 		});
 	},
-	posts: function(template, posts) {
-		template.remove();
+	posts: function(posts) {
+		var template = $("div.entry").remove();
 		$.each(posts, function(index, post) {
 			var current = template.clone().insertBefore("div.bottommeta");
 			current.find(".entrymeta").html(DateFormat.date(post.getDate()));
 			current.find(".entrytitle a").html("" + post.getTitle()).attr("href", "?post=" + post.getId()).attr("title", "Link zu " + post.getTitle());
 			current.find(".entrybody").html("" + post.getBody());
+		});
+	},
+	feedHeader: function(blog) {
+		$("channel>title").text("" + blog.getName());
+		$("channel>link").text(".");
+		$("channel>description").text("" + blog.getDescription());
+	},
+	feedPosts: function(posts) {
+		var template = $("item").remove();
+		$.each(posts, function(index, post) {
+			var current = template.clone().appendTo("channel");
+			current.find("pubDate").html("" + post.getDate());
+			current.find("title").html("" + post.getTitle());
+			current.find("description").html("" + post.getBody());
+			current.find("content\\:encoded").html("" + post.getBody());
+			current.find("link").text("?post=" + post.getId());
+			current.find("comments").text("?post=" + post.getId() + "#commentlist");
+			current.find("category").remove();
+			$.each(post.getCategories().toArray(), function(index, category) {
+				$("<category>" + category.getName() + "</category>").insertBefore(current.find("guid"));
+			});
 		});
 	},
 	post: function(post) {

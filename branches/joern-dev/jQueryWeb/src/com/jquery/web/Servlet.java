@@ -15,12 +15,17 @@ import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import de.bassistance.blog.domain.BlogService;
+import de.bassistance.blog.domain.Comment;
+import de.bassistance.blog.domain.Post;
+
 
 
 public class Servlet extends HttpServlet {
 	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html; charset=UTF-8");
+		postComment(request, response);
 		String realPath = realPath();
 		Context rhinoContext = Context.enter();
 		ScriptableObject scope = new ImporterTopLevel(rhinoContext);
@@ -29,6 +34,21 @@ public class Servlet extends HttpServlet {
 		Object result = eval(rhinoContext, scope, page(request), realPath);
 		response.getWriter().write(result.toString());
 		Context.exit();
+	}
+
+	private void postComment(HttpServletRequest request, HttpServletResponse response) {
+		String id = request.getParameter("postcomment");
+		if(id != null) {
+			Comment comment = new Comment();
+			new RequestMapper().mapTo(comment);
+			Post post = new BlogService().getBlog().getPost(id);
+			post.addComment(comment);
+			try {
+				response.sendRedirect("?post=" + id + "#comment-" + (post.getComments().size() - 1));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private String realPath() {

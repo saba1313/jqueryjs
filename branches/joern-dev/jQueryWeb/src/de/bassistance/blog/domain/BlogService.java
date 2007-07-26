@@ -15,11 +15,13 @@ public class BlogService {
 		blog.addBlogEntry(new Post("2", "Random post #2", "Nothing noteworthy.", date(2007, 4, 3)));
 		blog.addBlogEntry(new Post("3", "Random post #3", "Nothing noteworthy.", date(2007, 5, 23)));
 		blog.addBlogEntry(new Post("4", "Random post #4", "Nothing noteworthy.", date(2007, 6, 3)));
-		blog.addBlogEntry(new Post(
-						"5",
-						"Surface Computing",
-						"<blockquote>One day, your computer will be a big ass table!</blockquote><p>Eine amüante Parodie auf Microsoft Surface:</p>",
-						date(2007, 7, 10)));
+		Post surface = new Post(
+				"5",
+				"Surface Computing",
+				"<blockquote>One day, your computer will be a big ass table!</blockquote><p>Eine amüante Parodie auf Microsoft Surface:</p>",
+				date(2007, 7, 10));
+		surface.addComment(new Comment("Mr. Johnson", "We have to speak about that, in private!", date(2007, 7, 11)));
+		blog.addBlogEntry(surface);
 		blog.addBlogEntry(new Post(
 						"6",
 						" Er bockt, sie bockt, es bockt, ich verbocke.",

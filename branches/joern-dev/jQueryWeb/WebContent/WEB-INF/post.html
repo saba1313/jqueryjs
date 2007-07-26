@@ -11,6 +11,7 @@
 
   
   <script type="text/javascript" src="../scripts/jquery.pack.js"></script>
+  <script type="text/javascript" src="../scripts/jquery.validate.js"></script>
   <script type="text/javascript" src="../scripts/bassistance.js"></script>
   
 
@@ -74,61 +75,16 @@
 			</div>  
 					
 				</div>
-		 
-		<div id="commentblock">
-			<div class="comment-header">
-
-				          <span class="metalink">
-            <a href="http://bassistance.de/2007/07/13/why-open-source/feed/" title="Feed für Kommentare dieses Artikels" class="commentlink">
-              <img src="http://bassistance.de/wp-content/themes/tonus/images/transparent.gif" alt="rss" />
-            </a>
-          </span>
-        				Noch keine Kommentare vorhanden
-			</div>
-			<div class="comment-track">
-									            <a href="http://bassistance.de/2007/07/13/why-open-source/trackback/" title="Trackback URI" rel="nofollow">Trackback für diesen Artikel</a>
-
-          							</div>
-		</div>
 	
-  <div id="commentsformheader">
-	<a id="respond"></a>
-						<span id="commentshead">Kommentar zu diesem Artikel schreiben</span>
-			
-		<div id="commentsform">
-			<form action="http://bassistance.de/wp-comments-post.php" method="post" id="commentform">
-											<input type="hidden" name="author" id="author" value="Jörn" />
-
-				<input type="hidden" name="email" id="email" value="enchos@gmx.net" />
-				<input type="hidden" name="url" id="url" value="http://bassistance.de" />
-				<div class="user-loggedin">
-					Sie sind im Moment eingeloggt als <span id="login-name"><a href="http://bassistance.de/wp-admin/profile.php">Jörn</a>.</span>
-					<br /><a href="http://bassistance.de/wp-login.php?action=logout" title="Diesen Benutzer abmelden">&laquo; Logout &raquo;</a>
-				</div>
-
-				
-			<p><!-- xml parser darf ne empty textare nicht zu nem empty element umwandeln! -->
-				<textarea name="comment" id="comment" class="commentArea" cols="50" rows="10" tabindex="4"> </textarea>
-			</p>
-			
-			
-			<p>
-				<input name="submit" type="submit" id="submit" tabindex="5" value="Kommentar absenden" />
-				<input type="hidden" name="comment_post_ID" value="191" />
-			</p>
-						</form>
-
-	   	</div>
-	  </div>
-	  
-	  <div id="commentblock">
-					<div id="comments" class="comment-header">
-				          <span class="metalink">
-            <a href="http://bassistance.de/2007/07/11/er-bockt-sie-bockt-es-bockt-ich-verbocke/feed/" title="Feed für Kommentare dieses Artikels" class="commentlink">
-              <img src="http://bassistance.de/wp-content/themes/tonus/images/transparent.gif" alt="rss" />
-            </a>
-          </span>
-        				1 Kommentar			</div>
+	<div id="commentblock">
+		<div id="comments" class="comment-header">
+			<span class="metalink">
+				<a href="http://bassistance.de/2007/07/11/er-bockt-sie-bockt-es-bockt-ich-verbocke/feed/" title="Feed für Kommentare dieses Artikels" class="commentlink">
+					<img src="../images/transparent.gif" alt="rss" />
+				</a>
+			</span>
+			<span>Noch keine Kommentare vorhanden / 1 Kommentar / 3 Kommentare</span>
+		</div>
 		
 		<div class="comment-track">
 												<a href="http://bassistance.de/2007/07/11/er-bockt-sie-bockt-es-bockt-ich-verbocke/trackback/" title="Trackback URI" rel="nofollow">Trackback für diesen Artikel</a>
@@ -143,7 +99,7 @@
 					   <span class="commentdate">
 													  12. Juli 2007 |09:54					   </span>
 					</div>
-					<div class="commenttext">
+					<div class="commentbody">
 						<p>ßauwn Junge! Dann können wir Sonntag ja dick starten, was? Besorg dir ma das Spiel!
 </p>
 					</div>
@@ -154,7 +110,6 @@
 
 
   <div id="commentsformheader">
-	<a id="respond"></a>
 						<span id="commentshead">Kommentar zu diesem Artikel schreiben</span>
 			
 		<div id="commentsform">
@@ -173,7 +128,7 @@
 				</p>
 								
 			<p>
-				<textarea name="comment" id="comment" class="commentArea" cols="50" rows="10" tabindex="4"> </textarea>
+				<textarea title="Bitte einen Kommentar eingeben" name="body" id="comment" class="commentArea" cols="50" rows="10" tabindex="4"> </textarea>
 			</p>
 			
 			

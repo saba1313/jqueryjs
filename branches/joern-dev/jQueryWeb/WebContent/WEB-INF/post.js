@@ -1,9 +1,11 @@
+
 importPackage(Packages.de.bassistance.blog.domain);
 var blog = new BlogService().getBlog();
-page.header();
-page.categories(blog.getCategories());
-page.post($("div.entry"), blog.getCurrentPost());
-page.sidebar(blog.getPosts().toArray());
-page.topNavigation(blog);
+Page.header();
+Page.categories(blog.getCategories());
+Page.post(blog.getCurrentPost());
+Page.comments(blog.getCurrentPost(), blog.getCurrentPost().getComments().toArray());
+Page.sidebar(blog.getPosts().toArray());
+Page.topNavigation(blog);
 
 document.innerHTML

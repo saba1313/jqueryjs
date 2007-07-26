@@ -25,7 +25,24 @@ String.format = function(source, params) {
 	return source;
 };
 
-var page = {
+var DateFormat = (function() {
+	// store dateformats in a closure
+	var dateformat = new java.text.SimpleDateFormat("dd. MMMM yyyy");
+	var timeformat = new java.text.SimpleDateFormat("hh:mm");
+	// expose formatting methods
+	return {
+		date: function(value) {
+			return "" + dateformat.format(value);
+		},
+		datetime: function(value) {
+			return String.format("{0} um {1}",
+				dateformat.format(value),
+				timeformat.format(value));
+		}
+	};
+})();
+
+var Page = {
 	header: function() {
 		$("script[@src],img[@src]").contextPath("src", /^../);
 		$("link[@href]").contextPath("href", /^../);
@@ -42,21 +59,16 @@ var page = {
 	},
 	posts: function(template, posts) {
 		template.remove();
-		var dateformat = new java.text.SimpleDateFormat("dd. MMMM yyyy");
 		$.each(posts, function(index, post) {
 			var current = template.clone().insertBefore("div.bottommeta");
-			current.find(".entrymeta").html("" + dateformat.format(post.getDate()));
+			current.find(".entrymeta").html(DateFormat.date(post.getDate()));
 			current.find(".entrytitle a").html("" + post.getTitle()).attr("href", "?post=" + post.getId()).attr("title", "Link zu " + post.getTitle());
 			current.find(".entrybody").html("" + post.getBody());
 		});
 	},
-	post: function(current, post) {
-		var dateformat = new java.text.SimpleDateFormat("dd. MMMM yyyy");
-		var timeformat = new java.text.SimpleDateFormat("hh:mm");
-		var date = String.format("{0} um {1}",
-			dateformat.format(post.getDate()),
-			timeformat.format(post.getDate()));
-		current.find("#leftmeta").html(date);
+	post: function(post) {
+		var current = $("div.entry");
+		current.find("#leftmeta").html(DateFormat.datetime(post.getDate()));
 		var template = String.format("<a href='?category={0}' title='{1}'>{2}</a>");
 		var categories = [];
 		$.each(post.getCategories().toArray(), function(index, category) {
@@ -65,6 +77,30 @@ var page = {
 		$("#rightmeta").html(categories.join(", "));
 		current.find(".single-title").html("" + post.getTitle());
 		current.find(".entrybody").html("" + post.getBody());
+	},
+	comments: function(post, comments) {
+		if ( comments.length ) {
+			$("#comments span:last").text(comments.length + " Kommentar" + (comments.length > 1 ? "e" : ""));
+			var template = $("#commentlist li:first").remove();
+			$.each(comments, function(index, comment) {
+				var current = template.clone().appendTo("#commentlist");
+				current.attr("id", "comment-" + index);
+				if(comment.getUrl()) {
+					current.find(".commentauthor a").text("" + comment.getAuthor()).attr("href", comment.getUrl());
+				} else {
+					current.find(".commentauthor").text("" + comment.getAuthor());
+				}
+				current.find(".commentdate").text("" + DateFormat.datetime(comment.getDate()));
+				current.find(".commentbody").text("" + comment.getBody());
+			});
+		} else {
+			$("#comments span:last").text("Noch keine Kommentare vorhanden");
+			$("#commentlist").remove();
+		}
+		$("#comments a.commentlink").attr("href", "?commentfeed=" + post.getId());
+		$("#commentblock .comment-track a").attr("href", "?trackback=" + post.getId());
+		$("#commentform").attr("action", "?postcomment=" + post.getId());
+		//$("#commentform input[@name='comment_post_ID'").val("" + post.getId());
 	},
 	sidebar: function(posts) {
 		var container = $("#navcol ul:first").empty();

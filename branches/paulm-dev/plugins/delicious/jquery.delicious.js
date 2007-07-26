@@ -22,7 +22,7 @@
  * @option String type (posts|tags|network|fans) The type of information you wish to retrieve. Default: 'posts'
  * @option String itemTag The type of HTML element you wish to surround every item in the list. Default: '<li>'
  * @option String wrapTag The type of HTML element you wish to surround the entire list. Default: '<ul>'
- * @option Boolean append If true, this will cause the new list to be appended to the selected elements, if false it will replace it's contents with the list. Default: true
+ * @option Boolean append If true, this will cause the new list to be appended to the selected elements, if false it will replace it's contents with the list. Default: false
  * @option Boolean favicon If true and the type option is posts, this will attempt to load the favicon.ico file from the domain of each bookmark. Default: true
  * @param Map tOptions key/value pairs of optional settings for the list itself.
  * @option Interger count Available for types 'posts' and 'tags'. Indicates the number of items to retrieve.
@@ -31,14 +31,13 @@
  *
  * @type jQuery
  * @name Del.icio.us
- * @cat Plugins/Delicious
+ * @cat Plugins/Del.icio.us
  *
  */
 $.fn.delicious = function(user,options,tOptions,cbFnc){
 	//options.instance = $.delicious.these.length;
 	//$.delicious(user,options,tOptions,fName);
-	options.user = user;
-	var opts = $.extend({},$.delicious.opts,options),
+	var opts = $.extend({'user':user},$.delicious.opts,options),
 		$self = this,
 		fn = cbFnc || jQuery.delicious.parsers[opts.type],
 		url = 'http://del.icio.us/feeds/json/' + (opts.type=='posts'?'':opts.type+'/') + user
@@ -78,7 +77,7 @@ $.extend($.delicious,{
 		type : 'posts', // possible values = posts, tags, url, network, or fans
 		itemTag : 'li',
 		wrapTag : 'ul',
-		append : true,
+		append : false,
 		favicon : true
 	},
 	
@@ -114,7 +113,11 @@ $.extend($.delicious,{
 					$(oSpan).css({marginLeft:'20px',display:'block'});
 				}
 			});
-			
+			if(!lis.length){
+				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+					'No posts available'
+				);
+			}
 			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
 		},
 		tags : function(data,opts){
@@ -127,6 +130,11 @@ $.extend($.delicious,{
 					)
 				);
 			});
+			if(!lis.length){
+				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+					'No tags available'
+				);
+			}
 			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
 		},
 		network : function(data,opts){
@@ -136,6 +144,11 @@ $.extend($.delicious,{
 					$.A({href:'http://del.icio.us/'+name}, name)
 				);
 			});
+			if(!lis.length){
+				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+					'Nothing in network'
+				);
+			}
 			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
 		},
 		fans : function(data,opts){
@@ -145,6 +158,11 @@ $.extend($.delicious,{
 					$.A({href:'http://del.icio.us/'+name}, name)
 				);
 			});
+			if(!lis.length){
+				lis[lis.length] = $[opts.itemTag.toUpperCase()]({},
+					'No fans'
+				);
+			}
 			$.delicious.add(this,$[opts.wrapTag.toUpperCase()]({},lis),opts);
 		}
 	},

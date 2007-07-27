@@ -10,4 +10,4 @@ Page.comments(blog.getCurrentPost(), blog.getCurrentPost().getComments().toArray
 Page.sidebar(blog.getPosts().toArray());
 Page.topNavigation(blog);
 
-document.innerHTML
+$().print();

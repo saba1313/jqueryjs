@@ -7,7 +7,7 @@
 
 	<servlet>
 		<servlet-name>jQuery</servlet-name>
-		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<servlet-class>com.jquery.web.Servlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>

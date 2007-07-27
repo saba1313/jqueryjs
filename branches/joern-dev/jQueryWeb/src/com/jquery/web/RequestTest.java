@@ -11,7 +11,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-public class RequestMapperTest extends TestCase {
+public class RequestTest extends TestCase {
 	
 	public class Person {
 
@@ -63,13 +63,13 @@ public class RequestMapperTest extends TestCase {
 
 	public void testServletRequestToBean() {
 		Person person = new Person();
-		new RequestMapper(request).mapTo(person);
+		new Request(request).mapTo(person);
 		assertPerson(person);
 	}
 	
 	public void testRequestContextHolderToBean() {
 		Person person = new Person();
-		new RequestMapper().mapTo(person);
+		new Request().mapTo(person);
 		assertPerson(person);
 	}
 

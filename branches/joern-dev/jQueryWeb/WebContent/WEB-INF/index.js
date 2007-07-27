@@ -8,4 +8,4 @@ Page.posts(blog.getRecentPosts().toArray());
 Page.sidebar(blog.getPosts().toArray());
 Page.bottomNavigation(blog);
 
-document.innerHTML
+$().print();

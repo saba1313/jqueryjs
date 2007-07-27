@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,40 +14,25 @@ import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-import de.bassistance.blog.domain.BlogService;
-import de.bassistance.blog.domain.Comment;
-import de.bassistance.blog.domain.Post;
+import de.bassistance.blog.Application;
 
 
 
 public class Servlet extends HttpServlet {
 	
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Request.set(request);
+		Response.set(response);
+		// TODO allow other content types, eg. xml for rss feed
 		response.setContentType("text/html; charset=UTF-8");
-		postComment(request, response);
-		String realPath = realPath();
-		Context rhinoContext = Context.enter();
-		ScriptableObject scope = new ImporterTopLevel(rhinoContext);
+		// TODO implement url-to-action mapping
+		new Application().postComment();
+		ScriptableObject scope = new ImporterTopLevel(Context.enter());
 		Globals.init(scope, request.getContextPath(), realPath(), page(request));
-		eval(rhinoContext, scope, "blog", realPath);
-		Object result = eval(rhinoContext, scope, page(request), realPath);
+		eval(scope, "blog");
+		Object result = eval(scope, page(request));
 		response.getWriter().write(result.toString());
 		Context.exit();
-	}
-
-	private void postComment(HttpServletRequest request, HttpServletResponse response) {
-		String id = request.getParameter("postcomment");
-		if(id != null) {
-			Comment comment = new Comment();
-			new RequestMapper().mapTo(comment);
-			Post post = new BlogService().getBlog().getPost(id);
-			post.addComment(comment);
-			try {
-				response.sendRedirect("?post=" + id + "#comment-" + (post.getComments().size() - 1));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	private String realPath() {
@@ -68,9 +52,9 @@ public class Servlet extends HttpServlet {
 		return "index";
 	}
 
-	private Object eval(Context context, Scriptable scope, String name, String realPath) {
+	private Object eval(Scriptable scope, String name) {
 		try {
-			return context.evaluateReader(scope, findFile(realPath + "/" + name), name + ".js", 1, null);
+			return Context.getCurrentContext().evaluateReader(scope, findFile(realPath() + "/" + name), name + ".js", 1, null);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

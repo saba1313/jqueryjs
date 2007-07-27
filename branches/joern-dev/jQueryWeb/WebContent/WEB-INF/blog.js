@@ -1,8 +1,19 @@
 load(request.realPath + "/env.js");
 load(request.realPath + "/jquery.js");
 
+function print() {
+	java.lang.System.out.println($.makeArray(arguments).join(", "));
+}
+
 $.fn.contextPath = function(attr, prefix) {
 	return this.attr(attr, function() { return request.contextPath + this[attr].replace(prefix, "") });
+}
+
+$.fn.print = function(doctype) {
+	doctype = doctype || "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+	return doctype
+	 + "\n"
+	 + this[0].innerHTML;
 }
 
 String.format = function(source, params) {
@@ -27,7 +38,7 @@ String.format = function(source, params) {
 var DateFormat = (function() {
 	// store dateformats in a closure
 	var dateformat = new java.text.SimpleDateFormat("dd. MMMM yyyy");
-	var timeformat = new java.text.SimpleDateFormat("hh:mm");
+	var timeformat = new java.text.SimpleDateFormat("HH:mm");
 	// expose formatting methods
 	return {
 		date: function(value) {

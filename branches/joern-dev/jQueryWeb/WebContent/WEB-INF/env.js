@@ -137,7 +137,7 @@ var window = this;
 		this._dom = Packages.javax.xml.parsers.
 			DocumentBuilderFactory.newInstance()
 				.newDocumentBuilder().parse(file);
-		
+		// saxb.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		if ( !obj_nodes.containsKey( this._dom ) )
 			obj_nodes.put( this._dom, this );
 	};

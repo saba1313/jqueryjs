@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import de.mxcit.jsf.util.RequestUtil;
+import com.jquery.web.Request;
 
 public class Blog {
 	
@@ -49,7 +49,7 @@ public class Blog {
 	}
 	
 	private int page() {
-		String page = (String) RequestUtil.get("page");
+		String page = Request.get("page");
 		if (page == null) {
 			return 0;
 		}
@@ -102,6 +102,6 @@ public class Blog {
 	}
 	
 	public Post getCurrentPost() {
-		return getPost((String) RequestUtil.get("post"));
+		return getPost(Request.get("post"));
 	}
 }

@@ -1,7 +1,6 @@
 // TODO modify load to include realPath by defaul
 load(request.realPath + "/env.js");
 load(request.realPath + "/jquery.js");
-load(request.realPath + "/array.js");
 
 function print() {
 	java.lang.System.out.println($.makeArray(arguments).join(", "));

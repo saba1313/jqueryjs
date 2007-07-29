@@ -19,16 +19,18 @@ public class Globals {
 	public final String contextPath;
 	public final String realPath;
 	public final String page;
+	public final String method;
 
-	public Globals(String contextPath, String realPath, String page) {
+	public Globals(String contextPath, String realPath, String page, String method) {
 		this.contextPath = contextPath;
 		this.realPath = realPath;
 		this.page = page;
+		this.method = method;
 	}
 
-	public static void init(ScriptableObject scope, String contextPath, String realPath, String page) {
+	public static void init(ScriptableObject scope, String contextPath, String realPath, String page, String method) {
 		scope.defineFunctionProperties(new String[] { "load" }, Globals.class, ScriptableObject.DONTENUM);
-		scope.defineProperty("request", new Globals(contextPath, realPath, page), ScriptableObject.DONTENUM);
+		scope.defineProperty("request", new Globals(contextPath, realPath, page, method), ScriptableObject.DONTENUM);
 	}
 
 }

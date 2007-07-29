@@ -17,17 +17,7 @@ $(function() {
 		});
 	};
 	$("#s").search();
-	if($.fn.validate) {
-		$("#commentsform").validate({
-			rules: {
-				author: "required",
-				email: {
-					required: true,
-					email: true
-				},
-				url: "url",
-				body: "required"
-			}
-		});
-	}
+	$.each($.validator.forms, function(selector, settings) {
+		$(selector).validate(settings);
+	});
 });

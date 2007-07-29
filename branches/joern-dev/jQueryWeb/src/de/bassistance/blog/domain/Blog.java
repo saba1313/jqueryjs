@@ -107,7 +107,7 @@ public class Blog {
 	}
 
 	public void postComment() {
-		String id = Request.get("postcomment");
+		String id = Request.get("post");
 		if(id != null) {
 			Comment comment = Request.map(Comment.class);
 			Post post = getPost(id);

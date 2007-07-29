@@ -3,7 +3,7 @@
  *
  * http://bassistance.de/jquery-plugins/jquery-plugin-validation/
  *
- * Copyright (c) 2006 J枚rn Zaefferer
+ * Copyright (c) 2006 J鰎n Zaefferer
  *
  * $Id: jquery.validate.js 2466 2007-07-24 07:32:36Z joern.zaefferer $
  *
@@ -264,7 +264,7 @@ jQuery.extend(jQuery.fn, {
 					}
 					return true;
 				}
-					
+				
 				// prevent submit for invalid forms or custom submit handlers
 				if ( validator.cancelSubmit ) {
 					validator.cancelSubmit = false;
@@ -478,7 +478,7 @@ jQuery.extend(jQuery.validator, {
 		url: "Please enter a valid URL.",
 		date: "Please enter a valid date.",
 		dateISO: "Please enter a valid date (ISO).",
-		dateDE: "Bitte geben Sie ein g眉ltiges Datum ein.",
+		dateDE: "Bitte geben Sie ein g黮tiges Datum ein.",
 		number: "Please enter a valid number.",
 		numberDE: "Bitte geben Sie eine Nummer ein.",
 		digits: "Please enter only digits",
@@ -801,10 +801,10 @@ jQuery.extend(jQuery.validator, {
 				}
 			} else {
 				// create label
-				label = jQuery("<" + this.settings.errorElement + ">")
+				label = jQuery("<" + this.settings.errorElement + "></" + this.settings.errorElement + ">")
 					.attr({"for":  this.idOrName(element), generated: true})
 					.addClass(this.settings.errorClass)
-					.html(message || "");
+					.html("" + message || "");
 				if ( this.settings.wrapper ) {
 					// make sure the element is visible, even in IE
 					// actually showing the wrapped element is handled elsewhere
@@ -1225,7 +1225,7 @@ jQuery.extend(jQuery.validator, {
 		 * @cat Plugins/Validate/Methods
 		 */
 		email: function(value, element) {
-			return this.required(element) || /^[a-z/-9!#-'*+\-/=?_`{-~^]([a-z.-9!#-'*+\-/=?_`{-~^]*[a-z/-9!#-'*+\-/=?_`{-~^])?@([a-z0-9]+\.)+[a-z0-9]+\.?$/i.test(value);
+			return this.required(element) || /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/i.test(value);
 		},
 	
 		/**
@@ -1246,7 +1246,7 @@ jQuery.extend(jQuery.validator, {
 		 * @cat Plugins/Validate/Methods
 		 */
 		url: function(value, element) {
-			return this.required(element) || /^(https?|ftp):\/\/[A-Z0-9](\.?[A-Z0-9脛脺脰][A-Z0-9_\-脛脺脰]*)*(\/([A-Z0-9脛脺脰][A-Z0-9_\-\.脛脺脰]*)?)*(\?([A-Z0-9脛脺脰][A-Z0-9_\-\.%\+=&脛脺脰]*)?)?$/i.test(value);
+			return this.required(element) || /^(https?|ftp):\/\/[A-Z0-9](\.?[A-Z0-9能謁[A-Z0-9_\-能謁*)*(\/([A-Z0-9能謁[A-Z0-9_\-\.能謁*)?)*(\?([A-Z0-9能謁[A-Z0-9_\-\.%\+=&能謁*)?)?$/i.test(value);
 		},
         
 		/**

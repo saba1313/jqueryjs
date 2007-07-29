@@ -13,8 +13,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-
-import de.bassistance.blog.domain.BlogService;
+import org.mozilla.javascript.tools.ToolErrorReporter;
 
 
 
@@ -25,10 +24,9 @@ public class Servlet extends HttpServlet {
 		Response.set(response);
 		// TODO allow other content types, eg. xml for rss feed
 		response.setContentType("text/html; charset=UTF-8");
-		// TODO implement url-to-action mapping
-		new BlogService().getBlog().postComment();
 		ScriptableObject scope = new ImporterTopLevel(Context.enter());
-		Globals.init(scope, request.getContextPath(), realPath(), page(request));
+		Context.getCurrentContext().setErrorReporter(new ToolErrorReporter(true, System.err));
+		Globals.init(scope, request.getContextPath(), realPath(), page(request), request.getMethod().toLowerCase());
 		eval(scope, "blog");
 		Object result = eval(scope, page(request));
 		response.getWriter().write(result.toString());

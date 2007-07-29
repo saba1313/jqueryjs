@@ -436,8 +436,16 @@ var window = this;
 		get type() { return this.getAttribute("type") || ""; },
 		set type(val) { return this.setAttribute("type",val); },
 		
-		get value() { return this.getAttribute("value") || ""; },
-		set value(val) { return this.setAttribute("value",val); },
+		get value() {
+			return this.tagName == "textarea"
+			? this.innerHTML || ""	
+			: this.getAttribute("value") || "";
+		},
+		set value(val) {
+			return this.tagName == "textarea"
+			? this.innerHTML = val
+			: this.setAttribute("value",val);
+		},
 		
 		get src() { return this.getAttribute("src") || ""; },
 		set src(val) { return this.setAttribute("src",val); },
@@ -447,6 +455,12 @@ var window = this;
 		
 		get id() { return this.getAttribute("id") || ""; },
 		set id(val) { return this.setAttribute("id",val); },
+		
+		get name() { return this.getAttribute("name") || ""; },
+		set name(val) { return this.setAttribute("name", val); },
+		
+		get title() { return this.getAttribute("title") || ""; },
+		set title(val) { return this.setAttribute("title", val); },
 		
 		getAttribute: function(name){
 			return this._dom.hasAttribute(name) ?

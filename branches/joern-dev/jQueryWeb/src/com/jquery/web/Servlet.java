@@ -39,6 +39,7 @@ public class Servlet extends HttpServlet {
 		return getServletContext().getRealPath("WEB-INF/");
 	}
 	
+	// TODO move to application
 	private String page(HttpServletRequest request) {
 		String page = request.getParameter("post");
 		if ( page != null)

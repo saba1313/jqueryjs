@@ -48,20 +48,3 @@ String.format = function(source, params) {
 	});
 	return source;
 };
-
-var DateFormat = (function() {
-	// store dateformats in a closure
-	var dateformat = new java.text.SimpleDateFormat("dd. MMMM yyyy");
-	var timeformat = new java.text.SimpleDateFormat("HH:mm");
-	// expose formatting methods
-	return {
-		date: function(value) {
-			return "" + dateformat.format(value);
-		},
-		datetime: function(value) {
-			return String.format("{0} um {1}",
-				dateformat.format(value),
-				timeformat.format(value));
-		}
-	};
-})();

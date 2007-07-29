@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import junit.framework.TestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+
+import de.bassistance.blog.domain.Comment;
 
 public class RequestTest extends TestCase {
 	
@@ -18,6 +18,10 @@ public class RequestTest extends TestCase {
 		private int age;
 
 		private String firstname;
+		
+		private boolean checked;
+
+		private boolean nonsense;
 		
 		private List<String> middleNames;
 
@@ -45,6 +49,14 @@ public class RequestTest extends TestCase {
 			this.firstname = firstname;
 		}
 
+		public boolean isChecked() {
+			return checked;
+		}
+
+		public boolean isNonsense() {
+			return nonsense;
+		}
+
 	}
 	
 	@Override
@@ -52,9 +64,11 @@ public class RequestTest extends TestCase {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter("age", "16");
 		request.setParameter("firstname", "Peter");
+		request.setParameter("checked", "1");
+		request.setParameter("nonsense", "true");
 		request.setParameter("middleNames", middleNames);
 		this.request = request;
-		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+		Request.set(request);
 	}
 	
 	HttpServletRequest request;
@@ -62,21 +76,31 @@ public class RequestTest extends TestCase {
 	String[] middleNames = { "A.", "J.", "P." };
 
 	public void testServletRequestToBean() {
-		Person person = new Person();
-		new Request(request).mapTo(person);
-		assertPerson(person);
+		assertPerson(new Request(request).mapTo(new Person()));
 	}
 	
 	public void testRequestContextHolderToBean() {
-		Person person = new Person();
-		new Request().mapTo(person);
-		assertPerson(person);
+		assertPerson(Request.map(new Person()));
 	}
 
 	private void assertPerson(Person person) {
 		assertEquals(16, person.getAge());
 		assertEquals("Peter", person.getFirstname());
+		assertEquals(true, person.isChecked());
+		assertEquals(true, person.isNonsense());
 		assertEquals(middleNames.length, person.getMiddleNames().length);
 	}
 
+	public void testPostComment() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("author", "Björk Glenström");
+		request.setParameter("email", "b.g@glen.se");
+		request.setParameter("body", "Hi all!");
+		Comment comment = new Request(request).mapTo(new Comment());
+		assertEquals("Björk Glenström", comment.getAuthor());
+		assertEquals("b.g@glen.se", comment.getEmail());
+		assertNull(comment.getUrl());
+		assertEquals("Hi all!", comment.getBody());
+	}
+	
 }

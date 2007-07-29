@@ -3,6 +3,7 @@ package de.bassistance.blog.domain;
 import java.util.Calendar;
 import java.util.Date;
 
+
 public class BlogService {
 
 	private static Blog blog;
@@ -21,6 +22,7 @@ public class BlogService {
 				"<blockquote>One day, your computer will be a big ass table!</blockquote><p>Eine amüante Parodie auf Microsoft Surface:</p>",
 				date(2007, 7, 10));
 		surface.addComment(new Comment("Mr. Johnson", "We have to speak about that, in private!", date(2007, 7, 11)));
+		surface.addCategory(new Category("4", "Big ass", "Runs on SCUMM VM"));
 		blog.addBlogEntry(surface);
 		blog.addBlogEntry(new Post(
 						"6",

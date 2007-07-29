@@ -1,5 +1,7 @@
+// TODO modify load to include realPath by defaul
 load(request.realPath + "/env.js");
 load(request.realPath + "/jquery.js");
+load(request.realPath + "/array.js");
 
 function print() {
 	java.lang.System.out.println($.makeArray(arguments).join(", "));
@@ -15,6 +17,21 @@ $.fn.print = function(doctype) {
 	 + "\n"
 	 + this[0].innerHTML;
 }
+
+$.fn.template = function(list, handler) {
+	var template = this.remove();
+	list.forEach(function() {
+		handler.apply(template.clone(), arguments);
+	});
+};
+
+$.fn.list = function(list, separator, handler) {
+	var result = [];
+	list.forEach(function(entry, index) {
+		result.push( handler(entry, index) );
+	});
+	return this.html( result.join(separator) );
+};
 
 String.format = function(source, params) {
 	if ( arguments.length == 1 ) 
@@ -64,17 +81,16 @@ var Page = {
 	categories: function(categories) {
 		var container = $("#navcol ul:eq(1)").empty();
 		var template = String.format("<li><a href='?category={0}' title='{1}'>{2}</a></li>");
-		$.each(categories, function(index, category) {
+		categories.forEach(function(category) {
 			$(template(category.getId(), category.getTitle(), category.getName())).appendTo(container);
 		});
 	},
 	posts: function(posts) {
-		var template = $("div.entry").remove();
-		$.each(posts, function(index, post) {
-			var current = template.clone().insertBefore("div.bottommeta");
-			current.find(".entrymeta").html(DateFormat.date(post.getDate()));
-			current.find(".entrytitle a").html("" + post.getTitle()).attr("href", "?post=" + post.getId()).attr("title", "Link zu " + post.getTitle());
-			current.find(".entrybody").html("" + post.getBody());
+		$("div.entry").template(posts, function(post) {
+			this.insertBefore("div.bottommeta");
+			this.find(".entrymeta").html(DateFormat.date(post.getDate()));
+			this.find(".entrytitle a").html("" + post.getTitle()).attr("href", "?post=" + post.getId()).attr("title", "Link zu " + post.getTitle());
+			this.find(".entrybody").html("" + post.getBody());
 		});
 	},
 	feedHeader: function(blog) {
@@ -83,47 +99,43 @@ var Page = {
 		$("channel>description").text("" + blog.getDescription());
 	},
 	feedPosts: function(posts) {
-		var template = $("item").remove();
-		$.each(posts, function(index, post) {
-			var current = template.clone().appendTo("channel");
-			current.find("pubDate").html("" + post.getDate());
-			current.find("title").html("" + post.getTitle());
-			current.find("description").html("" + post.getBody());
-			current.find("content\\:encoded").html("" + post.getBody());
-			current.find("link").text("?post=" + post.getId());
-			current.find("comments").text("?post=" + post.getId() + "#commentlist");
-			current.find("category").remove();
-			$.each(post.getCategories().toArray(), function(index, category) {
-				$("<category>" + category.getName() + "</category>").insertBefore(current.find("guid"));
-			});
+		 $("item").template(posts, function(post, index) {
+			this.appendTo("channel");
+			this.find("pubDate").html("" + post.getDate());
+			this.find("title").html("" + post.getTitle());
+			this.find("description").html("" + post.getBody());
+			this.find("content\\:encoded").html("" + post.getBody());
+			this.find("link").text("?post=" + post.getId());
+			this.find("comments").text("?post=" + post.getId() + "#commentlist");
+			this.find("category").remove();
+			post.getCategories().toArray().forEach(function(category) {
+				$("<category>" + category.getName() + "</category>").insertBefore(this.find("guid"));
+			}, this);
 		});
 	},
 	post: function(post) {
 		var current = $("div.entry");
 		current.find("#leftmeta").html(DateFormat.datetime(post.getDate()));
 		var template = String.format("<a href='?category={0}' title='{1}'>{2}</a>");
-		var categories = [];
-		$.each(post.getCategories().toArray(), function(index, category) {
-			categories.push(template(category.getId(), category.getTitle(), category.getName()));
+		$("#rightmeta").list(post.getCategories().toArray(), ", ", function(category) {
+			return template(category.getId(), category.getTitle(), category.getName());
 		});
-		$("#rightmeta").html(categories.join(", "));
 		current.find(".single-title").html("" + post.getTitle());
 		current.find(".entrybody").html("" + post.getBody());
 	},
 	comments: function(post, comments) {
 		if ( comments.length ) {
 			$("#comments span:last").text(comments.length + " Kommentar" + (comments.length > 1 ? "e" : ""));
-			var template = $("#commentlist li:first").remove();
-			$.each(comments, function(index, comment) {
-				var current = template.clone().appendTo("#commentlist");
-				current.attr("id", "comment-" + index);
-				if(comment.getUrl()) {
-					current.find(".commentauthor a").text("" + comment.getAuthor()).attr("href", comment.getUrl());
+			$("#commentlist li:first").template(comments, function(comment, index) {
+				this.appendTo("#commentlist");
+				this.attr("id", "comment-" + index);
+				if(comment.getUrl() && comment.getUrl().length()) {
+					this.find(".commentauthor a").text("" + comment.getAuthor()).attr("href", comment.getUrl());
 				} else {
-					current.find(".commentauthor").text("" + comment.getAuthor());
+					this.find(".commentauthor").text("" + comment.getAuthor());
 				}
-				current.find(".commentdate").text("" + DateFormat.datetime(comment.getDate()));
-				current.find(".commentbody").text("" + comment.getBody());
+				this.find(".commentdate").text("" + DateFormat.datetime(comment.getDate()));
+				this.find(".commentbody").text("" + comment.getBody());
 			});
 		} else {
 			$("#comments span:last").text("Noch keine Kommentare vorhanden");
@@ -132,7 +144,6 @@ var Page = {
 		$("#comments a.commentlink").attr("href", "?commentfeed=" + post.getId());
 		$("#commentblock .comment-track a").attr("href", "?trackback=" + post.getId());
 		$("#commentform").attr("action", "?postcomment=" + post.getId());
-		//$("#commentform input[@name='comment_post_ID'").val("" + post.getId());
 	},
 	sidebar: function(posts) {
 		var container = $("#navcol ul:first").empty();

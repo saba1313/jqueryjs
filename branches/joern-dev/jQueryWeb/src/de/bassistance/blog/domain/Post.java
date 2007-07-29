@@ -39,9 +39,7 @@ public class Post {
 	}
 	
 	public List<Comment> getComments() {
-		List<Comment> result = new ArrayList(comments);
-		Collections.reverse(result);
-		return result;
+		return Collections.unmodifiableList(comments);
 	}
 
 	public String getId() {

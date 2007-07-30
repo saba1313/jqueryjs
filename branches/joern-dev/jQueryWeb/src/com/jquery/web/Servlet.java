@@ -19,6 +19,8 @@ import org.mozilla.javascript.tools.ToolErrorReporter;
 
 public class Servlet extends HttpServlet {
 	
+	private static final long serialVersionUID = 1L;
+
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Request.set(request);
 		Response.set(response);

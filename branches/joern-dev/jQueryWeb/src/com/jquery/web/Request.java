@@ -44,9 +44,9 @@ public class Request {
 
 	public Request() {
 		if(isPortletRequest())
-			from(portletRequest());
+			from(portlet());
 		else
-			from(servletRequest());
+			from(servlet());
 	}
 
 	private void from(HttpServletRequest servletRequest) {
@@ -69,11 +69,11 @@ public class Request {
 		return requestHolder.get() instanceof PortletRequestAttributes;
 	}
 
-	private static HttpServletRequest servletRequest() {
+	private static HttpServletRequest servlet() {
 		return (HttpServletRequest) requestHolder.get();
 	}
 
-	private static PortletRequest portletRequest() {
+	public static PortletRequest portlet() {
 		return (PortletRequest) requestHolder.get();
 	}
 	
@@ -104,8 +104,8 @@ public class Request {
 	
 	public static String get(String name) {
 		return isPortletRequest()
-			? portletRequest().getParameter(name)
-			: servletRequest().getParameter(name);
+			? portlet().getParameter(name)
+			: servlet().getParameter(name);
 	}
 
 }

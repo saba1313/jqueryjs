@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>UI Menu Tests</title>
+		<script type="text/javascript" src="jquery.js"></script>
+		<script type="text/javascript" src="ui.js"></script>
+		<script type="text/javascript" src="ui.menu.js"></script>
+	</head>
+	<body>
+		
+		<script type="text/javascript">
+			$('document').ready(function(){
+				$('#testmenu').menu();
+			});
+		</script>
+		
+		<ul id="testmenu">
+			<li>Menu 1</li>
+			<li>Menu 2
+				<ul>
+					<li>Menu 2.1</li>
+					<li>Menu 2.2</li>
+				</ul>
+			</li>
+			<li>Menu 3</li>
+			<li>Menu 4
+				<ul>
+					<li>Menu 4.1
+					<ul>
+						<li>Menu 4.1.1</li>
+						<li>Menu 4.1.2</li>
+					</ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</body>
+</html>

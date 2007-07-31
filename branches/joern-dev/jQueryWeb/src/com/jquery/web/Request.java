@@ -1,3 +1,11 @@
+/*
+ * jQuery web framework
+ * 
+ * Copyright (c) 2007 Jörn Zaefferer
+ * Dual licensed under the MIT and GPL licenses.
+ * 
+ * $Id$
+ */
 package com.jquery.web;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,7 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.web.portlet.context.PortletRequestAttributes;
 
 /**
- * Maps a servlet or portlet request to beans via {@link #mapTo(Object)}.
+ * Provides a threadlocal reference to the current request and mapping
+ * facilities from that request to objects (see {@link #mapTo(Object)}).
  * 
  * Depends on Apache Commons Beanutils, servlet-api and portlet-api.
  */
@@ -69,7 +78,7 @@ public class Request {
 		return requestHolder.get() instanceof PortletRequestAttributes;
 	}
 
-	private static HttpServletRequest servlet() {
+	public static HttpServletRequest servlet() {
 		return (HttpServletRequest) requestHolder.get();
 	}
 
@@ -102,6 +111,11 @@ public class Request {
 		return target;
 	}
 	
+	/**
+	 * Get a single parameter from this request.
+	 * @param name The name of the parameter to get
+	 * @return The value of the parameter
+	 */
 	public static String get(String name) {
 		return isPortletRequest()
 			? portlet().getParameter(name)

@@ -1,3 +1,11 @@
+/*
+ * jQuery web framework
+ * 
+ * Copyright (c) 2007 Jörn Zaefferer
+ * Dual licensed under the MIT and GPL licenses.
+ * 
+ * $Id$
+ */
 package com.jquery.web;
 
 import org.mozilla.javascript.Context;
@@ -7,13 +15,15 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.shell.Main;
 import org.springframework.context.ApplicationContext;
 
+/**
+ * Modified {@link Globals} for a portlet request. Exposes a
+ * spring {@link ApplicationContext}.
+ */
 public class PortletGlobals {
 
 	public static void load(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
 		for (int i = 0; i < args.length; i++) {
 			Main.processFile(cx, thisObj, Context.toString(args[i]));
-			// return cx.compileString(scriptSource, path, lineno,
-			// securityDomain);
 		}
 	}
 

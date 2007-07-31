@@ -1,3 +1,11 @@
+/*
+ * jQuery web framework
+ * 
+ * Copyright (c) 2007 Jörn Zaefferer
+ * Dual licensed under the MIT and GPL licenses.
+ * 
+ * $Id$
+ */
 package com.jquery.web;
 
 import java.io.IOException;
@@ -8,6 +16,11 @@ import javax.portlet.PortletURL;
 import javax.portlet.RenderResponse;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Provides a threadlocal reference to the current response.
+ * 
+ * Encapsulates creation of action and render URLs for portlets.
+ */
 public class Response {
 	
 	private static final ThreadLocal responseHolder = new ThreadLocal();

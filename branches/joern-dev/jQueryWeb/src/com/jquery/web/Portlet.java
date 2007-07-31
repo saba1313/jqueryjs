@@ -1,3 +1,11 @@
+/*
+ * jQuery web framework
+ * 
+ * Copyright (c) 2007 Jörn Zaefferer
+ * Dual licensed under the MIT and GPL licenses.
+ * 
+ * $Id$
+ */
 package com.jquery.web;
 
 import java.io.FileNotFoundException;
@@ -21,6 +29,24 @@ import org.mozilla.javascript.tools.ToolErrorReporter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.portlet.context.PortletApplicationContextUtils;
 
+/**
+ * Generic portlet mapping portlet modes to views.
+ * 
+ * Configure "views" init-parameter to setup the folder
+ * where to look for view files.
+ * 
+ * Example:
+ * <pre>&lt;init-param&gt;
+ *	&lt;name&gt;views&lt;/name&gt;
+ *	&lt;value&gt;views/grid&lt;/value&gt;
+ * &lt;/init-param&gt;</pre>
+ * 
+ * That sets up the portlet to look for files at views/grid, eg. for
+ * view mode there'd have to be views/grid/view.js and views/grid.view.html.
+ * 
+ * Actions are searched by appending "-action", so actions for view mode
+ * are defined in view-action.js.
+ */
 public class Portlet extends GenericPortlet {
 	
 	public void processAction(ActionRequest request, ActionResponse response) throws PortletException, IOException {

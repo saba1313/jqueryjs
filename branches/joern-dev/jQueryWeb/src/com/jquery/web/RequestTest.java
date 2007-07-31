@@ -1,3 +1,11 @@
+/*
+ * jQuery web framework
+ * 
+ * Copyright (c) 2007 Jörn Zaefferer
+ * Dual licensed under the MIT and GPL licenses.
+ * 
+ * $Id$
+ */
 package com.jquery.web;
 
 import java.util.Arrays;

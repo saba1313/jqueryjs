@@ -5,30 +5,30 @@
 		<title>UI Menu Tests</title>
 		
 		<style type="text/css">
-			.ui-toolbar-menu {display:none; position:relative;}
-			.ui-toolbar {background:#1d3b75; border:1px solid #eee;padding:5px;}
+			.ui-toolbar-menu {display:none; position:relative; z-index:500; border:1px solid #fff; list-style:none;}
+			.ui-toolbar {background:#1d3b75; border:1px solid #eee;padding:5px;z-index:500;}
 			.ui-toolbar-button {margin:5px; border:1px solid #000; background:#3366cc; cursor:hand;}
 			.ui-toolbar-button:hover {margin:5px; border:1px solid #000; background:#6699ff; cursor:hand;}
+			.ui-toolbar-node:hover {background:#6699ff;}
+			.ui-toolbar-node:hover ul {background:transparent;}
+			.ui-toolbar-submenu {display:none;}
 		</style>
 		
 		<script type="text/javascript" src="../jquery.js"></script>
 		<script type="text/javascript" src="../ui.js"></script>
+		<script type="text/javascript" src="../jquery.hoverIntent.js"></script>
 		<script type="text/javascript" src="../ui.menu.js"></script>
 	</head>
 	<body>
 		
 		<script type="text/javascript">
 			$('document').ready(function(){
-				$('#filemenu-parent').menu('#filemenu','click', 'fadeIn', {}, {
-					triggers: { 
-						'filemenu-open': function menuOpen() { alert('You clicked Open');}, 
-						'filemenu-save': function menuSave() { alert('You clicked Save');} } 
-					});
+				$('#filemenu-parent').hoverContext('#filemenu');
 			});
 			
 			
 		</script>
-		
+		<h2>Toolbar Test</h2>
 		<div id="mytoolbar" class="ui-toolbar">
 			<span id="filemenu-parent" class="ui-toolbar-button">File</span>
 			<span id="editmenu-parent" class="ui-toolbar-button">Edit</span>
@@ -45,5 +45,34 @@
 			<li id="filemenu-save" class="ui-toolbar-node">Save</li>
 			<li id="filemenu-exit" class="ui-toolbar-node">Exit</li>
 		</ul>
+		<h2>Context Test</h2>
+		<table>
+			<caption>Test Table</caption>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Profession</th>
+					<th>Salary ($)</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Tane Piper</td>
+					<td>Web Developer</td>
+					<td>1,000,000</td>
+				</tr>
+				<tr>
+					<td>John Smith</td>
+					<td>Gardener</td>
+					<td>20,000</td>
+				</tr>
+				<tr>
+					<td>Jane Doe</td>
+					<td>Session Musician</td>
+					<td>40,000</td>
+				</tr>
+			</tbody>
+			</thead>
+		</table>
 	</body>
 </html>

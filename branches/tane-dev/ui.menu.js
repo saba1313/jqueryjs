@@ -1,22 +1,44 @@
-/* jQuery UI Menu */
+/* jQuery UI Menu
+ * 
+ * m = menu being passed in
+ * h = handler types
+ * d = display effect
+ * o = options
+ * f = trigger functions
+ */
 
 (function($){
 	
-	$.fn.menu = function(o) {
+	$.fn.menu = function(m, h, d, o, f) {
 		return this.each(function() {
-			new $.ui.menu(this,o);	
+			new $.ui.menu(this, m, h, d, o, f);	
 		});
 	}
 	
-	$.ui.menu = function(el,o) {
-		// Keys for alt functionality
+	
+	$.ui.menu = function(el, m, h, d, o, f) {
+		// Keys for possible alt functionality
 		var ALT = false;
 		var CTRL = false;
 		var SHIFT = false;
+			
+		var attach = el;
+		var menu = m;
+		var handler = h;
+		var display = d;
+		var functions = f;
 		
-		var menu = el;
-		// Add classes to elements  - Currently only does one level of adding classes
-		$(menu).addClass('ui-menu-nodes').children('li').addClass('ui-menu-node').children('ul').addClass('ui-menu-subnodes').children('li').addClass('ui-menu-node');
-	}
+		var options = {};
+		$.extend(options, o);
+		$.extend(options, {
+		
+		});
+		
+		$(attach).bind(handler, function(){
+			$(menu).toggle();
+		})
+		
+	};
+	
 	
 })($);

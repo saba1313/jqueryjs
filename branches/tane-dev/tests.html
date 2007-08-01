@@ -3,6 +3,14 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 		<title>UI Menu Tests</title>
+		
+		<style type="text/css">
+			.ui-toolbar-menu {display:none; position:relative;}
+			.ui-toolbar {background:#1d3b75; border:1px solid #eee;padding:5px;}
+			.ui-toolbar-button {margin:5px; border:1px solid #000; background:#3366cc; cursor:hand;}
+			.ui-toolbar-button:hover {margin:5px; border:1px solid #000; background:#6699ff; cursor:hand;}
+		</style>
+		
 		<script type="text/javascript" src="jquery.js"></script>
 		<script type="text/javascript" src="ui.js"></script>
 		<script type="text/javascript" src="ui.menu.js"></script>
@@ -11,29 +19,31 @@
 		
 		<script type="text/javascript">
 			$('document').ready(function(){
-				$('#testmenu').menu();
+				$('#filemenu-parent').menu('#filemenu','click', 'fadeIn', {}, {
+					triggers: { 
+						'filemenu-open': function menuOpen() { alert('You clicked Open');}, 
+						'filemenu-save': function menuSave() { alert('You clicked Save');} } 
+					});
 			});
+			
+			
 		</script>
 		
-		<ul id="testmenu">
-			<li>Menu 1</li>
-			<li>Menu 2
-				<ul>
-					<li>Menu 2.1</li>
-					<li>Menu 2.2</li>
+		<div id="mytoolbar" class="ui-toolbar">
+			<span id="filemenu-parent" class="ui-toolbar-button">File</span>
+			<span id="editmenu-parent" class="ui-toolbar-button">Edit</span>
+		</div>
+		
+		<ul id="filemenu" class="ui-toolbar-menu">
+			<li id="filemenu-new" class="ui-toolbar-node">New
+				<ul class="ui-toolbar-submenu">
+					<li id="filemenu-newdoc" class="ui-toolbar-node">Document</li>
+					<li id="filemenu-newimg" class="ui-toolbar-node">Image</li>
 				</ul>
 			</li>
-			<li>Menu 3</li>
-			<li>Menu 4
-				<ul>
-					<li>Menu 4.1
-					<ul>
-						<li>Menu 4.1.1</li>
-						<li>Menu 4.1.2</li>
-					</ul>
-					</li>
-				</ul>
-			</li>
+			<li id="filemenu-open" class="ui-toolbar-node">Open</li>
+			<li id="filemenu-save" class="ui-toolbar-node">Save</li>
+			<li id="filemenu-exit" class="ui-toolbar-node">Exit</li>
 		</ul>
 	</body>
 </html>

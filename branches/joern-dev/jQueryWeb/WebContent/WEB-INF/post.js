@@ -5,7 +5,6 @@ var blog = new BlogService().getBlog();
 
 function process() {
 	if(request.method == "post") {
-		jQuery.isReady = true;
 		load(request.realPath + "/../scripts/jquery.validate.js");
 		load(request.realPath + "/../scripts/validate.js");
 		$("#commentform :input").each(function(index, element) {
@@ -18,10 +17,10 @@ function process() {
 		}
 	}
 	Page.header();
-	Page.categories(blog.getCategories());
-	Page.post(blog.getCurrentPost());
-	Page.comments(blog.getCurrentPost(), blog.getCurrentPost().getComments().toArray());
-	Page.sidebar(blog.getPosts().toArray());
+	Page.categories(blog.categories);
+	Page.post(blog.currentPost);
+	Page.comments(blog.currentPost, blog.currentPost.comments.toArray());
+	Page.sidebar(blog.posts.toArray());
 	Page.topNavigation(blog);
 	return $().print();
 }

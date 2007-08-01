@@ -33,46 +33,47 @@ var Page = {
 		var container = $("#navcol ul:eq(1)").empty();
 		var template = String.format("<li><a href='?category={0}' title='{1}'>{2}</a></li>");
 		categories.forEach(function(category) {
-			$(template(category.getId(), category.getTitle(), category.getName())).appendTo(container);
+			print(category.bla);
+			$(template(category.id, category.title, category.name)).appendTo(container);
 		});
 	},
 	posts: function(posts) {
 		$("div.entry").template(posts, function(post) {
 			this.insertBefore("div.bottommeta");
-			this.find(".entrymeta").html(DateFormat.date(post.getDate()));
-			this.find(".entrytitle a").html("" + post.getTitle()).attr("href", "?post=" + post.getId()).attr("title", "Link zu " + post.getTitle());
-			this.find(".entrybody").html("" + post.getBody());
+			this.find(".entrymeta").html(DateFormat.date(post.date));
+			this.find(".entrytitle a").html("" + post.title).attr("href", "?post=" + post.id).attr("title", "Link zu " + post.title);
+			this.find(".entrybody").html("" + post.body);
 		});
 	},
 	feedHeader: function(blog) {
-		$("channel>title").text("" + blog.getName());
+		$("channel>title").text("" + blog.name);
 		$("channel>link").text(".");
-		$("channel>description").text("" + blog.getDescription());
+		$("channel>description").text("" + blog.description);
 	},
 	feedPosts: function(posts) {
 		 $("item").template(posts, function(post, index) {
 			this.appendTo("channel");
-			this.find("pubDate").html("" + post.getDate());
-			this.find("title").html("" + post.getTitle());
-			this.find("description").html("" + post.getBody());
-			this.find("content\\:encoded").html("" + post.getBody());
-			this.find("link").text("?post=" + post.getId());
-			this.find("comments").text("?post=" + post.getId() + "#commentlist");
+			this.find("pubDate").html("" + post.date);
+			this.find("title").html("" + post.title);
+			this.find("description").html("" + post.body);
+			this.find("content\\:encoded").html("" + post.body);
+			this.find("link").text("?post=" + post.id);
+			this.find("comments").text("?post=" + post.id + "#commentlist");
 			this.find("category").remove();
-			post.getCategories().toArray().forEach(function(category) {
-				$("<category>" + category.getName() + "</category>").insertBefore(this.find("guid"));
+			post.categories.toArray().forEach(function(category) {
+				$("<category>" + category.name + "</category>").insertBefore(this.find("guid"));
 			}, this);
 		});
 	},
 	post: function(post) {
 		var current = $("div.entry");
-		current.find("#leftmeta").html(DateFormat.datetime(post.getDate()));
+		current.find("#leftmeta").html(DateFormat.datetime(post.date));
 		var template = String.format("<a href='?category={0}' title='{1}'>{2}</a>");
-		$("#rightmeta").list(post.getCategories().toArray(), ", ", function(category) {
-			return template(category.getId(), category.getTitle(), category.getName());
+		$("#rightmeta").list(post.categories.toArray(), ", ", function(category) {
+			return template(category.id, category.title, category.name);
 		});
-		current.find(".single-title").html("" + post.getTitle());
-		current.find(".entrybody").html("" + post.getBody());
+		current.find(".single-title").html("" + post.title);
+		current.find(".entrybody").html("" + post.body);
 	},
 	comments: function(post, comments) {
 		if ( comments.length ) {
@@ -80,27 +81,27 @@ var Page = {
 			$("#commentlist li:first").template(comments, function(comment, index) {
 				this.appendTo("#commentlist");
 				this.attr("id", "comment-" + index);
-				if(comment.getUrl() && comment.getUrl().length()) {
-					this.find(".commentauthor a").text("" + comment.getAuthor()).attr("href", comment.getUrl());
+				if(comment.Url && comment.url.length()) {
+					this.find(".commentauthor a").text("" + comment.author).attr("href", comment.url);
 				} else {
-					this.find(".commentauthor").text("" + comment.getAuthor());
+					this.find(".commentauthor").text("" + comment.author);
 				}
-				this.find(".commentdate").text("" + DateFormat.datetime(comment.getDate()));
-				this.find(".commentbody").text("" + comment.getBody());
+				this.find(".commentdate").text("" + DateFormat.datetime(comment.date));
+				this.find(".commentbody").text("" + comment.body);
 			});
 		} else {
 			$("#comments span:last").text("Noch keine Kommentare vorhanden");
 			$("#commentlist").remove();
 		}
-		$("#comments a.commentlink").attr("href", "?commentfeed=" + post.getId());
-		$("#commentblock .comment-track a").attr("href", "?trackback=" + post.getId());
-		$("#commentform").attr("action", "?post=" + post.getId() + "#commentform");
+		$("#comments a.commentlink").attr("href", "?commentfeed=" + post.id);
+		$("#commentblock .comment-track a").attr("href", "?trackback=" + post.id);
+		$("#commentform").attr("action", "?post=" + post.id + "#commentform");
 	},
 	sidebar: function(posts) {
 		var container = $("#navcol ul:first").empty();
 		var template = String.format("<li><a href='?post={0}' title='Beitrag {1} ansehen'>{1}</a></li>");
 		$.each(posts, function(index, post) {
-			$(template(post.getId(), post.getTitle())).appendTo(container);
+			$(template(post.id, post.title)).appendTo(container);
 		});
 	},
 	topNavigation: function(blog) {
@@ -109,12 +110,12 @@ var Page = {
 		var prevPost = blog.previousPost();
 		var nextPost = blog.nextPost();
 		if (prevPost) {
-			meta.find(".prev").html(String.format("&#171; <a href='?post={0}'>{1}</a>&#160;", prevPost.getId(), prevPost.getTitle()));
+			meta.find(".prev").html(String.format("&#171; <a href='?post={0}'>{1}</a>&#160;", prevPost.id, prevPost.title));
 		} else {
 			meta.find(".prev").html("&#160;");
 		}
 		if (nextPost) {
-			meta.find(".next").html(String.format("&#160;<a href='?post={0}'>{1}</a> &#187; ", nextPost.getId(), nextPost.getTitle()));
+			meta.find(".next").html(String.format("&#160;<a href='?post={0}'>{1}</a> &#187; ", nextPost.id, nextPost.title));
 		} else {
 			meta.find(".next").html("&#160;");
 		}

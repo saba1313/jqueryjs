@@ -1,4 +1,4 @@
-/**
+﻿/**
 * hoverIntent is similar to jQuery's built-in "hover" function except that
 * instead of firing the onMouseOver event immediately, hoverIntent checks
 * to see if the user's mouse has slowed down (beneath the sensitivity
@@ -29,14 +29,7 @@
 * @author    Brian Cherne <brian@cherne.net>
 */
 (function($) {
-
 	$.fn.hoverIntent = function(f,g) {
-		return this.each(function(){
-			new $.ui.hoverIntent(this,f,g);
-		});
-	}
-
-	$.ui.hoverIntent = function(el,f,g) {
 		// default configuration options
 		var cfg = {
 			sensitivity: 7,
@@ -114,6 +107,6 @@
 		};
 
 		// bind the function to the two event listeners
-		return el.mouseover(handleHover).mouseout(handleHover);
+		return this.mouseover(handleHover).mouseout(handleHover);
 	};
-})($);
+})(jQuery);

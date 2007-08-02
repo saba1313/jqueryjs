@@ -8,6 +8,4 @@ Page.posts(blog.recentPosts.toArray());
 Page.sidebar(blog.posts.toArray());
 Page.bottomNavigation(blog);
 
-//$("#navmenu").append(blog.getName());
-
 $().print();

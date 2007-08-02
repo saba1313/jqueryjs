@@ -36,10 +36,10 @@
 		var ALT = false;
 		var CTRL = false;
 		var SHIFT = false;
-		
+		effect = 'click';
 		menuItems.push(m);
 		$(m).addClass('ui-toolbar-menu');
-		$(el).bind('click', function(){
+		$(el).bind(effect, function(){
 			x = $(el).position();
 			elBottom = x.top + $(el).height();
 			elLeft = x.left;
@@ -48,7 +48,7 @@
 			console.log(elBottom + ',' + elLeft);
 			$(m).css({position:'absolute', top:elBottom + 1, left: elLeft})
 			$(m).show('slow', function(){
-				$(this).unbind('click').hideContext();
+				$(this).unbind(effect).hideContext(effect);
 			});
 		});			
 	}
@@ -57,6 +57,21 @@
 		var ALT = false;
 		var CTRL = false;
 		var SHIFT = false;
+		effect = 'mouseover';
+		menuItems.push(m);
+		$(m).addClass('ui-toolbar-menu');
+		$(el).bind(effect, function(){
+			x = $(el).position();
+			elBottom = x.top + $(el).height();
+			elLeft = x.left;
+			console.log(menuItems);
+			console.log(x);
+			console.log(elBottom + ',' + elLeft);
+			$(m).css({position:'absolute', top:elBottom + 1, left: elLeft})
+			$(m).show('slow', function(){
+				$(this).unbind(effect).hideContext(effect);
+			});
+		});			
 			
 	}
 	$.ui.context = function(el, m, o, t) {
@@ -66,8 +81,8 @@
 		var SHIFT = false;
 			
 	}
-	$.ui.hideContext = function(el) {
-			$(window).unbind('click').bind('click',function(){
+	$.ui.hideContext = function(el, ef) {
+			$(window).unbind(ef).bind(ef,function(){
 				$(el).hide('fast');
 			});
 	}	

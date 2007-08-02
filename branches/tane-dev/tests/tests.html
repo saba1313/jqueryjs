@@ -5,7 +5,7 @@
 		<title>UI Menu Tests</title>
 		
 		<style type="text/css">
-			.ui-toolbar-menu {display:none; position:relative; z-index:500; border:1px solid #fff; list-style:none;}
+			.ui-toolbar-menu {display:none; padding:0; z-index:500; border:1px solid #fff; list-style:none;}
 			.ui-toolbar {background:#1d3b75; border:1px solid #eee;padding:5px;z-index:500;}
 			.ui-toolbar-button {margin:5px; border:1px solid #000; background:#3366cc; cursor:hand;}
 			.ui-toolbar-button:hover {margin:5px; border:1px solid #000; background:#6699ff; cursor:hand;}
@@ -15,6 +15,7 @@
 		</style>
 		
 		<script type="text/javascript" src="../jquery.js"></script>
+		<script type="text/javascript" src="../jquery.dimensions.js"></script>
 		<script type="text/javascript" src="../ui.js"></script>
 		<script type="text/javascript" src="../jquery.hoverIntent.js"></script>
 		<script type="text/javascript" src="../ui.menu.js"></script>
@@ -23,7 +24,8 @@
 		
 		<script type="text/javascript">
 			$('document').ready(function(){
-				$('#filemenu-parent').hoverContext('#filemenu');
+				$('#filemenu-parent').clickContext('#filemenu');
+				$('#editmenu-parent').clickContext('#editmenu');
 			});
 			
 			
@@ -34,17 +36,24 @@
 			<span id="editmenu-parent" class="ui-toolbar-button">Edit</span>
 		</div>
 		
-		<ul id="filemenu" class="ui-toolbar-menu">
-			<li id="filemenu-new" class="ui-toolbar-node">New
-				<ul class="ui-toolbar-submenu">
-					<li id="filemenu-newdoc" class="ui-toolbar-node">Document</li>
-					<li id="filemenu-newimg" class="ui-toolbar-node">Image</li>
+		<ul id="filemenu">
+			<li id="filemenu-new"><a href="file-new">New</a>
+				<ul>
+					<li id="filemenu-newdoc"><a href="file-new-document">Document</a></li>
+					<li id="filemenu-newimg"><a href="file-new-image">Image</a></li>
 				</ul>
 			</li>
-			<li id="filemenu-open" class="ui-toolbar-node">Open</li>
-			<li id="filemenu-save" class="ui-toolbar-node">Save</li>
-			<li id="filemenu-exit" class="ui-toolbar-node">Exit</li>
+			<li id="filemenu-open"><a href="file-open">Open</a></li>
+			<li id="filemenu-save"><a href="file-save">Save</a></li>
+			<li id="filemenu-exit"><a href="file-save">Exit</a></li>
 		</ul>
+		
+		<ul id="editmenu">
+			<li id="editmenu-cut"><a href="edit-cut">Cut</a></li>
+			<li id="editmenu-copy"><a href="edit-copy">Copy</a></li>
+			<li id="editmeni-paste"><a href="edit-pase">Paste</a></li>
+		</ul>
+		
 		<h2>Context Test</h2>
 		<table>
 			<caption>Test Table</caption>

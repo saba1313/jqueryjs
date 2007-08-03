@@ -32,58 +32,80 @@
 	
 	
 	$.ui.clickContext = function(el, m, o, t) {
-		// Keys for possible alt functionality
+		var options  = {};
+		$.extend(options, o);
+		$.extend(options, {
+			timeout: 2000,
+			bindto: 'click'
+		});
 		var ALT = false;
 		var CTRL = false;
 		var SHIFT = false;
-		effect = 'click';
+
 		menuItems.push(m);
 		$(m).addClass('ui-toolbar-menu');
-		$(el).bind(effect, function(){
+		$(el).bind(options.bindto, function(){
 			x = $(el).position();
 			elBottom = x.top + $(el).height();
 			elLeft = x.left;
-			console.log(menuItems);
-			console.log(x);
-			console.log(elBottom + ',' + elLeft);
 			$(m).css({position:'absolute', top:elBottom + 1, left: elLeft})
 			$(m).show('slow', function(){
-				$(this).unbind(effect).hideContext(effect);
+				console.log('Menu Shown')
 			});
 		});			
 	}
 	$.ui.hoverContext = function(el, m, o, t) {
-		// Keys for possible alt functionality
+		var options  = {};
+		$.extend(options, o);
+		$.extend(options, {
+			timeout: 2000,
+			bindto: 'mouseover'
+		});
 		var ALT = false;
 		var CTRL = false;
 		var SHIFT = false;
-		effect = 'mouseover';
+
 		menuItems.push(m);
 		$(m).addClass('ui-toolbar-menu');
-		$(el).bind(effect, function(){
+		$(el).bind(options.bindto, function(){
 			x = $(el).position();
 			elBottom = x.top + $(el).height();
 			elLeft = x.left;
-			console.log(menuItems);
-			console.log(x);
-			console.log(elBottom + ',' + elLeft);
 			$(m).css({position:'absolute', top:elBottom + 1, left: elLeft})
 			$(m).show('slow', function(){
-				$(this).unbind(effect).hideContext(effect);
+				console.log('Menu Shown')
 			});
-		});			
-			
+		});				
 	}
 	$.ui.context = function(el, m, o, t) {
-		// Keys for possible alt functionality
+		var options  = {};
+		$.extend(options, o);
+		$.extend(options, {
+			timeout: 2000,
+			bindto: 'click'
+		});
 		var ALT = false;
 		var CTRL = false;
 		var SHIFT = false;
-			
+
+		menuItems.push(m);
+		$(m).addClass('ui-toolbar-menu');
+		$(el).bind(options.bindto, function(e){
+			console.log(e);
+			if (e.button == 0 || e.button == 2 || e.button == 3) {
+				x = $(el).position();
+				elBottom = x.top + $(el).height();
+				elLeft = x.left;
+				$(m).css({position:'absolute', top:elBottom + 1, left: elLeft})
+				$(m).show('slow', function(){
+					console.log('Menu Shown')
+				});
+			}
+		});	
 	}
 	$.ui.hideContext = function(el, ef) {
 			$(window).unbind(ef).bind(ef,function(){
 				$(el).hide('fast');
 			});
-	}	
+	}
 })($);

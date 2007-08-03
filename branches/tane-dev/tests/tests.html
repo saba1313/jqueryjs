@@ -5,13 +5,17 @@
 		<title>UI Menu Tests</title>
 		
 		<style type="text/css">
-			.ui-toolbar-menu {display:none; padding:0; background:#ccc; z-index:500; border:1px solid #fff; list-style:none;}
-			.ui-toolbar {background:#1d3b75; border:1px solid #eee;padding:5px;z-index:500;}
-			.ui-toolbar-button {margin:5px; border:1px solid #000; background:#3366cc; cursor:hand;}
-			.ui-toolbar-button:hover {margin:5px; border:1px solid #000; background:#6699ff; cursor:hand;}
+			body { font:10pt Calibri, Arial, sans-serif; margin:10px 20px;}
+			.ui-toolbar {background:#222; z-index:500; font:10pt Verdana; }
+			.ui-toolbar-menu {display:none; padding:0; background:#FFF; z-index:500; border:1px solid #CCC; list-style:none; padding:1px 4px; opacity:0.95; font:10pt Verdana; min-width:80px; *width:80px;}
+			.ui-toolbar-button {padding:4px 20px; border:1px solid #DDD; background:#FFF; cursor:pointer;}
+			.ui-toolbar-button:hover {border:1px solid #CCC; background:#EEE; }
 			.ui-toolbar-node:hover {background:#6699ff;}
 			.ui-toolbar-node:hover ul {background:transparent;}
 			.ui-toolbar-submenu {display:none;}
+			.ui-toolbar-menu a { color:#000; text-decoration:none;}
+			.ui-toolbar-menu a:hover { text-decoration:underline; }
+			.ui-toolbar-menu ul { padding-left:10px; list-style:none;}
 		</style>
 		
 		<script type="text/javascript" src="../jquery.js"></script>
@@ -24,8 +28,9 @@
 		
 		<script type="text/javascript">
 			$('document').ready(function(){
-				$('#filemenu-parent').hoverContext('#filemenu');
+				$('#filemenu-parent').clickContext('#filemenu');
 				$('#editmenu-parent').hoverContext('#editmenu');
+				$('td').context('#filemenu');
 			});
 			
 			

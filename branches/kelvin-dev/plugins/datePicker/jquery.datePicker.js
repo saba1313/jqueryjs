@@ -168,8 +168,8 @@
  * @param Object s (optional) Customize your date pickers.
  * @option Number month The month to render when the date picker is opened (NOTE that months are zero based). Default is today's month.
  * @option Number year The year to render when the date picker is opened. Default is today's year.
- * @option Date startDate The first date date can be selected.
- * @option Date endDate The last date that can be selected.
+ * @option String startDate The first date date can be selected.
+ * @option String endDate The last date that can be selected.
  * @option Boolean createButton Whether to create a .dp-choose-date anchor directly after the matched element which when clicked will trigger the showing of the date picker. Default is true.
  * @option Boolean showYearNavigation Whether to display buttons which allow the user to navigate through the months a year at a time. Default is true.
  * @option Boolean closeOnSelect Whether to close the date picker when a date is selected. Default is true.

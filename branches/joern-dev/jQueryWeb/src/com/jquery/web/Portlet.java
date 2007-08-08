@@ -21,6 +21,8 @@ import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
@@ -49,6 +51,8 @@ import org.springframework.web.portlet.context.PortletApplicationContextUtils;
  */
 public class Portlet extends GenericPortlet {
 	
+	private final static Log log = LogFactory.getLog(Portlet.class);
+	
 	public void processAction(ActionRequest request, ActionResponse response) throws PortletException, IOException {
 		Request.set(request);
 		Response.set(response);
@@ -59,16 +63,28 @@ public class Portlet extends GenericPortlet {
 		Context.exit();
 	}
 
-	public void render(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+	public void render(RenderRequest request, RenderResponse response) {
 		Request.set(request);
 		Response.set(response);
 		response.setContentType("text/html; charset=UTF-8");
 		ScriptableObject scope = new ImporterTopLevel(Context.enter());
 		Context.getCurrentContext().setErrorReporter(new ToolErrorReporter(true, System.err));
 		PortletGlobals.init(scope, request.getContextPath(), realPath(), page(request), context());
-		Object result = eval(scope, page(request) + ".js");
-		response.getWriter().write(result.toString());
-		Context.exit();
+		try {
+			Object result = eval(scope, page(request) + ".js");
+			response.getWriter().write(result.toString());
+		} catch (Throwable e) {
+			try {
+				response.getWriter().write("<h1>The following exception occcured:</h1><pre>");
+				e.printStackTrace(response.getWriter());
+				response.getWriter().write("</pre>");
+				log.error(e.getMessage(), e);
+			} catch (IOException ex) {
+				e.printStackTrace();
+			}
+		} finally {
+			Context.exit();
+		}
 	}
 	
 	private ApplicationContext context() {

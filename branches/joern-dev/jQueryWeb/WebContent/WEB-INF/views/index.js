@@ -1,3 +1,4 @@
+load(request.realPath + "/blog.js");
 window.document = new DOMDocument(request.realPath + "/" + request.page + ".html");
 
 importPackage(Packages.de.bassistance.blog.domain);

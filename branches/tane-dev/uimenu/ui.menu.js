@@ -20,14 +20,12 @@
 		var menu = m;
 		var shown = false;
 		
-		var options  = {}, buttons = {};
-		$.extend(options, o);
-		$.extend(options, {
+		var options = $.extend({
 			timeout: 2000,
 			bindto: 'click'
-		});
-		$.extend(buttons, t);
-		
+		}, o);
+		var buttons = $.extend({}, t);
+
 		var ALT = false;
 		var CTRL = false;
 		var SHIFT = false;

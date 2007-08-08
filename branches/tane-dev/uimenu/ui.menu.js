@@ -43,6 +43,7 @@
 				console.log('Menu Shown');
 				$(window).bind('click', function(){
 					v.hideMenu(m, options);
+					$(window).unbind('click');
 				})
 			});
 		});

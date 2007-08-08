@@ -7,7 +7,7 @@
 		<style type="text/css">
 			body { font:10pt Calibri, Arial, sans-serif; margin:10px 20px;}
 			.ui-toolbar {background:#222; z-index:500; font:10pt Verdana; }
-			.ui-toolbar-menu {display:none; padding:0; background:#FFF; z-index:500; border:1px solid #CCC; list-style:none; padding:1px 4px; opacity:0.95; font:10pt Verdana; min-width:80px; *width:80px;}
+			.ui-menu-nodes {display:none; padding:0; background:#FFF; z-index:500; border:1px solid #CCC; list-style:none; padding:1px 4px; opacity:0.95; font:10pt Verdana; min-width:80px; *width:80px;}
 			.ui-toolbar-button {padding:4px 20px; border:1px solid #DDD; background:#FFF; cursor:pointer;}
 			.ui-toolbar-button:hover {border:1px solid #CCC; background:#EEE; }
 			.ui-toolbar-node:hover {background:#6699ff;}
@@ -28,9 +28,8 @@
 		
 		<script type="text/javascript">
 			$('document').ready(function(){
-				$('#filemenu-parent').clickContext('#filemenu');
-				$('#editmenu-parent').hoverContext('#editmenu');
-				$('td').context('#filemenu');
+				$('#filemenu-parent').menu('#filemenu');
+				$('#editmenu-parent').menu('#editmenu-parent', {bindto: 'mouseover'})
 			});
 			
 			

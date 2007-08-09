@@ -28,8 +28,9 @@
 		
 		<script type="text/javascript">
 			$('document').ready(function(){
-				$('#filemenu-parent').menu('#filemenu');
+				$('#filemenu-parent').menu('#filemenu', {}, {buttons: {fileNew : function(){console.log('this was executed');}}});
 				$('#editmenu-parent').menu('#editmenu', {context: 'hoverContext'})
+				$('td').menu('#editmenu', {context: 'context'});
 			});
 			
 			

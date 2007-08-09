@@ -81,10 +81,7 @@
 			var self = this;
 			$(a).bind('click', function(e){
 				if (e.button == 0 || e.button == 2 || e.button == 3) {
-					x = $(a).position();
-					elBottom = x.top + $(a).height();
-					elLeft = x.left;
-					$(m).css({position:'absolute', top:elBottom + 1, left: elLeft})
+					$(m).css({position:'absolute', top:e.clientY, left: e.clientX})
 					$(m)[o.show](o.speed, function(){
 						console.log('Menu Shown');
 						self.showChild(m, o);

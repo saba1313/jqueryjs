@@ -22,8 +22,8 @@
 		
 		var options = $.extend({
 			timeout: 2000,
-			bindto: 'click',
-			anim: 'show',
+			context: 'clickContext',
+			anim: 'slideDown',
 			speed: 'slow'
 		}, o);
 		var buttons = $.extend({}, t);
@@ -33,20 +33,8 @@
 		var SHIFT = false;
 		
 		this.styleMenu(menu);
-		var v = this;
-		$(attach).bind(options.bindto, function(){
-			x = $(attach).position();
-			elBottom = x.top + $(attach).height();
-			elLeft = x.left;
-			$(m).css({position:'absolute', top:elBottom + 1, left: elLeft})
-			$(m)[options.anim](options.speed, function(){
-				console.log('Menu Shown');
-				$(window).bind('click', function(){
-					v.hideMenu(m, options);
-					$(window).unbind('click');
-				})
-			});
-		});
+		this[options.context](attach, menu, options);
+		
 	}
 	
 	$.extend($.ui.menu.prototype, {
@@ -58,6 +46,38 @@
 			var node = $('li',m).addClass('ui-menu-node')
 				.css('MozUserSelect', 'none').attr('unselectable', 'on');
 			return false;
+		},
+		clickContext : function(a,m,o) {
+			var self = this;
+			$(a).bind('click', function(){
+				x = $(a).position();
+				elBottom = x.top + $(a).height();
+				elLeft = x.left;
+				$(m).css({position:'absolute', top:elBottom + 1, left: elLeft})
+				$(m)[o.anim](o.speed, function(){
+					console.log('Menu Shown');
+					$(window).bind('click', function(){
+						self.hideMenu(m, o);
+						$(window).unbind('click');
+					})
+				});
+			});
+		},
+		hoverContext : function(a,m,o) {
+			var self = this;
+			$(a).bind('mouseover', function(){
+				x = $(a).position();
+				elBottom = x.top + $(a).height();
+				elLeft = x.left;
+				$(m).css({position:'absolute', top:elBottom + 1, left: elLeft})
+				$(m)[o.anim](o.speed, function(){
+					console.log('Menu Shown');
+					$(window).bind('click', function(){
+						self.hideMenu(m, o);
+						$(window).unbind('click');
+					})
+				});
+			});
 		},
 		hideMenu : function(m, o){
 			

@@ -440,9 +440,11 @@ Date.format = 'dd/mm/yyyy';
 			d.setMonth(Number(s.substr(f.indexOf('mm'), 2)) - 1);
 		}
 		d.setDate(Number(s.substr(f.indexOf('dd'), 2)));
-		if (isNaN(d.getTime())) return false;
+		if (isNaN(d.getTime())) {
+			return false;
+		}
 		return d;
-	}
+	};
 	
 	// utility method
 	var _zeroPad = function(num) {

@@ -276,6 +276,10 @@
 								}
 							);
 						}
+						var d = Date.fromString(this.value);
+						if (d) {
+							controller.setSelected(d, true, true);
+						}
 					}
 					
 					$this.addClass('dp-applied');

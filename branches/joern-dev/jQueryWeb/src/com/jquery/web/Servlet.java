@@ -37,12 +37,16 @@ public class Servlet extends HttpServlet {
 	
 	private String views = "views/";
 	
+	private ScriptableObject shared;
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		if(config.getInitParameter("views") != null) {
 			views = config.getInitParameter("views");
 		}
+		shared = new ImporterTopLevel(Context.enter());
+		Context.exit();
 	}
 
 	protected void service(HttpServletRequest request, HttpServletResponse response) {
@@ -51,7 +55,12 @@ public class Servlet extends HttpServlet {
 		Response.set(response);
 		// TODO allow other content types, eg. xml for rss feed
 		response.setContentType("text/html; charset=UTF-8");
-		ScriptableObject scope = new ImporterTopLevel(Context.enter());
+		Context cx = Context.enter();
+		//ScriptableObject scope = new ImporterTopLevel(Context.enter());
+		ScriptableObject scope = (ScriptableObject) cx.newObject(shared);
+		scope.setPrototype(shared);
+		scope.setParentScope(null);
+		Context.getCurrentContext().getWrapFactory().setJavaPrimitiveWrap(false);
 		Context.getCurrentContext().setErrorReporter(new ToolErrorReporter(true, System.err));
 		Globals.init(scope, request.getContextPath(), realPath(), views + page(request), request.getMethod().toLowerCase());
 		try {

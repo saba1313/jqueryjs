@@ -72,8 +72,8 @@ var Page = {
 		$("#rightmeta").list(post.categories.toArray(), ", ", function(category) {
 			return template(category.id, category.title, category.name);
 		});
-		current.find(".single-title").html("" + post.title);
-		current.find(".entrybody").html("" + post.body);
+		current.find(".single-title").html(post.title);
+		current.find(".entrybody").html(post.body);
 	},
 	comments: function(post, comments) {
 		if ( comments.length ) {

@@ -121,5 +121,11 @@ public class Request {
 			? portlet().getParameter(name)
 			: servlet().getParameter(name);
 	}
+	
+	public static String getRemoteUser() {
+		return isPortletRequest()
+			? portlet().getRemoteUser()
+			: servlet().getRemoteUser();
+	}
 
 }

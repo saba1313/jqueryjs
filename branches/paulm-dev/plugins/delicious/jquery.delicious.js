@@ -20,8 +20,8 @@
  * @param String user The del.icio.us user who's bookmarks you want to load.
  * @param Map options key/value pairs of optional settings for the list display.
  * @option String type (posts|tags|network|fans) The type of information you wish to retrieve. Default: 'posts'
- * @option String itemTag The type of HTML element you wish to surround every item in the list. Default: '<li>'
- * @option String wrapTag The type of HTML element you wish to surround the entire list. Default: '<ul>'
+ * @option String itemTag The type of HTML element you wish to surround every item in the list. Default: 'li'
+ * @option String wrapTag The type of HTML element you wish to surround the entire list. Default: 'ul'
  * @option Boolean append If true, this will cause the new list to be appended to the selected elements, if false it will replace it's contents with the list. Default: false
  * @option Boolean favicon If true and the type option is posts, this will attempt to load the favicon.ico file from the domain of each bookmark. Default: true
  * @param Map tOptions key/value pairs of optional settings for the list itself.
@@ -35,8 +35,7 @@
  *
  */
 $.fn.delicious = function(user,options,tOptions,cbFnc){
-	//options.instance = $.delicious.these.length;
-	//$.delicious(user,options,tOptions,fName);
+	$.defineTag('script');
 	var opts = $.extend({'user':user},$.delicious.opts,options),
 		$self = this,
 		fn = cbFnc || jQuery.delicious.parsers[opts.type],
@@ -48,13 +47,8 @@ $.fn.delicious = function(user,options,tOptions,cbFnc){
 	opts.itemTag = opts.itemTag.toUpperCase();
 	opts.wrapTag = opts.wrapTag.toUpperCase();
 	url += $.param(rOpts);
-	if(document.createElement){
-		var oScript = document.createElement("script");
-		oScript.src = url;
-		document.body.appendChild(oScript);
-	}
-	else $('body').append('<scr'+'ipt type="text/javascript" src="'+url+'"><\/script>');
-	
+	$('body').append($.SCRIPT({src:url,type:'text/javascript'}));
+	//document.getElementsByTagName('head')[0].appendChild($.SCRIPT({src:url,type:'text/javascript'}));
 	return $self;
 	
 	// Ingenious name() closure function from Michael Geary

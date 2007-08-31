@@ -47,7 +47,8 @@ div.container{
 	float:left;
 }
 </style>
-<script src="http://code.jquery.com/jquery-latest.pack.js" type="text/javascript"></script>
+<!-- <script src="http://code.jquery.com/jquery-latest.pack.js" type="text/javascript"></script> -->
+<script src="jquery_domManip_mod_test.js" type="text/javascript"></script>
 <script src="jquery.delicious.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(function(){
@@ -56,6 +57,7 @@ $(function(){
 		if(this.value.length)
 			feedMe(this.value);
 	});
+	$('body').append($.SCRIPT({src:'testing_ajax.js',type:'text/javascript'}));
 });
 
 lastuser = '';

@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Language" content="en" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Image Effects</title>
+<script type="text/javascript" src="../../trunk/jquery/src/jquery/jquery.js"></script>
+<script type="text/javascript" src="../../trunk/jquery/src/selector/selector.js"></script>
+<script type="text/javascript" src="../../trunk/jquery/src/event/event.js"></script>
+<script type="text/javascript" src="../../trunk/jquery/src/ajax/ajax.js"></script>
+<script type="text/javascript" src="../../trunk/jquery/src/fx/fx.js"></script>
+<style type="text/css">
+body { background: black; }
+</style>
+
+<script type="text/javascript">
+
+$(function() {
+
+for (var j = 0; j < 18; j++) {
+  $('<div class="slice" style="overflow:hidden;"><img src="IMG_1731.jpg" style="margin-top:-' + (j * 25) + 'px;width:100%"></div>').hide().appendTo('body')
+}
+
+var i = 0, slices = $('.slice');
+function showSlices() {
+  if (i < 18) {
+    slices.eq(i++)
+      .fadeIn(75, showSlices)
+      .animate({marginTop: 0, height: 25}, 500);
+  } else { i = 0; }
+}
+
+$('#effect1').click(function() {
+  slices.hide();
+  slices.css({ 'margin-top': '15px', 'width': '615px', 'height': '25px' });
+  showSlices();
+});
+
+$('#effect2').click(function() {
+  slices.hide();
+  slices.css({ 'margin-top': '0px', 'width': '615px', 'height': '0px' });
+  showSlices();
+});
+
+});
+
+</script>
+
+</head>
+
+<body>
+
+<div style="margin-bottom:15px;">
+<button id="effect1">Effect 1</button>
+<button id="effect2">Effect 2</button>
+</div>
+
+</body>
+</html>

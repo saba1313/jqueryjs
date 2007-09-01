@@ -27,15 +27,41 @@ function showSlices() {
 }
 
 $('#effect1').click(function() {
+  $('#blur').hide();
   slices.hide();
   slices.css({ 'margin-top': '15px', 'width': '615px', 'height': '25px' });
   showSlices();
 });
 
 $('#effect2').click(function() {
+  $('#blur').hide();
   slices.hide();
   slices.css({ 'margin-top': '0px', 'width': '615px', 'height': '0px' });
   showSlices();
+});
+
+$('#effect3').click(function() {
+  $('#blur').hide();
+  slices.hide();
+  $('#blur').css({position: 'relative'})
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 0, top: -4}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 5, top: 5}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: -4, top: 0}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 5, top: -5}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 0, top: 4}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: -5, top: -5}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 4, top: 0}))
+
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 0, top: -2}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 3, top: 3}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: -2, top: 0}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 3, top: -3}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 0, top: 2}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: -3, top: -3}))
+    .prepend($('<img src="IMG_1731.jpg">').css({position: 'absolute', opacity: 0.1, left: 2, top: 0}));
+
+    $('#noblur').append('<img src="IMG_1731.jpg" style="margin-left:-50px;top:-50px;">')
+  $('#blur').fadeIn('slow');
 });
 
 });
@@ -49,6 +75,11 @@ $('#effect2').click(function() {
 <div style="margin-bottom:15px;">
 <button id="effect1">Effect 1</button>
 <button id="effect2">Effect 2</button>
+<button id="effect3">Effect 3</button>
+</div>
+
+<div id="blur">
+<div id="noblur" style="position:absolute;left:50px;top:50px;width:515px;height:350px;overflow:hidden;"></div>
 </div>
 
 </body>

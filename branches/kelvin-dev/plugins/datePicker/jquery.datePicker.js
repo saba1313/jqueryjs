@@ -103,6 +103,7 @@
 			
 			var firstDayOffset = Date.firstDayOfWeek - currentDate.getDay() + 1;
 			if (firstDayOffset > 1) firstDayOffset -= 7;
+			var weeksToDraw = Math.ceil(( (-1*firstDayOffset+1) + currentDate.getDaysInMonth() ) /7);
 			currentDate.addDays(firstDayOffset-1);
 			
 			var doHover = function()
@@ -119,7 +120,7 @@
 			};
 			
 			var w = 0;
-			while (w++<6) {
+			while (w++<weeksToDraw) {
 				var r = jQuery(dc('tr'));
 				for (var i=0; i<7; i++) {
 					var thisMonth = currentDate.getMonth() == month;

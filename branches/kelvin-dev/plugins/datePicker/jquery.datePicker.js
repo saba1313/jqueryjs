@@ -277,7 +277,7 @@
 							);
 						}
 						var d = Date.fromString(this.value);
-						if (d) {
+						if (this.value != '' && d) {
 							controller.setSelected(d, true, true);
 						}
 					}
@@ -588,8 +588,7 @@
 				e.setDate(1);
 				
 				var t;
-				
-				if (isNaN(m) && isNaN(y)) {
+				if ((!m && !y) || (isNaN(m) && isNaN(y))) {
 					// no month or year passed - default to current month
 					t = new Date().zeroTime();
 					t.setDate(1);

@@ -225,17 +225,19 @@
 				function()
 				{
 					var $this = $(this);
+					var alreadyExists = true;
 					
 					if (!this._dpId) {
 						this._dpId = $.event.guid++;
 						$.event._dpCache[this._dpId] = new DatePicker(this);
+						alreadyExists = false;
 					}
 					
 					var controller = $.event._dpCache[this._dpId];
 					
 					controller.init(s);
 					
-					if (s.createButton) {
+					if (!alreadyExists && s.createButton) {
 						// create it!
 						controller.button = $('<a href="#" class="dp-choose-date" title="' + $.dpText.TEXT_CHOOSE_DATE + '">' + $.dpText.TEXT_CHOOSE_DATE + '</a>')
 								.bind(
@@ -250,7 +252,7 @@
 						$this.after(controller.button);
 					}
 					
-					if ($this.is(':text')) {
+					if (!alreadyExists && $this.is(':text')) {
 						$this
 							.bind(
 								'dateSelected',

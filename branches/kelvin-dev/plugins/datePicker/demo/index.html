@@ -6,15 +6,8 @@
 		
         <!-- jQuery -->
 		<script type="text/javascript" src="jquery-1.1.2.js"></script>
-        
-        <!-- required plugins -->
-		<script type="text/javascript" src="date.js"></script>
-		<script type="text/javascript" src="dimensions.js"></script>
-		<!--[if IE]><script type="text/javascript" src="jquery.bgiframe.js"></script><![endif]-->
-        
-        <!-- jquery.datePicker.js -->
 		<script type="text/javascript" src="../jquery.datePicker.js"></script>
-		
+        
         <!-- page specific styles -->
 		<link rel="stylesheet" type="text/css" media="screen" href="demo.css">
         
@@ -37,12 +30,17 @@
             </p>
 			<h2>Requirements</h2>
 			<ul>
-				<li><a href="jquery-1.2.1.min.js">jQuery</a> - tested against 1.1.2 and 1.2.1.</li>
+				<li><a href="jquery-1.2.1.min.js">jQuery</a> - tested against 1.2.1.</li>
 				<li>The <a href="http://jqueryjs.googlecode.com/svn/branches/kelvin-dev/plugins/datePicker/demo/date.js">date methods</a>.</li>
-				<li>The <a href="http://jqueryjs.googlecode.com/svn/trunk/plugins/dimensions/jquery.dimensions.js">dimensions plugin</a>.</li>
-				<li>The <a href="http://jqueryjs.googlecode.com/svn/trunk/plugins/bgiframe/jquery.bgiframe.js">bgiframe plugin</a> (if you have SELECT elements on your page and don't want them to shine through the date pickers for users of IE).</li>
-				<li>Optionally some <a href="http://jqueryjs.googlecode.com/svn/trunk/plugins/methods/">localised date methods</a>.</li>
+				<li>Optionally the <a href="http://jqueryjs.googlecode.com/svn/trunk/plugins/bgiframe/jquery.bgiframe.js">bgiframe plugin</a> (if you have SELECT elements on your page and don't want them to shine through the date pickers for users of IE).</li>
+				<li>Optionally some <a href="http://jqueryjs.googlecode.com/svn/trunk/plugins/methods/">localised date methods</a> (if you want to display the date picker in a different language/ locale).</li>
 			</ul>
+			<div style="font-size: .9em; background: #eee; padding: 0 10px; margin: 1em 0; border: 1px solid #aaa;">
+				<p>
+					<strong>Note about using with older versions of jQuery</strong><br />
+					The datePicker is compatible with jQuery 1.1+. However, to use it with versions lower than 1.2.1 introduces a dependancy on the <a href="http://jquery.com/plugins/project/dimensions">dimensions plugin</a>. You will need to use a version of the dimensions plugin pre- 1.2 as in version 1.2 the offset method that we rely on was removed from the plugin (as it now exists in the core). You are always receommended to use the latest version of jQuery anyway.
+				</p>
+			</div>
 			<h2>Download</h2>
 			<ul>
 				<li><a href="../jquery.datePicker.js">jquery.datePicker.js</a> <span id="dp-version"></span></li>
@@ -58,7 +56,6 @@
 
 &lt;!-- required plugins --&gt;
 &lt;script type="text/javascript" src="date.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="dimensions.js"&gt;&lt;/script&gt;
 &lt;!--[if IE]&gt;&lt;script type="text/javascript" src="jquery.bgiframe.js"&gt;&lt;/script&gt;&lt;![endif]--&gt;
 
 &lt;!-- jquery.datePicker.js --&gt;

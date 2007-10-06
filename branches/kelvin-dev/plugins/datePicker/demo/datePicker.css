@@ -25,12 +25,10 @@ table.jCalendar td.other-month {
 table.jCalendar td.today {
 	background: #666;
 	color: #fff;
-	font-weight: bold;
 }
 table.jCalendar td.selected {
 	background: #f66;
 	color: #fff;
-	font-weight: bold;
 }
 table.jCalendar td.selected:hover {
 	background: #f33;
@@ -57,6 +55,7 @@ div#dp-popup {
 	padding: 2px;
 	min-width: 171px;
 	z-Index: 199;
+	line-height: 1.2em;
 }
 div#dp-popup h2 {
 	font-size: 12px;

@@ -777,6 +777,7 @@
 							c.setSelected(d, !$this.is('.selected') || !c.selectMultiple);
 							var s = c.isSelected(d.getTime());
 							$(c.ele).trigger('dateSelected', [d, $td, s]);
+							$(c.ele).trigger('change');
 							if (c.closeOnSelect) {
 								c._closeCalendar();
 							} else {

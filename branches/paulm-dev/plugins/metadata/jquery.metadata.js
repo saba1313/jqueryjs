@@ -33,17 +33,17 @@
  *
  * @example <p id="one" class="some_class {item_id: 1, item_label: 'Label'}">This is a p</p>
  * @before $.metadata.setType("class")
- * @after $("#one").metadata().item_id == 1; $("#one")[0].item_label == "Label"
+ * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
  * @desc Reads metadata from the class attribute
  * 
  * @example <p id="one" class="some_class" data="{item_id: 1, item_label: 'Label'}">This is a p</p>
  * @before $.metadata.setType("attr", "data")
- * @after $("#one").metadata().item_id == 1; $("#one")[0].item_label == "Label"
+ * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
  * @desc Reads metadata from a "data" attribute
  * 
  * @example <p id="one" class="some_class"><script>{item_id: 1, item_label: 'Label'}</script>This is a p</p>
  * @before $.metadata.setType("elem", "script")
- * @after $("#one").metadata().item_id == 1; $("#one")[0].item_label == "Label"
+ * @after $("#one").metadata().item_id == 1; $("#one").metadata().item_label == "Label"
  * @desc Reads metadata from a nested script element
  * 
  * @param String type The encoding type
@@ -64,16 +64,18 @@ $.extend({
 			cre: /({.*})/,
 			single: 'metadata'
 		},
-		setType: function(type,name){
+		setType: function( type, name ){
 			this.defaults.type = type;
 			this.defaults.name = name;
 		},
-		get: function(elem,opts){
+		get: function( elem, opts ){
 			var settings = $.extend({},this.defaults,opts);
+			// check for empty string in single property
+			if ( !settings.single.length ) settings.single = 'metadata';
 			
 			var data = $.data(elem, settings.single);
-			// returned cached data if it exists
-			if( data ) return data;
+			// returned cached data if it already exists
+			if ( data ) return data;
 			
 			data = "{}";
 			
@@ -97,8 +99,7 @@ $.extend({
 			
 			data = eval("(" + data + ")");
 			
-			$.data(elem, settings.single, data);
-			
+			$.data( elem, settings.single, data );
 			return data;
 		}
 	}
@@ -108,12 +109,25 @@ $.extend({
  * Returns the metadata object for the first member of the jQuery object.
  *
  * @name metadata
- * @descr Returns element's metadata object
+ * @descr Returns element(s)'s metadata object(s)
+ * @param Object opts An object contianing settings to override the defaults
+ * @param Boolean getAll If true the return value will be an array containing
+ *   all metadata objects keyed on the position of the element to which the 
+ *   data referrs in the jQuery collection.
  * @type jQuery
  * @cat Plugins/Metadata
  */
-$.fn.metadata = function(opts){
-	return $.metadata.get(this[0],opts);
+$.fn.metadata = function( opts, getAll ){
+	getAll = getAll || false;
+	if ( !getAll )
+		return $.metadata.get( this[0], opts );
+	else {
+		var ret = [];
+		this.each(function( i ){
+			ret[i] = $.metadata.get( this, opts );
+		});
+		return ret;
+	}
 };
 
 })(jQuery);

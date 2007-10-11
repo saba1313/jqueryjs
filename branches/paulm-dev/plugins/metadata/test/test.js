@@ -4,8 +4,8 @@ function testData(index,data) {
 	case 0:
 		ok( data.foo == "bar", "Check foo property" );
 		ok( data.bar == "baz", "Check baz property" );
-		ok( data.arr[0] == 1, "Check array[0]" );
-		ok( data.arr[1] == 2, "Check array[0]" );
+		ok( data.arr[0] == 1, "Check arr[0] property" );
+		ok( data.arr[1] == 2, "Check arr[1] property" );
 		break;
 	case 1:
 		ok( data.test == "bar", "Check test property" );
@@ -16,9 +16,9 @@ function testData(index,data) {
 		ok( data.bar.test == "baz", "Check bar.test property" );
 		break;
 	case 3:
-		ok( data.number );
-		ok( data.stuff[0] == 2 );
-		ok( data.stuff[1] == 8 );
+		ok( data.number, "Check number property" );
+		ok( data.stuff[0] == 2, "Check stuff[0] property" );
+		ok( data.stuff[1] == 8, "Check stuff[1] property" );
 		break;
 	default:
 		ok( false, ["Assertion failed on index ", index, ", with data ", data].join('') );

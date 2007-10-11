@@ -1,5 +1,5 @@
-function testData(index) {
-	var data = jQuery.metadata.get(this);
+function testData(index,data) {
+	//var data = jQuery.metadata.get(this);
 	switch(index) {
 	case 0:
 		ok( data.foo == "bar", "Check foo property" );
@@ -37,19 +37,25 @@ jQuery.fn.set = function() {
 test("meta: type attr - from data attribute", function() {
 	expect(11);
 	jQuery.metadata.setType("attr", "data");
-	jQuery("#one li").each(testData);
+	jQuery("#one li").each(function(i){
+		testData(i,jQuery.metadata.get(this));
+	});
 });
 
 test("meta: type class - from className", function() {
 	expect(11);
 	jQuery.metadata.setType( "class" );
-	jQuery("#two li").each(testData);
+	jQuery("#two li").each(function(i){
+		testData(i,jQuery.metadata.get(this));
+	});
 });
 
 test("meta: children script element - get data from child script element", function() {
 	expect(11);
 	jQuery.metadata.setType( "elem", "script" );
-	jQuery("#three li").each(testData);
+	jQuery("#three li").each(function(i){
+		testData(i,jQuery.metadata.get(this));
+	});
 });
 
 test("check if window doesn't break anything", function() {
@@ -59,8 +65,10 @@ test("check if window doesn't break anything", function() {
 test("meta: default with single data object", function() {
 	expect(11);
 	jQuery.metadata.setType("attr","data");
-	//jQuery.meta.single = "data";
-	jQuery("#four li").each(testData);
+	jQuery.metadata.defaults.single = "data";
+	jQuery("#four li").each(function(i){
+		testData(i,jQuery.metadata.get(this));
+	});
 });
 
 test("meta with select and class", function() {
@@ -74,6 +82,13 @@ test("meta with select and class", function() {
 
 test("try to add and remove classes on metadata elements", function() {
 	$("#two li").addClass("foobar").addClass("foo bar").removeClass("foobar");
-	ok( $("#two li").is(".foo") );
-	ok( $("#two li").is(".bar") );
+	ok( $("#two li").is(".foo"), 'Check class foo was added.' );
+	ok( $("#two li").is(".bar"), 'Check class bar was added.' );
+});
+
+test("try to collect all data in a single call", function(){
+	expect(11);
+	var data = jQuery("#two li").metadata({type:'class'},true);
+	for(var i=0;i<data.length;i++)
+		testData(i,data[i]);
 });

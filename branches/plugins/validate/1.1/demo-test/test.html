@@ -3,6 +3,7 @@
 	<title>jQuery - Form Validation Test Suite</title>
 	<link rel="stylesheet" href="css/testsuite.css"/>
 	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquery.form.js"></script>
 	<script type="text/javascript" src="js/testrunner.js"></script>
 	<script type="text/javascript" src="../jquery.metadata.js"></script>
 	<script type="text/javascript" src="../jquery.validate.js"></script>
@@ -13,7 +14,7 @@
 	</style>
 </head>
 <body id="body">
-	<h1>jQuery - Form Validation Test Suite</h1>
+	<h1><a href="http://bassistance.de/jquery-plugins/jquery-plugin-validation/">jQuery Validation Plugin</a> Test Suite</h1>
 	<h2 id="banner"></h2>
 	<h2 id="userAgent"></h2>
 	
@@ -45,6 +46,11 @@
 			<input class="{required:true,minLength:2}" title="buga" name="firstname" id="firstname" />
 			<label id="errorFirstname" for="firstname" class="error">error for firstname</label>
 			<input class="{required:true}" title="buga" name="lastname" id="lastname" />
+		</form>
+		
+		<form method="post" id="signupForm" action="form.php">
+			<input id="user" name="user" title="Please enter your username (at least 3 characters)" class="{required:true,minLength:3}" />
+			<input type="password" name="password" id="password" class="{required:true,minLength:5}" />
 		</form>
 		
 		<form id="testForm2">
@@ -96,12 +102,10 @@
 		</form>
 		
 		<div id="simplecontainer">
-		
+			<h3></h3>
 		</div>
 
-		<div id="container">
-			
-		</div>
+		<div id="container"></div>
 		
 		<ol id="labelcontainer"></ol>
 		
@@ -138,10 +142,10 @@
 			
 			<button name="button">Button</button>
 			
-			<textarea id="area1">foobar</textarea>
+			<textarea id="area1" name="area1"">foobar</textarea>
 			
 			
-			<textarea id="area2"></textarea>
+			<textarea id="area2" name="area2"></textarea>
 			
 			<select name="select1" id="select1">
 				<option id="option1a" value="">Nothing</option>
@@ -178,5 +182,6 @@
 	</div>
 	
 	<ol id="tests"></ol>
+	
 </body>
 </html>

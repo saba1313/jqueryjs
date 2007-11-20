@@ -68,7 +68,7 @@ jQuery.event = {
 				// Bind the global event handler to the element
 				if (element.addEventListener)
 					element.addEventListener(type, handle, false);
-				else
+				else if (element.attachEvent)
 					element.attachEvent("on" + type, handle);
 			}
 		}
@@ -122,7 +122,7 @@ jQuery.event = {
 						if ( !jQuery.event.special[type] || jQuery.event.special[type].unbind.call(this, element) === false ) {
 							if (element.removeEventListener)
 								element.removeEventListener(type, jQuery.data(element, "handle"), false);
-							else
+							else if (element.detachEvent)
 								element.detachEvent("on" + type, jQuery.data(element, "handle"));
 						}
 						ret = null;

@@ -18,7 +18,7 @@ test("bind()", function() {
 		ok( data, "Check trigger data" );
 		ok( data.bar == "foo", "Check value of trigger data" );
 	};
-	$("#firstp").bind("click", {foo: "bar"}, handler).trigger("click", [{bar: "foo"}]).unbind(handler);
+	$("#firstp").bind("click", {foo: "bar"}, handler).trigger("click", [{bar: "foo"}]).unbind("click", handler);
 	
 	reset();
 	var handler = function(event) {

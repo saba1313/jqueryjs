@@ -7,7 +7,7 @@ jQuery.event = {
 
 	// Bind an event to an element
 	// Original by Dean Edwards
-	add: function(element, type, handler, data) {
+	add: function(element, types, handler, data) {
 		// For whatever reason, IE has trouble passing the window object
 		// around, causing it to be cloned in the process
 		if ( jQuery.browser.msie && element.setInterval != undefined )
@@ -51,84 +51,90 @@ jQuery.event = {
 				return val;
 			});
 			
-		// Namespaced event handlers
-		var parts = type.split(".");
-		type = parts[0];
-		handler.type = parts[1];
+			jQuery.each(types.split(/\s+/), function(index, type) {
+				// Namespaced event handlers
+				var parts = type.split(".");
+				type = parts[0];
+				handler.type = parts[1];
 
-		// Get the current list of functions bound to this event
-		var handlers = events[type];
+				// Get the current list of functions bound to this event
+				var handlers = events[type];
 
-		// Init the event handler queue
-		if (!handlers) {
-			handlers = events[type] = {};
+				// Init the event handler queue
+				if (!handlers) {
+					handlers = events[type] = {};
 		
-			// Check special events
-			if ( !jQuery.event.special[type] || jQuery.event.special[type].bind.call(element) === false ) {
-				// Bind the global event handler to the element
-				if (element.addEventListener)
-					element.addEventListener(type, handle, false);
-				else if (element.attachEvent)
-					element.attachEvent("on" + type, handle);
-			}
-		}
+					// Check special events
+					if ( !jQuery.event.special[type] || jQuery.event.special[type].bind.call(element) === false ) {
+						// Bind the global event handler to the element
+						if (element.addEventListener)
+							element.addEventListener(type, handle, false);
+						else if (element.attachEvent)
+							element.attachEvent("on" + type, handle);
+					}
+				}
 
-		// Add the function to the element's handler list
-		handlers[handler.guid] = handler;
+				// Add the function to the element's handler list
+				handlers[handler.guid] = handler;
 
-		// Keep track of which events have been used, for global triggering
-		this.global[type] = true;
+				// Keep track of which events have been used, for global triggering
+				jQuery.event.global[type] = true;
+			});
 	},
 
 	guid: 1,
 	global: {},
 
 	// Detach an event or set of events from an element
-	remove: function(element, type, handler) {
+	remove: function(element, types, handler) {
 		var events = jQuery.data(element, "events"), ret, index;
 
 		if ( events ) {
 			// Unbind all events for the element
-			if ( !type )
-				for ( type in events )
+			if ( !types )
+				for ( var type in events )
 					this.remove( element, type );
-			else {
-				// type is actually an event object here
-				if ( type.type ) {
-					handler = type.handler;
-					type = type.type;
+			else {				
+				// types is actually an event object here
+				if ( types.type ) {
+					handler = types.handler;
+					types = [types.type];
 				} 
 				// Namespaced event handlers
-				else if ( typeof type == "string" ) {
+				else if ( typeof types == "string" )
+					types = types.split(/\s+/);
+				
+				jQuery.each(types, function(index, type){
+					// Namespaced event handlers
 					var parts = type.split(".");
 					type = parts[0];
-				}
-				
-				if ( events[type] ) {
-					// remove the given handler for the given type
-					if ( handler )
-						delete events[type][handler.guid];
+					
+					if ( events[type] ) {
+						// remove the given handler for the given type
+						if ( handler )
+							delete events[type][handler.guid];
 			
-					// remove all handlers for the given type
-					else
-						for ( handler in events[type] )
-							// Handle the removal of namespaced events
-							if ( !parts[1] || events[type][handler].type == parts[1] )
-								delete events[type][handler];
+						// remove all handlers for the given type
+						else
+							for ( handler in events[type] )
+								// Handle the removal of namespaced events
+								if ( !parts[1] || events[type][handler].type == parts[1] )
+									delete events[type][handler];
 
-					// remove generic event handler if no more handlers exist
-					for ( ret in events[type] ) break;
-					if ( !ret ) {
-						if ( !jQuery.event.special[type] || jQuery.event.special[type].unbind.call(this, element) === false ) {
-							if (element.removeEventListener)
-								element.removeEventListener(type, jQuery.data(element, "handle"), false);
-							else if (element.detachEvent)
-								element.detachEvent("on" + type, jQuery.data(element, "handle"));
+						// remove generic event handler if no more handlers exist
+						for ( ret in events[type] ) break;
+						if ( !ret ) {
+							if ( !jQuery.event.special[type] || jQuery.event.special[type].unbind.call(this, element) === false ) {
+								if (element.removeEventListener)
+									element.removeEventListener(type, jQuery.data(element, "handle"), false);
+								else if (element.detachEvent)
+									element.detachEvent("on" + type, jQuery.data(element, "handle"));
+							}
+							ret = null;
+							delete events[type];
 						}
-						ret = null;
-						delete events[type];
 					}
-				}
+				});
 			}
 
 			// Remove the expando if it's no longer used

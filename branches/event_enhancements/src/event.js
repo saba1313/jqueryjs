@@ -444,11 +444,6 @@ jQuery.fn.extend({
 
 	hover: function(fnOver, fnOut) {
 		return this.bind('mouseenter', fnOver).bind('mouseleave', fnOut);
-	},
-	
-	ready: function(fn) {
-		jQuery(document).bind("ready", fn);
-		return this;
 	}
 });
 
@@ -457,7 +452,7 @@ jQuery.extend({
 });
 
 
-jQuery.each( ("blur,focus,load,resize,scroll,unload,click,dblclick," +
+jQuery.each( ("blur,focus,load,ready,resize,scroll,unload,click,dblclick," +
 	"mousedown,mouseup,mousemove,mouseover,mouseout,change,select," + 
 	"submit,keydown,keypress,keyup,error").split(","), function(i, name){
 	

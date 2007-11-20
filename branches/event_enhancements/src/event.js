@@ -35,40 +35,42 @@ jQuery.event = {
 			handler.guid = fn.guid;
 		}
 
+		// Init the element's event structure
+		var events = jQuery.data(element, "events") || jQuery.data(element, "events", {}),
+			handle = jQuery.data(element, "handle") || jQuery.data(element, "handle", function(){
+				// returned undefined or false
+				var val;
+
+				// Handle the second event of a trigger and when
+				// an event is called after a page has unloaded
+				if ( typeof jQuery == "undefined" || jQuery.event.triggered )
+					return val;
+		
+				val = jQuery.event.handle.apply(element, arguments);
+		
+				return val;
+			});
+			
 		// Namespaced event handlers
 		var parts = type.split(".");
 		type = parts[0];
 		handler.type = parts[1];
-
-		// Init the element's event structure
-		var events = jQuery.data(element, "events") || jQuery.data(element, "events", {});
-		
-		var handle = jQuery.data(element, "handle") || jQuery.data(element, "handle", function(){
-			// returned undefined or false
-			var val;
-
-			// Handle the second event of a trigger and when
-			// an event is called after a page has unloaded
-			if ( typeof jQuery == "undefined" || jQuery.event.triggered )
-				return val;
-			
-			val = jQuery.event.handle.apply(element, arguments);
-			
-			return val;
-		});
 
 		// Get the current list of functions bound to this event
 		var handlers = events[type];
 
 		// Init the event handler queue
 		if (!handlers) {
-			handlers = events[type] = {};	
-			
-			// And bind the global event handler to the element
-			if (element.addEventListener)
-				element.addEventListener(type, handle, false);
-			else
-				element.attachEvent("on" + type, handle);
+			handlers = events[type] = {};
+		
+			// Check special events
+			if ( !jQuery.event.special[type] || jQuery.event.special[type].bind.call(element) === false ) {
+				// Bind the global event handler to the element
+				if (element.addEventListener)
+					element.addEventListener(type, handle, false);
+				else
+					element.attachEvent("on" + type, handle);
+			}
 		}
 
 		// Add the function to the element's handler list
@@ -85,44 +87,47 @@ jQuery.event = {
 	remove: function(element, type, handler) {
 		var events = jQuery.data(element, "events"), ret, index;
 
-		// Namespaced event handlers
-		if ( typeof type == "string" ) {
-			var parts = type.split(".");
-			type = parts[0];
-		}
-
 		if ( events ) {
-			// type is actually an event object here
-			if ( type && type.type ) {
-				handler = type.handler;
-				type = type.type;
-			}
-			
-			if ( !type ) {
+			// Unbind all events for the element
+			if ( !type )
 				for ( type in events )
 					this.remove( element, type );
-
-			} else if ( events[type] ) {
-				// remove the given handler for the given type
-				if ( handler )
-					delete events[type][handler.guid];
+			else {
+				// type is actually an event object here
+				if ( type.type ) {
+					handler = type.handler;
+					type = type.type;
+				} 
+				// Namespaced event handlers
+				else if ( typeof type == "string" ) {
+					var parts = type.split(".");
+					type = parts[0];
+				}
 				
-				// remove all handlers for the given type
-				else
-					for ( handler in events[type] )
-						// Handle the removal of namespaced events
-						if ( !parts[1] || events[type][handler].type == parts[1] )
-							delete events[type][handler];
-
-				// remove generic event handler if no more handlers exist
-				for ( ret in events[type] ) break;
-				if ( !ret ) {
-					if (element.removeEventListener)
-						element.removeEventListener(type, jQuery.data(element, "handle"), false);
+				if ( events[type] ) {
+					// remove the given handler for the given type
+					if ( handler )
+						delete events[type][handler.guid];
+			
+					// remove all handlers for the given type
 					else
-						element.detachEvent("on" + type, jQuery.data(element, "handle"));
-					ret = null;
-					delete events[type];
+						for ( handler in events[type] )
+							// Handle the removal of namespaced events
+							if ( !parts[1] || events[type][handler].type == parts[1] )
+								delete events[type][handler];
+
+					// remove generic event handler if no more handlers exist
+					for ( ret in events[type] ) break;
+					if ( !ret ) {
+						if ( !jQuery.event.special[type] || jQuery.event.special[type].unbind.call(this, element) === false ) {
+							if (element.removeEventListener)
+								element.removeEventListener(type, jQuery.data(element, "handle"), false);
+							else
+								element.detachEvent("on" + type, jQuery.data(element, "handle"));
+						}
+						ret = null;
+						delete events[type];
+					}
 				}
 			}
 
@@ -285,6 +290,106 @@ jQuery.event = {
 			event.which = (event.button & 1 ? 1 : ( event.button & 2 ? 3 : ( event.button & 4 ? 2 : 0 ) ));
 			
 		return event;
+	},
+	
+	special: {
+		ready: {
+			bind: function() {
+				var handler = jQuery.event.special.ready.handler;
+				
+				// Mozilla, Opera and webkit nightlies currently support this event
+				if ( document.addEventListener )
+					// Use the handy event callback
+					document.addEventListener( "DOMContentLoaded", handler, false );
+	
+				// If Safari or IE is used
+				// Continually check to see if the document is ready
+				if  (jQuery.browser.msie || jQuery.browser.safari ) (function(){
+					try {
+						// If IE is used, use the trick by Diego Perini
+						// http://javascript.nwbox.com/IEContentLoaded/
+						if ( jQuery.browser.msie || document.readyState != "loaded" && document.readyState != "complete" )
+							document.documentElement.doScroll("left");
+					} catch( error ) {
+						return setTimeout( arguments.callee, 0 );
+					}
+
+					// and execute any waiting functions
+					handler();
+				})();
+
+				// A fallback to window.onload, that will always work
+				jQuery.event.add( window, "load", handler );
+			},
+			
+			unbind: function() {return;},
+			
+			handler: function() {
+				// Make sure that the DOM is not already loaded
+				if ( !jQuery.isReady ) {
+					// Remember that the DOM is ready
+					jQuery.isReady = true;
+					jQuery(document).triggerHandler("ready");
+					jQuery(document).unbind("ready");
+				}
+			}
+		},
+		
+		mouseenter: {
+			bind: function() {
+				if (jQuery.browser.msie) return false;
+				jQuery(this).bind('mouseover', jQuery.event.special.mouseenter.handler);
+			},
+		
+			unbind: function() {
+				if (jQuery.browser.msie) return false;
+				jQuery(this).unbind('mouseover', jQuery.event.special.mouseenter.handler);
+			},
+			
+			handler: function(event) {
+				var args = Array.prototype.slice.call( arguments, 1 );
+				// Check if mouse(over|out) are still within the same parent element
+				var parent = event.relatedTarget;
+				// Traverse up the tree
+				while ( parent && parent != this ) try { parent = parent.parentNode } catch(error) { parent = this; };
+				// If we actually just moused on to a sub-element, ignore it
+				if ( parent == this ) return false;
+				// Execute the right function
+				event.type = 'mouseenter';
+				args.unshift(event);
+				var val = jQuery.event.handle.apply(this, args);
+				event.type = 'mouseover';
+				return val;
+			}
+		},
+	
+		mouseleave: {
+			bind: function() {
+				if (jQuery.browser.msie) return false;
+				jQuery(this).bind('mouseout', jQuery.event.special.mouseleave.handler);
+			},
+		
+			unbind: function() {
+				if (jQuery.browser.msie) return false;
+				jQuery(this).bind('mouseout', jQuery.event.special.mouseleave.handler);
+			},
+			
+			handler: function(event) {
+				var args = Array.prototype.slice.call( arguments, 1 );
+				// Check if mouse(over|out) are still within the same parent element
+				var parent = event.relatedTarget;
+				// Traverse up the tree
+				while ( parent && parent != this ) try { parent = parent.parentNode } catch(error) { parent = this; };
+				// If we actually just moused on to a sub-element, ignore it
+				if ( parent == this ) return false;
+				// Execute the right function
+				event.type = 'mouseleave';
+				args.unshift(event);
+				var val = jQuery.event.handle.apply(this, args);
+				event.type = 'mouseout';
+				return val;
+			}
+		}
 	}
 };
 
@@ -338,73 +443,17 @@ jQuery.fn.extend({
 	},
 
 	hover: function(fnOver, fnOut) {
-		
-		// A private function for handling mouse 'hovering'
-		function handleHover(event) {
-			// Check if mouse(over|out) are still within the same parent element
-			var parent = event.relatedTarget;
-	
-			// Traverse up the tree
-			while ( parent && parent != this ) try { parent = parent.parentNode; } catch(error) { parent = this; };
-			
-			// If we actually just moused on to a sub-element, ignore it
-			if ( parent == this ) return false;
-			
-			// Execute the right function
-			return (event.type == "mouseover" ? fnOver : fnOut).apply(this, [event]);
-		}
-		
-		// Bind the function to the two event listeners
-		return this.mouseover(handleHover).mouseout(handleHover);
+		return this.bind('mouseenter', fnOver).bind('mouseleave', fnOut);
 	},
 	
 	ready: function(fn) {
-		// Attach the listeners
-		bindReady();
-
-		// If the DOM is already ready
-		if ( jQuery.isReady )
-			// Execute the function immediately
-			fn.apply( document, [jQuery] );
-			
-		// Otherwise, remember the function for later
-		else
-			// Add the function to the wait list
-			jQuery.readyList.push( function() { return fn.apply(this, [jQuery]); } );
-	
+		jQuery(document).bind("ready", fn);
 		return this;
 	}
 });
 
 jQuery.extend({
-	/*
-	 * All the code that makes DOM Ready work nicely.
-	 */
-	isReady: false,
-	readyList: [],
-	
-	// Handle when the DOM is ready
-	ready: function() {
-		// Make sure that the DOM is not already loaded
-		if ( !jQuery.isReady ) {
-			// Remember that the DOM is ready
-			jQuery.isReady = true;
-			
-			// If there are functions bound, to execute
-			if ( jQuery.readyList ) {
-				// Execute all of them
-				jQuery.each( jQuery.readyList, function(){
-					this.apply( document );
-				});
-				
-				// Reset the list of functions
-				jQuery.readyList = null;
-			}
-			// Remove event listener to avoid memory leak
-			if ( document.removeEventListener )
-				document.removeEventListener( "DOMContentLoaded", jQuery.ready, false );
-		}
-	}
+	isReady: false
 });
 
 
@@ -418,39 +467,9 @@ jQuery.each( ("blur,focus,load,resize,scroll,unload,click,dblclick," +
 	};
 });
 
-var readyBound = false;
-
-function bindReady(){
-	if ( readyBound ) return;
-	readyBound = true;
-
-	// Mozilla, Opera and webkit nightlies currently support this event
-	if ( document.addEventListener )
-		// Use the handy event callback
-		document.addEventListener( "DOMContentLoaded", jQuery.ready, false );
-	
-	// If Safari or IE is used
-	// Continually check to see if the document is ready
-	if  (jQuery.browser.msie || jQuery.browser.safari ) (function(){
-		try {
-			// If IE is used, use the trick by Diego Perini
-			// http://javascript.nwbox.com/IEContentLoaded/
-			if ( jQuery.browser.msie || document.readyState != "loaded" && document.readyState != "complete" )
-				document.documentElement.doScroll("left");
-		} catch( error ) {
-			return setTimeout( arguments.callee, 0 );
-		}
-
-		// and execute any waiting functions
-		jQuery.ready();
-	})();
-
-	// A fallback to window.onload, that will always work
-	jQuery.event.add( window, "load", jQuery.ready );
-}
 
 // Prevent memory leaks in IE
-// And prevent errors on refresh with events like mouseover
+// And prevent errors on refresh with events like mouseover in other browsers
 // Window isn't included so as not to unbind existing unload events
 jQuery(window).bind("unload", function() {
 	jQuery("*").add(document).unbind();

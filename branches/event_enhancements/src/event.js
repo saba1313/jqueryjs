@@ -377,7 +377,7 @@ jQuery.event = {
 		
 			teardown: function() {
 				if (jQuery.browser.msie) return false;
-				jQuery(this).bind('mouseout', jQuery.event.special.mouseleave.handler);
+				jQuery(this).unbind('mouseout', jQuery.event.special.mouseleave.handler);
 			},
 			
 			handler: function(event) {

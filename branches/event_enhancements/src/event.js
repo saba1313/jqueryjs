@@ -65,7 +65,7 @@ jQuery.event = {
 					handlers = events[type] = {};
 		
 					// Check special events
-					if ( !jQuery.event.special[type] || jQuery.event.special[type].bind.call(element) === false ) {
+					if ( !jQuery.event.special[type] || jQuery.event.special[type].setup.call(element) === false ) {
 						// Bind the global event handler to the element
 						if (element.addEventListener)
 							element.addEventListener(type, handle, false);
@@ -124,7 +124,7 @@ jQuery.event = {
 						// remove generic event handler if no more handlers exist
 						for ( ret in events[type] ) break;
 						if ( !ret ) {
-							if ( !jQuery.event.special[type] || jQuery.event.special[type].unbind.call(this, element) === false ) {
+							if ( !jQuery.event.special[type] || jQuery.event.special[type].teardown.call(this, element) === false ) {
 								if (element.removeEventListener)
 									element.removeEventListener(type, jQuery.data(element, "handle"), false);
 								else if (element.detachEvent)
@@ -300,7 +300,7 @@ jQuery.event = {
 	
 	special: {
 		ready: {
-			bind: function() {
+			setup: function() {
 				var handler = jQuery.event.special.ready.handler;
 				
 				// Mozilla, Opera and webkit nightlies currently support this event
@@ -328,7 +328,7 @@ jQuery.event = {
 				jQuery.event.add( window, "load", handler );
 			},
 			
-			unbind: function() {return;},
+			teardown: function() {return;},
 			
 			handler: function() {
 				// Make sure that the DOM is not already loaded
@@ -342,12 +342,12 @@ jQuery.event = {
 		},
 		
 		mouseenter: {
-			bind: function() {
+			setup: function() {
 				if (jQuery.browser.msie) return false;
 				jQuery(this).bind('mouseover', jQuery.event.special.mouseenter.handler);
 			},
 		
-			unbind: function() {
+			teardown: function() {
 				if (jQuery.browser.msie) return false;
 				jQuery(this).unbind('mouseover', jQuery.event.special.mouseenter.handler);
 			},
@@ -370,12 +370,12 @@ jQuery.event = {
 		},
 	
 		mouseleave: {
-			bind: function() {
+			setup: function() {
 				if (jQuery.browser.msie) return false;
 				jQuery(this).bind('mouseout', jQuery.event.special.mouseleave.handler);
 			},
 		
-			unbind: function() {
+			teardown: function() {
 				if (jQuery.browser.msie) return false;
 				jQuery(this).bind('mouseout', jQuery.event.special.mouseleave.handler);
 			},
@@ -394,6 +394,64 @@ jQuery.event = {
 				var val = jQuery.event.handle.apply(this, args);
 				event.type = 'mouseout';
 				return val;
+			}
+		},
+		
+		mousewheel: {
+			setup: function() {
+				var handler = jQuery.event.special.mousewheel.handler;
+				
+				// Fix pageX, pageY, clientX and clientY for mozilla
+				if ( jQuery.browser.mozilla && !jQuery.data(this, 'mwfixcursorpos') ) {
+					var handle = jQuery.data(this, 'mwcursorposhandler') || jQuery.data(this, 'mwcursorposhandler', function(event) {
+						jQuery.data(this, 'mwcursorposdata', {
+							pageX: event.pageX,
+							pageY: event.pageY,
+							clientX: event.clientX,
+							clientY: event.clientY
+						});
+					});
+					jQuery(this).bind('mousemove', handle);
+				}
+			
+				if ( this.addEventListener )
+					if ( jQuery.browser.mozilla ) this.addEventListener('DOMMouseScroll', handler, false);
+					else                          this.addEventListener('mousewheel',     handler, false);
+				else
+					this.onmousewheel = handler;
+			},
+			
+			teardown: function() {
+				var handler = jQuery.event.special.mousewheel.handler;
+				jQuery(this).unbind('mousemove', handler);
+				
+				if ( this.removeEventListener )
+					if ( jQuery.browser.mozilla ) this.removeEventListener('DOMMouseScroll', handler, false);
+					else                          this.removeEventListener('mousewheel',     handler, false);
+				else
+					this.onmousewheel = null;
+				
+				jQuery.removeData(this, 'mwcursorposhandler');
+				jQuery.removeData(this, 'mwcursorposdata');
+			},
+			
+			handler: function(event) {
+				var args = Array.prototype.slice.call( arguments, 1 );
+				
+				event = jQuery.event.fix(event || window.event);
+				jQuery.extend( event, jQuery.data(this, 'mwcursorposdata') || {} );
+				var delta = 0, returnValue = true;
+				
+				if ( event.wheelDelta      ) delta = event.wheelDelta/120;
+				if ( event.detail          ) delta = -event.detail/3;
+				if ( jQuery.browser.opera  ) delta = -event.wheelDelta;
+				
+				event.data = event.data || {};
+				event.delta = delta;
+				event.type = "mousewheel";
+				
+				args.unshift(event);
+				return jQuery.event.handle.apply(this, args);
 			}
 		}
 	}

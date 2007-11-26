@@ -1,4 +1,4 @@
-<project name="jQuery" default="pack" basedir=".">
+<project name="jQueryDev" default="pack" basedir=".">
 
 
     <!-- SETUP -->
@@ -28,6 +28,10 @@
         </concat>
         <echo message="${BROWSER} built." />
     </target>
+
+	<target name="transform">
+		<xslt includes="cat.xml,plugins.xml" destdir="docs" style="style/cat.xsl" />
+	</target>
 	
 	<target name="min" depends="build" description="Remove all comments and whitespace, no compression">
         <echo message="Building ${BROWSER_PACK}" />

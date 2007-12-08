@@ -1,5 +1,5 @@
 /* $Id: project.css,v 1.35 2007/01/05 00:21:08 dww Exp $ */
-/* $Name: HEAD $ */
+/* $Name: DRUPAL-5--1-0 $ */
 
 .project table {
   width: auto;
@@ -13,7 +13,6 @@
 }
 .project .links {
   font-size: 0.8em;
-text-align: right;
 }
 .project .author {
   color: #999;
@@ -45,8 +44,4 @@ text-align: right;
 }
 ul.project-terms {
   padding-left: 1.5em;
-}
-
-html.js fieldset.collapsible .fieldset-wrapper {
-  overflow: hidden !important;
 }

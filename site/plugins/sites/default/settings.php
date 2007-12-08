@@ -1,5 +1,5 @@
 <?php
-// $Id: settings.php,v 1.39 2007/01/14 02:05:15 unconed Exp $
+// $Id: settings.php,v 1.39.2.3 2007/07/09 04:28:12 drumm Exp $
 
 /**
  * @file
@@ -90,7 +90,7 @@
  *   $db_url = 'mysqli://username:password@localhost/databasename';
  *   $db_url = 'pgsql://username:password@localhost/databasename';
  */
-$db_url = 'mysql://drupal_drupaluse:drupdrup@localhost/drupal_drupal';
+$db_url = 'mysql://jquery_plugins:pLuG!N5@localhost/jquery_plugins';
 $db_prefix = '';
 
 /**
@@ -137,17 +137,14 @@ ini_set('session.use_trans_sid',    0);
 ini_set('url_rewriter.tags',        '');
 
 /**
- * We try to set the correct cookie domain. If you are experiencing problems
- * try commenting out the code below or specifying the cookie domain by hand.
+ * Drupal automatically generates a unique session cookie name for each site
+ * based on on its full domain name. If you have multiple domains pointing at
+ * the same Drupal site, you can either redirect them all to a single domain
+ * (see comment in .htaccess), or uncomment the line below and specify their
+ * shared base domain. Doing so assures that users remain logged in as they
+ * cross between your various domains.
  */
-if (isset($_SERVER['HTTP_HOST'])) {
-  $domain = '.'. preg_replace('`^www.`', '', $_SERVER['HTTP_HOST']);
-  // Per RFC 2109, cookie domains must contain at least one dot other than the
-  // first. For hosts such as 'localhost', we don't set a cookie domain.
-  if (count(explode('.', $domain)) > 2) {
-    ini_set('session.cookie_domain', $domain);
-  }
-}
+# $cookie_domain = 'example.com';
 
 /**
  * Variable overrides:

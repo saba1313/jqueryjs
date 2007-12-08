@@ -1,8 +1,10 @@
 <?php
-// $Id: issue.inc,v 1.226 2007/03/01 08:46:57 dww Exp $
-// $Name: DRUPAL-5--0-2-BETA $
+// $Id: issue.inc,v 1.251 2007/09/27 01:11:16 thehunmonkgroup Exp $
+// $Name: DRUPAL-5--1-1 $
 
 function project_issue_page() {
+  global $user;
+
   switch ($_POST['op'] ? $_POST['op'] : arg(2)) {
     case 'rss':
       $project = project_project_retrieve(arg(3));
@@ -10,12 +12,10 @@ function project_issue_page() {
         $query = new StdClass();
         $query->projects = array($project->nid);
 
-        header('Content-Type: text/xml');
-        print project_issue_query_result($query, 'rss');
+        project_issue_query_result($query, 'rss');
       }
       else {
-        header('Content-Type: text/xml');
-        print project_issue_query_result(NULL, 'rss');
+        project_issue_query_result(NULL, 'rss');
       }
       break;
     case 'add':
@@ -40,12 +40,23 @@ function project_issue_page() {
     case t('Subscribe'):
     case 'subscribe':
     case 'subscribe-mail':
-      $project = project_project_retrieve(arg(3));
-      if ($GLOBALS['user']->uid && $project->nid && node_access('view', $project)) {
-        return drupal_get_form('project_issue_subscribe', $project);
+      if ($user->uid) {
+        if (valid_email_address($user->mail)) {
+          $project = project_project_retrieve(arg(3));
+          if ($project->nid && node_access('view', $project)) {
+            return drupal_get_form('project_issue_subscribe', $project);
+          }
+          else {
+            return drupal_get_form('project_issue_subscribe');
+          }
+        }
+        else {
+          return t('You must have a valid e-mail address in order to subscribe to issues. Please <a href="@update">update your account</a>.', array('@update' => url('user/'. $user->uid .'/edit', drupal_get_destination())));
+        }
       }
       else {
-        return drupal_get_form('project_issue_subscribe');
+        $destination = drupal_get_destination();
+        return t('Please <a href="@login">login</a> or <a href="@register">register</a> in order to subscribe to issues.', array('@login' => url('user/login', $destination), '@register' => url('user/register', $destination)));
       }
       break;
     case 'user':
@@ -69,6 +80,21 @@ function project_issue_page() {
  * when someone changes the "Project" selector. See project_issue.js.
  */
 function project_issue_update_project($pid, $cid = NULL, $rid = NULL) {
+
+  // Prevent a malicious user from snooping this callback directly.
+  $error = array('error' => t('Malicious attempt to access unauthorized information detected.'));
+  $node = node_load($pid);
+  if ($node) {
+    if (!node_access('view', $node)) {
+      print drupal_to_js($error);
+      exit();
+    }
+  }
+  else {
+    print drupal_to_js($error);
+    exit();
+  }
+
   // Release id options ("Version" selector).
   $return['rid'] = '';
 
@@ -125,6 +151,9 @@ function project_issue_update_project($pid, $cid = NULL, $rid = NULL) {
   $form = form_builder('component', $form);
   $return['component'] .= drupal_render($form);
 
+  // Set proper content type header for the AJAX call.
+  drupal_set_header('Content-type: text/javascript');
+
   // Translate to js before output, so the calling js can work with the data.
   print drupal_to_js($return);
   exit();
@@ -159,7 +188,7 @@ function project_issue_build_form_url($url_arg) {
       return project_project_retrieve($url_arg);
     }
   }
-  
+
   // dispatch to hanlders based on value of $_POST['form_id']
   if ($_POST['form_id'] == 'project_issue_query_result_quick_search') {
     return project_issue_quick_search($url_arg, $filters);
@@ -170,7 +199,7 @@ function project_issue_build_form_url($url_arg) {
 }
 
 /**
- * Handles quick search form 
+ * Handles quick search form
  *
  * @param $url_arg
  *   Value returned from arg(2)
@@ -194,11 +223,11 @@ function project_issue_quick_search($url_arg, $filters) {
     }
     $destination = 'project/issues/'. $project->uri;
   }
-  
+
   // if 'q' is the only thing in $_GET, and it == destination, don't redirect
   if (count($_GET) == 1 && isset($_GET['q']) && $_GET['q'] == $destination) {
 
-    // put $_POST where pager will see them 
+    // put $_POST where pager will see them
     foreach ($filters as $filter) {
       if (!empty($_POST[$filter])) {
         $_REQUEST[$filter] = $_POST[$filter];
@@ -283,14 +312,14 @@ function project_issue_statistics($project = 0) {
   $header = array(t('Category'), t('Overall'), t('Last month'));
   $rows = array();
   $duration = time() - 30 * 24 * 60 * 60;
-  $result = db_query('SELECT p.category, SUM(n.changed - n.created) / COUNT(p.category) AS duration FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1%s AND p.sid > 1 GROUP BY p.category', $filter);
+  $result = db_query(db_rewrite_sql('SELECT p.category, SUM(n.changed - n.created) / COUNT(p.category) AS duration FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1%s AND p.sid > 1 GROUP BY p.category', $filter));
   while ($stat = db_fetch_object($result)) {
     $i++;
     $rows[$i][0] = project_issue_category($stat->category);;
     $rows[$i][1] = array('data' => format_interval($stat->duration, 2), 'class' => 'numeric');
   }
 
-  $result = db_query('SELECT p.category, SUM(n.changed - n.created) / COUNT(p.category) AS duration FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1%s AND p.sid > 1 AND n.created > %d GROUP BY p.category', $filter, $duration);
+  $result = db_query(db_rewrite_sql('SELECT p.category, SUM(n.changed - n.created) / COUNT(p.category) AS duration FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1%s AND p.sid > 1 AND n.created > %d GROUP BY p.category', $filter, $duration));
   while ($stat = db_fetch_object($result)) {
     $j++;
     $rows[$j][2] = array('data' => format_interval($stat->duration, 2), 'class' => 'numeric');
@@ -320,8 +349,7 @@ function project_issue_statistics($project = 0) {
   if (!$project->nid) {
     $header = array_merge(array(t('Project')), project_issue_state(), array(t('Total')));
     $rows = array();
-    $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, p.sid, COUNT(n.nid) AS total FROM {node} n INNER JOIN {project_issues} p ON n.nid = p.pid WHERE n.type = 'project_project' AND n.status = 1 GROUP BY n.nid, p.sid, n.title"));
-
+    $result = db_query(db_rewrite_sql("SELECT pn.nid, pn.title, p.sid, COUNT(n.nid) AS total FROM {node} n INNER JOIN {project_issues} p ON n.nid = p.nid INNER JOIN {node} pn ON p.pid = pn.nid WHERE n.status = 1 AND pn.status = 1 GROUP BY pn.nid, p.sid, pn.title"));
     $orig = array('project' => array('data' => 0));
     foreach (project_issue_state() as $key => $value) {
       $orig[$key] = array('data' => '', 'class' => 'project-issue-numeric');
@@ -370,7 +398,8 @@ function project_issue_subscribe_submit($form_id, $form_values) {
       }
     }
     drupal_set_message(t('Subscription settings saved.'));
-    drupal_goto('project/issues/subscribe-mail');
+
+    return 'project/issues/subscribe-mail';
 }
 
 
@@ -393,7 +422,7 @@ function project_issue_subscribe($project = 0) {
     $form['options'][$project->nid] = array(
       '#type' => 'radios',
       '#title' => t('Subscribe to @project issues', array('@project' => $project->title)),
-      '#default_value' => $level,
+      '#default_value' => isset($level) ? $level : 0,
       '#options' => $levels,
     );
 
@@ -413,11 +442,10 @@ function project_issue_subscribe($project = 0) {
     }
     $nids = array();
 
-    $result = db_query(db_rewrite_sql("SELECT s.nid, n.title, s.level FROM {project_subscriptions} s INNER JOIN {node} n ON n.nid = s.nid WHERE n.type = 'project_project' AND n.status = 1 AND s.uid = %d ORDER BY n.title", 's'), $user->uid);
+    $result = db_query(db_rewrite_sql("SELECT s.nid, n.title, s.level, p.uri FROM {project_subscriptions} s INNER JOIN {node} n ON n.nid = s.nid INNER JOIN {project_projects} p ON n.nid = p.nid WHERE n.type = 'project_project' AND n.status = 1 AND s.uid = %d ORDER BY n.title", 's'), $user->uid);
     while ($project = db_fetch_object($result)) {
       $form['project'][$project->nid]['title'] = array(
-        '#type' => 'markup',
-        '#value' => $project->title,
+        '#value' => l($project->title, "project/$project->uri"),
       );
       foreach ($levels as $key => $level) {
         if ($project->level == $key) {
@@ -427,11 +455,17 @@ function project_issue_subscribe($project = 0) {
       $nids[] = $project->nid;
     }
 
-    $result = db_query(db_rewrite_sql("SELECT n.nid, n.title FROM {node} n WHERE n.type = 'project_project' AND n.status = 1". ($nids ?  " AND n.nid NOT IN (%s)" : "") ." ORDER BY n.title"), implode(',', $nids));
+    if (empty($nids)) {
+      $placeholders = '';
+    }
+    else {
+      $placeholders = " AND n.nid NOT IN (". implode(',', array_fill(0, count($nids), '%d')) .")";
+    }
+
+    $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, p.uri FROM {node} n INNER JOIN {project_projects} p ON n.nid = p.nid WHERE n.type = 'project_project' AND n.status = 1". ($nids ?  $placeholders : "") ." ORDER BY n.title"), $nids);
     while ($project = db_fetch_object($result)) {
       $form['project'][$project->nid]['title'] = array(
-        '#type' => 'markup',
-        '#value' => $project->title,
+        '#value' => l($project->title, "project/$project->uri"),
       );
       $nids[] = $project->nid;
     }
@@ -440,7 +474,7 @@ function project_issue_subscribe($project = 0) {
       $form['options']['#tree'] = TRUE;
       $form['options'][$nid] = array(
         '#type' => 'radios',
-        '#default_value' => $status[$nid],
+        '#default_value' => isset($status[$nid]) ? $status[$nid] : 0,
         '#options' => $levels,
       );
     }
@@ -505,6 +539,9 @@ function project_issue_form($node, $param) {
   // Fetch a list of all projects to make swapping simpler
   $uris = NULL;
   $projects = array(t('<none>')) + project_projects_select_options($uris);
+  if (count($projects) == 1) {
+    drupal_set_message(t('You do not have access to any projects.'), 'error');
+  }
 
   // Try to find the active project, if not already known.
   if (empty($node->pid)) {
@@ -534,7 +571,7 @@ function project_issue_form($node, $param) {
     if (trim($project->help)) {
       drupal_set_message(filter_xss($project->help));
     }
-    if (module_exists('project_release') && 
+    if (module_exists('project_release') &&
         $releases = project_release_get_releases($project, 0)) {
       $releases = array(t('<none>')) + $releases;
     }
@@ -548,7 +585,7 @@ function project_issue_form($node, $param) {
     }
     $categories = array_merge(array(t('<none>')), project_issue_category(0, 0));
     $priorities = project_issue_priority();
-    $states = project_issue_state(0, true, $node->nid && ($node->uid == $user->uid));
+    $states = project_issue_state(0, true, $node->nid && ($node->uid == $user->uid), $node->sid);
 
     if ($user->uid == $node->assigned) {
       $assigned = array(0 => t('Unassign'), $user->uid => $user->name);
@@ -655,13 +692,15 @@ function project_issue_form($node, $param) {
     );
     $form['issue_details']['format'] = filter_form($node->format);
 
-    if (file_check_directory(file_create_path(variable_get('project_directory_issues', 'issues')), 0)) {
-    $form['issue_details']['file_issue'] = array(
-      '#type' => 'file',
-      '#title' => t('File attachment'),
-      '#size' => 40,
-      '#description' => ($node->file || $node->file_path ? t('A file already exists, if you upload another file the current file will be replaced.') : t('Optionally attach a file, for example a patch or a screenshot.')),
-    );
+    $directory = file_create_path(variable_get('project_directory_issues', 'issues'));
+    if (file_check_directory($directory, 0)) {
+      $file = file_check_upload('file_issue');
+      $form['issue_details']['file_issue'] = array(
+        '#type' => 'file',
+        '#title' => t('File attachment'),
+        '#size' => 40,
+        '#description' => ($file ? t('A file named %filename has already been uploaded. If you upload another file %filename will be replaced.', array('%filename' => $file->filename)) : t('Optionally attach a file, for example a patch or a screenshot.')),
+      );
     }
     else {
       $msg = t('File attachments are disabled. The issue directory has not been properly configured.');
@@ -690,7 +729,7 @@ function project_issue_form($node, $param) {
 function project_issue_form_pre_render($form_id, &$form) {
   if ($form_id == 'project_issue_node_form') {
 
-    // Only move to the next page if there were no form errors.  
+    // Only move to the next page if there were no form errors.
     // We don't want to keep incrementing page forever, since users
     // can successfully preview many times.  However, if we already
     // have a value for 'Project' (via a submit with project in the
@@ -766,7 +805,7 @@ function project_issue_node_form_validate($form_id, $form) {
   if ($form_values['page'] == 2) {
     if ($form_values['pid'] && $project = node_load($form_values['pid'])) {
       $node->title = $form_values['title'];
-      if (module_exists('project_release') && 
+      if (module_exists('project_release') &&
           $releases = project_release_get_releases($project, 0)) {
         empty($form_values['rid']) and form_set_error('rid', t('You have to specify a valid version.'));
       }
@@ -835,7 +874,7 @@ function project_issue_comment_validate(&$node) {
 
       // make sure this followup changes something or has a body
       if (!empty($_POST) && empty($node->body)) {
-        if (is_numeric(arg(3))) { 
+        if (is_numeric(arg(3))) {
           $issue = node_load(arg(3));
         }
         if (isset($issue)
@@ -866,19 +905,17 @@ function project_issue_comment_validate(&$node) {
 
 /**
  * Ensure only files with allowed extension are uploaded.
- *
  */
 function project_issue_validate_file($file) {
-  global $user;
-  foreach ($user->roles as $rid => $name) {
-    $extensions = variable_get("project_issues_extensions_$rid", variable_get('project_issues_extensions_default', 'patch jpg jpeg gif png txt html doc xls pdf ppt pps odt ods odp'));
-    $regex = '/\.('. ereg_replace(' +', '|', preg_quote($extensions)) .')$/i';
-    if (!preg_match($regex, $file->filename)) {
-      form_set_error('file_issue', t('The selected file %name can not be attached to this post, because it is only possible to attach files with the following extensions: %files-allowed.', array('%name' => $file->filename, '%files-allowed' => $extensions)));
-      return FALSE;
+  $whitelist = project_issue_filename_extension_whitelist();
+  $matches = array();
+  if (preg_match('/\.([^.]*)$/', $file->filename, $matches)) {
+    if (in_array($matches[1], $whitelist)) {
+      return TRUE;
     }
   }
-  return TRUE;
+  form_set_error('file_issue', t('The selected file %name can not be attached to this post, because it is only possible to attach files with the following extensions: %files-allowed.', array('%name' => $file->filename, '%files-allowed' => implode(', ', $whitelist))));
+  return FALSE;
 }
 
 function project_issue_view($node, $teaser = false, $page = false) {
@@ -973,6 +1010,9 @@ function project_issue_delete($node) {
 
 function project_issue_access($op, $node) {
   global $user;
+  if (user_access('administer projects')) {
+    return TRUE;
+  }
   switch ($op) {
     case 'view':
       if (user_access('access own project issues') && $node->uid == $user->uid) {
@@ -985,14 +1025,12 @@ function project_issue_access($op, $node) {
     case 'create':
       return user_access('create project issues');
     case 'update':
-      if (user_access('administer projects') || (user_access('edit own project issues') && $node->uid == $user->uid)) {
+      if (user_access('edit own project issues') && $node->uid == $user->uid) {
         return TRUE;
       }
       break;
     case 'delete':
-      if (user_access('administer projects')) {
-        return TRUE;
-      }
+      // Admin case already handled, no one else should be able to delete.
       break;
   }
 }
@@ -1015,9 +1053,9 @@ function project_issue_access($op, $node) {
  *
  * @return
  *   An array of states (sid as key, name as value) that match the
- *   given filters, or the name of the requested state. 
+ *   given filters, or the name of the requested state.
  */
-function project_issue_state($sid = 0, $restrict = false, $is_author = false, $defaults = false) {
+function project_issue_state($sid = 0, $restrict = false, $is_author = false, $current_sid = 0, $defaults = false) {
   static $options;
 
   if (!$options) {
@@ -1029,9 +1067,16 @@ function project_issue_state($sid = 0, $restrict = false, $is_author = false, $d
 
   foreach($options as $state) {
     if ($restrict) {
-      // Check if user has access, or if status is default status and therefore available to all,
-      // or if user is original issue poster and poster is granted access
-      if (user_access('set issue status '. str_replace("'", "", $state->name)) || ($state->sid == variable_get('project_issue_default_state', 1)) || ($state->author_has && $is_author)) {
+      // Check if user has access,
+      // or if status is default status and therefore available to all,
+      // or if user is original issue author and author has access,
+      // or if the issue is already in a state, even if the user doesn't have
+      //   access to that state themselves.
+      if (user_access('set issue status '. str_replace("'", "", $state->name))
+          || user_access('administer projects')
+          || ($state->sid == variable_get('project_issue_default_state', 1))
+          || ($state->author_has && $is_author)
+          || ($state->sid == $current_sid) ) {
         $states[$state->sid] = $state->name;
       }
     }
@@ -1054,7 +1099,7 @@ function project_issue_state($sid = 0, $restrict = false, $is_author = false, $d
 function project_issue_default_states() {
   static $defaults;
   if (empty($defaults)) {
-    $states = project_issue_state(0, false, false, true);
+    $states = project_issue_state(0, false, false, 0, true);
     $defaults = !empty($states) ? array_keys($states) : array(1, 2, 4);
   }
   return $defaults;
@@ -1099,6 +1144,7 @@ function project_issue_query($project = 0, $query = NULL) {
   $components = array();
   if ($project->nid) {
     drupal_set_title(t('Search issues for %name', array('%name' => $project->title)));
+    project_project_set_breadcrumb($project, TRUE);
     foreach ($project->components as $component) {
       $component = check_plain($component);
       $components[$component] = $component;
@@ -1438,8 +1484,7 @@ function project_issue_delete_state_confirm($sid) {
 
 function project_issue_delete_state_confirm_submit($form_id, $form_values) {
   if($form_values['new_sid'] == $form_values['sid']) {
-      form_set_error('new_sid', t('Choose a new issue status for
-  existing issues of status %name.', array('%name' => $form_values['name'])));
+      form_set_error('new_sid', t('Choose a new issue status for existing issues of status %name.', array('%name' => $form_values['name'])));
   } else {
     if ($form_values['new_sid']) {
       db_query('UPDATE {project_issues} SET sid = %d WHERE sid = %d', $form_values['new_sid'], $form_values['sid']);
@@ -1468,17 +1513,24 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
   if ($project) {
     if ($set_title) {
       drupal_set_title(t('Issues for %name', array('%name' => $project->title)));
+      project_project_set_breadcrumb($project, TRUE);
     }
     if (module_exists('project_release')) {
       $releases = project_release_get_releases($project, 0);
     }
     $query->projects = $project->nid;
     $links = array();
-    if (user_access('create project issues')) {
+    if (node_access('create', 'project_issue')) {
       $links[] = array(
-        'title' => t('Submit'),
+        'title' => t('Create'),
         'href' => "node/add/project-issue/$project->uri",
-        'attributes' => array('title' => t('Submit a new issue for @project.', array('@project' => $project->uri))),
+        'attributes' => array('title' => t('Create a new issue for @project.', array('@project' => $project->uri))),
+      );
+    }
+    else {
+      $links[] = array(
+        'title' => theme('project_issue_create_forbidden', $project->uri),
+        'html'  => TRUE,
       );
     }
     $links[] = array(
@@ -1498,9 +1550,6 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
       'href' => "project/issues/search/$project->uri",
       'attributes' => array('title' => t('Use the advanced search page to find @project issues.', array('@project' => $project->uri))),
     );
-    if (user_access('create project issues')) {
-
-    }
   }
   else {
     // only set a more descriptive title if we're not looking at "my
@@ -1509,11 +1558,17 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
       drupal_set_title(t('Issues for all projects'));
     }
     $links = array();
-    if (user_access('create project issues')) {
+    if (node_access('create', 'project_issue')) {
       $links[] = array(
-        'title' => t('Submit'),
+        'title' => t('Create'),
         'href' => "node/add/project-issue",
-        'attributes' => array('title' => t('Submit a new issue.')),
+        'attributes' => array('title' => t('Create a new issue.')),
+      );
+    }
+    else {
+      $links[] = array(
+        'title' => theme('project_issue_create_forbidden', $project->uri),
+        'html'  => TRUE,
       );
     }
     $links[] = array(
@@ -1541,7 +1596,7 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
   }
   $header[] = array('data' => t('Summary'), 'field' => 'n.title');
   $header[] = array('data' => t('Status'), 'field' => 'p.sid');
-  $header[] = array('data' => t('Pri'), 'field' => 'p.priority');
+  $header[] = array('data' => t('Priority'), 'field' => 'p.priority');
   $header[] = array('data' => t('Category'), 'field' => 'p.category');
   if (count($releases)) {
     $header[] = array('data' => t('Version'), 'field' => 'p.rid');
@@ -1564,7 +1619,7 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
   // array to map pids to project names. If we're using the project
   // taxonomy, it will really be an array of arrays, where each
   // project type is itself an array. So, we flatten the array once
-  // and then can use it safely in the rest of this method. 
+  // and then can use it safely in the rest of this method.
   if (project_use_taxonomy()) {
     $flat_projects = array();
     foreach ($projects as $tmp) {
@@ -1576,7 +1631,7 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
   }
 
   if ($format == 'rss') {
-    return project_issue_query_rss($projects, $result);
+    project_issue_query_rss($result, $project);
   }
   elseif (db_num_rows($result)) {
     while ($node = db_fetch_object($result)) {
@@ -1586,7 +1641,13 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
       if (!$project->nid) {
         $row[] = l($projects[$node->pid], "project/issues/$node->pid");
       }
-      $row[] = l(substr($node->title, 0, 50), "node/$node->nid") . theme('mark', node_mark($node->nid, $node->changed));
+      if (strlen($node->title) > 50) {
+        $title = l(drupal_substr($node->title, 0, 50), "node/$node->nid", array('title' => $node->title));
+      }
+      else {
+        $title = l($node->title, "node/$node->nid");
+      }
+      $row[] = $title . theme('mark', node_mark($node->nid, $node->changed));
       $row[] = $states[$node->sid];
       $row[] = $priorities[$node->priority];
       $row[] = t($node->category);
@@ -1641,7 +1702,7 @@ function project_issue_query_result_quick_search($query, $projects, $states, $pr
           $option[] = ${$field}[$value];
         }
         else {
-          unset($query->$field[$key]);
+          unset($query->{$field}[$key]);
         }
       }
       $query->$field = implode(',', $query->$field);
@@ -1736,7 +1797,7 @@ function project_issue_query_url($query = 0) {
  * exists and contains some data. If the query was otherwise going to
  * be empty, this function will automatically add the default set of
  * issue states (active, fixed, patch needs work, etc).
- *  
+ *
  * @param $query
  *   The existing query object we're adding to. (This should probably
  *   be a reference, instead of returning the object again).
@@ -1891,43 +1952,52 @@ function project_issue_query_user($value) {
   }
 }
 
-function project_issue_query_rss($projects, $result) {
-  global $base_url, $locale;
-
-  if (db_num_rows($result)) {
-    while ($node = db_fetch_object($result)) {
-      $node = node_load($node->nid);
-
-      $body = $node->teaser ? $node->teaser : $node->body;
-
-      $items .= format_rss_item(
-        $node->title,
-        url("node/$node->nid", NULL, NULL, true),
-        $body,
-        array(
-          'pubDate' => date('r', ($node->updated > $node->created) ? $node->updated : $node->created),
-          'comments' => url("node/$node->nid", NULL, NULL, true),
-          'category' => $projects[$node->pid]
-        )
-      );
-    }
+function project_issue_query_rss($result, $project) {
+  if ($project) {
+    $channel['title'] = variable_get('site_name', 'drupal') .' - '. t('issues for !name', array('!name' => $project->title));
   }
   else {
-    $rows[] = array(array('data' => t('No issues found.'), 'colspan'=> 8));
+    $channel['title'] = variable_get('site_name', 'drupal') .' - '. t('issues');
   }
+  $channel['link'] = url('project/issues', NULL, NULL, TRUE); // not 100% correct
 
-  $title = variable_get('site_name', 'drupal') .' - '. t('issues');
-  $link = url('project/issues', NULL, NULL, TRUE); // not 100% correct
-  $description = variable_get('site_mission', '');
-
-  $output .= "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
-  $output .= "<rss version=\"0.92\" xml:base=\"". $base_url ."\">\n";
-  $output .= format_rss_channel($title, $link, $description, $items, $locale);
-  $output .= "</rss>\n";
-
-  return $output;
+  node_feed($result, $channel);
 }
 
 function project_issue_tracker_comments($node) {
   return db_query(db_rewrite_sql("SELECT c.nid, c.cid, c.uid, c.created AS timestamp, '%s' AS subject, u.name FROM {project_comments} c INNER JOIN {users} u ON c.uid = u.uid WHERE c.nid = %d ORDER BY c.cid DESC", 'c'), $node->title, $node->nid);
+}
+
+function theme_project_issue_follow_up_forbidden($nid) {
+  global $user;
+  if ($user->uid) {
+    return '';
+  }
+
+  // We cannot use drupal_get_destination() because these links sometimes appear on /node and taxo listing pages.
+  $destination = "destination=". drupal_urlencode("project/comments/add/$nid");
+
+  if (variable_get('user_register', 1)) {
+    return t('<a href="@login">Login</a> or <a href="@register">register</a> to follow up', array('@login' => url('user/login', $destination), '@register' => url('user/register', $destination)));
+  }
+  else {
+    return t('<a href="@login">Login</a> to follow up', array('@login' => url('user/login', $destination)));
+  }
+}
+
+function theme_project_issue_create_forbidden($uri) {
+  global $user;
+  if ($user->uid) {
+    return '';
+  }
+
+  // We cannot use drupal_get_destination() because these links sometimes appear on /node and taxo listing pages.
+  $destination = "destination=". drupal_urlencode("node/add/project-issue/$uri");
+
+  if (variable_get('user_register', 1)) {
+    return t('<a href="@login">Login</a> or <a href="@register">register</a> to create an issue', array('@login' => url('user/login', $destination), '@register' => url('user/register', $destination)));
+  }
+  else {
+    return t('<a href="@login">Login</a> to create an issue', array('@login' => url('user/login', $destination)));
+  }
 }

@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 
-// $Id: package-release-nodes.php,v 1.11 2007/01/28 19:51:56 dww Exp $
-// $Name: HEAD $
+// $Id: package-release-nodes.php,v 1.21 2007/08/07 15:42:12 dww Exp $
+// $Name: DRUPAL-5--1-0 $
 
 /**
  * @file
@@ -75,6 +75,8 @@ $msgcat = 'msgcat';
 $msgattrib = 'msgattrib';
 $msgfmt = 'msgfmt';
 
+// The taxonomy id (tid) of the "Security update" term on drupal.org
+define('SECURITY_UPDATE_TID', 100);
 
 // ------------------------------------------------------------
 // Initialization
@@ -151,6 +153,14 @@ else {
   drupal_exec("$rm -rf $tmp_dir");
 }
 
+if ($task == 'branch') {
+  // Clear any cached data set to expire.
+  cache_clear_all(NULL, 'cache_project_release');
+}
+elseif ($task == 'repair') {
+  // Clear all cached data
+  cache_clear_all('*', 'cache_project_release', TRUE);
+}
 
 // ------------------------------------------------------------
 // Functions: main work
@@ -159,12 +169,12 @@ else {
 function package_releases($type, $project_id) {
   if ($type == 'tag') {
     $where = " AND (prn.rebuild = 0) AND (prn.file_path = '')";
-    $plural = 'tags';
+    $plural = t('tags');
   }
   elseif ($type == 'branch') {
     $rel_node_join = " INNER JOIN {node} nr ON prn.nid = nr.nid";
     $where = " AND (prn.rebuild = 1) AND ((prn.file_path = '') OR (nr.status = 1))";
-    $plural = 'branches';
+    $plural = t('branches');
     if (empty($project_id)) {
       wd_msg(t("Starting to package all snapshot releases."));
     }
@@ -182,17 +192,18 @@ function package_releases($type, $project_id) {
     $args[] = $project_id;
   }
 
-  $query = db_query("SELECT pp.uri, prn.nid, prn.tag, prn.version, c.directory, c.rid FROM {project_release_nodes} prn $rel_node_join INNER JOIN {project_projects} pp ON prn.pid = pp.nid INNER JOIN {node} np ON prn.pid = np.nid INNER JOIN {project_release_projects} prp ON prp.nid = prn.pid INNER JOIN {cvs_projects} c ON prn.pid = c.nid WHERE np.status = 1 AND prp.releases = 1" . $where . ' ORDER BY pp.uri', $args);
+  $query = db_query("SELECT pp.uri, prn.nid, prn.pid, prn.tag, prn.version, c.directory, c.rid FROM {project_release_nodes} prn $rel_node_join INNER JOIN {project_projects} pp ON prn.pid = pp.nid INNER JOIN {node} np ON prn.pid = np.nid INNER JOIN {project_release_projects} prp ON prp.nid = prn.pid INNER JOIN {cvs_projects} c ON prn.pid = c.nid WHERE np.status = 1 AND prp.releases = 1" . $where . ' ORDER BY pp.uri', $args);
 
   $num_built = 0;
   $num_considered = 0;
+  $project_nids = array();
   while ($release = db_fetch_object($query)) {
     $version = $release->version;
     $uri = $release->uri;
     $tag = $release->tag;
     $nid = $release->nid;
+    $pid = $release->pid;
     $rev = ($tag == 'TRUNK') ? '-r HEAD' : "-r $tag";
-    wd_msg(t("Working on !type release: %id from $type: %tag", array('!type' => $release->rid == 1 ? t('core') : t('contrib'), '%id' => $uri . '-' . $version, '%tag' => $tag)), l(t('view'), 'node/' . $nid));
     $uri = escapeshellcmd($uri);
     $version = escapeshellcmd($version);
     $rev = escapeshellcmd($rev);
@@ -205,16 +216,23 @@ function package_releases($type, $project_id) {
     }
     if ($built) {
       $num_built++;
+      $project_nids[$pid] = TRUE;
     }
     $num_considered++;
   }
   if ($num_built || $type == 'branch') {
     if (!empty($project_id)) {
-      wd_msg(t("Done packaging releases for $uri from $plural: !num_built built, !num_considered considered.", array('!num_built' => $num_built, '!num_considered' => $num_considered)));
+      wd_msg(t("Done packaging releases for @uri from !plural: !num_built built, !num_considered considered.", array('@uri' => $uri, '!plural' => $plural, '!num_built' => $num_built, '!num_considered' => $num_considered)));
     }
     else {
-      wd_msg(t("Done packaging releases from $plural: !num_built built, !num_considered considered.", array('!num_built' => $num_built, '!num_considered' => $num_considered)));
+      wd_msg(t("Done packaging releases from !plural: !num_built built, !num_considered considered.", array('!plural' => $plural, '!num_built' => $num_built, '!num_considered' => $num_considered)));
     }
+  }
+
+  // Finally, clear the project_release_table() cache for any projects that we
+  // generated new tarballs for, since those tables are now stale.
+  foreach ($project_nids as $pid => $value) {
+    cache_clear_all('table:'. $pid .':', 'cache_project_release', TRUE);
   }
 }
 
@@ -247,7 +265,6 @@ function package_release_core($nid, $uri, $version, $rev) {
   if (is_file($full_dest) && filectime($full_dest) + 300 > $youngest) {
     // The existing tarball for this release is newer than the youngest
     // file in the directory, we're done.
-    wd_msg(t("%id is unchanged, not re-packaging", array('%id' => $id)), $view_link);
     return false;
   }
 
@@ -265,6 +282,8 @@ function package_release_core($nid, $uri, $version, $rev) {
 
   // As soon as the tarball exists, we want to update the DB about it.
   package_release_update_node($nid, $file_path);
+
+  wd_msg(t("%id has changed, re-packaged.", array('%id' => $id)), $view_link);
 
   // Don't consider failure to remove this directory a build failure.
   drupal_exec("$rm -rf $tmp_dir/$id");
@@ -317,14 +336,13 @@ function package_release_contrib($nid, $uri, $version, $rev, $dir) {
   }
 
   if ($contrib_type == 'translations') {
-    $exclude = array_merge($exclude, 'README.txt');
+    $exclude[] = 'README.txt';
   }
   $info_files = array();
   $youngest = file_find_youngest($uri, 0, $exclude, $info_files);
   if (is_file($full_dest) && filectime($full_dest) + 300 > $youngest) {
     // The existing tarball for this release is newer than the youngest
     // file in the directory, we're done.
-    wd_msg(t("%id is unchanged, not re-packaging", array('%id' => $id)), $view_link);
     return false;
   }
 
@@ -358,7 +376,7 @@ function package_release_contrib($nid, $uri, $version, $rev, $dir) {
         @unlink("$uri/$uri.po");
         $po_targets = "$uri/general.po ";
         $po_targets .= implode(' ', $po_files);
-        if (!drupal_exec("$msgcat $po_targets | $msgattrib --no-fuzzy -o $uri/$uri.po")) {
+        if (!drupal_exec("$msgcat --use-first $po_targets | $msgattrib --no-fuzzy -o $uri/$uri.po")) {
           return false;
         }
       }
@@ -389,6 +407,8 @@ function package_release_contrib($nid, $uri, $version, $rev, $dir) {
 
   // As soon as the tarball exists, update the DB
   package_release_update_node($nid, $file_path);
+
+  wd_msg(t("%id has changed, re-packaged.", array('%id' => $id)), $view_link);
 
   // Don't consider failure to remove this directory a build failure.
   drupal_exec("$rm -rf $tmp_dir/$basedir/$uri");
@@ -468,10 +488,10 @@ function verify_packages($task, $project_id) {
     }
 
     if (!$valid_date && !$valid_hash) {
-      wd_check(t('All file meta data for %file is incorrect: saved date: !db_date (!db_date_raw) real date: !real_date (!real_date_raw); saved md5hash: @db_hash, real md5hash: @real_hash', $variables), $view_link);
+      wd_check(t('All file meta data for %file is incorrect: saved date: !db_date (!db_date_raw), real date: !real_date (!real_date_raw); saved md5hash: @db_hash, real md5hash: @real_hash', $variables), $view_link);
     }
     else if (!$valid_date) {
-      wd_check(t('File date for %file is incorrect: saved date: !db_date (!db_date_raw) real date: !real_date (!real_date_raw)', $variables), $view_link);
+      wd_check(t('File date for %file is incorrect: saved date: !db_date (!db_date_raw), real date: !real_date (!real_date_raw)', $variables), $view_link);
     }
     else { // !$valid_hash
       wd_check(t('File md5hash for %file is incorrect: saved: @db_hash, real: @real_hash', $variables), $view_link);
@@ -562,6 +582,7 @@ function wprint($var) {
 function wd_msg($msg, $link = NULL) {
   global $task;
   watchdog('package_' . $task, $msg, WATCHDOG_NOTICE, $link);
+  echo $msg ."\n";
 }
 
 /**
@@ -569,6 +590,7 @@ function wd_msg($msg, $link = NULL) {
  */
 function wd_err($msg, $link = NULL) {
   watchdog('package_error', $msg, WATCHDOG_ERROR, $link);
+  echo $msg ."\n";
 }
 
 /**
@@ -577,6 +599,7 @@ function wd_err($msg, $link = NULL) {
  */
 function wd_check($msg, $link = NULL) {
   watchdog('package_check', $msg, WATCHDOG_NOTICE, $link);
+  echo $msg ."\n";
 }
 
 /**
@@ -627,9 +650,22 @@ function fix_info_file_version($file, $uri, $version) {
 
   $info = "\n; Information added by $site_name packaging script on " . date('Y-m-d') . "\n";
   $info .= "version = \"$version\"\n";
+  // .info files started with 5.x, so we don't have to worry about version
+  // strings like "4.7.x-1.0" in this regular expression. If we can't parse
+  // the version (also from an old "HEAD" release), or the version isn't at
+  // least 6.x, don't add any "core" attribute at all.
+  $matches = array();
+  if (preg_match('/^((\d+)\.x)-.*/', $version, $matches) && $matches[2] >= 6) {
+    $info .= "core = \"$matches[1]\"\n";
+  }
   $info .= "project = \"$uri\"\n";
+  $info .= 'datestamp = "'. time() ."\"\n";
   $info .= "\n";
 
+  if (!chmod($file, 0644)) {
+    wd_err(t("ERROR: chmod(@file, 0644) failed", array('@file' => $file)));
+    return false;
+  }
   if (!$info_fd = fopen($file, 'ab')) { 
     wd_err(t("ERROR: fopen(@file, 'ab') failed", array('@file' => $file)));
     return false;
@@ -646,7 +682,7 @@ function fix_info_file_version($file, $uri, $version) {
  * Update the DB with the new file info for a given release node.
  */
 function package_release_update_node($nid, $file_path) {
-  global $dest_root;
+  global $dest_root, $task;
   $full_path = $dest_root . '/' . $file_path;
 
   // PHP will cache the results of stat() and give us stale answers
@@ -659,6 +695,13 @@ function package_release_update_node($nid, $file_path) {
 
   // Finally, update the node in the DB about this file:
   db_query("UPDATE {project_release_nodes} SET file_path = '%s', file_hash = '%s', file_date = %d WHERE nid = %d", $file_path, $file_hash, $file_date, $nid);
+
+  // Don't auto-publish security updates.
+  if ($task == 'tag' && db_num_rows(db_query("SELECT * FROM {term_node} WHERE nid = %d AND tid = %d", $nid, SECURITY_UPDATE_TID))) {
+    watchdog('package_security', t("Not auto-publishing security update release."), WATCHDOG_NOTICE, l(t('view'), 'node/'. $nid));
+    return;
+  }
+
   db_query("UPDATE {node} SET status = 1 WHERE nid = %d", $nid);
 }
 

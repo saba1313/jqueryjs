@@ -1,10 +1,10 @@
 <?php
-// $Id: mail.inc,v 1.69 2007/01/15 08:43:48 dww Exp $
-// $Name: DRUPAL-5--0-2-BETA $
+// $Id: mail.inc,v 1.74 2007/09/20 17:09:59 thehunmonkgroup Exp $
+// $Name: DRUPAL-5--1-1 $
 
 function project_issue_mailhandler($node, $result, $i, $header, $mailbox) {
   if ($node->type == 'project') {
-    if (user_access('create project issues')) {
+    if (node_access('create', 'project_issue')) {
       $node->nid = preg_replace('/@.+/', '', $node->nid);
 
       if ($node->nid) {
@@ -199,7 +199,6 @@ function project_mail_notify($node) {
   if (defined('PROJECT_NOMAIL')) {
     return;
   }
-  $node = node_load(array('nid' => $node->nid, 'type' => 'project_issue'));
   $project = node_load(array('nid' => $node->pid, 'type' => 'project_project'));
 
   $fields = array(
@@ -219,6 +218,8 @@ function project_mail_notify($node) {
   $result = db_query('SELECT * FROM {project_comments} WHERE nid = %d ORDER BY changed', $node->nid);
   if (db_num_rows($result)) {
     while ($comment = db_fetch_object($result)) {
+      $comment->body = db_decode_blob($comment->body);
+      $comment->data = db_decode_blob($comment->data);
       $no_content = empty($comment->body) && empty($comment->file_path);
       if (!$no_content) {
         $history[] = project_comment_load($comment->cid);
@@ -237,10 +238,10 @@ function project_mail_notify($node) {
   // Record users that are connected to this node
   $uids = array();
   if ($entry->uid) {
-    $uids[$entry->uid] = "u.uid = $entry->uid";
+    $uids[$entry->uid] = $entry->uid;
   }
   if ($node->assigned) {
-    $uids[$node->assigned] = "u.uid = $node->assigned";
+    $uids[$node->assigned] = $node->assigned;
   }
 
   // Create link to related node
@@ -269,7 +270,7 @@ function project_mail_notify($node) {
   $hr = str_repeat('-', 72);
 
   // Create mail header
-  $sender->name = mime_header_encode(($pos = strpos($node->updator, '@')) ? substr($node->updator, 0, $pos) : $node->updator);
+  $sender->name = mime_header_encode(($pos = strpos($node->updator, '@')) ? drupal_substr($node->updator, 0, $pos) : $node->updator);
   $sender->mail = $project->mail;
   $domain = preg_replace('|.+://([a-zA-Z0-9\._-]+).*|', '\1', $GLOBALS['base_url']);
   $header = array(
@@ -296,7 +297,7 @@ function project_mail_notify($node) {
     $body .= t('Previous comments:');
     foreach ($history as $entry) {
       if ($entry->uid) {
-        $uids[$entry->uid] = "u.uid = $entry->uid";
+        $uids[$entry->uid] = $entry->uid;
       }
       project_mail_output($entry->body, 1, $entry->format);
       $body .= "\n$hr\n\n";
@@ -316,7 +317,9 @@ function project_mail_notify($node) {
   $body = "$links\n$summary\n$body";
 
   if (count($uids)) {
-    $result = db_query('SELECT p.*, u.name, u.mail FROM {project_subscriptions} p INNER JOIN {users} u ON p.uid = u.uid WHERE u.status = 1 AND p.nid = %d AND (p.level = 2 OR (p.level = 1 AND (%s)))', $node->pid, implode(' OR ', $uids));
+    $placeholders = implode(',', array_fill(0, count($uids), '%d'));
+    array_unshift($uids, $node->pid);
+    $result = db_query("SELECT p.*, u.name, u.mail FROM {project_subscriptions} p INNER JOIN {users} u ON p.uid = u.uid WHERE u.status = 1 AND p.nid = %d AND (p.level = 2 OR (p.level = 1 AND u.uid IN ($placeholders)))", $uids);
   }
   else {
     $result = db_query('SELECT p.*, u.name, u.mail FROM {project_subscriptions} p INNER JOIN {users} u ON p.uid = u.uid WHERE u.status = 1 AND p.nid = %d AND p.level = 2', $node->pid);

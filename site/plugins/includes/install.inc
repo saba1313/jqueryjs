@@ -1,5 +1,5 @@
 <?php
-// $Id: install.inc,v 1.31 2007/01/02 05:05:38 drumm Exp $
+// $Id: install.inc,v 1.31.2.2 2007/10/06 22:38:28 drumm Exp $
 
 define('SCHEMA_UNINSTALLED', -1);
 define('SCHEMA_INSTALLED', 0);
@@ -62,10 +62,10 @@ function drupal_get_schema_versions($module) {
  *   The currently installed schema version.
  */
 function drupal_get_installed_schema_version($module, $reset = FALSE) {
-  static $versions;
+  static $versions = array();
 
   if ($reset) {
-    unset($versions);
+    $versions = array();
   }
 
   if (!$versions) {
@@ -571,6 +571,7 @@ function drupal_install_fix_file($file, $mask, $message = TRUE) {
 function install_goto($path) {
   global $base_url;
   header('Location: '. $base_url . '/' . $path);
+  header('Cache-Control: no-cache'); // Not a permanent redirect.
   exit();
 }
 

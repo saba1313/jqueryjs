@@ -1,5 +1,5 @@
-/* $Id: project_issue.css,v 1.10 2007/01/05 00:21:08 dww Exp $ */
-/* $Name: DRUPAL-5--0-2-BETA $ */
+/* $Id: project_issue.css,v 1.12 2007/08/16 00:10:02 dww Exp $ */
+/* $Name: DRUPAL-5--1-1 $ */
 
 /* Viewing issue nodes */
 .project-issue .header {
@@ -37,23 +37,26 @@
   clear: both;
   visibility: hidden;
 }
+.project-issue .node-form #edit-pid {
+  width: 200px;
+}
 
 /* "My Projects" table UI */
 table.projects {
   width: 100%;
 }
 table.projects .project-name {
-  width: 25%;
+  width: 22%;
 }
 table.projects .project-issue-updated {
-  width: 14%;
+  width: 12%;
 }
 table.projects .project-issues {
-  width: 8%;
+  width: 9%;
   text-align: right;
 }
 table.projects .project-issue-links {
-  width: 20%;
+  width: 24%;
   padding-left: 0.8em;
 }
 table.projects .project-project-updated {

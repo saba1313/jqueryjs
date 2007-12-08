@@ -174,7 +174,7 @@ function jrating_rate($args) {
   $form = array();
   
   $form['#base'] = 'jrating_rate';
-  $form['#action'] = url('node/' . $nid);
+  $form['#action'] = url("node/$nid");
   
   $form['#attributes'] = array ('class' => 'rating');
   
@@ -186,7 +186,7 @@ function jrating_rate($args) {
     '100' => t('Excellent!'),
     '80' => t('Great!'),
     '60' => t('Good'),
-    '40' => t('Quite good'),
+    '40' => t('Fair'),
     '20' => t('Not so great')
     );
   
@@ -236,7 +236,7 @@ function jrating_rate_submit($form_id, $form_values) {
     db_query("REPLACE INTO {history} (uid, nid, timestamp) VALUES (%d, %d, %d)", $user->uid, $form_values['nid'], time());
   }
   else {
-    $error = t('Unauthorised: please !login to rate items', array('!login' => l(t('login or register'), 'user/login', NULL, 'destination=' . $_GET['q'])));
+    $error = t('You need to !login to rate items', array('!login' => l(t('login or register'), 'user/login', NULL, 'destination=' . $_GET['q'])));
     $response = array('error' => $error);
   }
   

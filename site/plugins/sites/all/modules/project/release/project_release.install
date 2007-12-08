@@ -1,6 +1,6 @@
 <?php
-// $Id: project_release.install,v 1.4 2006/12/22 23:53:20 dww Exp $
-// $Name: HEAD $
+// $Id: project_release.install,v 1.11 2007/08/15 23:43:49 dww Exp $
+// $Name: DRUPAL-5--1-0 $
 
 function project_release_install() {
   switch ($GLOBALS['db_type']) {
@@ -21,8 +21,7 @@ function project_release_install() {
           version_extra varchar(255) default NULL,
           PRIMARY KEY (nid),
           KEY project_releases_pid (pid)
-        ) TYPE=MyISAM
-        /*!40100 DEFAULT CHARACTER SET utf8 */;");
+        ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       db_query("CREATE TABLE IF NOT EXISTS {project_release_projects} (
           nid int unsigned NOT NULL default '0',
           releases tinyint NOT NULL default '1',
@@ -30,15 +29,22 @@ function project_release_install() {
           version_format varchar(255) NOT NULL default '',
           PRIMARY KEY (nid),
           KEY project_release_projects_releases (releases)
-        ) TYPE=MyISAM
-        /*!40100 DEFAULT CHARACTER SET utf8 */;");
+        ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       db_query("CREATE TABLE IF NOT EXISTS {project_release_default_versions} (
           nid int unsigned NOT NULL default '0',
           tid int unsigned NOT NULL default '0',
           major int unsigned NOT NULL default '0',
           PRIMARY KEY (nid, tid)
-        ) TYPE=MyISAM
-        /*!40100 DEFAULT CHARACTER SET utf8 */;");
+        ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+      db_query("CREATE TABLE IF NOT EXISTS {cache_project_release} (
+        cid varchar(255) BINARY NOT NULL default '',
+        data longblob,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid),
+        INDEX expire (expire)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
       break;
 
     case 'pgsql':
@@ -56,9 +62,9 @@ function project_release_install() {
             version_minor int default NULL,
             version_patch int default NULL,
             version_extra varchar(255) default NULL,
-            PRIMARY KEY (nid),
-            KEY project_releases_pid (pid)
+            PRIMARY KEY (nid)
           );");
+        db_query("CREATE INDEX {project_release_nodes}_pid_idx ON {project_release_nodes} (pid)");
       }
       if (!db_table_exists('project_release_projects')) {
         db_query("CREATE TABLE {project_release_projects} (
@@ -66,9 +72,9 @@ function project_release_install() {
             releases smallint NOT NULL default '1',
             snapshot_table smallint NOT NULL default '1',
             version_format varchar(255) NOT NULL default '',
-            PRIMARY KEY (nid),
-            KEY project_release_projects_releases (releases)
+            PRIMARY KEY (nid)
           );");
+        db_query("CREATE INDEX {project_release_projects}_releases_idx ON {project_release_projects} (releases)");
       }
       if (!db_table_exists('project_release_default_versions')) {
         db_query("CREATE TABLE {project_release_default_versions} (
@@ -78,10 +84,52 @@ function project_release_install() {
             PRIMARY KEY (nid, tid)
           );"); 
       }
+      if (!db_table_exists('cache_project_release')) {
+        db_query("CREATE TABLE {cache_project_release} (
+          cid varchar(255) NOT NULL default '',
+          data bytea,
+          expire int NOT NULL default '0',
+          created int NOT NULL default '0',
+          headers text,
+          PRIMARY KEY (cid)
+        )");
+        db_query("CREATE INDEX {cache_project_release}_expire_idx ON {cache_project_release} (expire)");
+      }
       break;
   }
   db_query("UPDATE {system} SET weight = 2 WHERE name = 'project_release'");
   db_query("DELETE FROM {variable} WHERE name = 'project_browse_releases'");
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function project_release_uninstall() {
+  $tables = array(
+    'project_release_nodes',
+    'project_release_projects',
+    'project_release_default_versions',
+    'cache_project_release',
+  );
+  foreach ($tables as $table) {
+    if (db_table_exists($table)) {
+      db_query("DROP TABLE {$table}");
+    }
+  }
+
+  $variables = array(
+    'project_release_active_compatibility_tids',
+    'project_release_api_vocabulary',
+    'project_release_browse_versions',
+    'project_release_default_version_format',
+    'project_release_directory',
+    'project_release_download_base',
+    'project_release_overview',
+    'project_release_unmoderate',
+  );
+  foreach ($variables as $variable) {
+    variable_del($variable);
+  }
 }
 
 /**
@@ -103,7 +151,7 @@ function project_release_update_1() {
         ) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;");
       break;
     case 'pgsql':
-      if (!project_release_db_table_exists('project_release_default_versions')) {
+      if (!db_table_exists('project_release_default_versions')) {
         $ret[] = update_sql(
           "CREATE TABLE {project_release_default_versions} (
             nid int NOT NULL default '0',
@@ -144,6 +192,58 @@ function project_release_update_2() {
     case 'pgsql':
       db_add_column($ret, 'project_release_projects', 'snapshot_table', 'smallint', array('default' => 1, 'not null' => TRUE));
       break;
+  }
+  return $ret;
+}
+
+/**
+ * Add a cache table {cache_project_release}.
+ */
+function project_release_update_5000() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("CREATE TABLE IF NOT EXISTS {cache_project_release} (
+        cid varchar(255) BINARY NOT NULL default '',
+        data longblob,
+        expire int NOT NULL default '0',
+        created int NOT NULL default '0',
+        headers text,
+        PRIMARY KEY (cid),
+        INDEX expire (expire)
+      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
+      break;
+    case 'pgsql':
+      if (!db_table_exists('cache_project_release')) {
+        $ret[] = update_sql("CREATE TABLE {cache_project_release} (
+          cid varchar(255) NOT NULL default '',
+          data bytea,
+          expire int NOT NULL default '0',
+          created int NOT NULL default '0',
+          headers text,
+          PRIMARY KEY (cid)
+        )");
+        $ret[] = update_sql("CREATE INDEX {cache_project_release}_expire_idx ON {cache_project_release} (expire)");
+      }
+      break;
+  }
+  return $ret;
+}
+
+/**
+ * Remove variables from dead code for serving XML history files, which is 
+ * now handled by project-release-serve-history.php instead.
+ */
+function project_release_update_5001() {
+  $ret = array();
+  $variables = array(
+    'project_release_history_xml',
+    'project_release_history_directory',
+  );
+  foreach ($variables as $variable) {
+    variable_del($variable);
+    $ret[] = array('success' => TRUE, 'query' => "variable_del($variable)");
   }
   return $ret;
 }

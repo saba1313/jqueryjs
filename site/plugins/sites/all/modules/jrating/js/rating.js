@@ -220,7 +220,7 @@ function rating_submit_rating(nid){
             dataType: 'json',
             after: function(data){
                 if (data.error){
-                    $('#rating-message-' + nid).background('#f55');
+                    $('#rating-message-' + nid).background('#f95');
                     $('#rating-message-' + nid).html(data.error).fadeIn('slow');
                     return false;
                 }

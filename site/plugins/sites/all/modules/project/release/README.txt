@@ -36,4 +36,4 @@ http://drupal.org/node/75053
 http://drupal.org/node/86694
 
 $Id: README.txt,v 1.3 2006/12/18 09:02:39 dww Exp $
-$Name: HEAD $
+$Name: DRUPAL-5--1-0 $

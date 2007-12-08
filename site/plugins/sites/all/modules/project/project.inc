@@ -1,6 +1,6 @@
 <?php
-// $Id: project.inc,v 1.104 2007/01/28 18:48:53 dww Exp $
-// $Name: HEAD $
+// $Id: project.inc,v 1.113 2007/08/19 23:23:37 dww Exp $
+// $Name: DRUPAL-5--1-0 $
 
 /**
  * Implementation of hook_form().
@@ -196,8 +196,18 @@ function project_project_validate(&$node) {
       form_set_error('uri', t('Please only use alphanumerical characters for the project name.'));
     }
 
-    // Make sure uri isn't already in use, or reserved
-    if (in_array($node->uri, array('user', 'issues', 'releases')) || db_num_rows(db_query("SELECT nid FROM {project_projects} WHERE uri = '%s' AND nid <> %d", $node->uri, $node->nid))) {
+    // Make sure uri isn't already in use, or reserved.  Includes all X from
+    // project/issues/X paths used in project_issues module
+    $reserved_names = array('user', 'issues', 'releases', 'rss', 'subscribe-mail', 'search', 'add', 'update_project', 'statistics', 'comments', 'autocomplete', 'cvs', 'developers');
+    if (project_use_taxonomy()) {
+      $terms = taxonomy_get_tree(_project_get_vid());
+      foreach ($terms as $i => $term) {
+        if ($term->depth == 0) {
+          $reserved_names[] = strtolower($term->name);
+        }
+      }
+    }
+    if (in_array(strtolower($node->uri), $reserved_names) || db_num_rows(db_query("SELECT nid FROM {project_projects} WHERE uri = '%s' AND nid <> %d", $node->uri, $node->nid))) {
       form_set_error('uri', t('This project name is already in use.'));
     }
   }
@@ -232,9 +242,15 @@ function project_project_validate(&$node) {
   }
 
   // Make sure all URL fields actually contain URLs.
-  foreach (array('homepage', 'changelog', 'cvs', 'demo') as $uri) {
+  $fields = array(
+    'homepage' => t('Homepage'),
+    'changelog' => t('Changelog'),
+    'cvs' => t('CVS tree'),
+    'demo' => t('Demo site'),
+  );
+  foreach ($fields as $uri => $name) {
     if ($node->$uri && !preg_match('/^(http|https|ftp):\/\//i', $node->$uri)) {
-      form_set_error($uri, t('!field is not a valid URL.', array('!field' => t(ucfirst($uri)))));
+      form_set_error($uri, t('!field is not a valid URL.', array('!field' => $name)));
     }
   }
 
@@ -258,7 +274,7 @@ function project_project_validate(&$node) {
   }
 }
 
-function project_project_set_breadcrumb($node = NULL, $extra = array()) {
+function project_project_set_breadcrumb($node = NULL, $extra = NULL) {
   global $_menu;
 
   $breadcrumb = array();
@@ -274,7 +290,14 @@ function project_project_set_breadcrumb($node = NULL, $extra = array()) {
     $term = db_fetch_object($result);
     $breadcrumb[] = l($term->name, 'project/'. $term->name);
   }
-  $breadcrumb = array_merge($breadcrumb, $extra);
+
+  if (is_array($extra)) {
+    $breadcrumb = array_merge($breadcrumb, $extra);
+  }
+  elseif ($extra && !empty($node)) {
+    $breadcrumb[] = l($node->title, 'node/'. $node->nid);
+  }
+ 
   drupal_set_breadcrumb($breadcrumb);
 }
 
@@ -285,9 +308,14 @@ function project_project_view($node, $teaser = false, $page = false) {
     // Breadcrumb navigation
     project_project_set_breadcrumb($node);
 
-    if (function_exists('project_release_project_download_table')) {
+    // If theme_project_release_project_download_table is implemented, format
+    // the download table.  If this function is not implemented (eg. if the
+    // project_release module is not enabled), there will not be an error
+    // but of course there will be no release table.
+    $project_table_output = theme('project_release_project_download_table', $node);
+    if (!empty($project_table_output)) {
       $node->content['download_table'] = array(
-        '#value' => project_release_project_download_table($node),
+        '#value' => $project_table_output,
         '#weight' => 1,
       );
     }
@@ -310,21 +338,24 @@ function project_project_view($node, $teaser = false, $page = false) {
 
     // Flags that indicate what kind of access to project issues to allow.
     $has_issues = module_exists('project_issue') && $node->issues;
-    $view_issues = $has_issues && user_access('access project issues');
-    $make_issues = $has_issues && user_access('create project issues');
+    $view_issues = $has_issues && (user_access('access project issues') || user_access('access own project issues') || user_access('administer projects'));
+    $make_issues = $has_issues && node_access('create', 'project_issue');
 
     // Support section.
     $links = array();
     if ($view_issues) {
-      $links[] = l(t('All support requests'), 'project/issues/'. $node->uri, null, 'categories=support&states=all', null);
-      $links[] = l(t('Pending support requests'), 'project/issues/'. $node->uri, null, 'categories=support', null);
-      $links[] = l(t('Pending bug reports'), 'project/issues/'. $node->uri, null, 'categories=bug', null);
-      $links[] = l(t('Pending feature requests'), 'project/issues/'. $node->uri, null, 'categories=feature', null);
+      $links[] = l(t('View all support requests'), 'project/issues/'. $node->uri, null, 'categories=support&states=all', null);
+      $links[] = l(t('View pending support requests'), 'project/issues/'. $node->uri, null, 'categories=support', null);
+      $links[] = l(t('View pending bug reports'), 'project/issues/'. $node->uri, null, 'categories=bug', null);
+      $links[] = l(t('View pending feature requests'), 'project/issues/'. $node->uri, null, 'categories=feature', null);
     }
     if ($make_issues) {
       $links[] = l(t('Request support'), 'node/add/project_issue/'. $node->uri .'/support');
       $links[] = l(t('Report new bug'), 'node/add/project_issue/'. $node->uri .'/bug');
       $links[] = l(t('Request new feature'), 'node/add/project_issue/'. $node->uri .'/feature');
+    }
+    else {
+      $links[] = theme('project_issue_create_forbidden', $node->uri);
     }
 
     if ($links) {
@@ -337,16 +368,16 @@ function project_project_view($node, $teaser = false, $page = false) {
     // Developer section
     $links = array();
     if ($view_issues) {
-      $links[] = l(t('Pending patches'), 'project/issues/'. $node->uri, null, 'states=8,13,14', null);
-      $links[] = l(t('Available tasks'), 'project/issues/'. $node->uri, null, 'categories=task', null);
-      $links[] = l(t('All pending issues'), 'project/issues/'. $node->uri);
+      $links[] = l(t('View pending patches'), 'project/issues/'. $node->uri, null, 'states=8,13,14', null);
+      $links[] = l(t('View available tasks'), 'project/issues/'. $node->uri, null, 'categories=task', null);
+      $links[] = l(t('View all pending issues'), 'project/issues/'. $node->uri);
     }
 
     if ($node->cvs) {
-      $links[] = l(t('Browse the SVN repository'), $node->cvs);
+      $links[] = l(t('Browse the CVS repository'), $node->cvs);
     }
 
-    if (module_exists('cvs')) {
+    if (project_use_cvs($node)) {
       $links[] = l(t('View CVS messages'), 'project/cvs/'. $node->nid);
       $links[] = l(t('Developers'), 'project/developers/'. $node->nid);
     }
@@ -409,6 +440,9 @@ function project_project_access($op, $node) {
 
   switch ($op) {
     case 'view':
+      if (user_access('administer projects')) {
+         return TRUE;
+      }
       if (user_access('access own projects') && $node->uid == $user->uid) {
          return TRUE;
       }
@@ -420,7 +454,7 @@ function project_project_access($op, $node) {
       if ($user->uid && user_access('maintain projects')) {
         // Since this CVS access checking is non-standard, we need to
         // special-case uid 1 to always allow everything.
-        if ($user->uid != 1 && module_exists('cvs') && variable_get('cvs_restrict_project_creation',1)) {
+        if ($user->uid != 1 && module_exists('cvs') && variable_get('cvs_restrict_project_creation', 1)) {
           return db_result(db_query("SELECT uid FROM {cvs_accounts} WHERE uid = %d AND status = %d", $user->uid, CVS_APPROVED)) ? TRUE : FALSE;
         }
         else {
@@ -461,9 +495,15 @@ function project_project_retrieve($key = 0) {
 
 function project_developers($nid = 0) {
   if ($project = node_load($nid)) {
-    $output = module_invoke('cvs', 'get_project_contributors', $nid);
-    drupal_set_title(t('Developers for %name', array('%name' => check_plain($project->title))));
-    return $output;
+    if (node_access('view', $project)) {
+      $output = module_invoke('cvs', 'get_project_contributors', $nid);
+      drupal_set_title(t('Developers for %name', array('%name' => check_plain($project->title))));
+      project_project_set_breadcrumb($project, TRUE);
+      return $output;
+    }
+    else {
+      drupal_access_denied();
+    }
   }
   else {
     drupal_not_found();
@@ -472,10 +512,16 @@ function project_developers($nid = 0) {
 
 function project_cvs($nid = 0) {
   if ($project = node_load($nid)) {
-    $_REQUEST['nid'] = $nid;
-    $output = module_invoke('cvs', 'show_messages');
-    drupal_set_title(t('CVS messages for %name', array('%name' => check_plain($project->title))));
-    return $output;
+    if (node_access('view', $project)) {
+      $_REQUEST['nid'] = $nid;
+      $output = module_invoke('cvs', 'show_messages');
+      drupal_set_title(t('CVS messages for %name', array('%name' => check_plain($project->title))));
+      project_project_set_breadcrumb($project, TRUE);   
+      return $output;
+    }
+    else {
+      drupal_access_denied();
+    }
   }
   else {
     drupal_not_found();

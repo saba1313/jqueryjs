@@ -1,16 +1,14 @@
 <?php
-// $Id: comment.inc,v 1.77 2007/03/08 08:02:14 dww Exp $
-// $Name: DRUPAL-5--0-2-BETA $
+// $Id: comment.inc,v 1.85 2007/08/19 23:23:37 dww Exp $
+// $Name: DRUPAL-5--1-1 $
 
-function project_comment_page() {
-  
-  if (user_access('create project issues')) {
+function project_comment_page($op, $nid) {
+
+  // Load the parent node.
+  $node = node_load($nid);
+
+  if (node_access('create', 'project_issue')) {
     $edit = (object)$_POST;
-    $node = node_load(array('nid' => arg(3), 'type' => 'project_issue'));
-    if (!node_access('view', $node)) {
-      drupal_access_denied();
-      return;
-    }
 
     if ($_POST['op'] == t('Preview') || $_POST['op'] == t('Submit')) {
       project_comment_validate($edit);
@@ -22,16 +20,20 @@ function project_comment_page() {
     }
     $output .= drupal_get_form('project_comment_form', $edit);
 
-    $breadcrumb = drupal_get_breadcrumb();
-    $breadcrumb[] = l($node->title, "node/$node->nid");
-    drupal_set_breadcrumb($breadcrumb);
+    // set breadcrumb
+    $project = node_load(array('nid' => $node->pid));
+    $breadcrumb[] = l($project->title, 'node/'. $project->nid);
+    $breadcrumb[] = l(t('Issues'), 'project/issues/'. $project->uri);
+    $breadcrumb[] = l($node->title, 'node/'. $node->nid);
+    project_project_set_breadcrumb($project, $breadcrumb);
+
     drupal_set_title(t('New comment'));
     switch ($_POST['op'] ? $_POST['op'] : arg(2)) {
       case 'add':
         $output .= node_view($node, NULL, TRUE);
         return $output;
         break;
-      case t('Preview'):      
+      case t('Preview'):
           return $output;
         break;
       case t('Submit'):
@@ -45,6 +47,10 @@ function project_comment_page() {
           }
         break;
     }
+  }
+  else {
+    drupal_set_message(t('You are not authorized to follow up on issues.'), 'error');
+    drupal_goto("node/$nid");
   }
 }
 
@@ -64,6 +70,14 @@ function project_comment_form($edit, $param = NULL) {
   $form['project_issue_form'] = project_issue_form($edit, $param);
   unset($form['project_issue_form']['#prefix']);
   unset($form['project_issue_form']['#suffix']);
+
+  // Add any CCK fields to the follow-up form.
+  if (function_exists('_content_widget_invoke')) {
+    $db_node = node_load(array('nid' => arg(3), 'type' => 'project_issue'));
+    $type = content_types($db_node->type);
+    _content_widget_invoke('prepare form values', $db_node);
+    $form = array_merge($form, _content_widget_invoke('form', $db_node));
+  }
 
   _project_issue_form_add_required_fields($form['project_issue_form'], FALSE);
   if ($edit->cid) {
@@ -105,6 +119,7 @@ function project_comment_view($node, $main = 0) {
     $i = 0;
     while ($comment = db_fetch_object($result)) {
       $comment->body = db_decode_blob($comment->body);
+      $comment->data = db_decode_blob($comment->data);
       $i++;
       $output .= _project_comment_view_single($comment, $i);
     }
@@ -131,14 +146,14 @@ function _project_comment_view_single($comment, $count) {
   $output = '';
 
   $fields = array(
-    'title' => 'Title',
-    'pid' => 'Project',
-    'rid' => 'Version',
-    'component' => 'Component',
-    'category' => 'Category',
-    'priority' => 'Priority',
-    'assigned' => 'Assigned to',
-    'sid' => 'Status'
+    'title' => t('Title'),
+    'pid' => t('Project'),
+    'rid' => t('Version'),
+    'component' => t('Component'),
+    'category' => t('Category'),
+    'priority' => t('Priority'),
+    'assigned' => t('Assigned to'),
+    'sid' => t('Status'),
   );
 
   // If we got this from the DB, we'll have a $data field to unserialize.
@@ -154,14 +169,14 @@ function _project_comment_view_single($comment, $count) {
   foreach ($fields as $field => $text) {
     if (isset($comment->old->$field) && isset($comment->new->$field)) {
       $summary[] = array(
-        t($text) .':',
+        $text .':',
         project_mail_summary($field, $comment->old->$field),
         '&raquo; '. project_mail_summary($field, $comment->new->$field)
       );
     }
     elseif (isset($node->$field) && isset($comment->$field) && $node->$field != $comment->$field ) {
       $summary[] = array(
-        t($text) .':',
+        $text .':',
         project_mail_summary($field, $node->$field),
         '&raquo; '. project_mail_summary($field, $comment->$field)
       );
@@ -195,6 +210,7 @@ function _project_comment_view_single($comment, $count) {
 function project_comment_load($cid) {
   $object = db_fetch_object(db_query('SELECT p.*, u.name FROM {project_comments} p INNER JOIN {users} u USING (uid) WHERE p.cid = %d ORDER BY p.created DESC', $cid));
   $object->body = db_decode_blob($object->body);
+  $object->data = db_decode_blob($object->data);
   return $object;
 }
 
@@ -224,9 +240,18 @@ function project_comment_save($edit) {
       }
     }
 
+    // Add processed cck info into the node object for node_save
+    if (function_exists('_content_widget_invoke')) {
+      $type = content_types($node->type);
+      while (list($field, $val) = each($type['fields'])) {
+        $node->$field = $edit->$field;
+      }
+      _content_widget_invoke('process form values', $node);
+    }
+
     watchdog('content', t('project_issue: added comment %title', array('%title' => $edit->title)), WATCHDOG_NOTICE, l('view', "node/$node->nid"));
     $node->changed = time();
-    db_query("INSERT INTO {project_comments} (cid, nid, uid, created, changed, body, data, file_path, file_mime, file_size) VALUES (%d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', %d)", $edit->cid, $edit->nid, $edit->uid, $node->changed, $node->changed, $edit->body, serialize($data), $file->filepath, $file->filemime, $file->filesize);
+    db_query("INSERT INTO {project_comments} (cid, nid, uid, created, changed, body, data, file_path, file_mime, file_size) VALUES (%d, %d, %d, %d, %d, %b, %b, '%s', '%s', %d)", $edit->cid, $edit->nid, $edit->uid, $node->changed, $node->changed, $edit->body, serialize($data), $file->filepath, $file->filemime, $file->filesize);
 
     // Update node_comment_statistics so the tracker page lists the number of comments
     $count = db_result(db_query('SELECT COUNT(cid) FROM {project_comments} WHERE nid = %d', $edit->nid));

@@ -71,7 +71,7 @@ msgid "Good"
 msgstr "טוב"
 
 #: jrating.module:185
-msgid "Quite good"
+msgid "Fair"
 msgstr "די טוב"
 
 #: jrating.module:186

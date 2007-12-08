@@ -6,7 +6,7 @@
     <?php print $head ?>
     <?php print $styles ?>
     <?php print $scripts ?>
-    <link rel="stylesheet" type="text/css" href="http://jquery.com/files/design/css/jquery-lite.css" />
+    <link rel="stylesheet" type="text/css" href="http://static.jquery.com/files/design/css/jquery-lite2.css" />
   </head>
   <body<?php print phptemplate_body_class($sidebar_left, $sidebar_right); ?>>
 
@@ -14,15 +14,15 @@
         <div id="jq-header">
                 <h1><a href="http://jquery.com/">jQuery: The Write Less, Do More JavaScript Library</a></h1>
                 <ul>
-                        <li id="jq-download"><a href="http://jquery.com/src/">Download</a></li>
+                        <li id="jq-download"><a href="http://docs.jquery.com/Downloading_jQuery">Download</a></li>
                         <li><a href="http://docs.jquery.com/">Documentation</a></li>
-                        <li><a href="http://docs.jquery.com/Plugins">Plugins</a></li>
+                        <li><a href="http://jquery.com/plugins/">Plugins</a></li>
                         <li><a href="http://docs.jquery.com/Tutorials">Tutorials</a></li>
                         <li><a href="http://jquery.com/discuss/">Discuss</a></li>
                         <li><a href="http://jquery.com/blog/">Blog</a></li>
                 </ul>
         </div>
-
+	<div id="content">
 <!-- Layout -->
   <div id="header-region" class="clear-block"><?php print $header; ?></div>
 
@@ -101,17 +101,17 @@
 
   <?php print $closure ?>
 
-</div><br style="clear:both;"/>
-<div id="jq-footer">
+</div></div>
+<div id="jq-footer"><div id="jq-footerwrap">
         <p>&copy; 2007 <a href="http://ejohn.org/">John Resig</a> and the <a href="http://docs.jquery.com/About/Contributors">jQuery team</a>.</p>
         <ul>                
-                <li><a href="http://jquery.com/src/">Download</a></li>
+                <li><a href="http://docs.jquery.com/Downloading_jQuery">Download</a></li>
                 <li><a href="http://docs.jquery.com/">Documentation</a></li>
-                <li><a href="http://docs.jquery.com/Plugins">Plugins</a></li>                                <li><a href="http://docs.jquery.com/Tutorials">Tutorials</a></li>                
+                <li><a href="http://jquery.com/plugins/">Plugins</a></li>                                <li><a href="http://docs.jquery.com/Tutorials">Tutorials</a></li>                
                 <li><a href="http://jquery.com/discuss/">Discuss</a></li>
                 <li><a href="http://jquery.com/blog/">Blog</a></li>
         </ul>
-</div>
+</div></div>
 <script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script><script type="text/javascript">_uacct="UA-1076265-1";urchinTracker();</script>
   </body>
 </html>

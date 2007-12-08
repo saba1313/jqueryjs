@@ -1,6 +1,6 @@
 <?php
 // $Id: project_release_scan.inc,v 1.3 2006/12/18 09:02:39 dww Exp $
-// $Name: HEAD $
+// $Name: DRUPAL-5--1-0 $
 
 /**
  * All of the release scanning code is probably dead code at this

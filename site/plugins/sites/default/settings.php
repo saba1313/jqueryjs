@@ -90,7 +90,7 @@
  *   $db_url = 'mysqli://username:password@localhost/databasename';
  *   $db_url = 'pgsql://username:password@localhost/databasename';
  */
-$db_url = 'mysql://jquery_plugins:pLuG!N5@localhost/jquery_plugins';
+$db_url = 'mysql://user:pass@localhost/jquery_plugins';
 $db_prefix = '';
 
 /**

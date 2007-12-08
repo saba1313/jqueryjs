@@ -112,6 +112,5 @@
                 <li><a href="http://jquery.com/blog/">Blog</a></li>
         </ul>
 </div></div>
-<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script><script type="text/javascript">_uacct="UA-1076265-1";urchinTracker();</script>
   </body>
 </html>

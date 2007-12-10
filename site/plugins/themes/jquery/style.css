@@ -247,6 +247,10 @@ span.submitted, .description {
   margin: 2em 0.5em 1em 0;
 }
 
+.container-inline .form-submit, .container-inline .form-button {
+  margin: 0;
+}
+
 #watchdog-form-overview .form-submit,
 .confirmation .form-submit,
 .search-form .form-submit,

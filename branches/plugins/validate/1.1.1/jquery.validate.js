@@ -1,5 +1,5 @@
 /*
- * Form Validation: jQuery form validation plug-in v1.1
+ * Form Validation: jQuery form validation plug-in v1.1.2
  *
  * http://bassistance.de/jquery-plugins/jquery-plugin-validation/
  *
@@ -244,6 +244,15 @@ jQuery.extend(jQuery.fn, {
 	validate: function( options ) {
 		var validator = new jQuery.validator( options, this[0] );
 		
+		// check if a validator for this form was already created
+		var validator = jQuery.data(this[0], 'validator');
+		if ( validator ) {
+			return validator;
+		}
+		
+		validator = new jQuery.validator( options, this[0] );
+		jQuery.data(this[0], 'validator', validator); 
+		
 		if ( validator.settings.onsubmit ) {
 		
 			// allow suppresing validation by adding a cancel class to the submit button
@@ -343,30 +352,30 @@ jQuery.extend(jQuery.expr[":"], {
  * If the second argument is ommited, a function is returned that expects the value-argument
  * to return the formatted value (see example).
  *
- * @example String.format("Please enter a value no longer then {0} characters.", 0)
- * @result "Please enter a value no longer then 0 characters."
+ * @example jQuery.format("Please enter a value no longer than {0} characters.", 0)
+ * @result "Please enter a value no longer than 0 characters."
  * @desc Formats a string with a single argument.
  *
- * @example String.format("Please enter a value between {0} and {1}.", 0, 1)
+ * @example jQuery.format("Please enter a value between {0} and {1}.", 0, 1)
  * @result "Please enter a value between 0 and 1."
- * @desc Formats a string with two arguments. Same as String.format("...", [0, 1]);
+ * @desc Formats a string with two arguments. Same as jQuery.format("...", [0, 1]);
  *
- * @example String.format("Please enter a value no longer then {0} characters.")(0);
- * @result "Please enter a value no longer then 0 characters."
- * @desc String.format is called at first without the second argument, returning a function that is called immediately
+ * @example jQuery.format("Please enter a value no longer than {0} characters.")(0);
+ * @result "Please enter a value no longer than 0 characters."
+ * @desc jQuery.format is called at first without the second argument, returning a function that is called immediately
  * 		 with the value argument. Useful to defer the actual formatting to a later point without explicitly 
  *		 writing the function.
  *
  * @type String
- * @name String.format
+ * @name jQuery.format
  * @cat Plugins/Validate
  */
-String.format = function(source, params) {
+jQuery.format = function(source, params) {
 	if ( arguments.length == 1 ) 
 		return function() {
 			var args = jQuery.makeArray(arguments);
 			args.unshift(source);
-			return String.format.apply( this, args );
+			return jQuery.format.apply( this, args );
 		};
 	if ( arguments.length > 2 && params.constructor != Array  ) {
 		params = jQuery.makeArray(arguments).slice(1);
@@ -385,9 +394,9 @@ jQuery.validator = function( options, form ) {
 	this.settings = jQuery.extend( {}, jQuery.validator.defaults, options );
 
 	this.currentForm = form;
-	this.labelContainer = this.settings.errorLabelContainer;
+	this.labelContainer = jQuery(this.settings.errorLabelContainer);
 	this.errorContext = this.labelContainer.length && this.labelContainer || jQuery(form);
-	this.containers = this.settings.errorContainer.add( this.settings.errorLabelContainer );
+	this.containers = jQuery(this.settings.errorContainer).add( this.settings.errorLabelContainer );
 	this.submitted = {};
 	this.invalid = {};
 	this.reset();
@@ -463,12 +472,12 @@ jQuery.extend(jQuery.validator, {
 		creditcard: "Please enter a valid credit card.",
 		equalTo: "Please enter the same value again.",
 		accept: "Please enter a value with a valid extension.",
-		maxLength: String.format("Please enter a value no longer than {0} characters."),
-		minLength: String.format("Please enter a value of at least {0} characters."),
-		rangeLength: String.format("Please enter a value between {0} and {1} characters long."),
-		rangeValue: String.format("Please enter a value between {0} and {1}."),
-		maxValue: String.format("Please enter a value less than or equal to {0}."),
-		minValue: String.format("Please enter a value greater than or equal to {0}.")
+		maxLength: jQuery.format("Please enter a value no longer than {0} characters."),
+		minLength: jQuery.format("Please enter a value of at least {0} characters."),
+		rangeLength: jQuery.format("Please enter a value between {0} and {1} characters long."),
+		rangeValue: jQuery.format("Please enter a value between {0} and {1}."),
+		maxValue: jQuery.format("Please enter a value less than or equal to {0}."),
+		minValue: jQuery.format("Please enter a value greater than or equal to {0}.")
 	},
 	
 	prototype: {
@@ -517,6 +526,10 @@ jQuery.extend(jQuery.validator, {
 			} else {
 				this.invalid[element.name] = true;
 			}
+			if ( !this.numberOfInvalids() ) {
+				// Hide error containers on last error
+				this.toHide.push( this.containers );
+			}
 			this.showErrors();
 			return result;
 		},
@@ -537,6 +550,7 @@ jQuery.extend(jQuery.validator, {
 			if(errors) {
 				// add items to error list and map
 				jQuery.extend( this.errorMap, errors );
+				this.errorList = [];
 				for ( name in errors ) {
 					this.errorList.push({
 						message: errors[name],
@@ -639,14 +653,8 @@ jQuery.extend(jQuery.validator, {
 		 * 
 		 * Accepts an optional argument to refresh only a part of the form, eg. only the newly added element.
 		 * 
-		 * @example var validator = $("#myform").validate();
-		 * $(".cancel").click(function() {
-		 * 	validator.hideErrors();
-		 * });
-		 * @desc Specifies a custom showErrors callback that updates the number of invalid elements each
-		 * time the form or a single element is validated.
-		 * 
-		 * @name jQuery.validator.prototype.hideErrors
+		 * @param Selector selection (optional) A selector or jQuery object or DOM element to refresh
+		 * @name jQuery.validator.prototype.refresh
 		 */
 		refresh: function() {
 			var validator = this;
@@ -710,7 +718,7 @@ jQuery.extend(jQuery.validator, {
 			return jQuery( this.settings.errorElement + "." + this.settings.errorClass, this.errorContext );
 		},
 		
-		reset: function( element ) {
+		reset: function() {
 			this.successList = [];
 			this.errorList = [];
 			this.errorMap = {};
@@ -745,7 +753,7 @@ jQuery.extend(jQuery.validator, {
 						return false;
 					}
 				} catch(e) {
-					this.settings.debug && window.console && console.error("exception occured when checking element " + element.id
+					this.settings.debug && window.console && console.warn("exception occured when checking element " + element.id
 						 + ", check the '" + rule.method + "' method");
 					throw e;
 				}
@@ -871,8 +879,8 @@ jQuery.extend(jQuery.validator, {
 			return this.settings.rules
 				? this.settings.rules[ element.name ]
 				: this.settings.meta
-					? jQuery(element).data()[ this.settings.meta ]
-					: jQuery(element).data();
+					? jQuery(element).metadata()[ this.settings.meta ]
+					: jQuery(element).metadata();
 		},
 		
 		checkable: function( element ) {
@@ -923,7 +931,7 @@ jQuery.extend(jQuery.validator, {
 	 * 
 	 * Use jQuery.validator.addMethod() to add your own methods.
 	 *
-	 * If "all kind of text inputs" is mentioned for any if the methods defined here,
+	 * If "all kind of text inputs" is mentioned for any of the methods defined here,
 	 * it refers to input elements of type text, password and file and textareas.
 	 *
 	 * @param String value The trimmed value of the element, eg. the text of a text input (trimmed: whitespace removed at start and end)
@@ -1198,15 +1206,13 @@ jQuery.extend(jQuery.validator, {
 		 * @cat Plugins/Validate/Methods
 		 */
 		email: function(value, element) {
-			return this.required(element) || /^[\w-+\.]+@([\w-]+\.)+[\w-]{2,}$/i.test(value);
+			return this.required(element) || /^[^\s,;]+@([^\s.,;]+\.)+[\w-]{2,}$/i.test(value);
 		},
 	
 		/**
-		 * Return true, if the value is a valid url.
+		 * Return true, if the value is a valid url, with a scheme of http(s) or ftp.
 		 *
 		 * Works with all kind of text inputs.
-		 *
-		 * See http://www.w3.org/Addressing/rfc1738.txt for URL specification.
 		 *
 		 * @example <input name="homepage" class="{url:true}" />
 		 * @desc Declares an optional input element whose value must be a valid URL (or none at all).
@@ -1219,7 +1225,8 @@ jQuery.extend(jQuery.validator, {
 		 * @cat Plugins/Validate/Methods
 		 */
 		url: function(value, element) {
-			return this.required(element) || /^(https?|ftp):\/\/[A-Z0-9](\.?[A-Z0-9ÄÜÖ][A-Z0-9_\-ÄÜÖ]*)*(\/([A-Z0-9ÄÜÖ][A-Z0-9_\-\.ÄÜÖ]*)?)*(\?([A-Z0-9ÄÜÖ][A-Z0-9_\-\.%\+=&ÄÜÖ]*)?)?$/i.test(value);
+			// contributed by Scott Gonzalez: http://projects.scottsplayground.com/iri/
+			return this.required(element) || /^(https?|ftp):\/\/((([A-Za-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\dA-Fa-f][\dA-Fa-f])|[!\$&'\(\)\*\+,;=]|:)*@)?((\[(|(v[\dA-Fa-f]{1,}\.(([A-Za-z]|\d|-|\.|_|~)|[!\$&'\(\)\*\+,;=]|:){1,}))\])|((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([A-Za-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([A-Za-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([A-Za-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([A-Za-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)*(([A-Za-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([A-Za-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([A-Za-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([A-Za-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?(\/((([A-Za-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\dA-Fa-f][\dA-Fa-f])|[!\$&'\(\)\*\+,;=]|:|@){1,}(\/(([A-Za-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\dA-Fa-f][\dA-Fa-f])|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([A-Za-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\dA-Fa-f][\dA-Fa-f])|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([A-Za-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\dA-Fa-f][\dA-Fa-f])|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(value);
 		},
         
 		/**
@@ -1400,7 +1407,7 @@ jQuery.extend(jQuery.validator, {
 		 */
 		accept: function(value, element, param) {
 			param = typeof param == "string" ? param : "png|jpe?g|gif";
-			return this.required(element) || value.match(new RegExp(".(" + param + ")$")); 
+			return this.required(element) || value.match(new RegExp(".(" + param + ")$", "i")); 
 		},
 		
 		/**

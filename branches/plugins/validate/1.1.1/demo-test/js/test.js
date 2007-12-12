@@ -28,8 +28,8 @@ test("url", function() {
 	ok( method( "https://bassistance.de/jquery/plugin.php?bla=blu" ), "Valid url" );
 	ok( method( "ftp://bassistance.de/jquery/plugin.php?bla=blu" ), "Valid url" );
 	ok( method( "http://bassistance" ), "Valid url" );
-	ok( method( "http://www.føtex.dk/" ), "Valid url, danish unicode characters" );
-	ok( method( "http://bösendorfer.de/" ), "Valid url, german unicode characters" );
+	ok( method( "http://www.fÃ¸tex.dk/" ), "Valid url, danish unicode characters" );
+	ok( method( "http://bÃ¶sendorfer.de/" ), "Valid url, german unicode characters" );
 	ok( method( "http://bassistance." ), "Valid url" );
 	ok( method( "http://192.168.8.5" ), "Valid IP Address" )
 	ok(!method( "http://192.168.8." ), "Invalid IP Address" )
@@ -46,8 +46,8 @@ test("email", function() {
 	ok( method( "bart+bart@tokbox.com" ), "Valid email" );
 	ok( method( "bart+bart@tokbox.travel" ), "Valid email" );
 	ok( method( "n@d.tld" ), "Valid email" );
-	ok( method( "ole@føtex.dk"), "Valid email" );
-	ok( method( "jörn@bassistance.de"), "Valid email" );
+	ok( method( "ole@fï¿½tex.dk"), "Valid email" );
+	ok( method( "jï¿½rn@bassistance.de"), "Valid email" );
 	ok( method( "bla.blu@g.mail.com"), "Valid email" );
 	ok(!method( "name" ), "Invalid email" );
 	ok(!method( "name@" ), "Invalid email" );

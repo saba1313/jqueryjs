@@ -6,9 +6,12 @@ jQuery.fn.extend({
 			}, speed, callback) :
 			
 			this.filter(":hidden").each(function(){
-				this.style.display = this.oldblock ? this.oldblock : "";
-				if ( jQuery.css(this,"display") == "none" )
-					this.style.display = "block";
+				this.style.display = this.oldblock || "";
+				if ( jQuery.css(this,"display") == "none" ) {
+					var elem = jQuery("<" + this.tagName + " />").appendTo("body");
+					this.style.display = elem.css("display");
+					elem.remove();
+				}
 			}).end();
 	},
 	
@@ -20,8 +23,6 @@ jQuery.fn.extend({
 			
 			this.filter(":visible").each(function(){
 				this.oldblock = this.oldblock || jQuery.css(this,"display");
-				if ( this.oldblock == "none" )
-					this.oldblock = "block";
 				this.style.display = "none";
 			}).end();
 	},
@@ -69,6 +70,9 @@ jQuery.fn.extend({
 		var optall = jQuery.speed(speed, easing, callback);
 
 		return this[ optall.queue === false ? "each" : "queue" ](function(){
+			if ( this.nodeType != 1)
+				return false;
+
 			var opt = jQuery.extend({}, optall);
 			var hidden = jQuery(this).is(":hidden"), self = this;
 			
@@ -135,6 +139,9 @@ jQuery.fn.extend({
 			return queue( this[0], type );
 
 		return this.each(function(){
+			if ( this.nodeType != 1)
+				return;
+
 			if ( fn.constructor == Array )
 				queue(this, type, fn);
 			else {
@@ -146,14 +153,28 @@ jQuery.fn.extend({
 		});
 	},
 
-	stop: function(){
+	stop: function(clearQueue, gotoEnd){
 		var timers = jQuery.timers;
 
-		return this.each(function(){
-			for ( var i = 0; i < timers.length; i++ )
-				if ( timers[i].elem == this )
-					timers.splice(i--, 1);
-		}).dequeue();
+		if (clearQueue)
+			this.queue([]);
+
+		this.each(function(){
+			// go in reverse order so anything added to the queue during the loop is ignored
+			for ( var i = timers.length - 1; i >= 0; i-- )
+				if ( timers[i].elem == this ) {
+					if (gotoEnd)
+						// force the next step to be the last
+						timers[i](true);
+					timers.splice(i, 1);
+				}
+		});
+
+		// start the next in the queue if the last step wasn't forced
+		if (!gotoEnd)
+			this.dequeue();
+
+		return this;
 	}
 
 });
@@ -254,8 +275,8 @@ jQuery.fx.prototype = {
 		if ( this.elem[this.prop] != null && this.elem.style[this.prop] == null )
 			return this.elem[ this.prop ];
 
-		var r = parseFloat(jQuery.curCSS(this.elem, this.prop, force));
-		return r && r > -10000 ? r : parseFloat(jQuery.css(this.elem, this.prop)) || 0;
+		var r = parseFloat(jQuery.css(this.elem, this.prop, force));
+		return r && r > -10000 ? r : parseFloat(jQuery.curCSS(this.elem, this.prop)) || 0;
 	},
 
 	// Start an animation from one number to another
@@ -269,8 +290,8 @@ jQuery.fx.prototype = {
 		this.update();
 
 		var self = this;
-		function t(){
-			return self.step();
+		function t(gotoEnd){
+			return self.step(gotoEnd);
 		}
 
 		t.elem = this.elem;
@@ -322,10 +343,10 @@ jQuery.fx.prototype = {
 	},
 
 	// Each step of an animation
-	step: function(){
+	step: function(gotoEnd){
 		var t = (new Date()).getTime();
 
-		if ( t > this.options.duration + this.startTime ) {
+		if ( gotoEnd || t > this.options.duration + this.startTime ) {
 			this.now = this.end;
 			this.pos = this.state = 1;
 			this.update();

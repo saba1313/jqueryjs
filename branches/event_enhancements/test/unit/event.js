@@ -1,7 +1,7 @@
 module("event");
 
 test("bind()", function() {
-	expect(15);
+	expect(16);
 
 	var handler = function(event) {
 		ok( event.data, "bind() with data, check passed data exists" );
@@ -31,9 +31,9 @@ test("bind()", function() {
 	// var doc = document.getElementById("iframe").contentDocument;
 	// 
 	// doc.body.innerHTML = "<input type='text'/>";
-	//  
+	//
 	// var input = doc.getElementsByTagName("input")[0];
-	//  
+	//
 	// $(input).bind("click",function() {
 	// 	ok( true, "Binding to element inside iframe" );
 	// }).click();
@@ -48,34 +48,39 @@ test("bind()", function() {
 
 	reset();
 
-        $("#firstp").bind("click",function(e){
+	$("#firstp").bind("click",function(e){
 		ok(true, "Normal click triggered");
-        });
+	});
 
-        $("#firstp").bind("click.test",function(e){
+	$("#firstp").bind("click.test",function(e){
 		ok(true, "Namespaced click triggered");
-        });
+	});
 
 	// Trigger both bound fn (2)
-        $("#firstp").trigger("click");
+	$("#firstp").trigger("click");
 
 	// Trigger one bound fn (1)
-        $("#firstp").trigger("click.test");
+	$("#firstp").trigger("click.test");
 
 	// Remove only the one fn
-        $("#firstp").unbind("click.test");
+	$("#firstp").unbind("click.test");
 
 	// Trigger the remaining fn (1)
-        $("#firstp").trigger("click");
+	$("#firstp").trigger("click");
+
+	// using contents will get comments regular, text, and comment nodes
+	$("#nonnodes").contents().bind("tester", function () {
+		equals(this.nodeType, 1, "Check node,textnode,comment bind just does real nodes" );
+	}).trigger("tester");
 });
 
 test("click()", function() {
 	expect(4);
 	$('<li><a href="#">Change location</a></li>').prependTo('#firstUL').find('a').bind('click', function() {
-	    var close = $('spanx', this); // same with $(this).find('span');
-	    ok( close.length == 0, "Context element does not exist, length must be zero" );
-	    ok( !close[0], "Context element does not exist, direct access to element must return undefined" );
-	    return false;
+		var close = $('spanx', this); // same with $(this).find('span');
+		ok( close.length == 0, "Context element does not exist, length must be zero" );
+		ok( !close[0], "Context element does not exist, direct access to element must return undefined" );
+		return false;
 	}).click();
 	
 	$("#check1").click(function() {
@@ -116,7 +121,7 @@ test("unbind(event)", function() {
 });
 
 test("trigger(event, [data], [fn])", function() {
-	expect(40);
+	expect(67);
 
 	var handler = function(event, a, b, c) {
 		equals( event.type, "click", "check passed data" );
@@ -130,7 +135,22 @@ test("trigger(event, [data], [fn])", function() {
 		equals( a, 1, "check passed data" );
 		equals( b, "2", "check passed data" );
 		equals( c, "abc", "check passed data" );
-		return "test2";
+		return false;
+	};
+
+	var handler3 = function(a, b, c, v) {
+		equals( a, 1, "check passed data" );
+		equals( b, "2", "check passed data" );
+		equals( c, "abc", "check passed data" );
+		equals( v, "test", "check current value" );
+		return "newVal";
+	};
+
+	var handler4 = function(a, b, c, v) {
+		equals( a, 1, "check passed data" );
+		equals( b, "2", "check passed data" );
+		equals( c, "abc", "check passed data" );
+		equals( v, "test", "check current value" );
 	};
 
 	// Simulate a "native" click
@@ -143,13 +163,17 @@ test("trigger(event, [data], [fn])", function() {
 	$("#firstp").bind("click", handler).trigger("click", [1, "2", "abc"]);
 
 	// Triggers handlers, native, and extra fn
-	// Triggers 8
-	$("#firstp").trigger("click", [1, "2", "abc"], handler2);
+	// Triggers 9
+	$("#firstp").trigger("click", [1, "2", "abc"], handler4);
 
 	// Simulate a "native" click
 	$("#firstp")[0].click = function(){
 		ok( false, "Native call was triggered" );
 	};
+
+	// Triggers handlers, native, and extra fn
+	// Triggers 7
+	$("#firstp").trigger("click", [1, "2", "abc"], handler2);
 
 	// Trigger only the handlers (no native)
 	// Triggers 5
@@ -157,7 +181,7 @@ test("trigger(event, [data], [fn])", function() {
 
 	// Trigger only the handlers (no native) and extra fn
 	// Triggers 8
-	equals( $("#firstp").triggerHandler("click", [1, "2", "abc"], handler2), "test", "Verify handler response" );
+	equals( $("#firstp").triggerHandler("click", [1, "2", "abc"], handler2), false, "Verify handler response" );
 
 	// Build fake click event to pass in
 	var eventObj = jQuery.event.fix({ type: "foo", target: document.body });
@@ -169,10 +193,28 @@ test("trigger(event, [data], [fn])", function() {
 	// Trigger only the handlers (no native) and extra fn, with external event obj
 	// Triggers 9
 	equals( $("#firstp").triggerHandler("click", [eventObj, 1, "2", "abc"], handler), "test", "Verify handler response" );
+	
+	var pass = true;
+	try {
+		$('input:first')
+			.hide()
+			.trigger('focus');
+	} catch(e) {
+		pass = false;
+	}
+	ok( pass, "Trigger focus on hidden element" );
+
+	// have the extra handler override the return
+	// Triggers 9
+	equals( $("#firstp").triggerHandler("click", [1, "2", "abc"], handler3), "newVal", "Verify triggerHandler return is overwritten by extra function" );
+
+	// have the extra handler leave the return value alone
+	// Triggers 9
+	equals( $("#firstp").triggerHandler("click", [1, "2", "abc"], handler4), "test", "Verify triggerHandler return is not overwritten by extra function" );
 });
 
 test("toggle(Function, Function)", function() {
-	expect(4);
+	expect(5);
 	var count = 0,
 		fn1 = function(e) { count++; },
 		fn2 = function(e) { count--; },
@@ -180,7 +222,11 @@ test("toggle(Function, Function)", function() {
 		link = $('#mark');
 	link.click(preventDefault).click().toggle(fn1, fn2).click().click().click().click().click();
 	ok( count == 1, "Check for toggle(fn, fn)" );
-	
+
+	$("#firstp").toggle(function () {
+		equals(arguments.length, 4, "toggle correctly passes through additional triggered arguments, see #1701" )
+	}, function() {}).trigger("click", [ 1, 2, 3 ]);
+
 	var first = 0;
 	$("#simon1").one("click", function() {
 		ok( true, "Execute event only once" );

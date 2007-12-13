@@ -14,10 +14,8 @@ if ( window.jQuery )
 	var _jQuery = window.jQuery;
 
 var jQuery = window.jQuery = function( selector, context ) {
-	// If the context is a namespace object, return a new object
-	return this instanceof jQuery ?
-		this.init( selector, context ) :
-		new jQuery( selector, context );
+	// The jQuery object is actually just the init constructor 'enhanced'
+	return new jQuery.prototype.init( selector, context );
 };
 
 // Map over the $ in case of overwrite
@@ -36,8 +34,14 @@ jQuery.fn = jQuery.prototype = {
 		// Make sure that a selection was provided
 		selector = selector || document;
 
+		// Handle $(DOMElement)
+		if ( selector.nodeType ) {
+			this[0] = selector;
+			this.length = 1;
+			return this;
+
 		// Handle HTML strings
-		if ( typeof selector  == "string" ) {
+		} else if ( typeof selector == "string" ) {
 			// Are we dealing with HTML string or an ID?
 			var match = quickExpr.exec( selector );
 
@@ -188,12 +192,15 @@ jQuery.fn = jQuery.prototype = {
 	},
 
 	css: function( key, value ) {
+		// ignore negative width and height values
+		if ( (key == 'width' || key == 'height') && parseFloat(value) < 0 )
+			value = undefined;
 		return this.attr( key, value, "curCSS" );
 	},
 
 	text: function( text ) {
 		if ( typeof text != "object" && text != null )
-			return this.empty().append( document.createTextNode( text ) );
+			return this.empty().append( (this[0] && this[0].ownerDocument || document).createTextNode( text ) );
 
 		var ret = "";
 
@@ -242,13 +249,15 @@ jQuery.fn = jQuery.prototype = {
 
 	append: function() {
 		return this.domManip(arguments, true, false, function(elem){
-			this.appendChild( elem );
+			if (this.nodeType == 1)
+				this.appendChild( elem );
 		});
 	},
 
 	prepend: function() {
 		return this.domManip(arguments, true, true, function(elem){
-			this.insertBefore( elem, this.firstChild );
+			if (this.nodeType == 1)
+				this.insertBefore( elem, this.firstChild );
 		});
 	},
 	
@@ -281,9 +290,23 @@ jQuery.fn = jQuery.prototype = {
 	clone: function( events ) {
 		// Do the clone
 		var ret = this.map(function(){
-			return this.outerHTML ?
-				jQuery( this.outerHTML )[0] :
-				this.cloneNode( true );
+			if ( jQuery.browser.msie && !jQuery.isXMLDoc(this) ) {
+				// IE copies events bound via attachEvent when
+				// using cloneNode. Calling detachEvent on the
+				// clone will also remove the events from the orignal
+				// In order to get around this, we use innerHTML.
+				// Unfortunately, this means some modifications to 
+				// attributes in IE that are actually only stored 
+				// as properties will not be copied (such as the
+				// the name attribute on an input).
+				var clone = this.cloneNode(true),
+					container = document.createElement("div"),
+					container2 = document.createElement("div");
+				container.appendChild(clone);
+				container2.innerHTML = container.innerHTML;
+				return container2.firstChild;
+			} else
+				return this.cloneNode(true);
 		});
 
 		// Need to set the expando to null on the cloned set if it exists
@@ -331,7 +354,7 @@ jQuery.fn = jQuery.prototype = {
 	},
 
 	add: function( selector ) {
-		return this.pushStack( jQuery.merge( 
+		return !selector ? this : this.pushStack( jQuery.merge( 
 			this.get(),
 			selector.constructor == String ? 
 				jQuery( selector ).get() :
@@ -354,7 +377,7 @@ jQuery.fn = jQuery.prototype = {
 
 			if ( this.length ) {
 				var elem = this[0];
-		    	
+
 				// We need to handle select boxes special
 				if ( jQuery.nodeName( elem, "select" ) ) {
 					var index = elem.selectedIndex,
@@ -387,12 +410,15 @@ jQuery.fn = jQuery.prototype = {
 					
 				// Everything else, we just grab the value
 				} else
-					return this[0].value.replace(/\r/g, "");
+					return (this[0].value || "").replace(/\r/g, "");
 
 			}
 
 		} else
 			return this.each(function(){
+				if ( this.nodeType != 1 )
+					return;
+
 				if ( value.constructor == Array && /radio|checkbox/.test( this.type ) )
 					this.checked = (jQuery.inArray(this.value, value) >= 0 ||
 						jQuery.inArray(this.name, value) >= 0);
@@ -459,7 +485,7 @@ jQuery.fn = jQuery.prototype = {
 			var obj = this;
 
 			if ( table && jQuery.nodeName( this, "table" ) && jQuery.nodeName( elems[0], "tr" ) )
-				obj = this.getElementsByTagName("tbody")[0] || this.appendChild( document.createElement("tbody") );
+				obj = this.getElementsByTagName("tbody")[0] || this.appendChild( this.ownerDocument.createElement("tbody") );
 
 			var scripts = jQuery( [] );
 
@@ -468,16 +494,9 @@ jQuery.fn = jQuery.prototype = {
 					this.cloneNode( true ) :
 					this;
 
+				// execute all scripts after the elements have been injected
 				if ( jQuery.nodeName( elem, "script" ) ) {
-
-					// If scripts are waiting to be executed, wait on this script as well
-					if ( scripts.length )
-						scripts = scripts.add( elem );
-
-					// If nothing is waiting to be executed, run immediately
-					else
-						evalScript( 0, elem );
-
+					scripts = scripts.add( elem );
 				} else {
 					// Remove any inner scripts for later evaluation
 					if ( elem.nodeType == 1 )
@@ -492,6 +511,9 @@ jQuery.fn = jQuery.prototype = {
 		});
 	}
 };
+
+// Give the init function the jQuery prototype for later instantiation
+jQuery.prototype.init.prototype = jQuery.prototype;
 
 function evalScript( i, elem ) {
 	if ( elem.src )
@@ -521,7 +543,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
-	if ( typeof target != "object" )
+	if ( typeof target != "object" && typeof target != "function" )
 		target = {};
 
 	// extend jQuery itself if only one argument is passed
@@ -540,7 +562,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 					continue;
 
 				// Recurse if we're merging object values
-				if ( deep && typeof options[ name ] == "object" && target[ name ] && !options[ name ].nodeType )
+				if ( deep && options[ name ] && typeof options[ name ] == "object" && target[ name ] && !options[ name ].nodeType )
 					target[ name ] = jQuery.extend( target[ name ], options[ name ] );
 
 				// Don't bring in undefined values
@@ -582,7 +604,6 @@ jQuery.extend({
 	},
 
 	// Evalulates a script in a global context
-	// Evaluates Async. in Safari 2 :-(
 	globalEval: function( data ) {
 		data = jQuery.trim( data );
 
@@ -714,18 +735,19 @@ jQuery.extend({
 		// internal only, use addClass("class")
 		add: function( elem, classNames ) {
 			jQuery.each((classNames || "").split(/\s+/), function(i, className){
-				if ( !jQuery.className.has( elem.className, className ) )
+				if ( elem.nodeType == 1 && !jQuery.className.has( elem.className, className ) )
 					elem.className += (elem.className ? " " : "") + className;
 			});
 		},
 
 		// internal only, use removeClass("class")
 		remove: function( elem, classNames ) {
-			elem.className = classNames != undefined ?
-				jQuery.grep(elem.className.split(/\s+/), function(className){
-					return !jQuery.className.has( classNames, className );	
-				}).join(" ") :
-				"";
+			if (elem.nodeType == 1)
+				elem.className = classNames != undefined ?
+					jQuery.grep(elem.className.split(/\s+/), function(className){
+						return !jQuery.className.has( classNames, className );	
+					}).join(" ") :
+					"";
 		},
 
 		// internal only, use is(".class")
@@ -749,57 +771,24 @@ jQuery.extend({
 			elem.style[ name ] = elem.style[ "old" + name ];
 	},
 
-	css: function( elem, name ) {
-		if ( name == "height" || name == "width" ) {
-			var old = {}, height, width;
+	css: function( elem, name, force ) {
+		if ( name == "width" || name == "height" ) {
+			var width, height, props = { position: "absolute", visibility: "hidden", display:"block" };
+		
+			function getWH() {
+				width = elem.clientWidth;
+				height = elem.clientHeight;
+			}
+		
+			if ( jQuery(elem).is(":visible") )
+				getWH();
+			else
+				jQuery.swap( elem, props, getWH );
 
-			// Revert the padding and border widths to get the
-			// correct height/width values
-			jQuery.each([ "Top", "Bottom", "Right", "Left" ], function(){
-				old[ "padding" + this ] = 0;
-				old[ "border" + this + "Width" ] = 0;
-			});
-
-			// Swap out the padding/border values temporarily
-			jQuery.swap( elem, old, function() {
-
-				// If the element is visible, then the calculation is easy
-				if ( jQuery( elem ).is(":visible") ) {
-					height = elem.offsetHeight;
-					width = elem.offsetWidth;
-
-				// Otherwise, we need to flip out more values
-				} else {
-					elem = jQuery( elem.cloneNode(true) )
-						.find(":radio").removeAttr("checked").removeAttr("defaultChecked").end()
-						.css({
-							visibility: "hidden",
-							position: "absolute",
-							display: "block",
-							right: "0",
-							left: "0"
-						}).appendTo( elem.parentNode )[0];
-
-					var position = jQuery.css( elem.parentNode, "position" ) || "static";
-					if ( position == "static" )
-						elem.parentNode.style.position = "relative";
-
-					height = elem.clientHeight;
-					width = elem.clientWidth;
-
-					if ( position == "static" )
-						elem.parentNode.style.position = "static";
-
-					elem.parentNode.removeChild( elem );
-				}
-			});
-
-			return name == "height" ?
-				height :
-				width;
+			return name == "width" ? width : height;
 		}
-
-		return jQuery.curCSS( elem, name );
+		
+		return jQuery.curCSS( elem, name, force );
 	},
 
 	curCSS: function( elem, name, force ) {
@@ -909,6 +898,9 @@ jQuery.extend({
 	clean: function( elems, context ) {
 		var ret = [];
 		context = context || document;
+		// !context.createElement fails in IE with an error but returns typeof 'object'
+		if (typeof context.createElement == 'undefined') 
+			context = context.ownerDocument || context[0] && context[0].ownerDocument || document;
 
 		jQuery.each(elems, function(i, elem){
 			if ( !elem )
@@ -1003,6 +995,10 @@ jQuery.extend({
 	},
 	
 	attr: function( elem, name, value ) {
+		// don't set attributes on text and comment nodes
+		if (!elem || elem.nodeType == 3 || elem.nodeType == 8)
+			return undefined;
+
 		var fix = jQuery.isXMLDoc( elem ) ?
 			{} :
 			jQuery.props;
@@ -1033,7 +1029,8 @@ jQuery.extend({
 				if ( name == "type" && jQuery.nodeName( elem, "input" ) && elem.parentNode )
 					throw "type property can't be changed";
 
-				elem.setAttribute( name, value );
+				// convert the value to a string (all browsers do this but IE) see #1070
+				elem.setAttribute( name, "" + value );
 			}
 
 			if ( jQuery.browser.msie && /href|src/.test( name ) && !jQuery.isXMLDoc( elem ) ) 
@@ -1055,7 +1052,7 @@ jQuery.extend({
 						(parseFloat( value ).toString() == "NaN" ? "" : "alpha(opacity=" + value * 100 + ")");
 				}
 	
-				return elem.filter ? 
+				return elem.filter && elem.filter.indexOf("opacity=") >= 0 ?
 					(parseFloat( elem.filter.match(/opacity=([^)]*)/)[1] ) / 100).toString() :
 					"";
 			}
@@ -1255,7 +1252,8 @@ jQuery.each({
 jQuery.each({
 	removeAttr: function( name ) {
 		jQuery.attr( this, name, "" );
-		this.removeAttribute( name );
+		if (this.nodeType == 1) 
+			this.removeAttribute( name );
 	},
 
 	addClass: function( classNames ) {
@@ -1315,7 +1313,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
 			this[0] == document ?
 				// Either scroll[Width/Height] or offset[Width/Height], whichever is greater (Mozilla reports scrollWidth the same as offsetWidth)
 				Math.max( document.body[ "scroll" + name ], document.body[ "offset" + name ] ) :
-        
+
 				// Get or set width or height on the element
 				size == undefined ?
 					// Get width or height on the element

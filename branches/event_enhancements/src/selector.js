@@ -96,15 +96,15 @@ jQuery.extend({
 		if ( typeof t != "string" )
 			return [ t ];
 
-		// Make sure that the context is a DOM Element
-		if ( context && !context.nodeType )
-			context = null;
+		// check to make sure context is a DOM element or a document
+		if ( context && context.nodeType != 1 && context.nodeType != 9)
+			return [ ];
 
 		// Set the correct context (if none is provided)
 		context = context || document;
 
 		// Initialize the search
-		var ret = [context], done = [], last;
+		var ret = [context], done = [], last, nodeName;
 
 		// Continue while a selector expression exists, and while
 		// we're no longer looping upon ourselves
@@ -122,12 +122,12 @@ jQuery.extend({
 			var m = re.exec(t);
 
 			if ( m ) {
-				var nodeName = m[1].toUpperCase();
+				nodeName = m[1].toUpperCase();
 
 				// Perform our own iteration and filter
 				for ( var i = 0; ret[i]; i++ )
 					for ( var c = ret[i].firstChild; c; c = c.nextSibling )
-						if ( c.nodeType == 1 && (nodeName == "*" || c.nodeName.toUpperCase() == nodeName.toUpperCase()) )
+						if ( c.nodeType == 1 && (nodeName == "*" || c.nodeName.toUpperCase() == nodeName) )
 							r.push( c );
 
 				ret = r;
@@ -140,7 +140,7 @@ jQuery.extend({
 				if ( (m = re.exec(t)) != null ) {
 					r = [];
 
-					var nodeName = m[2], merge = {};
+					nodeName = m[2].toUpperCase(), merge = {};
 					m = m[1];
 
 					for ( var j = 0, rl = ret.length; j < rl; j++ ) {
@@ -151,7 +151,7 @@ jQuery.extend({
 
 								if ( m == "~" && merge[id] ) break;
 								
-								if (!nodeName || n.nodeName.toUpperCase() == nodeName.toUpperCase() ) {
+								if (!nodeName || n.nodeName.toUpperCase() == nodeName ) {
 									if ( m == "~" ) merge[id] = true;
 									r.push( n );
 								}
@@ -436,3 +436,4 @@ jQuery.extend({
 		return r;
 	}
 });
+

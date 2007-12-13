@@ -8,6 +8,9 @@ jQuery.event = {
 	// Bind an event to an element
 	// Original by Dean Edwards
 	add: function(element, types, handler, data) {
+		if ( element.nodeType == 3 || element.nodeType == 8 )
+			return;
+
 		// For whatever reason, IE has trouble passing the window object
 		// around, causing it to be cloned in the process
 		if ( jQuery.browser.msie && element.setInterval != undefined )
@@ -19,7 +22,7 @@ jQuery.event = {
 			
 		// if data is passed, bind to handler 
 		if( data != undefined ) { 
-        	// Create temporary function pointer to original handler 
+			// Create temporary function pointer to original handler 
 			var fn = handler; 
 
 			// Create unique handler function, wrapped around original handler 
@@ -87,6 +90,10 @@ jQuery.event = {
 
 	// Detach an event or set of events from an element
 	remove: function(element, types, handler) {
+		// don't do events on text and comment nodes
+		if ( element.nodeType == 3 || element.nodeType == 8 )
+			return;
+
 		var events = jQuery.data(element, "events"), ret, index;
 
 		if ( events ) {
@@ -158,6 +165,10 @@ jQuery.event = {
 
 		// Handle triggering a single element
 		} else {
+			// don't do events on text and comment nodes
+			if ( element.nodeType == 3 || element.nodeType == 8 )
+				return;
+
 			var val, ret, fn = jQuery.isFunction( element[ type ] || null ),
 				// Check to see if we need to provide a fake event, or not
 				event = !data[0] || !data[0].preventDefault;
@@ -182,13 +193,21 @@ jQuery.event = {
 				data.shift();
 
 			// Handle triggering of extra function
-			if ( extra && extra.apply( element, data ) === false )
-				val = false;
+			if ( extra ) {
+				// call the extra function and tack the current return value on the end for possible inspection
+				var ret = extra.apply( element, data.concat( val ) );
+				// if anything is returned, give it precedence and have it overwrite the previous value
+				if (ret !== undefined)
+					val = ret;
+			}
 
 			// Trigger the native events (except for clicks on links)
 			if ( fn && donative !== false && val !== false && !(jQuery.nodeName(element, 'a') && type == "click") ) {
 				this.triggered = true;
-				element[ type ]();
+				try {
+					element[ type ]();
+				// prevent IE from throwing an error for some hidden elements
+				} catch (e) {}
 			}
 
 			this.triggered = false;
@@ -279,7 +298,7 @@ jQuery.event = {
 		if ( event.pageX == null && event.clientX != null ) {
 			var doc = document.documentElement, body = document.body;
 			event.pageX = event.clientX + (doc && doc.scrollLeft || body && body.scrollLeft || 0) - (doc.clientLeft || 0);
-			event.pageY = event.clientY + (doc && doc.scrollTop  || body && body.scrollTop  || 0) - (doc.clientLeft || 0);
+			event.pageY = event.clientY + (doc && doc.scrollTop || body && body.scrollTop || 0) - (doc.clientTop || 0);
 		}
 			
 		// Add which for key events
@@ -502,7 +521,7 @@ jQuery.fn.extend({
 			event.preventDefault();
 			
 			// and execute the function
-			return args[this.lastToggle].apply( this, [event] ) || false;
+			return args[this.lastToggle].apply( this, arguments ) || false;
 		});
 	},
 
@@ -515,7 +534,6 @@ jQuery.extend({
 	isReady: false
 });
 
-
 jQuery.each( ("blur,focus,load,ready,resize,scroll,unload,click,dblclick," +
 	"mousedown,mouseup,mousemove,mouseover,mouseout,change,select," + 
 	"submit,keydown,keypress,keyup,error").split(","), function(i, name){
@@ -525,7 +543,6 @@ jQuery.each( ("blur,focus,load,ready,resize,scroll,unload,click,dblclick," +
 		return fn ? this.bind(name, fn) : this.trigger(name);
 	};
 });
-
 
 // Prevent memory leaks in IE
 // And prevent errors on refresh with events like mouseover in other browsers

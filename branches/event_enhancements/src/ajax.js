@@ -52,10 +52,7 @@ jQuery.fn.extend({
 						// If not, just inject the full result
 						res.responseText );
 
-				// Add delay to account for Safari's delay in globalEval
-				setTimeout(function(){
-					self.each( callback, [res.responseText, status, res] );
-				}, 13);
+				self.each( callback, [res.responseText, status, res] );
 			}
 		});
 		return this;
@@ -200,8 +197,13 @@ jQuery.extend({
 		if ( s.dataType == "script" && s.cache == null )
 			s.cache = false;
 
-		if ( s.cache === false && s.type.toLowerCase() == "get" )
-			s.url += (s.url.match(/\?/) ? "&" : "?") + "_=" + (new Date()).getTime();
+		if ( s.cache === false && s.type.toLowerCase() == "get" ) {
+			var ts = (new Date()).getTime();
+			// try replacing _= if it is there
+			var ret = s.url.replace(/(\?|&)_=.*?(&|$)/, "$1_=" + ts + "$2");
+			// if nothing was replaced, add timestamp to the end
+			s.url = ret + ((ret == s.url) ? (s.url.match(/\?/) ? "&" : "?") + "_=" + ts : "");
+		}
 
 		// If data is available, append data to url for get requests
 		if ( s.data && s.type.toLowerCase() == "get" ) {
@@ -216,8 +218,8 @@ jQuery.extend({
 			jQuery.event.trigger( "ajaxStart" );
 
 		// If we're requesting a remote document
-		// and trying to load JSON or Script
-		if ( !s.url.indexOf("http") && s.dataType == "script" ) {
+		// and trying to load JSON or Script with a GET
+		if ( (!s.url.indexOf("http") || !s.url.indexOf("//")) && ( s.dataType == "script" || s.dataType =="json" ) && s.type.toLowerCase() == "get" ) {
 			var head = document.getElementsByTagName("head")[0];
 			var script = document.createElement("script");
 			script.src = s.url;
@@ -270,7 +272,7 @@ jQuery.extend({
 			s.beforeSend(xml);
 			
 		if ( s.global )
-		    jQuery.event.trigger("ajaxSend", [xml, s]);
+			jQuery.event.trigger("ajaxSend", [xml, s]);
 
 		// Wait for a response to come back
 		var onreadystatechange = function(isTimeout){
@@ -397,8 +399,9 @@ jQuery.extend({
 	// Determines if an XMLHttpRequest was successful or not
 	httpSuccess: function( r ) {
 		try {
+			// IE error sometimes returns 1223 when it should be 204 so treat it as success, see #1450
 			return !r.status && location.protocol == "file:" ||
-				( r.status >= 200 && r.status < 300 ) || r.status == 304 ||
+				( r.status >= 200 && r.status < 300 ) || r.status == 304 || r.status == 1223 ||
 				jQuery.browser.safari && r.status == undefined;
 		} catch(e){}
 		return false;

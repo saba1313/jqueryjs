@@ -218,24 +218,62 @@ test("synchronous request with callbacks", function() {
 });
 
 test("pass-through request object", function() {
-	expect(1);
+	expect(8);
 	stop(true);
 	
 	var target = "data/name.html";
-	var count = 0;
+	var successCount = 0;
+	var errorCount = 0;
+  var errorEx = "";
 	var success = function() {
-		// Disabled
-		//if(count++ == 5)
-		start();
+		successCount++;
 	};
+	$("#foo").ajaxError(function (e, xml, s, ex) {
+		errorCount++;
+    errorEx += ": " + xml.status;
+	});
+	$("#foo").one('ajaxStop', function () {
+		equals(successCount, 5, "Check all ajax calls successful");
+		equals(errorCount, 0, "Check no ajax errors (status" + errorEx + ")");
+		$("#foo").unbind('ajaxError');
+		start();
+	});
 	
-	/* Test disabled, too many simultaneous requests
 	ok( $.get(url(target), success), "get" );
 	ok( $.post(url(target), success), "post" );
 	ok( $.getScript(url("data/test.js"), success), "script" );
 	ok( $.getJSON(url("data/json_obj.js"), success), "json" );
-	*/
 	ok( $.ajax({url: url(target), success: success}), "generic" );
+});
+
+test("ajax cache", function () {
+	expect(18);
+	stop();
+	
+	var count = 0;
+
+	$("#firstp").bind("ajaxSuccess", function (e, xml, s) {
+		var re = /_=(.*?)(&|$)/g;
+    var oldOne = null;
+		for (var i = 0; i < 6; i++) {
+      var ret = re.exec(s.url);
+			if (!ret) {
+				break;
+			}
+      oldOne = ret[1];
+		}
+		equals(i, 1, "Test to make sure only one 'no-cache' parameter is there");
+		ok(oldOne != "tobereplaced555", "Test to be sure parameter (if it was there) was replaced");
+		if(++count == 6)
+			start();
+	});
+
+	ok( $.ajax({url: "data/text.php", cache:false}), "test with no parameters" );
+	ok( $.ajax({url: "data/text.php?pizza=true", cache:false}), "test with 1 parameter" );
+	ok( $.ajax({url: "data/text.php?_=tobereplaced555", cache:false}), "test with _= parameter" );
+	ok( $.ajax({url: "data/text.php?pizza=true&_=tobereplaced555", cache:false}), "test with 1 parameter plus _= one" );
+	ok( $.ajax({url: "data/text.php?_=tobereplaced555&tv=false", cache:false}), "test with 1 parameter plus _= one before it" );
+	ok( $.ajax({url: "data/text.php?name=David&_=tobereplaced555&washere=true", cache:false}), "test with 2 parameters surrounding _= one" );
 });
 
 test("global ajaxSettings", function() {
@@ -334,6 +372,7 @@ test("$.get(String, Hash, Function) - parse xml and use text() on nodes", functi
 test("$.getScript(String, Function) - with callback", function() {
 	expect(2);
 	stop();
+	window.foobar = null;
 	$.getScript(url("data/test.js"), function() {
 		equals( foobar, "bar", 'Check if script was evaluated' );
 		setTimeout(start, 100);
@@ -360,6 +399,10 @@ test("$.ajax() - JSONP, Local", function() {
 		success: function(data){
 			ok( data.data, "JSON results returned (GET, no callback)" );
 			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (GET, no callback)" );
+			plus();
 		}
 	});
 
@@ -368,6 +411,10 @@ test("$.ajax() - JSONP, Local", function() {
 		dataType: "jsonp",
 		success: function(data){
 			ok( data.data, "JSON results returned (GET, url callback)" );
+			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (GET, url callback)" );
 			plus();
 		}
 	});
@@ -379,6 +426,10 @@ test("$.ajax() - JSONP, Local", function() {
 		success: function(data){
 			ok( data.data, "JSON results returned (GET, data callback)" );
 			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (GET, data callback)" );
+			plus();
 		}
 	});
 
@@ -389,6 +440,10 @@ test("$.ajax() - JSONP, Local", function() {
 		success: function(data){
 			ok( data.data, "JSON results returned (GET, data obj callback)" );
 			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (GET, data obj callback)" );
+			plus();
 		}
 	});
 
@@ -398,6 +453,10 @@ test("$.ajax() - JSONP, Local", function() {
 		dataType: "jsonp",
 		success: function(data){
 			ok( data.data, "JSON results returned (POST, no callback)" );
+			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (GET, data obj callback)" );
 			plus();
 		}
 	});
@@ -410,6 +469,10 @@ test("$.ajax() - JSONP, Local", function() {
 		success: function(data){
 			ok( data.data, "JSON results returned (POST, data callback)" );
 			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (POST, data callback)" );
+			plus();
 		}
 	});
 
@@ -420,6 +483,10 @@ test("$.ajax() - JSONP, Local", function() {
 		dataType: "jsonp",
 		success: function(data){
 			ok( data.data, "JSON results returned (POST, data obj callback)" );
+			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (POST, data obj callback)" );
 			plus();
 		}
 	});
@@ -441,6 +508,10 @@ test("$.ajax() - JSONP, Remote", function() {
 		success: function(data){
 			ok( data.data, "JSON results returned (GET, no callback)" );
 			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (GET, no callback)" );
+			plus();
 		}
 	});
 
@@ -449,6 +520,10 @@ test("$.ajax() - JSONP, Remote", function() {
 		dataType: "jsonp",
 		success: function(data){
 			ok( data.data, "JSON results returned (GET, url callback)" );
+			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (GET, url callback)" );
 			plus();
 		}
 	});
@@ -460,6 +535,10 @@ test("$.ajax() - JSONP, Remote", function() {
 		success: function(data){
 			ok( data.data, "JSON results returned (GET, data callback)" );
 			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (GET, data callback)" );
+			plus();
 		}
 	});
 
@@ -469,6 +548,10 @@ test("$.ajax() - JSONP, Remote", function() {
 		data: { callback: "?" },
 		success: function(data){
 			ok( data.data, "JSON results returned (GET, data obj callback)" );
+			plus();
+		},
+		error: function(data){
+			ok( false, "Ajax error JSON (GET, data obj callback)" );
 			plus();
 		}
 	});
@@ -481,6 +564,46 @@ test("$.ajax() - script, Remote", function() {
 
 	stop();
 
+	window.foobar = null;
+	$.ajax({
+		url: base + "data/test.js",
+		dataType: "script",
+		success: function(data){
+			ok( foobar, "Script results returned (GET, no callback)" );
+			start();
+		}
+	});
+});
+
+test("$.ajax() - script, Remote with POST", function() {
+	expect(3);
+
+	var base = window.location.href.replace(/\?.*$/, "");
+
+	stop();
+
+	window.foobar = null;
+	$.ajax({
+		url: base + "data/test.js",
+		type: "POST",
+		dataType: "script",
+		success: function(data, status){
+			ok( foobar, "Script results returned (GET, no callback)" );
+			equals( status, "success", "Script results returned (GET, no callback)" );
+			start();
+		}
+	});
+});
+
+test("$.ajax() - script, Remote with scheme-less URL", function() {
+	expect(2);
+
+	var base = window.location.href.replace(/\?.*$/, "");
+	base = base.replace(/^.*?\/\//, "//");
+
+	stop();
+
+	window.foobar = null;
 	$.ajax({
 		url: base + "data/test.js",
 		dataType: "script",
@@ -509,6 +632,19 @@ test("$.getJSON(String, Function) - JSON object", function() {
 	$.getJSON(url("data/json.php"), function(json) {
 	  ok( json.data.lang == 'en', 'Check JSON: lang' );
 	  ok( json.data.length == 25, 'Check JSON: length' );
+	  start();
+	});
+});
+
+test("$.getJSON(String, Function) - Remote JSON object with assignment", function() {
+	expect(2);
+
+	var base = window.location.href.replace(/\?.*$/, "");
+
+	stop();
+	$.getJSON(base + "data/json_assigned_obj.js", function() {
+	  ok( typeof json_assigned_obj == "object", 'Check JSON loaded' );
+	  equals( json_assigned_obj.test, "worked", 'Check JSON obj.test' );
 	  start();
 	});
 });

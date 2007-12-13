@@ -54,6 +54,8 @@ jQuery.event = {
 				return val;
 			});
 			
+			// Handle multiple events seperated by a space
+			// jQuery(...).bind("mouseover mouseout", fn);
 			jQuery.each(types.split(/\s+/), function(index, type) {
 				// Namespaced event handlers
 				var parts = type.split(".");
@@ -67,7 +69,9 @@ jQuery.event = {
 				if (!handlers) {
 					handlers = events[type] = {};
 		
-					// Check special events
+					// Check for a special event handler
+					// Only use addEventListener/attachEvent if the special
+					// events handler returns false
 					if ( !jQuery.event.special[type] || jQuery.event.special[type].setup.call(element) === false ) {
 						// Bind the global event handler to the element
 						if (element.addEventListener)
@@ -101,17 +105,16 @@ jQuery.event = {
 			if ( !types )
 				for ( var type in events )
 					this.remove( element, type );
-			else {				
+			else {
 				// types is actually an event object here
 				if ( types.type ) {
 					handler = types.handler;
-					types = [types.type];
-				} 
-				// Namespaced event handlers
-				else if ( typeof types == "string" )
-					types = types.split(/\s+/);
+					types = types.type;
+				}
 				
-				jQuery.each(types, function(index, type){
+				// Handle multiple events seperated by a space
+				// jQuery(...).unbind("mouseover mouseout", fn);
+				jQuery.each(types.split(/\s+/), function(index, type){
 					// Namespaced event handlers
 					var parts = type.split(".");
 					type = parts[0];
@@ -371,19 +374,24 @@ jQuery.event = {
 				jQuery(this).unbind('mouseover', jQuery.event.special.mouseenter.handler);
 			},
 			
-			handler: function(event) {
-				var args = Array.prototype.slice.call( arguments, 1 );
+			isWithinParent: function(event) {
 				// Check if mouse(over|out) are still within the same parent element
 				var parent = event.relatedTarget;
 				// Traverse up the tree
 				while ( parent && parent != this ) try { parent = parent.parentNode } catch(error) { parent = this; };
 				// If we actually just moused on to a sub-element, ignore it
-				if ( parent == this ) return false;
-				// Execute the right function
+				if ( parent == this ) return true;
+			},
+			
+			handler: function(event) {
+				var args = Array.prototype.slice.call( arguments, 1 );
+				// If we actually just moused on to a sub-element, ignore it
+				if ( jQuery.event.special.mouseenter.isWithinParent(event) ) return false;
+				// Execute the right handlers by setting the event type to mouseenter
 				event.type = 'mouseenter';
+				// Include the event object as the first argument
 				args.unshift(event);
 				var val = jQuery.event.handle.apply(this, args);
-				event.type = 'mouseover';
 				return val;
 			}
 		},
@@ -401,17 +409,13 @@ jQuery.event = {
 			
 			handler: function(event) {
 				var args = Array.prototype.slice.call( arguments, 1 );
-				// Check if mouse(over|out) are still within the same parent element
-				var parent = event.relatedTarget;
-				// Traverse up the tree
-				while ( parent && parent != this ) try { parent = parent.parentNode } catch(error) { parent = this; };
 				// If we actually just moused on to a sub-element, ignore it
-				if ( parent == this ) return false;
-				// Execute the right function
+				if ( jQuery.event.special.mouseenter.isWithinParent(event) ) return false;
+				// Execute the right handlers by setting the event type to mouseleave
 				event.type = 'mouseleave';
+				// Include the event object as the first argument
 				args.unshift(event);
 				var val = jQuery.event.handle.apply(this, args);
-				event.type = 'mouseout';
 				return val;
 			}
 		},
@@ -421,8 +425,8 @@ jQuery.event = {
 				var handler = jQuery.event.special.mousewheel.handler;
 				
 				// Fix pageX, pageY, clientX and clientY for mozilla
-				if ( jQuery.browser.mozilla && !jQuery.data(this, 'mwfixcursorpos') ) {
-					var handle = jQuery.data(this, 'mwcursorposhandler') || jQuery.data(this, 'mwcursorposhandler', function(event) {
+				if ( jQuery.browser.mozilla )
+					jQuery(this).bind('mousemove.mousewheel', function(event) {
 						jQuery.data(this, 'mwcursorposdata', {
 							pageX: event.pageX,
 							pageY: event.pageY,
@@ -430,8 +434,6 @@ jQuery.event = {
 							clientY: event.clientY
 						});
 					});
-					jQuery(this).bind('mousemove', handle);
-				}
 			
 				if ( this.addEventListener )
 					if ( jQuery.browser.mozilla ) this.addEventListener('DOMMouseScroll', handler, false);
@@ -442,7 +444,8 @@ jQuery.event = {
 			
 			teardown: function() {
 				var handler = jQuery.event.special.mousewheel.handler;
-				jQuery(this).unbind('mousemove', handler);
+				
+				jQuery(this).unbind('mousemove.mousewheel');
 				
 				if ( this.removeEventListener )
 					if ( jQuery.browser.mozilla ) this.removeEventListener('DOMMouseScroll', handler, false);
@@ -450,7 +453,6 @@ jQuery.event = {
 				else
 					this.onmousewheel = null;
 				
-				jQuery.removeData(this, 'mwcursorposhandler');
 				jQuery.removeData(this, 'mwcursorposdata');
 			},
 			

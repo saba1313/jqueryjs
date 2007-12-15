@@ -374,19 +374,10 @@ jQuery.event = {
 				jQuery(this).unbind('mouseover', jQuery.event.special.mouseenter.handler);
 			},
 			
-			isWithinParent: function(event) {
-				// Check if mouse(over|out) are still within the same parent element
-				var parent = event.relatedTarget;
-				// Traverse up the tree
-				while ( parent && parent != this ) try { parent = parent.parentNode } catch(error) { parent = this; };
-				// If we actually just moused on to a sub-element, ignore it
-				if ( parent == this ) return true;
-			},
-			
 			handler: function(event) {
 				var args = Array.prototype.slice.call( arguments, 1 );
 				// If we actually just moused on to a sub-element, ignore it
-				if ( jQuery.event.special.mouseenter.isWithinParent(event) ) return false;
+				if ( withinElement(event, this) ) return;
 				// Execute the right handlers by setting the event type to mouseenter
 				event.type = 'mouseenter';
 				// Include the event object as the first argument
@@ -410,69 +401,13 @@ jQuery.event = {
 			handler: function(event) {
 				var args = Array.prototype.slice.call( arguments, 1 );
 				// If we actually just moused on to a sub-element, ignore it
-				if ( jQuery.event.special.mouseenter.isWithinParent(event) ) return false;
+				if ( withinElement(event, this) ) return false;
 				// Execute the right handlers by setting the event type to mouseleave
 				event.type = 'mouseleave';
 				// Include the event object as the first argument
 				args.unshift(event);
 				var val = jQuery.event.handle.apply(this, args);
 				return val;
-			}
-		},
-		
-		mousewheel: {
-			setup: function() {
-				var handler = jQuery.event.special.mousewheel.handler;
-				
-				// Fix pageX, pageY, clientX and clientY for mozilla
-				if ( jQuery.browser.mozilla )
-					jQuery(this).bind('mousemove.mousewheel', function(event) {
-						jQuery.data(this, 'mwcursorposdata', {
-							pageX: event.pageX,
-							pageY: event.pageY,
-							clientX: event.clientX,
-							clientY: event.clientY
-						});
-					});
-			
-				if ( this.addEventListener )
-					if ( jQuery.browser.mozilla ) this.addEventListener('DOMMouseScroll', handler, false);
-					else                          this.addEventListener('mousewheel',     handler, false);
-				else
-					this.onmousewheel = handler;
-			},
-			
-			teardown: function() {
-				var handler = jQuery.event.special.mousewheel.handler;
-				
-				jQuery(this).unbind('mousemove.mousewheel');
-				
-				if ( this.removeEventListener )
-					if ( jQuery.browser.mozilla ) this.removeEventListener('DOMMouseScroll', handler, false);
-					else                          this.removeEventListener('mousewheel',     handler, false);
-				else
-					this.onmousewheel = null;
-				
-				jQuery.removeData(this, 'mwcursorposdata');
-			},
-			
-			handler: function(event) {
-				var args = Array.prototype.slice.call( arguments, 1 );
-				
-				event = jQuery.event.fix(event || window.event);
-				jQuery.extend( event, jQuery.data(this, 'mwcursorposdata') || {} );
-				var delta = 0, returnValue = true;
-				
-				if ( event.wheelDelta      ) delta = event.wheelDelta/120;
-				if ( event.detail          ) delta = -event.detail/3;
-				if ( jQuery.browser.opera  ) delta = -event.wheelDelta;
-				
-				event.data = event.data || {};
-				event.delta = delta;
-				event.type = "mousewheel";
-				
-				args.unshift(event);
-				return jQuery.event.handle.apply(this, args);
 			}
 		}
 	}
@@ -545,6 +480,15 @@ jQuery.each( ("blur,focus,load,ready,resize,scroll,unload,click,dblclick," +
 		return fn ? this.bind(name, fn) : this.trigger(name);
 	};
 });
+
+var withinElement = function(event, element) {
+	// Check if mouse(over|out) are still within the same parent element
+	var parent = event.relatedTarget;
+	// Traverse up the tree
+	while ( parent && parent != element ) try { parent = parent.parentNode } catch(error) { parent = element; };
+	// Return true if we actually just moused on to a sub-element
+	return parent == element;
+};
 
 // Prevent memory leaks in IE
 // And prevent errors on refresh with events like mouseover in other browsers

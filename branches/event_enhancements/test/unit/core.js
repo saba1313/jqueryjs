@@ -152,7 +152,7 @@ test("isFunction", function() {
 var foo = false;
 
 test("$('html')", function() {
-	expect(5);
+	expect(6);
 
 	reset();
 	foo = false;
@@ -169,6 +169,8 @@ test("$('html')", function() {
 
 	var j = $("<span>hi</span> there <!-- mon ami -->");
 	ok( j.length >= 2, "Check node,textnode,comment creation (some browsers delete comments)" );
+
+	ok( !$("<option>test</option>")[0].selected, "Make sure that options are auto-selected #2050" );
 });
 
 test("$('html', context)", function() {
@@ -1052,10 +1054,12 @@ test("filter()", function() {
 });
 
 test("not()", function() {
-	expect(3);
+	expect(5);
 	ok( $("#main > p#ap > a").not("#google").length == 2, "not('selector')" );
+	isSet( $("p").not(".result").get(), q("firstp", "ap", "sndp", "en", "sap", "first"), "not('.class')" );
 	isSet( $("p").not("#ap, #sndp, .result").get(), q("firstp", "en", "sap", "first"), "not('selector, selector')" );
 	isSet( $("p").not($("#ap, #sndp, .result")).get(), q("firstp", "en", "sap", "first"), "not(jQuery)" );
+	isSet( $("#form option").not("option.emptyopt:contains('Nothing'),[selected],[value='1']").get(), q("option1c", "option1d", "option2c", "option3d" ), "not('complex selector')");
 });
 
 test("andSelf()", function() {

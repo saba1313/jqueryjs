@@ -29,6 +29,9 @@ window.$ = jQuery;
 // (both of which we optimize for)
 var quickExpr = /^[^<]*(<(.|\s)+>)[^>]*$|^#(\w+)$/;
 
+// Is it a simple selector
+var isSimple = /^.[^:#\[\.]*$/;
+
 jQuery.fn = jQuery.prototype = {
 	init: function( selector, context ) {
 		// Make sure that a selection was provided
@@ -342,15 +345,16 @@ jQuery.fn = jQuery.prototype = {
 	},
 
 	not: function( selector ) {
-		return this.pushStack(
-			selector.constructor == String &&
-			jQuery.multiFilter( selector, this, true ) ||
+		if ( selector.constructor == String )
+			// test special case where just one selector is passed in
+			if ( isSimple.test( selector ) )
+				return this.pushStack( jQuery.multiFilter( selector, this, true ) );
+			else
+				selector = jQuery.multiFilter( selector, this );
 
-			jQuery.grep(this, function(elem) {
-				return selector.constructor == Array || selector.jquery ?
-					jQuery.inArray( elem, selector ) < 0 :
-					elem != selector;
-			}) );
+		return this.filter(function() {
+			return jQuery.inArray( this, selector ) < 0;
+		});
 	},
 
 	add: function( selector ) {
@@ -1311,8 +1315,11 @@ jQuery.each([ "Height", "Width" ], function(i, name){
 		
 			// Get document width or height
 			this[0] == document ?
-				// Either scroll[Width/Height] or offset[Width/Height], whichever is greater (Mozilla reports scrollWidth the same as offsetWidth)
-				Math.max( document.body[ "scroll" + name ], document.body[ "offset" + name ] ) :
+				// Either scroll[Width/Height] or offset[Width/Height], whichever is greater
+				Math.max( 
+					Math.max(document.body["scroll" + name], document.documentElement["scroll" + name]), 
+					Math.max(document.body["offset" + name], document.documentElement["offset" + name]) 
+				) :
 
 				// Get or set width or height on the element
 				size == undefined ?

@@ -10,10 +10,7 @@
  * ====================================================================
  * Licence
  * ====================================================================
- * Sarissa is free software distributed under the GNU GPL version 2 (see <a href="gpl.txt">gpl.txt</a>) or higher, 
- * GNU LGPL version 2.1 (see <a href="lgpl.txt">lgpl.txt</a>) or higher and Apache Software License 2.0 or higher 
- * (see <a href="asl.txt">asl.txt</a>). This means you can choose one of the three and use that if you like. If 
- * you make modifications under the ASL, i would appreciate it if you submitted those.
+ * Sarissa is free software distributed under the GNU GPL version 2 (see <a href="gpl.txt">gpl.txt</a>) or higher.
  * In case your copy of Sarissa does not include the license texts, you may find
  * them online in various formats at <a href="http://www.gnu.org">http://www.gnu.org</a> and 
  * <a href="http://www.apache.org">http://www.apache.org</a>.

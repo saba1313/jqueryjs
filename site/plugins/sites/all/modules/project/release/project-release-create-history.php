@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 
-// $Id: project-release-create-history.php,v 1.8 2007/08/08 00:36:59 dww Exp $
-// $Name: DRUPAL-5--1-0 $
+// $Id: project-release-create-history.php,v 1.10 2007/09/19 17:46:10 dww Exp $
+// $Name: DRUPAL-5--1-1 $
 
 /**
  * @file
@@ -26,7 +26,7 @@
 define('DRUPAL_ROOT', '');
 
 // The name of your site. Required so that when we bootstrap Drupal in
-// this script, we find the right settings.php file in your sites folder. 
+// this script, we find the right settings.php file in your sites folder.
 define('SITE_NAME', '');
 
 
@@ -103,7 +103,9 @@ function project_release_history_generate_all() {
   wd_msg(format_plural($i, 'Generated an XML release history summary for a project.', 'Generated XML release history summaries for @count projects.'));
 
   // Generate XML files based on API compatibility.
-  $query = db_query("SELECT DISTINCT(prn.pid), tn.tid FROM {project_release_nodes} prn INNER JOIN {term_node} tn ON prn.nid = tn.nid WHERE tn.tid IN (%s)", implode(',', array_keys($api_terms)));
+  $tids = array_keys($api_terms);
+  $placeholders = implode(',', array_fill(0, count($tids), '%d'));
+  $query = db_query("SELECT DISTINCT(prn.pid), tn.tid FROM {project_release_nodes} prn INNER JOIN {term_node} tn ON prn.nid = tn.nid WHERE tn.tid IN ($placeholders)", $tids);
   $i = 0;
   while ($project = db_fetch_object($query)) {
     project_release_history_generate_project_xml($project->pid, $project->tid);
@@ -131,7 +133,7 @@ function project_release_history_generate_all() {
  */
 function project_release_history_generate_project_xml($project_nid, $api_tid = NULL) {
   $api_vid = _project_release_get_api_vid();
-  
+
   if (isset($api_tid)) {
     // Restrict output to a specific API compatibility term.
     $api_terms = project_release_compatibility_list();
@@ -266,7 +268,7 @@ function project_release_history_generate_project_xml($project_nid, $api_tid = N
     while ($term = db_fetch_object($term_query)) {
       $xml_terms .= '   <term><name>'. check_plain($term->vocab_name) .'</name>';
       $xml_terms .= '<value>'. check_plain($term->term_name) ."</value></term>\n";
-    }      
+    }
     if (!empty($xml_terms)) {
       $xml .= "  <terms>\n". $xml_terms ."  </terms>\n";
     }
@@ -317,7 +319,7 @@ function project_release_history_write_xml($project, $api_version, $xml) {
     wd_err(t("ERROR: fopen(@file, 'xb') failed", array('@file' => $file)));
     return FALSE;
   }
-  if (!fwrite($hist_fd, $xml)) { 
+  if (!fwrite($hist_fd, $xml)) {
     wd_err(t("ERROR: fwrite(@file) failed", array('@file' => $tmp_filename)) . '<pre>' . check_plain($xml));
     return FALSE;
   }

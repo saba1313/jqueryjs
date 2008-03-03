@@ -1,11 +1,11 @@
 <?php
-// $Id: issue.inc,v 1.251 2007/09/27 01:11:16 thehunmonkgroup Exp $
-// $Name: DRUPAL-5--1-1 $
+// $Id: issue.inc,v 1.255.2.14 2008/01/30 22:36:47 thehunmonkgroup Exp $
+// $Name: DRUPAL-5--1-3 $
 
 function project_issue_page() {
   global $user;
 
-  switch ($_POST['op'] ? $_POST['op'] : arg(2)) {
+  switch (!empty($_POST['op']) ? $_POST['op'] : arg(2)) {
     case 'rss':
       $project = project_project_retrieve(arg(3));
       if ($project->nid && node_access('view', $project)) {
@@ -169,7 +169,7 @@ function project_issue_update_project($pid, $cid = NULL, $rid = NULL) {
  *   Value returned from arg(2)
  */
 function project_issue_build_form_url($url_arg) {
-  $adv_filters = array('text', 'attachment', 'components', 'submitted', 'assigned', 'versions', 'participated', 'states', 'categories', 'priorities');
+  $adv_filters = array('text', 'attachment', 'components', 'submitted', 'assigned', 'versions', 'participated', 'projects', 'states', 'categories', 'priorities');
   $filters = array_slice($adv_filters, 6);
   // Remember this is a request for "my issues"
   if ($url_arg == 'user') {
@@ -292,18 +292,8 @@ function project_issue_advanced_search($url_arg, $filters) {
 
 function project_issue_statistics($project = 0) {
   if ($project->nid) {
-    $breadcrumb = array(
-      l(t('Home'), NULL),
-      l(t('Projects'), 'project')
-    );
-    if (project_use_taxonomy()) {
-      $taxonomy_terms = taxonomy_node_get_terms($project->nid);
-      reset($taxonomy_terms);
-      $breadcrumb[] = l($term->name, 'project/'. $term->name);
-    }
-    $breadcrumb[] = $project->nid ? l($project->title, "node/$project->nid") : l(t('All issues'), 'project/issues');
-    drupal_set_breadcrumb($breadcrumb);
     $filter = sprintf(' AND p.pid = %d ', (int)$project->nid);
+    project_project_set_breadcrumb($project, TRUE);
   }
 
   $output = '<div class="project-issue">';
@@ -312,14 +302,14 @@ function project_issue_statistics($project = 0) {
   $header = array(t('Category'), t('Overall'), t('Last month'));
   $rows = array();
   $duration = time() - 30 * 24 * 60 * 60;
-  $result = db_query(db_rewrite_sql('SELECT p.category, SUM(n.changed - n.created) / COUNT(p.category) AS duration FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1%s AND p.sid > 1 GROUP BY p.category', $filter));
+  $result = db_query(db_rewrite_sql('SELECT p.category, SUM(n.changed - n.created) / COUNT(p.category) AS duration FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1%s AND p.sid > 1 GROUP BY p.category'), $filter);
   while ($stat = db_fetch_object($result)) {
     $i++;
-    $rows[$i][0] = project_issue_category($stat->category);;
+    $rows[$i][0] = project_issue_category($stat->category);
     $rows[$i][1] = array('data' => format_interval($stat->duration, 2), 'class' => 'numeric');
   }
 
-  $result = db_query(db_rewrite_sql('SELECT p.category, SUM(n.changed - n.created) / COUNT(p.category) AS duration FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1%s AND p.sid > 1 AND n.created > %d GROUP BY p.category', $filter, $duration));
+  $result = db_query(db_rewrite_sql('SELECT p.category, SUM(n.changed - n.created) / COUNT(p.category) AS duration FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1%s AND p.sid > 1 AND n.created > %d GROUP BY p.category'), $filter, $duration);
   while ($stat = db_fetch_object($result)) {
     $j++;
     $rows[$j][2] = array('data' => format_interval($stat->duration, 2), 'class' => 'numeric');
@@ -568,7 +558,7 @@ function project_issue_form($node, $param) {
 
     // Load the project and initialize some support arrays.
     $project = node_load(array('nid' => $pid, 'type' => 'project_project'));
-    if (trim($project->help)) {
+    if (trim($project->help) && empty($_POST)) {
       drupal_set_message(filter_xss($project->help));
     }
     if (module_exists('project_release') &&
@@ -677,6 +667,7 @@ function project_issue_form($node, $param) {
     $form['issue_details']['title'] = array(
       '#type' => 'textfield',
       '#title' => t('Title'),
+      '#default_value' => $node->title,
       '#size' => 60,
       '#maxlength' => 128,
     );
@@ -794,9 +785,7 @@ function _project_issue_form_add_required_fields(&$form, $needs_body) {
   }
 }
 
-function project_issue_node_form_validate($form_id, $form) {
-  global $form_values;
-  $edit = $_POST;
+function project_issue_node_form_validate($form_id, $form_values, $form) {
 
   if (!$form_values['pid']) {
     form_set_error('pid', t('You have to specify a valid project.'));
@@ -823,6 +812,7 @@ function project_issue_node_form_validate($form_id, $form) {
         }
       }
     }
+    node_form_validate($form_id, $form_values, $form);
   }
 }
 
@@ -831,7 +821,7 @@ function project_issue_comment_validate(&$node) {
   // Set default values.
   empty($node->priority) and $node->priority = 2;
   empty($node->category) and $node->category = arg(4);
-  empty($node->sid) and $node->sid = 1;
+  empty($node->sid) and $node->sid = variable_get('project_issue_default_state', 1);
 
   // Try to find the active project
   if (empty($node->pid)) {
@@ -939,7 +929,7 @@ function project_issue_view($node, $teaser = false, $page = false) {
       $rows[] = array('Version:', check_plain($release->version));
     }
     $rows[] = array(t('Component:'),  check_plain($node->component));
-    $rows[] = array(t('Category:'), check_plain($node->category));
+    $rows[] = array(t('Category:'), project_issue_category($node->category, 0));
     $rows[] = array(t('Priority:'), project_issue_priority($node->priority));
     $rows[] = array(t('Assigned:'), $assigned);
     $rows[] = array(t('Status:'), project_issue_state($node->sid));
@@ -959,17 +949,7 @@ function project_issue_view($node, $teaser = false, $page = false) {
       '#weight' => 2,
     );
 
-    // Breadcrumb navigation
-    $breadcrumb[] = array('path' => 'project', 'title' => t('Projects'));
-    if (project_use_taxonomy()) {
-      $taxonomy_terms = taxonomy_node_get_terms($node->pid);
-      $term = reset($taxonomy_terms);
-      $breadcrumb[] = array('path' => 'project/'. $term->name, 'title' => $term->name);
-    }
-    $breadcrumb[] = array('path' => 'node/'. $project->nid, 'title' => $project->title);
-    $breadcrumb[] = array('path' => 'project/issues/'. $project->uri, 'title' => t('Issues'));
-    $breadcrumb[] = array('path' => 'node/'. $node->nid);
-    menu_set_location($breadcrumb);
+    project_issue_set_breadcrumb($node, $project);
   }
   return $node;
 }
@@ -1004,6 +984,10 @@ function project_issue_update($node) {
 
 function project_issue_delete($node) {
   file_delete($node->file_path);
+  $comment_files = db_query("SELECT file_path FROM {project_comments} WHERE file_path <> '' AND nid = %d", $node->nid);
+  while ($comment = db_fetch_object($comment_files)) {
+    file_delete($comment->file_path);
+  }
   db_query('DELETE FROM {project_issues} WHERE nid = %d', $node->nid);
   db_query('DELETE FROM {project_comments} WHERE nid = %d', $node->nid);
 }
@@ -1044,18 +1028,25 @@ function project_issue_access($op, $node) {
  *   Integer state id to return information about, or 0 for all states.
  * @param $restrict
  *   Boolean to determine if states should be restricted based on the
- *   permissions of the current user.
+ *   permissions of the current user or $account if that parameter
+ *   is provided.
  * @param $is_author
  *   Boolean that indicates if the current user is the author of the
  *   issue, which can potentially grant a wider selection of states.
+ * @param $current_sid
+ *   The current integer state id for the issue.
  * @param $defaults
  *   Boolean to request the states used for default issue queries.
+ * @param $account
+ *   Account of a user to pass to user_access() for access checking.
+ *   This parameter will have no effect unless $restrict is also
+ *   set to TRUE.
  *
  * @return
  *   An array of states (sid as key, name as value) that match the
  *   given filters, or the name of the requested state.
  */
-function project_issue_state($sid = 0, $restrict = false, $is_author = false, $current_sid = 0, $defaults = false) {
+function project_issue_state($sid = 0, $restrict = false, $is_author = false, $current_sid = 0, $defaults = false, $account = NULL) {
   static $options;
 
   if (!$options) {
@@ -1072,8 +1063,8 @@ function project_issue_state($sid = 0, $restrict = false, $is_author = false, $c
       // or if user is original issue author and author has access,
       // or if the issue is already in a state, even if the user doesn't have
       //   access to that state themselves.
-      if (user_access('set issue status '. str_replace("'", "", $state->name))
-          || user_access('administer projects')
+      if (user_access('set issue status '. str_replace("'", "", $state->name), $account)
+          || user_access('administer projects', $account)
           || ($state->sid == variable_get('project_issue_default_state', 1))
           || ($state->author_has && $is_author)
           || ($state->sid == $current_sid) ) {
@@ -1106,7 +1097,7 @@ function project_issue_default_states() {
 }
 
 function project_issue_priority($priority = 0) {
-  $priorities = array(1 => 'critical', 'normal', 'minor');
+  $priorities = array(1 => t('critical'), t('normal'), t('minor'));
   return $priority ? $priorities[$priority] : $priorities;
 }
 
@@ -1131,7 +1122,7 @@ function project_issue_count($pid) {
 
 function project_issue_search_page($project_name = NULL, $query = NULL) {
   $project = project_project_retrieve($project_name);
-  if ($project->nid && node_access('view', $project)) {
+  if (isset($project) && $project->nid && node_access('view', $project)) {
     return drupal_get_form('project_issue_query', $project, $query);
   }
   else {
@@ -1141,8 +1132,9 @@ function project_issue_search_page($project_name = NULL, $query = NULL) {
 
 function project_issue_query($project = 0, $query = NULL) {
   $categories = project_issue_category();
+  $projects = array();
   $components = array();
-  if ($project->nid) {
+  if (!empty($project->nid)) {
     drupal_set_title(t('Search issues for %name', array('%name' => $project->title)));
     project_project_set_breadcrumb($project, TRUE);
     foreach ($project->components as $component) {
@@ -1159,12 +1151,24 @@ function project_issue_query($project = 0, $query = NULL) {
     drupal_set_title(t('Search issues for all projects'));
   }
   if (is_null($query)) {
-    $query = new StdClass();
+    $query = (object) array(
+      'projects' => '',
+      'summary' => '',
+      'attachment' => '',
+      'versions' => '',
+      'components' => '',
+      'categories' => '',
+      'priorities' => '',
+      'states' => '',
+      'submitted' => '',
+      'assigned' => '',
+      'users' => '',
+    );
   }
   $states = project_issue_state();
   $priorities = project_issue_priority();
 
-  $form['#action'] = url($project->uri ? "project/issues/$project->uri" : 'project/issues');
+  $form['#action'] = url(isset($project->uri) ? "project/issues/$project->uri" : 'project/issues');
   $form['text'] = array(
     '#type' => 'textfield',
     '#title' => t('Search for'),
@@ -1178,7 +1182,6 @@ function project_issue_query($project = 0, $query = NULL) {
   );
 
   if ($projects) {
-
     $form['projects'] = array(
       '#type' => 'select',
       '#title' => t('Projects'),
@@ -1279,14 +1282,14 @@ function theme_project_issue_query($form) {
   $rows[] = array(
     array('data' => drupal_render($form['attachment']), 'colspan' => 3)
   );
-  if ($form['projects']) {
+  if (isset($form['projects'])) {
     $rows[] = array(
       drupal_render($form['projects']),
       drupal_render($form['categories']),
       NULL,
     );
   }
-  elseif ($form['versions']) {
+  elseif (isset($form['versions'])) {
     $rows[] = array(
       drupal_render($form['versions']),
       drupal_render($form['components']),
@@ -1495,7 +1498,7 @@ function project_issue_delete_state_confirm_submit($form_id, $form_values) {
   }
 }
 
-function project_issue_query_result($query = NULL, $format = 'html', $search = true, $set_title = true) {
+function project_issue_query_result($query = NULL, $format = 'html', $show_search = true, $set_title = true) {
   global $user;
   $query = project_issue_query_parse($query);
   // $query must have a real value now, or the rest of this function fails.
@@ -1590,6 +1593,8 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
     );
   }
 
+  $issues_per_page = variable_get('project_issues_per_page', PROJECT_ISSUES_PER_PAGE);
+
   $header = array();
   if (!$project->nid) {
     $header[] = array('data' => t('Project'), 'field' => 'p.pid');
@@ -1598,19 +1603,20 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
   $header[] = array('data' => t('Status'), 'field' => 'p.sid');
   $header[] = array('data' => t('Priority'), 'field' => 'p.priority');
   $header[] = array('data' => t('Category'), 'field' => 'p.category');
-  if (count($releases)) {
+  if (!empty($releases)) {
     $header[] = array('data' => t('Version'), 'field' => 'p.rid');
   }
   $header[] = array('data' => t('Last updated'), 'field' => 'n.changed', 'sort' => 'desc');
   $header[] = array('data' => t('Assigned to'), 'field' => 'u.name');
 
   $sql = project_issue_query_sql($query);
-  $result = pager_query($sql['sql'] . tablesort_sql($header), 20, 0, $sql['count']);
+  $result = pager_query($sql['sql'] . tablesort_sql($header), $issues_per_page, 0, $sql['count']);
 
-  if ($search) {
+  $search = '';
+  if ($show_search) {
     // Action links:
-    $group = theme('links', $links);
-    $group .= drupal_get_form('project_issue_query_result_quick_search', $query, $projects, $states, $priorities);
+    $search .= theme('links', $links);
+    $search .= drupal_get_form('project_issue_query_result_quick_search', $query, $projects, $states, $priorities);
   }
 
   $rows = array();
@@ -1630,6 +1636,8 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
     $projects = $flat_projects;
   }
 
+  $rss = '';
+  $link = '';
   if ($format == 'rss') {
     project_issue_query_rss($result, $project);
   }
@@ -1650,7 +1658,7 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
       $row[] = $title . theme('mark', node_mark($node->nid, $node->changed));
       $row[] = $states[$node->sid];
       $row[] = $priorities[$node->priority];
-      $row[] = t($node->category);
+      $row[] = project_issue_category($node->category, 0);
       if (count($releases)) {
         $row[] = $releases[$node->rid];
       }
@@ -1665,7 +1673,7 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
 
     $rss = theme('feed_icon', url('project/issues/rss', project_issue_query_url($query)));
     $link = l(t('#'), 'project/issues', array('title' => t('Permalink to search query.')), project_issue_query_url($query));
-    if ($pager = theme('pager', NULL, 20, 0)) {
+    if ($pager = theme('pager', NULL, $issues_per_page, 0)) {
       $rows[] = array(array('data' => $pager, 'colspan' => count($header)));
     }
   }
@@ -1675,10 +1683,12 @@ function project_issue_query_result($query = NULL, $format = 'html', $search = t
 
   $output = '<div class="project-issue">';
   $output .= '<div class="quick-search">';
-  $output .= $group;
+  $output .= $search;
+
   $output .= '</div>';
   $output .= theme('table', $header, $rows);
   $output .= "$rss $link";
+
   $output .= '</div>';
   return $output;
 }
@@ -1693,7 +1703,10 @@ function project_issue_query_result_quick_search($query, $projects, $states, $pr
   // Convert array fields to single select form items.
   $fields = array('projects', 'states', 'priorities', 'categories', 'users');
   foreach ($fields as $field) {
-    if (is_array($query->$field)) {
+    if (!isset($query->$field)) {
+      $query->$field = '';
+    }
+    elseif (is_array($query->$field)) {
       $option = array();
 
       // $query is untrusted, user submitted data
@@ -1847,7 +1860,7 @@ function project_issue_query_sql_field($field, $values, $like = 0, $operator = '
     if ($callback) {
       $value = $callback($value);
     }
-    $sql[] = ($like && $field != 'p.pid') ? "$field LIKE '%$value%'" : "$field = '$value'";
+    $sql[] = ($like && $field != 'p.pid') ? "$field LIKE '". str_replace('%', '%%', "%$value%") ."'" : "$field = '$value'";
   }
   if ($sql) {
     return '('. implode($operator, $sql) .')';
@@ -1865,6 +1878,7 @@ function project_issue_query_pager($query) {
 }
 
 function project_issue_query_sql($query) {
+  $comments = 0;
   foreach ($query as $key => $value) {
     switch ($key) {
       case 'projects':

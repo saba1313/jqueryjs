@@ -1,6 +1,6 @@
 <?php
-// $Id: project.inc,v 1.113 2007/08/19 23:23:37 dww Exp $
-// $Name: DRUPAL-5--1-0 $
+// $Id: project.inc,v 1.120 2007/11/13 01:27:54 dww Exp $
+// $Name: DRUPAL-5--1-1 $
 
 /**
  * Implementation of hook_form().
@@ -79,14 +79,14 @@ function project_project_form($node) {
   $form['project']['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Full project name'),
-    '#default_value' => $node->title,
+    '#default_value' => isset($node->title) ? $node->title : NULL,
     '#maxlength' => 128,
     '#required' => TRUE,
   );
   $form['project']['body'] = array(
     '#type' => 'textarea',
     '#title' => t('Full description'),
-    '#default_value' => $node->body,
+    '#default_value' => isset($node->body) ? $node->body : NULL,
     '#cols' => 40,
     '#rows' => 10,
     '#required' => TRUE,
@@ -95,25 +95,16 @@ function project_project_form($node) {
   $form['project']['uri'] = array(
     '#type' => 'textfield',
     '#title' => t('Short project name'),
-    '#default_value' => $node->uri,
+    '#default_value' => isset($node->uri) ? $node->uri : NULL,
     '#size' => 40,
     '#maxlength' => 50,
     '#description' => t('This will be used to generate a /project/&lt;shortname&gt;/ URL for your project.'),
     '#required' => TRUE,
   );
-  $form['project']['mail'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Project e-mail'),
-    '#default_value' => $node->mail ? $node->mail : $user->mail,
-    '#size' => 40,
-    '#maxlength' => 255,
-    '#description' => t('E-mail address where the project owners can be contacted.'),
-    '#required' => TRUE,
-  );
   $form['project']['homepage'] = array(
     '#type' => 'textfield',
     '#title' => t('Homepage'),
-    '#default_value' => $node->homepage,
+    '#default_value' => isset($node->homepage) ? $node->homepage : NULL,
     '#size' => 40,
     '#maxlength' => 255,
     '#description' => t('Link to project homepage.'),
@@ -121,7 +112,7 @@ function project_project_form($node) {
   $form['project']['documentation'] = array(
     '#type' => 'textfield',
     '#title' => t('Documentation'),
-    '#default_value' => $node->documentation,
+    '#default_value' => isset($node->documentation) ? $node->documentation : NULL,
     '#size' => 40,
     '#maxlength' => 255,
     '#description' => t('Link to project documentation.'),
@@ -129,7 +120,7 @@ function project_project_form($node) {
   $form['project']['license'] = array(
     '#type' => 'textfield',
     '#title' => t('License'),
-    '#default_value' => $node->license,
+    '#default_value' => isset($node->license) ? $node->license : NULL,
     '#size' => 40,
     '#maxlength' => 255,
     '#description' => t('Link to project license.'),
@@ -137,7 +128,7 @@ function project_project_form($node) {
   $form['project']['screenshots'] = array(
     '#type' => 'textfield',
     '#title' => t('Screenshots'),
-    '#default_value' => $node->screenshots,
+    '#default_value' => isset($node->screenshots) ? $node->screenshots : NULL,
     '#size' => 40,
     '#maxlength' => 255,
     '#description' => t('Link to project screenshots.'),
@@ -145,7 +136,7 @@ function project_project_form($node) {
   $form['project']['changelog'] = array(
     '#type' => 'textfield',
     '#title' => t('Changelog'),
-    '#default_value' => $node->changelog,
+    '#default_value' => isset($node->changelog) ? $node->changelog : NULL,
      '#size' => 40,
     '#maxlength' => 255,
     '#description' => t('Link to changelog.'),
@@ -153,7 +144,7 @@ function project_project_form($node) {
   $form['project']['cvs'] = array(
     '#type' => 'textfield',
     '#title' => t('CVS tree'),
-    '#default_value' => $node->cvs,
+    '#default_value' => isset($node->cvs) ? $node->cvs : NULL,
     '#size' => 40,
     '#maxlength' => 255,
     '#description' => t('Link to webcvs/viewcvs.'),
@@ -161,7 +152,7 @@ function project_project_form($node) {
   $form['project']['demo'] = array(
     '#type' => 'textfield',
     '#title' => t('Demo site'),
-    '#default_value' => $node->demo,
+    '#default_value' => isset($node->demo) ? $node->demo : NULL,
     '#size' => 40,
     '#maxlength' => 255,
     '#description' => t('Link to a live demo.'),
@@ -169,10 +160,6 @@ function project_project_form($node) {
 
   $form['#suffix'] = '</div>';
   return $form;
-}
-
-function project_project_cleanup($input) {
-  return $input;
 }
 
 function project_project_validate(&$node) {
@@ -215,30 +202,6 @@ function project_project_validate(&$node) {
   // We need a description.
   if (empty($node->body)) {
     form_set_error('body', t('You must add a project description.'));
-  }
-
-  // Validate emails
-  if (empty($node->mail)) {
-    form_set_error('mail', t('You must specify a project e-mail.'));
-  }
-  elseif ($data = user_validate_mail($node->mail)) {
-    form_set_error('mail', $data);
-  }
-
-  if (!empty($node->mail_digest) && ($data = user_validate_mail($node->mail_digest))) {
-    form_set_error('mail_digest', $data);
-  }
-
-  if (!empty($node->mail_copy) && ($data = user_validate_mail($node->mail_copy))) {
-    form_set_error('mail_copy', $data);
-  }
-
-  if (is_array($node->mail_copy_filter)) {
-    $node->mail_copy_filter = array_filter($node->mail_copy_filter, 'project_project_cleanup');
-  }
-
-  if (is_array($node->mail_copy_filter_state)) {
-    $node->mail_copy_filter_state = array_filter($node->mail_copy_filter_state, 'project_project_cleanup');
   }
 
   // Make sure all URL fields actually contain URLs.
@@ -297,7 +260,7 @@ function project_project_set_breadcrumb($node = NULL, $extra = NULL) {
   elseif ($extra && !empty($node)) {
     $breadcrumb[] = l($node->title, 'node/'. $node->nid);
   }
- 
+
   drupal_set_breadcrumb($breadcrumb);
 }
 
@@ -337,7 +300,7 @@ function project_project_view($node, $teaser = false, $page = false) {
     }
 
     // Flags that indicate what kind of access to project issues to allow.
-    $has_issues = module_exists('project_issue') && $node->issues;
+    $has_issues = module_exists('project_issue') && !empty($node->issues);
     $view_issues = $has_issues && (user_access('access project issues') || user_access('access own project issues') || user_access('administer projects'));
     $make_issues = $has_issues && node_access('create', 'project_issue');
 
@@ -422,12 +385,12 @@ function project_project_nodeapi(&$node, $op, $arg) {
 }
 
 function project_project_insert($node) {
-  db_query("INSERT INTO {project_projects} (nid, uri, homepage, changelog, cvs, demo, release_directory, mail, version, screenshots, documentation, license) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s')", $node->nid, $node->uri, $node->homepage, $node->changelog, $node->cvs, $node->demo, $node->release_directory, $node->mail, $node->version, $node->screenshots, $node->documentation, $node->license);
+  db_query("INSERT INTO {project_projects} (nid, uri, homepage, changelog, cvs, demo, release_directory, version, screenshots, documentation, license) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s')", $node->nid, $node->uri, $node->homepage, $node->changelog, $node->cvs, $node->demo, $node->release_directory, $node->version, $node->screenshots, $node->documentation, $node->license);
 //  project_release_scan_directory($node->uri);
 }
 
 function project_project_update($node) {
-  db_query("UPDATE {project_projects} SET uri = '%s', homepage = '%s', changelog = '%s', cvs = '%s', demo = '%s', release_directory = '%s', mail = '%s', version = %d, screenshots = '%s', documentation = '%s', license = '%s' WHERE nid = %d", $node->uri, $node->homepage, $node->changelog, $node->cvs, $node->demo, $node->release_directory, $node->mail, $node->version, $node->screenshots, $node->documentation, $node->license, $node->nid);
+  db_query("UPDATE {project_projects} SET uri = '%s', homepage = '%s', changelog = '%s', cvs = '%s', demo = '%s', release_directory = '%s', version = %d, screenshots = '%s', documentation = '%s', license = '%s' WHERE nid = %d", $node->uri, $node->homepage, $node->changelog, $node->cvs, $node->demo, $node->release_directory, $node->version, $node->screenshots, $node->documentation, $node->license, $node->nid);
 //  project_release_scan_directory($node->uri);
 }
 
@@ -440,11 +403,13 @@ function project_project_access($op, $node) {
 
   switch ($op) {
     case 'view':
-      if (user_access('administer projects')) {
-         return TRUE;
+      // Since this function is shared for project_release nodes, we have to
+      // be careful what node we pass to project_check_admin_access().
+      if ($node->type == 'project_release') {
+        $node = node_load($node->pid);
       }
-      if (user_access('access own projects') && $node->uid == $user->uid) {
-         return TRUE;
+      if (project_check_admin_access($node)) {
+        return TRUE;
       }
       if (!user_access('access projects')) {
          return FALSE;
@@ -478,7 +443,7 @@ function project_project_access($op, $node) {
 function project_project_retrieve($key = 0) {
   if ($key) {
     if (is_numeric($key)) {
-      $node = node_load(array('nid' => $key, 'type' => 'project_project'));
+      return node_load(array('nid' => $key, 'type' => 'project_project'));
     }
     else {
       $nid = db_result(db_query("SELECT nid FROM {project_projects} WHERE uri = '%s'", $key), 0);
@@ -486,11 +451,11 @@ function project_project_retrieve($key = 0) {
         return new StdClass();
       }
       else {
-        $node = node_load(array('nid' => $nid, 'type' => 'project_project'));
+        return node_load(array('nid' => $nid, 'type' => 'project_project'));
       }
     }
   }
-  return $node;
+  return NULL;
 }
 
 function project_developers($nid = 0) {
@@ -516,7 +481,7 @@ function project_cvs($nid = 0) {
       $_REQUEST['nid'] = $nid;
       $output = module_invoke('cvs', 'show_messages');
       drupal_set_title(t('CVS messages for %name', array('%name' => check_plain($project->title))));
-      project_project_set_breadcrumb($project, TRUE);   
+      project_project_set_breadcrumb($project, TRUE);
       return $output;
     }
     else {

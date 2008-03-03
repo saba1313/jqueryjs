@@ -1,11 +1,14 @@
 <?php
-// $Id: project_issue.module,v 1.37 2007/08/22 16:19:51 thehunmonkgroup Exp $
-// $Name: DRUPAL-5--1-1 $
+// $Id: project_issue.module,v 1.38.2.9 2008/01/30 22:36:47 thehunmonkgroup Exp $
+// $Name: DRUPAL-5--1-3 $
 
 // issue nodes      -> project_issues
 // issue comments   -> project_comments
 
-define('PROJECT_ISSUE_DEFAULT_FILE_EXTENSIONS', 'txt patch jpg jpeg gif png html doc xls pdf ppt pps odt ods odp odg');
+define('PROJECT_ISSUE_DEFAULT_FILE_EXTENSIONS', 'txt patch jpg jpeg gif png doc xls pdf ppt pps odt ods odp odg');
+
+/// How many issues should be displayed per page by default.
+define('PROJECT_ISSUES_PER_PAGE', 20);
 
 $path = drupal_get_path('module', 'project_issue');
 if (file_exists("$path/issue.inc")) {
@@ -73,6 +76,16 @@ function project_issue_perm() {
  */
 function project_issue_settings_form() {
 
+  $form['project_issues_per_page'] = array(
+    '#title' => t('Issues per page'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('project_issues_per_page', PROJECT_ISSUES_PER_PAGE),
+    '#size' => 4,
+    '#maxlength' => 10,
+    '#description' => t('Number of issues to display on a single page when viewing the issue queues.'),
+    '#validate' => array('project_issue_validate_issues_per_page' => array()),
+  );
+
   $form['project_directory_issues']  = array(
     '#type' => 'textfield',
     '#title' => t('Issue directory'),
@@ -83,6 +96,12 @@ function project_issue_settings_form() {
     '#after_build' => array('project_issue_check_directory'),
   );
 
+  $form['project_issue_reply_to'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reply-to address on e-mail notifications'),
+    '#default_value' => variable_get('project_issue_reply_to', variable_get('site_mail', ini_get('sendmail_from'))),
+    '#description' => t('All issue e-mails sent via subscriptions will appear from this e-mail address. You can use %project as a placeholder which will be replaced with the %short_project_name setting for the issue\'s current project.', array('%project' => '%project', '%short_project_name' => t('Short project name'))),
+  );
   if (module_exists('mailhandler')) {
     // TODO: move this stuff to mailhandler.module ?
     $items = array(t('<none>'));
@@ -90,12 +109,10 @@ function project_issue_settings_form() {
     while ($mail = db_result($result, $i++)) {
       $items[$mail] = $mail;
     }
-    $form['project_issue_reply_to'] = array(
-      '#type' => 'select',
-      '#title' => t('Reply-to address on e-mail notifications'),
-      '#default_value' => variable_get('project_reply_to', ''),
-      '#options' => $items,
-    );
+
+    // Switch reply-to to a select box instead.
+    $form['project_issue_reply_to']['#type'] = 'select';
+    $form['project_issue_reply_to']['#options'] = $items;
   }
 
   $form['project_issues_extensions_default'] = array(
@@ -135,6 +152,15 @@ function project_issue_settings_form() {
   return system_settings_form($form);
 }
 
+function project_issue_validate_issues_per_page($form) {
+  if (!is_numeric($form['#value'])) {
+    form_error($form, t('%setting must be a number.', array('%setting' => t('Issues per page'))));
+  }
+  if ($form['#value'] <= 0) {
+    form_error($form, t('%setting must be greater than 0.', array('%setting' => t('Issues per page'))));
+  }
+}
+
 function project_issue_cron() {
   if (time() - variable_get('project_issue_digest_last', 0) > variable_get('project_issue_digest_interval', 7 * 24 * 60 * 60)) {
     variable_set('project_issue_digest_last', time());
@@ -146,8 +172,9 @@ function project_issue_cron() {
     project_mail_reminder();
   }
 
-  $result = db_query(db_rewrite_sql('SELECT p.nid, p.pid, p.category, p.component, p.priority, p.rid, p.assigned, p.sid, n.title FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1 AND p.sid = 2 AND n.changed < %d', 'p'), time() - 14 * 24 * 60 * 60);
+  $result = db_query('SELECT p.nid, p.pid, p.category, p.component, p.priority, p.rid, p.assigned, p.sid, n.title FROM {project_issues} p INNER JOIN {node} n ON n.nid = p.nid WHERE n.status = 1 AND p.sid = 2 AND n.changed < %d', time() - 14 * 24 * 60 * 60);
   while ($node = db_fetch_object($result)) {
+    unset($comment); // Make sure we start with a clean object every time.
     foreach (array('nid', 'pid', 'category', 'component', 'priority', 'rid', 'assigned', 'title') as $var) {
       $comment->$var = $node->$var;
     }
@@ -461,6 +488,19 @@ function project_issue_project_edit_form($node) {
 }
 
 /**
+ * Validation handler when project admins use the issues subtab.
+ * @see project_issue_project_edit_issues
+ */
+function project_issue_project_edit_form_validate($form_id, $form_values) {
+  if (!empty($form_values['mail_digest']) && ($data = user_validate_mail($form_values['mail_digest']))) {
+    form_set_error('mail_digest', $data);
+  }
+  if (!empty($form_values['mail_copy']) && ($data = user_validate_mail($form_values['mail_copy']))) {
+    form_set_error('mail_copy', $data);
+  }
+}
+
+/**
  * Submit handler when project admins use the issues subtab.
  * @see project_issue_project_edit_issues
  */
@@ -569,6 +609,7 @@ function project_issue_user_page($arg = 0) {
   while ($node = db_fetch_object($result)) {
     $node_obj = node_load($node->nid);
     $node->is_admin = node_access('update', $node_obj);
+    $node->issues = $node_obj->issues;
     if ($node->is_admin) {
       $any_admin = TRUE;
     }
@@ -603,36 +644,53 @@ function project_issue_user_page($arg = 0) {
         );
       }
     }
-    $row = array(
-      array(
-        'data' => l($node->title, "node/$node->nid"),
-        'class' => 'project-name',
-      ),
-      array(
-        'data' => $node->max_issue_changed ? format_interval(time() - $node->max_issue_changed, 2) : t('n/a'),
-        'class' => 'project-issue-updated',
-      ),
-      array(
-        'data' => "$node->count open",
-        'class' => 'project-issues', 'align' => 'right',
-      ),
-      array(
-        'data' => theme('links', $issue_links),
-        'class' => 'project-issue-links',
-      ),
-      array(
-        'data' => format_interval(time() - $node->changed, 2),
-        'class' => 'project-project-updated',
-      ),
-    );
-    if ($node->is_admin) {
-      $row[] = array(
-        'data' => theme('links', $project_links),
-        'class' => 'project-project-links',
+    if ($node->issues) {
+      $row = array(
+        array(
+          'data' => l($node->title, "node/$node->nid"),
+          'class' => 'project-name',
+        ),
+        array(
+          'data' => $node->max_issue_changed ? format_interval(time() - $node->max_issue_changed, 2) : t('n/a'),
+          'class' => 'project-issue-updated',
+        ),
+        array(
+          'data' => "$node->count open",
+          'class' => 'project-issues', 'align' => 'right',
+        ),
+        array(
+          'data' => theme('links', $issue_links),
+          'class' => 'project-issue-links',
+        ),
+        array(
+          'data' => format_interval(time() - $node->changed, 2),
+          'class' => 'project-project-updated',
+        ),
       );
+      if ($node->is_admin) {
+        $row[] = array(
+          'data' => theme('links', $project_links),
+          'class' => 'project-project-links',
+        );
+      }
+      elseif ($any_admin) {
+        $row[] = array();
+      }
     }
-    elseif ($any_admin) {
-      $row[] = array();
+    else {
+      $row = array(
+        array(
+          'data' => l($node->title, "node/$node->nid"),
+          'class' => 'project-name',
+        ),
+        array(
+          'data' => t('Issue tracking is disabled for this project.'),
+          'colspan' => $any_admin ? '4' : '3',
+        ),
+        array(
+          'data' => l(t('Enable'), "node/$node->nid/edit/issues", array(), drupal_get_destination())
+        ),
+      );
     }
     $rows[] = $row;
     $query->projects[] = $node->nid;
@@ -724,11 +782,12 @@ function project_issue_project_insert($node) {
 }
 
 function project_issue_project_delete($node) {
-  // TODO: first we need to DELETE FROM {project_comments} using a
-  // subselect against {project_issues} to map the project nid from
-  // $node to the issue nids in {project_comments}.
+  // Delete all associated issues.
+  $issues = db_query('SELECT nid FROM {project_issues} WHERE pid = %d', $node->nid);
+  while ($issue = db_fetch_object($issues)) {
+    node_delete($issue->nid);
+  }
   db_query('DELETE FROM {project_issue_projects} WHERE nid = %d', $node->nid);
-  db_query('DELETE FROM {project_issues} WHERE pid = %d', $node->nid);
   db_query('DELETE FROM {project_subscriptions} WHERE nid = %d', $node->nid);
 }
 
@@ -832,4 +891,33 @@ function _project_issue_roles($permission) {
     $roles = user_roles(empty($roles[DRUPAL_ANONYMOUS_RID]));
   }
   return $roles;
+}
+
+/**
+ * Set the breadcrumb trail for project issues and issue followups.
+ *
+ * @param $node
+ *   The issue node object.
+ * @param $project
+ *   The project node object.
+ */
+function project_issue_set_breadcrumb($node, $project) {
+  $extra = array();
+  $extra[] = l($project->title, 'node/'. $project->nid);
+  $extra[] = l(t('Issues'), 'project/issues/'. $project->uri);
+  // Add the issue title if we're on a followup page.
+  if (project_issue_is_followup()) {
+    $extra[] = l($node->title, 'node/'. $node->nid);
+  }
+  project_project_set_breadcrumb($project, $extra);
+}
+
+/**
+ * Test to determine if the active page is the followup form.
+ *
+ * @return
+ *   TRUE if the active page is the followup form, FALSE otherwise.
+ */
+function project_issue_is_followup() {
+  return arg(0) == 'project' && arg(1) == 'comments' && arg(2) == 'add' && is_numeric(arg(3));
 }

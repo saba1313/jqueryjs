@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 
-// $Id: package-release-nodes.php,v 1.21 2007/08/07 15:42:12 dww Exp $
-// $Name: DRUPAL-5--1-0 $
+// $Id: package-release-nodes.php,v 1.23 2007/10/07 05:31:32 dww Exp $
+// $Name: DRUPAL-5--1-1 $
 
 /**
  * @file
@@ -12,7 +12,7 @@
  *
  * TODO:
  * - translation stats
- * 
+ *
  */
 
 // ------------------------------------------------------------
@@ -25,7 +25,7 @@
 $drupal_root = '';
 
 // The name of your site. Required so that when we bootstrap Drupal in
-// this script, we find the right settings.php file in your sites folder. 
+// this script, we find the right settings.php file in your sites folder.
 // For example, on drupal.org:
 // $site_name = 'drupal.org';
 $site_name = '';
@@ -167,6 +167,7 @@ elseif ($task == 'repair') {
 // ------------------------------------------------------------
 
 function package_releases($type, $project_id) {
+  global $wd_err_msg;
   if ($type == 'tag') {
     $where = " AND (prn.rebuild = 0) AND (prn.file_path = '')";
     $plural = t('tags');
@@ -198,6 +199,7 @@ function package_releases($type, $project_id) {
   $num_considered = 0;
   $project_nids = array();
   while ($release = db_fetch_object($query)) {
+    $wd_err_msg = array();
     $version = $release->version;
     $uri = $release->uri;
     $tag = $release->tag;
@@ -207,6 +209,7 @@ function package_releases($type, $project_id) {
     $uri = escapeshellcmd($uri);
     $version = escapeshellcmd($version);
     $rev = escapeshellcmd($rev);
+    db_query("DELETE FROM {project_release_package_errors} WHERE nid = %d", $nid);
     if ($release->rid == 1) {
       $built = package_release_core($nid, $uri, $version, $rev);
     }
@@ -219,6 +222,9 @@ function package_releases($type, $project_id) {
       $project_nids[$pid] = TRUE;
     }
     $num_considered++;
+    if (count($wd_err_msg)) {
+      db_query("INSERT INTO {project_release_package_errors} (nid, messages) values (%d, '%s')", $nid, serialize($wd_err_msg));
+    }
   }
   if ($num_built || $type == 'branch') {
     if (!empty($project_id)) {
@@ -497,7 +503,7 @@ function verify_packages($task, $project_id) {
       wd_check(t('File md5hash for %file is incorrect: saved: @db_hash, real: @real_hash', $variables), $view_link);
     }
 
-    if (!$do_repair) { 
+    if (!$do_repair) {
       $num_need_repair++;
     }
     else if (!db_query("UPDATE {project_release_nodes} SET file_hash = '%s', file_date = %d WHERE nid = %d", $real_hash, $real_date, $nid)) {
@@ -589,8 +595,13 @@ function wd_msg($msg, $link = NULL) {
  * Wrapper function for watchdog() to log error messages.
  */
 function wd_err($msg, $link = NULL) {
+  global $wd_err_msg;
+  if (!isset($wd_err_msg)) {
+    $wd_err_msg = array();
+  }
   watchdog('package_error', $msg, WATCHDOG_ERROR, $link);
   echo $msg ."\n";
+  $wd_err_msg[] = $msg;
 }
 
 /**
@@ -666,11 +677,11 @@ function fix_info_file_version($file, $uri, $version) {
     wd_err(t("ERROR: chmod(@file, 0644) failed", array('@file' => $file)));
     return false;
   }
-  if (!$info_fd = fopen($file, 'ab')) { 
+  if (!$info_fd = fopen($file, 'ab')) {
     wd_err(t("ERROR: fopen(@file, 'ab') failed", array('@file' => $file)));
     return false;
   }
-  if (!fwrite($info_fd, $info)) { 
+  if (!fwrite($info_fd, $info)) {
     wd_err(t("ERROR: fwrite(@file) failed", array('@file' => $file)) . '<pre>' . $info);
     return false;
   }

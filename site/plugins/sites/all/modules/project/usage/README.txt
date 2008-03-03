@@ -12,4 +12,4 @@ This module was written by:
 - Derek Wright (http://drupal.org/user/46549) "dww"
 
 $Id: README.txt,v 1.1 2007/08/07 20:21:33 dww Exp $
-$Name: DRUPAL-5--1-0 $
+$Name: DRUPAL-5--1-1 $

@@ -1,6 +1,6 @@
 <?php
-// $Id: comment.inc,v 1.85 2007/08/19 23:23:37 dww Exp $
-// $Name: DRUPAL-5--1-1 $
+// $Id: comment.inc,v 1.85.2.2 2008/01/30 22:54:57 thehunmonkgroup Exp $
+// $Name: DRUPAL-5--1-3 $
 
 function project_comment_page($op, $nid) {
 
@@ -22,10 +22,7 @@ function project_comment_page($op, $nid) {
 
     // set breadcrumb
     $project = node_load(array('nid' => $node->pid));
-    $breadcrumb[] = l($project->title, 'node/'. $project->nid);
-    $breadcrumb[] = l(t('Issues'), 'project/issues/'. $project->uri);
-    $breadcrumb[] = l($node->title, 'node/'. $node->nid);
-    project_project_set_breadcrumb($project, $breadcrumb);
+    project_issue_set_breadcrumb($node, $project);
 
     drupal_set_title(t('New comment'));
     switch ($_POST['op'] ? $_POST['op'] : arg(2)) {
@@ -170,15 +167,15 @@ function _project_comment_view_single($comment, $count) {
     if (isset($comment->old->$field) && isset($comment->new->$field)) {
       $summary[] = array(
         $text .':',
-        project_mail_summary($field, $comment->old->$field),
-        '&raquo; '. project_mail_summary($field, $comment->new->$field)
+        check_plain(project_mail_summary($field, $comment->old->$field)),
+        '&raquo; '. check_plain(project_mail_summary($field, $comment->new->$field))
       );
     }
     elseif (isset($node->$field) && isset($comment->$field) && $node->$field != $comment->$field ) {
       $summary[] = array(
         $text .':',
-        project_mail_summary($field, $node->$field),
-        '&raquo; '. project_mail_summary($field, $comment->$field)
+        check_plain(project_mail_summary($field, $node->$field)),
+        '&raquo; '. check_plain(project_mail_summary($field, $comment->$field))
       );
     }
   }

@@ -1,6 +1,6 @@
 <?php
-// $Id: project_issue.install,v 1.17 2007/08/22 16:19:51 thehunmonkgroup Exp $
-// $Name: DRUPAL-5--1-1 $
+// $Id: project_issue.install,v 1.17.2.1 2007/10/07 21:43:36 thehunmonkgroup Exp $
+// $Name: DRUPAL-5--1-3 $
 
 function project_issue_install() {
   // We need to check this before we try to create the table, so that
@@ -221,7 +221,7 @@ function project_issue_init_state($sid, $name, $weight, $author, $query) {
  *
  */
 function project_issue_add_missing_projects() {
-  $projects = db_query("SELECT n.nid, pip.nid AS pip_nid FROM {node} n LEFT JOIN project_issue_projects pip ON n.nid = pip.nid WHERE n.type = 'project_project' AND pip.nid IS NULL");
+  $projects = db_query("SELECT n.nid, pip.nid AS pip_nid FROM {node} n LEFT JOIN {project_issue_projects} pip ON n.nid = pip.nid WHERE n.type = 'project_project' AND pip.nid IS NULL");
   while ($project = db_fetch_object($projects)) {
     db_query('INSERT INTO {project_issue_projects} (nid) VALUES (%d)', $project->nid);
   }

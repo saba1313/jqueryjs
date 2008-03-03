@@ -1,6 +1,6 @@
 <?php
-// $Id: mail.inc,v 1.74 2007/09/20 17:09:59 thehunmonkgroup Exp $
-// $Name: DRUPAL-5--1-1 $
+// $Id: mail.inc,v 1.76.2.9 2008/01/30 22:54:57 thehunmonkgroup Exp $
+// $Name: DRUPAL-5--1-3 $
 
 function project_issue_mailhandler($node, $result, $i, $header, $mailbox) {
   if ($node->type == 'project') {
@@ -86,7 +86,7 @@ function project_issue_mailhandler($node, $result, $i, $header, $mailbox) {
       }
 
       if (empty($entry->nid)) {
-        $entry->sid = 1;
+        $entry->sid = variable_get('project_issue_default_state', 1);
         $entry->type = 'project_issue';
         $entry = node_validate($entry, $error);
         $error or ($entry->nid = node_save($entry));
@@ -137,8 +137,9 @@ function project_mail_output(&$body, $html = 1, $format = FILTER_FORMAT_DEFAULT)
   static $i = 0;
 
   if ($html) {
-    $pattern = '@(<a href="(.+?)">(.+?)</a>)@ei';
+    $pattern = '@<a +([^ >]+ )*?href *= *"([^>"]+?)"[^>]*>([^<]+?)</a>@ei';
     $body = preg_replace($pattern, "'\\3 ['. project_mail_urls('\\2') .']'", $body);
+    $body = check_markup($body, $format, FALSE);
     $urls = project_mail_urls();
     if (count($urls)) {
       $body .= "\n";
@@ -147,7 +148,6 @@ function project_mail_output(&$body, $html = 1, $format = FILTER_FORMAT_DEFAULT)
       }
     }
 
-    $body = check_markup($body, $format, false);
     $body = preg_replace('!</?blockquote>!i', '"', $body);
     $body = preg_replace('!</?(em|i)>!i', '/', $body);
     $body = preg_replace('!</?(b|strong)>!i', '*', $body);
@@ -164,13 +164,18 @@ function project_mail_output(&$body, $html = 1, $format = FILTER_FORMAT_DEFAULT)
   }
 }
 
+/**
+ * Provide the text displayed to a user for a specific metadata field.
+ * @return
+ *   Text to display to user. Note: this value is unfiltered!
+ */
 function project_mail_summary($field, $value) {
   switch ($field) {
     case 'pid':
       $project = node_load(array('nid' => $value, 'type' => 'project_project'));
       return $project->title;
     case 'category':
-      return $value ? project_issue_category($value) : t('<none>');
+      return $value ? project_issue_category($value, 0) : t('<none>');
     case 'priority':
       return $value ? project_issue_priority($value) : t('<none>');
     case 'rid':
@@ -187,15 +192,17 @@ function project_mail_summary($field, $value) {
       return t('<none>');
     case 'assigned':
       $user = user_load(array('uid' => $value));
-      return $user->name;
+      return $value === 0 ? variable_get('anonymous', t('Anonymous')) : $user->name;
     case 'sid':
       return $value ? project_issue_state($value) : t('<none>');
     default:
-      return check_plain($value);
+      return $value;
   }
 }
 
 function project_mail_notify($node) {
+  global $user;
+
   if (defined('PROJECT_NOMAIL')) {
     return;
   }
@@ -270,22 +277,23 @@ function project_mail_notify($node) {
   $hr = str_repeat('-', 72);
 
   // Create mail header
-  $sender->name = mime_header_encode(($pos = strpos($node->updator, '@')) ? drupal_substr($node->updator, 0, $pos) : $node->updator);
-  $sender->mail = $project->mail;
+  $sender->name = mime_header_encode(t('!name (!site)', array('!name' => $user->name, '!site' => variable_get('site_name', 'Drupal'))));
+  $sender->mail = strtr(variable_get('project_issue_reply_to', variable_get('site_mail', ini_get('sendmail_from'))), array('%project' => $project->uri));
+  // The sender name is enclosed by double quotes below
+  // to satisfy RFC2822 <http://www.faqs.org/rfcs/rfc2822.html>,
+  // which requires double quotes when special characters (including
+  // some punctuation) are used.  See example in Appendix A.1.2.
+  $from = "\"$sender->name\" <$sender->mail>";
   $domain = preg_replace('|.+://([a-zA-Z0-9\._-]+).*|', '\1', $GLOBALS['base_url']);
   $header = array(
     'Return-Path' => "<$sender->mail>",
     'Date' => date('r'),
-    'From' => "$sender->name <$sender->mail>",
     'X-Mailer' => 'Drupal Project module (http://drupal.org/project/project)',
     'List-Id' => "$project->title <$project->uri-issues-$domain>",
     'List-Archive' => '<'. url("project/issues/$project->uri", NULL, NULL, 1) .'>',
     'List-Subscribe' => '<'. url("node/$project->uri", NULL, NULL, 1) .'>',
     'List-Unsubscribe' => '<'. url("node/$project->uri", NULL, NULL, 1) .'>'
   );
-  if ($replyto = variable_get('project_reply_to', '')) {
-    $header['Reply-To'] = "$project->title <$replyto>";
-  }
 
   if (count($history)) {
     $prev = end($history);
@@ -326,10 +334,10 @@ function project_mail_notify($node) {
   }
 
   project_mail_output($node->title, 0);
-  $node->title = "[$project->title " . t("$node->category") ."] $node->title";
+  $subject = t('[!short_name] [!category] !title', array('!short_name' => $project->uri, '!category' => $node->category, '!title' => $node->title));
 
   while ($recipient = db_fetch_object($result)) {
-    drupal_mail('project_issue_update', $recipient->mail, $node->title, $body, NULL, $header);
+    drupal_mail('project_issue_update', $recipient->mail, $subject, $body, $from, $header);
   }
 
   if (is_array($project->mail_copy_filter) && count(array_filter($project->mail_copy_filter)) && !$project->mail_copy_filter[$node->category]) {
@@ -341,11 +349,14 @@ function project_mail_notify($node) {
   }
 
   if ($project->mail_copy) {
-    drupal_mail('project_issue_update', $project->mail_copy, $node->title, $body, NULL, $header);
+    drupal_mail('project_issue_update', $project->mail_copy, $subject, $body, $from, $header);
   }
 }
 
 function project_mail_reminder() {
+  if (defined('PROJECT_NOMAIL')) {
+    return;
+  }
   $projects = array();
   $result = db_query(db_rewrite_sql('SELECT p.nid, n.title FROM {project_issue_projects} p INNER JOIN {node} n ON p.nid = n.nid WHERE p.mail_reminder = 1 AND n.status = 1', 'p'));
   while ($project = db_fetch_object($result)) {
@@ -397,6 +408,9 @@ function project_mail_reminder() {
 }
 
 function project_mail_digest() {
+  if (defined('PROJECT_NOMAIL')) {
+    return;
+  }
   $body = array();
   $header = array(
     'Date' => date('r'),

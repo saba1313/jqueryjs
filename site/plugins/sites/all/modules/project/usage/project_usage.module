@@ -1,24 +1,24 @@
 <?php
-// $Id: project_usage.module,v 1.4 2007/08/14 00:51:53 dww Exp $
-// $Name: DRUPAL-5--1-0 $
+// $Id: project_usage.module,v 1.6 2007/09/14 16:17:55 dww Exp $
+// $Name: DRUPAL-5--1-1 $
 
 /**
  * @file
  *
- * This module provides logging of the requests sent by the 
- * update_status.module (contrib in 5.x) and update.module (core in 6.x) to the 
- * project_release.module on updates.drupal.org. The 
- * release/project-release-serve-history.php script inserts data into the 
+ * This module provides logging of the requests sent by the
+ * update_status.module (contrib in 5.x) and update.module (core in 6.x) to the
+ * project_release.module on updates.drupal.org. The
+ * release/project-release-serve-history.php script inserts data into the
  * {project_usage_raw} table created by this module.
- * 
+ *
  * On a daily basis the usage data is matched to project and release nodes
  * and moved into the {project_usage_day} table. On a weekly basis the daily
  * usage data is tallied and stored in the {project_usage_week} table.
- * 
- * This data is then used to compute live usage statistics about all projects 
+ *
+ * This data is then used to compute live usage statistics about all projects
  * hosted on drupal.org. In theory, another site could setup
- * update_status.module-style checking to their own project.module-based 
- * server, in which case, they might want to enable this module. Otherwise, 
+ * update_status.module-style checking to their own project.module-based
+ * server, in which case, they might want to enable this module. Otherwise,
  * sites should just leave this disabled.
  */
 
@@ -87,7 +87,7 @@ function project_usage_settings_form() {
 
 /**
  * Implementation of hook_cron().
- * 
+ *
  * Call the daily and weekly processing tasks as needed.
  */
 function project_usage_cron() {
@@ -105,21 +105,20 @@ function project_usage_cron() {
   $last_weekly = variable_get('project_usage_last_weekly', $default);
   if ($last_weekly <= ($now - PROJECT_USAGE_WEEK)) {
     project_usage_process_weekly($last_weekly);
-    variable_set('project_usage_last_weekly', $now); 
+    variable_set('project_usage_last_weekly', $now);
   }
 }
 
 /**
- * Process all the raw data up to the previous day. 
- * 
+ * Process all the raw data up to the previous day.
+ *
  * The primary key on the {project_usage_raw} table will prevent duplicate
  * records provided we process them once the day is complete. If we pull them
  * out too soon and the site checks in again they will be counted twice.
  */
 function project_usage_process_daily() {
   // Timestamp for begining of the previous day.
-  $d = getdate(isset($timestamp) ? $timestamp : time());
-  $timestamp = mktime(0, 0, 0, $d['mon'], $d['mday'] - 1, $d['year']);
+  $timestamp = project_usage_daily_timestamp(NULL, 1);
 
   watchdog('project_usage', t('Starting to process daily usage data for @date.', array('@date' => format_date($timestamp))));
 
@@ -162,13 +161,13 @@ function project_usage_process_daily() {
 
 /**
  * Compute the weekly summaries for the week starting at the given timestamp.
- * 
+ *
  * @param $timestamp
- *   UNIX timestamp indicating the last time weekly stats were processed. 
+ *   UNIX timestamp indicating the last time weekly stats were processed.
  */
 function project_usage_process_weekly($timestamp) {
   watchdog('project_usage', t('Starting to process weekly usage data.'));
-  
+
   // Get all the weeks since we last ran.
   $weeks = project_usage_get_weeks_since($timestamp);
   // Skip the last entry since it's the current, incomplete week.
@@ -189,11 +188,11 @@ function project_usage_process_weekly($timestamp) {
 
   // Remove any tallies that have aged out.
   $now = time();
-  $project_life = variable_get('project_usage_life_weekly_project', PROJECT_USAGE_YEAR); 
+  $project_life = variable_get('project_usage_life_weekly_project', PROJECT_USAGE_YEAR);
   db_query("DELETE FROM {project_usage_week_project} WHERE timestamp < %d", $now - $project_life);
   watchdog('project_usage', t('Removed old weekly project rows.'));
 
-  $release_life = variable_get('project_usage_life_weekly_release', 26 * PROJECT_USAGE_WEEK); 
+  $release_life = variable_get('project_usage_life_weekly_release', 26 * PROJECT_USAGE_WEEK);
   db_query("DELETE FROM {project_usage_week_release} WHERE timestamp < %d", $now - $release_life);
   watchdog('project_usage', t('Removed old weekly release rows.'));
 
@@ -201,30 +200,90 @@ function project_usage_process_weekly($timestamp) {
 }
 
 /**
- * Compute the start of the weeks from a given timestamp up to the start of the
- * curent week.
+ * getdate() with timezone adjustment.
+ *
+ * PHP's getdate() is affected by the server's timezone. We need to cancel it
+ * out so everything is GMT.
+ *
+ * @param $timestamp
+ *   An optional, integer UNIX timestamp.
+ * @return
+ *   An array with results identical to PHP's getdate().
+ */
+function project_usage_gmgetdate($timestamp = NULL) {
+  $timestamp = isset($timestamp) ? $timestamp : time();
+  $gmt_offset = (int) date('Z', $timestamp);
+  return getdate($timestamp - $gmt_offset);
+}
+
+/**
+ * Compute a timestamp for the beginning of a day N days ago.
+ *
+ * @param $time
+ *   Mixed, either a GMT timestamp or an array returned by
+ *   project_usage_gmgetdate().
+ * @param $days_ago
+ *   An integer specifying a number of days previous. A value of 0 indicates
+ *   the current day.
+ * @return
+ *   GMT UNIX timestamp.
+ */
+function project_usage_daily_timestamp($time = NULL, $days_ago = 0) {
+  $time_parts = is_array($time) ? $time : project_usage_gmgetdate($time);
+  $day = $time_parts['mday'] - $days_ago;
+  return gmmktime(0, 0, 0, $time_parts['mon'], $day, $time_parts['year']);
+}
+
+/**
+ * Compute a timestamp for the beginning of a week N weeks ago.
+ *
+ * @param $time
+ *   Mixed. Integer timestamp or an array returned by project_usage_gmgetdate().
+ * @param $weeks_ago
+ *   An integer specifying a number of weeks previous. A value of 0 indicates
+ *   the current week.
+ * @return
+ *   GMT UNIX timestamp.
+ */
+function project_usage_weekly_timestamp($time = NULL, $weeks_ago = 0) {
+  $time_parts = is_array($time) ? $time : project_usage_gmgetdate($time);
+  $day = $time_parts['mday'] - $time_parts['wday'] + (7 * $weeks_ago);
+  return gmmktime(0, 0, 0, $time_parts['mon'], $day, $time_parts['year']);
+}
+
+/**
+ * Build an array of timestamps for the beginning (midnight Sunday) for each
+ * week since a given timestamp.
  *
  * @param $timestamp
  *   UNIX timestamp. The first returned timestamp will be the beginning of the
  *   week with this time in it.
  * @return
- *   An array of timestamps the first value is the week containing $timestamp.
- *   Each subsequent value is the time stamp of the next week. The final value
- *   contains the beginning of the current week.
+ *   An array of GMT timestamps sorted in ascending order. The first value is
+ *   is the week containing $timestamp. Each subsequent value is the timestamp
+ *   for the next week. The final value is the beginning of the current week.
  */
 function project_usage_get_weeks_since($timestamp) {
   $times = array();
 
-  // Compute the start of the current week so we know when to stop.
-  $d = getdate();
-  $this_week = mktime(0, 0, 0, $d['mon'], $d['mday'] - $d['wday'], $d['year']);
+  // First, compute the start of the current week so we know when to stop...
+  $this_week = project_usage_weekly_timestamp();
 
-  // Then compute all the weeks before that.
-  $d = getdate($timestamp);
+  // ...then compute all the weeks up to that.
+  $parts = project_usage_gmgetdate($timestamp);
   $i = 0;
   do {
-    $times[$i] = mktime(0, 0, 0, $d['mon'], $d['mday'] - $d['wday'] + (7 * $i), $d['year']);
+    $times[$i] = project_usage_weekly_timestamp($parts, $i);
   } while ($times[$i++] < $this_week);
 
   return $times;
+}
+
+/**
+* Implementation of hook_simpletest().
+*/
+function project_usage_simpletest() {
+  $dir = drupal_get_path('module', 'project_usage'). '/tests';
+  $tests = file_scan_directory($dir, '\.test$');
+  return array_keys($tests);
 }

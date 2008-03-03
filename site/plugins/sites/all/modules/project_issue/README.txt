@@ -15,4 +15,4 @@ The project family of modules is currently being co-maintained by:
 - Chad Phillips (http://drupal.org/user/22079) a.k.a. "hunmonk"
 
 $Id: README.txt,v 1.3 2007/08/07 20:02:27 dww Exp $
-$Name: DRUPAL-5--1-1 $
+$Name: DRUPAL-5--1-3 $

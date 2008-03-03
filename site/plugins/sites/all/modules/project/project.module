@@ -1,6 +1,6 @@
 <?php
-// $Id: project.module,v 1.291 2007/08/19 23:23:37 dww Exp $
-// $Name: DRUPAL-5--1-0 $
+// $Id: project.module,v 1.306 2008/01/06 21:05:26 thehunmonkgroup Exp $
+// $Name: DRUPAL-5--1-1 $
 
 $path = drupal_get_path('module', 'project');
 if (file_exists("$path/project.inc")) {
@@ -103,13 +103,11 @@ function project_perm() {
 function project_db_rewrite_sql($query, $primary_table, $primary_field) {
   if ($primary_field == 'nid') {
     $return = array();
-    $types = "'project_project'";
     $access_projects = user_access('access projects');
     $admin_projects = user_access('administer projects');
     if (module_exists('project_issue')) {
       $access_issues = user_access('access project issues');
       $access_own_issues = user_access('access own project issues');
-      $types .= ", 'project_issue'";
     }
     else {
       $access_issues = TRUE;
@@ -138,18 +136,30 @@ function project_db_rewrite_sql($query, $primary_table, $primary_field) {
     // the {node} table's alias is in the query.
     $where = array();
 
-    // First, if the type is not one of the project* ones, we don't care.
-    $where[] = "($alias.type NOT IN ($types))";
-
-    // Now, see if the current user can access their own, and allow those.
     global $user;
     $uid = $user->uid;
-    if (!$access_projects && user_access('access own projects')) {
-      $where[] = "($alias.type = 'project_project' AND $alias.uid = $uid)";
+
+    // Some node types will be restriced by our query, but we want to allow
+    // every other node type. We keep track of the types we're handling, and
+    // at the end we'll add a clause to ignore/allow all other types.
+    $restricted_types = array();
+
+    if (!$access_projects) {
+      $restricted_types[] = "'project_project'";
+      if (user_access('access own projects')) {
+        $where[] = "($alias.type = 'project_project' AND $alias.uid = $uid)";
+      }
     }
-    if (!$access_issues && $access_own_issues) {
-      $where[] = "($alias.type = 'project_issue' AND $alias.uid = $uid)";
+
+    if (module_exists('project_issue') && !$access_issues) {
+      $restricted_types[] = "'project_issue'";
+      if ($access_own_issues) {
+        $where[] = "($alias.type = 'project_issue' AND $alias.uid = $uid)";
+      }
     }
+
+    // If the type is not one of the restricted project* ones, allow access.
+    $where[] = "($alias.type NOT IN (". implode(', ', $restricted_types) ."))";
 
     // Now that we have all our WHERE clauses, we just OR them all together.
     $return['where'] = implode(' OR ', $where);
@@ -225,7 +235,7 @@ function project_settings_form() {
       $form['sort_methods']['project_sort_method_used_' . $term->tid] = array(
         '#type' => 'checkboxes',
         '#title' => $term->name,
-        '#default_value' => variable_get('project_sort_method_used_' . $term->tid, array_keys($sort_methods)),
+        '#default_value' => array_filter(variable_get('project_sort_method_used_'. $term->tid, array_keys($sort_methods))),
         '#options' => $sort_methods,
       );
     }
@@ -237,17 +247,7 @@ function project_settings_form() {
     '#description' => t('The default maximum number of projects to list when browsing lists, e.g., by category.')
   );
 
-  // Custom submit handler
-  $form['#submit']['project_settings_form_extra_submit'] = array();
-  // system_settings_form() doesn't add the default if #submit already exists.
-  $form['#submit']['system_settings_form_submit'] = array();
   return system_settings_form($form);
-}
-
-function project_settings_form_extra_submit($form_id, $form_values) {
-  // If the project_sort_method setting has changed, the menu will
-  // need to be rebuilt.
-  menu_rebuild();
 }
 
 /**
@@ -341,6 +341,7 @@ function project_menu($may_cache) {
 
     // Project browsing pages
     if (project_use_taxonomy()) {
+      $default_sort = variable_get('project_sort_method', 'category');
       $sort_methods = module_invoke_all('project_sort_methods', 'methods');
       $terms = taxonomy_get_tree(_project_get_vid());
       $releases = variable_get('project_release_browse_versions', 0);
@@ -354,13 +355,15 @@ function project_menu($may_cache) {
                            'weight' => $term->weight,
                            'callback arguments' => array($term->name));
           $j = 0;
-          $term_methods = array_filter(variable_get('project_sort_method_used_' . $term->tid, $sort_methods));
+          $term_methods = array_keys(array_filter(variable_get('project_sort_method_used_'. $term->tid, $sort_methods)));
           foreach ($term_methods as $sort_method) {
             $items[] = array('path' => 'project/' . $term->name . '/'. $sort_method,
                  'title' => t('Browse by !sort_method', array('!sort_method' => $sort_method)),
                  'access' => $access,
-                 'type' => (($sort_method == variable_get('project_sort_method', 'category') || (($j == 0) && !in_array(variable_get('project_sort_method', 'category'), $term_methods))) ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK),
-                 'weight' => ($sort_method == variable_get('project_sort_method', 'category')) ? -10 : $j,
+                 // It's a default task if a) sort method matches default, or b) default sort isn't
+                 // in the list of sort methods, and it's the first tab.
+                 'type' => (($sort_method == $default_sort || (($j == 0) && !in_array($default_sort, $term_methods))) ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK),
+                 'weight' => ($sort_method == $default_sort) ? -10 : $j,
                  'callback arguments' => array($term->name, $sort_method));
             $j++;
           }
@@ -517,8 +520,9 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
   project_project_set_breadcrumb();
   $sort_methods = module_invoke_all('project_sort_methods', 'methods');
 
+  $output = '';
   if (module_exists('project_release') && variable_get('project_release_browse_versions', 0)) {
-    $version_form = drupal_get_form('project_release_version_filter_form', $version);
+    $version_form = drupal_get_form('project_release_version_filter_form');
     $output .= $version_form;
     // Read in requested version, if any.
     $version = isset($_SESSION['project_version']) ? $_SESSION['project_version'] : variable_get('project_release_overview', -1);
@@ -529,7 +533,11 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
     $vid = _project_get_vid();
     if ($termname) {
 
-      $type = db_fetch_object(db_query(db_rewrite_sql("SELECT t.tid, t.* FROM {term_data} t WHERE t.vid = %d AND t.name = '%s'", 't', 'tid'), $vid, $termname));
+      $type = db_fetch_object(db_query(db_rewrite_sql("SELECT t.tid, t.* FROM {term_data} t INNER JOIN {term_hierarchy} th ON t.tid = th.tid WHERE t.vid = %d AND th.parent = 0 AND t.name = '%s'", 't', 'tid'), $vid, $termname));
+      // Bad project category passed, return page not found.
+      if (!$type) {
+        return drupal_not_found();
+      }
       if (!$sort_method) {
         // For the default, we use the overall default if enabled for this term, and if not we use the first enabled method.
         $term_methods = array_filter(variable_get('project_sort_method_used_' . $type->tid, array_keys($sort_methods)));
@@ -541,6 +549,10 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
       }
 
       $module = $sort_methods[$sort_method];
+      // Bad sort method passed, return page not found.
+      if (!isset($module)) {
+        return drupal_not_found();
+      }
       if (module_invoke($module, 'project_sort_methods', 'set term', $sort_method)) {
         $tree = taxonomy_get_tree(_project_get_vid(), $type->tid);
         $terms = array();
@@ -584,66 +596,43 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
           }
         }
 
-        if (arg(3) && is_numeric(arg(3))) {
-          $term = taxonomy_get_term(arg(3));
+        // Look for a specific category term.
+        if ($arg = arg(3)) {
+          // Bad term, return page not found.
+          if (!($term = taxonomy_get_term($arg))) {
+            return drupal_not_found();
+          }
         }
+      }
+      // The sorting method is not supported by the module, so any term passed is invalid.
+      // Return page not found if one is found.
+      elseif (arg(3)) {
+        return drupal_not_found();
       }
 
       // Set the default elements that will be used to construct the SQL statement.
-      $sql_elements = array(
-        'fields' => array(
-          'prefix' => 'SELECT ',
-          'glue' => ', ',
-          'pieces' => array(
-            'DISTINCT(n.nid)',
-            'n.title',
-            'nr.teaser',
-            'nr.format',
-          )
-        ),
-        'from' => array(
-          'prefix' => ' FROM ',
-          'glue' => NULL,
-          'pieces' => array(
-            '{node} n '
-          )
-        ),
-        'joins' => array(
-          'prefix' => '',
-          'glue' => ' ',
-          'pieces' => array(
-            'INNER JOIN {node_revisions} nr ON n.vid = nr.vid',
-            'INNER JOIN {project_projects} p ON n.nid = p.nid',
-            'LEFT JOIN {term_node} r ON n.nid = r.nid'
-          )
-        ),
-        'wheres' => array(
-          'prefix' => ' WHERE ',
-          'glue' => ' AND ',
-          'pieces' => array(
-            'n.status = 1',
-            'r.tid = %d'
-          )
-        ),
-        'group_bys' => array(
-          'prefix' => ' GROUP BY ',
-          'glue' => ', ',
-          'pieces' => array(
-          )
-        ),
-        'order_bys' => array(
-          'prefix' => ' ORDER BY ',
-          'glue' => ', ',
-          'pieces' => array(
-          )
-        ),
-        'parameters' => array(
-          'prefix' => NULL,
-          'glue' => NULL,
-          'pieces' => array(
-            isset($term) ? $term->tid : $type->tid
-          )
-        )
+      $sql_elements = project_empty_query();
+      $sql_elements['fields']['pieces'] = array(
+        'DISTINCT(n.nid)',
+        'n.title',
+        'n.sticky',
+        'nr.teaser',
+        'nr.format',
+      );
+      $sql_elements['from']['pieces'] = array(
+        '{node} n '
+      );
+      $sql_elements['joins']['pieces'] = array(
+        'INNER JOIN {node_revisions} nr ON n.vid = nr.vid',
+        'INNER JOIN {project_projects} p ON n.nid = p.nid',
+        'LEFT JOIN {term_node} r ON n.nid = r.nid'
+      );
+      $sql_elements['wheres']['pieces'] = array(
+        'n.status = 1',
+        'r.tid = %d'
+      );
+      $sql_elements['parameters']['pieces'] = array(
+        isset($term) ? $term->tid : $type->tid
       );
 
       // If the site has enabled issue tracking via the project_issue
@@ -686,7 +675,7 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
         else {
           $placeholders = array();
           $active_tids = project_release_compatibility_list();
-          foreach ($active_tids as $tid => $term) {
+          foreach ($active_tids as $tid => $compatibility_term) {
             $placeholders[] = '%d';
             $release_settings['parameters'][] = $tid;
           }
@@ -760,6 +749,10 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
   }
   // If taxonomy is not enabled, fetch all projects
   else {
+    // Any terms passed without taxonomy module enabled are bogus -- return page not found.
+    if (isset($termname)) {
+      return drupal_not_found();
+    }
     // If the site has enabled issue tracking via the project_issue
     // module, we want to add 1 more field and JOIN to our query so
     // we can provide the link for "Bugs and feature requests"...
@@ -769,6 +762,7 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
     }
     $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, nr.teaser, nr.format$ISSUES FROM {node} n INNER JOIN {node_revisions} nr ON n.vid = nr.vid $ISSUE_JOIN WHERE n.status = 1 AND n.type = 'project_project' ORDER BY n.title ASC"));
   }
+  $projects = '';
   $class = 'even';
   while ($project = db_fetch_object($result)) {
     $project->body = check_markup($project->teaser, $project->format, FALSE);
@@ -784,7 +778,7 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
     }
 
     // Make sure we have the latest release
-    if ($project->release_count > 1 && $version != -1) {
+    if (isset($project->release_count) && $project->release_count > 1 && $version != -1) {
       $latest = db_fetch_object(db_query_range("SELECT file_path, version, file_date FROM {project_release_nodes} p INNER JOIN {node} n ON p.nid = n.nid INNER JOIN {term_node} t ON p.nid = t.nid LEFT JOIN {project_release_default_versions} prdv ON p.pid = prdv.nid AND prdv.tid = t.tid AND prdv.major = p.version_major WHERE p.pid = %d AND t.tid = %d AND n.status = 1 ORDER BY prdv.nid DESC, p.rebuild ASC, p.version_major ASC, p.version_minor DESC, p.version_patch DESC, p.file_date DESC", $project->nid, $version, 0, 1));
       $project->file_path = $latest->file_path;
       $project->version = $latest->version;
@@ -821,19 +815,77 @@ function project_page_overview($termname = NULL, $sort_method = NULL) {
 
   $output .= '<div class="project" id="project-overview">' . $projects . '</div>';
 
-  if ($pager) {
+  if (!empty($pager)) {
     $output .= theme('pager', NULL, variable_get('project_browse_nodes', 30));
   }
   return $output;
 }
 
+/**
+ * Build a SQL statment from a structure array.
+ *
+ * @param $sql_elements
+ *   An array with the following keys:
+ *     'fields', 'from', 'joins', 'wheres', 'group_bys', 'order_bys',
+ *     'parameters'
+ *   Each value is an array with the following keys:
+ *     'prefix', 'glue', 'pieces'
+ * @return
+ *   SQL string.
+ */
 function project_build_query($sql_elements) {
+  $sql = '';
   foreach ($sql_elements as $key => $sql_element) {
     if ($key != 'parameters' && count($sql_element['pieces'])) {
       $sql .= $sql_element['prefix'] . implode($sql_element['glue'], $sql_element['pieces']);
     }
   }
   return db_rewrite_sql($sql);
+}
+
+/**
+ * Construct an empty query for project_build_query().
+ *
+ * Set the default elements that will be used to construct the SQL statement.
+ */
+function project_empty_query() {
+  return array(
+    'fields' => array(
+      'prefix' => 'SELECT ',
+      'glue' => ', ',
+      'pieces' => array(),
+    ),
+    'from' => array(
+      'prefix' => ' FROM ',
+      'glue' => NULL,
+      'pieces' => array(''),
+    ),
+    'joins' => array(
+      'prefix' => '',
+      'glue' => ' ',
+      'pieces' => array(),
+    ),
+    'wheres' => array(
+      'prefix' => ' WHERE ',
+      'glue' => ' AND ',
+      'pieces' => array(),
+    ),
+    'group_bys' => array(
+      'prefix' => ' GROUP BY ',
+      'glue' => ', ',
+      'pieces' => array(),
+    ),
+    'order_bys' => array(
+      'prefix' => ' ORDER BY ',
+      'glue' => ', ',
+      'pieces' => array(),
+    ),
+    'parameters' => array(
+      'prefix' => NULL,
+      'glue' => NULL,
+      'pieces' => array(),
+    )
+  );
 }
 
 // TODO: this should probably be moved to cvs.module...
@@ -1011,7 +1063,7 @@ function theme_project_term_list($terms, $path) {
   $depth = 0;
   $output = "\n<ul class=\"project-terms\">\n";
   foreach ($terms as $term) {
-    $link = l($term->name .' ('. $term->count .')', "$path/$term->tid");
+    $link = l($term->name .' ('. $term->count .')', "$path/$term->tid", array('title' => strip_tags($term->description)));
     $output .= '<li class="leaf">' . $link . "</li>\n";
   }
   $output .= "\n</ul>\n";
@@ -1032,15 +1084,15 @@ function theme_project_term_list($terms, $path) {
 function theme_project_summary($project) {
   $output = '<div class="' . $project->class . '">';
   $output .= '<h2>'. l($project->title, "node/$project->nid") .'</h2>';
-  if ($project->changed) {
+  if (!empty($project->changed)) {
     $output .= '<p><small>' . t('Last changed: !interval ago', array('!interval' => format_interval(time() - $project->changed, 2))) . '</small></p>';
   }
   $output .= $project->body;
   $output .= theme('links', $project->links);
-  if ($project->download_table) {
+  if (!empty($project->download_table)) {
     $output .= $project->download_table;
   }
-  if ($project->terms) {
+  if (!empty($project->terms)) {
     $output .= theme('links', $project->terms);
   }
   $output .= '</div>';

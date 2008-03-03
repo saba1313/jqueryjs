@@ -1,5 +1,5 @@
 <?php
-// $Id: user.module,v 1.745.2.20 2007/10/17 21:29:00 drumm Exp $
+// $Id: user.module,v 1.745.2.26 2008/01/07 02:30:35 drumm Exp $
 
 /**
  * @file
@@ -111,6 +111,11 @@ function user_save($account, $array = array(), $category = 'account') {
     user_module_invoke('update', $array, $account, $category);
 
     $data = unserialize(db_result(db_query('SELECT data FROM {users} WHERE uid = %d', $account->uid)));
+    // Consider users edited by an administrator as logged in, if they haven't
+    // already, so anonymous users can view the profile (if allowed).
+    if (empty($array['access']) && empty($account->access) && user_access('administer users')) {
+      $array['access'] = time();
+    }
     foreach ($array as $key => $value) {
       if ($key == 'pass' && !empty($value)) {
         $query .= "$key = '%s', ";
@@ -170,6 +175,11 @@ function user_save($account, $array = array(), $category = 'account') {
 
     if (!isset($array['created'])) {    // Allow 'created' to be set by hook_auth
       $array['created'] = time();
+    }
+    // Consider users created by an administrator as already logged in, so
+    // anonymous users can view the profile (if allowed).
+    if (empty($array['access']) && user_access('administer users')) {
+      $array['access'] = time();
     }
 
     // Note, we wait with saving the data column to prevent module-handled
@@ -875,10 +885,8 @@ function user_set_authmaps($account, $authmaps) {
 
 function user_auth_help_links() {
   $links = array();
-  foreach (module_list() as $module) {
-    if (module_hook($module, 'auth')) {
-      $links[] = l(module_invoke($module, 'info', 'name'), 'user/help', array(), NULL, $module);
-    }
+  foreach (module_implements('auth') as $module) {
+    $links[] = l(module_invoke($module, 'info', 'name'), 'user/help', array(), NULL, $module);
   }
   return $links;
 }
@@ -1562,7 +1570,7 @@ function _user_mail_text($messageid, $variables = array()) {
       case 'pass_subject':
         return t('Replacement login information for !username at !site', $variables);
       case 'pass_body':
-        return t("!username,\n\nA request to reset the password for your account has been made at !site.\n\nYou may now log in to !uri_brief clicking on this link or copying and pasting it in your browser:\n\n!login_url\n\nThis is a one-time login, so it can be used only once. It expires after one day and nothing will happen if it's not used.\n\nAfter logging in, you will be redirected to !edit_uri so you can change your password.", $variables);
+        return t("!username,\n\nA request to reset the password for your account has been made at !site.\n\nYou may now log in to !uri_brief by clicking on this link or copying and pasting it in your browser:\n\n!login_url\n\nThis is a one-time login, so it can be used only once. It expires after one day and nothing will happen if it's not used.\n\nAfter logging in, you will be redirected to !edit_uri so you can change your password.", $variables);
     }
   }
 }
@@ -2017,7 +2025,8 @@ function user_admin_account() {
 
   $sql = 'SELECT DISTINCT u.uid, u.name, u.status, u.created, u.access FROM {users} u LEFT JOIN {users_roles} ur ON u.uid = ur.uid '. $filter['join'] .' WHERE u.uid != 0 '. $filter['where'];
   $sql .= tablesort_sql($header);
-  $result = pager_query($sql, 50, 0, NULL, $filter['args']);
+  $query_count = 'SELECT COUNT(DISTINCT u.uid) FROM {users} u LEFT JOIN {users_roles} ur ON u.uid = ur.uid '. $filter['join'] .' WHERE u.uid != 0 '. $filter['where'];
+  $result = pager_query($sql, 50, 0, $query_count, $filter['args']);
 
   $form['options'] = array(
     '#type' => 'fieldset',
@@ -2437,6 +2446,8 @@ function _user_categories($account) {
 }
 
 function _user_sort($a, $b) {
+  $a = (array)$a + array('weight' => 0, 'title' => '');
+  $b = (array)$b + array('weight' => 0, 'title' => '');
   return $a['weight'] < $b['weight'] ? -1 : ($a['weight'] > $b['weight'] ? 1 : ($a['title'] < $b['title'] ? -1 : 1));
 }
 

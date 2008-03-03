@@ -1,5 +1,5 @@
 <?php
-// $Id: common.inc,v 1.611.2.12 2007/10/17 21:28:59 drumm Exp $
+// $Id: common.inc,v 1.611.2.15 2008/01/22 09:36:49 drumm Exp $
 
 /**
  * @file
@@ -455,6 +455,11 @@ function drupal_http_request($url, $headers = array(), $method = 'GET', $data = 
     'Content-Length' => 'Content-Length: '. strlen($data)
   );
 
+  // If the server url has a user then attempt to use basic authentication
+  if (isset($uri['user'])) {
+    $defaults['Authorization'] = 'Authorization: Basic '. base64_encode($uri['user'] . (!empty($uri['pass']) ? ":". $uri['pass'] : ''));
+  }
+
   foreach ($headers as $header => $value) {
     $defaults[$header] = $header .': '. $value;
   }
@@ -549,7 +554,7 @@ function error_handler($errno, $message, $filename, $line) {
   }
 
   if ($errno & (E_ALL ^ E_NOTICE)) {
-    $types = array(1 => 'error', 2 => 'warning', 4 => 'parse error', 8 => 'notice', 16 => 'core error', 32 => 'core warning', 64 => 'compile error', 128 => 'compile warning', 256 => 'user error', 512 => 'user warning', 1024 => 'user notice', 2048 => 'strict warning');
+    $types = array(1 => 'error', 2 => 'warning', 4 => 'parse error', 8 => 'notice', 16 => 'core error', 32 => 'core warning', 64 => 'compile error', 128 => 'compile warning', 256 => 'user error', 512 => 'user warning', 1024 => 'user notice', 2048 => 'strict warning', 4096 => 'recoverable fatal error');
     $entry = $types[$errno] .': '. $message .' in '. $filename .' on line '. $line .'.';
 
     // Force display of error messages in update.php
@@ -1267,7 +1272,7 @@ function drupal_attributes($attributes = array()) {
  *   an HTML string containing a link to the given path.
  */
 function l($text, $path, $attributes = array(), $query = NULL, $fragment = NULL, $absolute = FALSE, $html = FALSE) {
-  if ($path == $_GET['q']) {
+  if (($path == $_GET['q']) || ($path == '<front>' && drupal_is_front_page())) {
     if (isset($attributes['class'])) {
       $attributes['class'] .= ' active';
     }

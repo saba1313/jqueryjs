@@ -1,5 +1,5 @@
 <?php
-// $Id: file.inc,v 1.90.2.1 2007/05/31 05:48:58 drumm Exp $
+// $Id: file.inc,v 1.90.2.3 2008/01/07 01:00:22 drumm Exp $
 
 /**
  * @file
@@ -223,8 +223,9 @@ function file_check_upload($source = 'upload') {
     $file = new stdClass();
     $file->filename = trim(basename($_FILES["files"]["name"][$source]), '.');
 
-    // Create temporary name/path for newly uploaded files.
-    $file->filepath = tempnam(file_directory_temp(), 'tmp_');
+    // Create temporary name/path for newly uploaded files. On Windows, tempnam()
+    // requires an absolute path, so we use realpath().
+    $file->filepath = tempnam(realpath(file_directory_temp()), 'tmp_');
 
     $file->filemime = $_FILES["files"]["type"][$source];
 
@@ -523,7 +524,8 @@ function file_save_upload($source, $dest = FALSE, $replace = FILE_EXISTS_RENAME)
  */
 function file_save_data($data, $dest, $replace = FILE_EXISTS_RENAME) {
   $temp = file_directory_temp();
-  $file = tempnam($temp, 'file');
+  // On Windows, tempnam() requires an absolute path, so we use realpath().
+  $file = tempnam(realpath($temp), 'file');
   if (!$fp = fopen($file, 'wb')) {
     drupal_set_message(t('The file could not be created.'), 'error');
     return 0;
@@ -719,7 +721,7 @@ function file_directory_path() {
  * Determine the maximum file upload size by querying the PHP settings.
  *
  * @return
- *   A file size limit in MB based on the PHP upload_max_filesize and post_max_size
+ *   A file size limit in bytes based on the PHP upload_max_filesize and post_max_size
  */
 function file_upload_max_size() {
   static $max_size = -1;

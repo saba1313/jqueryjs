@@ -54,6 +54,7 @@
 		$('div.ui-colorpicker-color', this.element).slider({
 			handle: "div",
 			axis: "both",
+			distance: 0,
 			slide : function(e, ui) {
 				self.lastValues = [parseInt(ui.value.x * 255/100),parseInt(ui.value.y * 255/100)];
 				self.setGradientColor();
@@ -69,6 +70,7 @@
 
 		$('div.ui-colorpicker-hue', this.element).slider({
 			handle: "div",
+			distance: 0,
 			slide : function(e, ui) {
 				self.setVertColor(parseInt(ui.value * 255 / 100));
 				self.setGradientColor();

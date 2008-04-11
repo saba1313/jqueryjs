@@ -50,15 +50,28 @@ body
 	position:relative;
 }
 
+
+.ui-hidden {
+	left:-10000px;
+	position:absolute;
+	top:-10000px;
+	visibility:hidden;
+}
+
+.ui-progressbar-wrap {
+	position:relative;
+	height: 20px;
+}
+
 .ui-progressbar-text {
-	color:#FFFFFF;
+	color:#fff;
 	font-size:11px;
 	font-weight:bold;
 	left:0pt;
 	overflow:hidden;
 	padding:0px 5px;
-	position:absolute;
 	text-align:left;
+	position: absolute;
 }
 
 .ui-progressbar-text.right-align {
@@ -66,14 +79,19 @@ body
 	padding: 0 5px 0 0;
 }
 
-.ui-progressbar-inner {
+.ui-progressbar-text-back {
+	/*background:#E0E8F3 url(images/bg.gif) repeat-x scroll 0%;*/
+	color:#000;
+}
+
+.ui-progressbar-bar {
 	background:#9CBFEE url(images/progress-bg.gif) repeat-x scroll left center;
 	border-bottom:1px solid #7FA9E4;
 	border-right:1px solid #7FA9E4;
 	border-top:1px solid #D1E4FD;
 	height:18px;
 	width:0pt;
-	float: left;
+	position: absolute;
 }
 
 .ui-progressbar-disabled {
@@ -153,19 +171,19 @@ $(function() {
 		
 		$('#p1').progressbar({
 			
-			text: '<b>Waiting...</b>',
+			text: 'Waiting...',
 			
 			//addClass: 'ui-progressbar-inner-custom teste',
 			
-			textClass: 'right-align',
+			//textClass: 'right-align',
 			
-			align: 'right',
+			//align: 'right',
 			
 			wait: 'loop',
 			
       duration: 2000,
 			
-      increment: 5,
+      stepping: 5,
 			
 			progress: function(range, ui) {
 				//console.log(ui.pixelRange);
@@ -196,7 +214,7 @@ $(function() {
 			
       duration:1000,
 			
-      increment: 5,
+      stepping: 5,
 			
 			progress: function(range, ui) {
 				//console.log(ui.pixelRange);
@@ -220,7 +238,7 @@ $(function() {
 		
 		duration: 2000,
 		
-		increment: 30,
+		stepping: 30,
 		
 		stop: function(s, ui) {
 				console.log('stop:' + ui.instance.inprogress);

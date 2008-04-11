@@ -43,24 +43,36 @@
 		this.options = $.extend({}, $.ui.progressbar.defaults, options);
 		var o = this.options, el = this.element;
 		$.extend(o, {
-			increment: o.increment > 100 ? 100 : o.increment
+			stepping: o.stepping > 100 ? 100 : o.stepping
 		});
 		this._step = 0;
 		this.rangeValue = 0;
 		this.threads = {};
 		
-		var text = o.text ? o.text : (o.range ? '0%' : '');
+		var text = o.text ? o.text : (o.range ? '0%' : ''), elw = el.css('width'), elh = el.css('height');
 		
-		el.css({overflow: 'hidden'});
+		//el.css({overflow: 'hidden'});
+	
+		this.wrapper = $("<div class='ui-progressbar-wrap'></div>");
 		
-		this.wrapper = $("<div>")
-			.addClass('ui-progressbar-wrap').css({ height: 'auto', width: 'auto' }).appendTo(el);
+		this.bar = $("<div class='ui-progressbar-bar ui-hidden'></div>").css({
+			width: '0px', overflow: 'hidden', zIndex: 100
+		});
 		
-		this.bar = $("<div>")
-			.addClass('ui-progressbar-inner').addClass(o.addClass).css({ width: '0px', 'float': o.align || null }).appendTo(this.wrapper);
-			
-		this.textEl = $("<div>")
-			.addClass('ui-progressbar-text').addClass(o.textClass).css({ width: el.css('width'), zIndex: 99 }).html(text).appendTo(this.wrapper);
+		this.textel = $("<div class='ui-progressbar-text'></div>").css({
+			width: '0px', overflow: 'hidden'
+		})
+		.append(
+			$('<div>').html(text)
+		);
+		
+		this.textBg = $("<div class='ui-progressbar-text ui-progressbar-text-back'></div>")
+		.append(
+			$('<div>').html(text).css({	width: elw })
+		);
+		
+		this.wrapper.append(this.bar.append(this.textel), this.textBg).appendTo(el);
+		
 	};
 	
 	$.extend($.ui.progressbar.prototype, {
@@ -111,11 +123,11 @@
 					self.waitThread = null;
 				}, o.wait);
 			
-			var frames = Math.ceil(100/o.increment) || 0, ms = o.duration/frames || 0,
+			var frames = Math.ceil(100/o.stepping) || 0, ms = o.duration/frames || 0,
 			
 			render = function(step, t) { return function() {
 					clearInterval(t);
-					self.progress(o.increment * step);
+					self.progress(o.stepping * step);
 					// on end
 					if (step >= frames) {
 						self.stop();
@@ -158,6 +170,7 @@
 			this.inprogress = false;
 			this.clearThreads();
 			this.progress(0);
+			this.bar.addClass('ui-hidden');
 			return false;
 		},
 		progress: function(range) {
@@ -171,19 +184,25 @@
 			
 			this.pixelRange = Math.round( ((this.rangeValue/100)||0) * elw );
 			
-			this.bar.css({ width: this.pixelRange + 'px' });
+			this.bar.removeClass('ui-hidden');
+			
+			var css = { width: this.pixelRange + 'px' };
+			
+			this.bar.css(css);
+			
+			this.textel.css(css)
 			
 			if (!o.text && o.range) this.text(this.rangeValue + '%');
 			this.propagate('progress', this.rangeValue);
 			return false;
 		},
 		text: function(text) {
-			this.textEl.html(text);
+			this.textel.html(text);
 		},
 		_fixRange: function(range) {
 			var o = this.options;
-			this._step = Math.ceil(range/o.increment);
-			this.rangeValue = Math.round(o.increment * this._step);
+			this._step = Math.ceil(range/o.stepping);
+			this.rangeValue = Math.round(o.stepping * this._step);
 			this.rangeValue = (this.rangeValue) >= 100 ? 100 : this.rangeValue;
 			return this.rangeValue;
 		}
@@ -191,7 +210,7 @@
 	
 	$.ui.progressbar.defaults = {
     duration: 3000,
-    increment: 1,
+    stepping: 1,
 		text: '',
 		range: true,
 		addClass: '',

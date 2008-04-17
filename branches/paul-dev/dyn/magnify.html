@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+		<title>Dynamic Flow Demo</title>
+		<style type="text/css" media="screen">
+			body,html {
+				margin: 0;
+				padding: 0;
+				background: #000;
+				height: 100%;
+			}
+			
+			div.magnifyme {
+				width: 900px;
+				margin: 0 auto;
+				margin-top: 100px;
+				padding: 100px;
+			}
+		
+			div.dwp {
+				width: 100px;
+				height: 100px;
+				background: #eee;
+				float: left;
+				margin: 10px;
+				position: relative;
+				border: 5px solid green;
+			}
+		</style>
+		<script type="text/javascript" src="../../../jquery/jquery/src/core.js"></script>
+		<script type="text/javascript" src="../../../jquery/jquery/src/selector.js"></script>
+		<script type="text/javascript" src="../../../jquery/jquery/src/event.js"></script>
+		<script type="text/javascript" src="../../../jquery/jquery/src/ajax.js"></script>
+		<script type="text/javascript" src="../../../jquery/jquery/src/fx.js"></script>
+		<script type="text/javascript" src="../../../jquery/jquery/src/offset.js"></script>
+	
+		<script type="text/javascript" src="../../../jquery/ui/ui.base.js"></script>
+		<script type="text/javascript" src="../../../jquery/ui/ui.draggable.js"></script>
+		<script type="text/javascript" src="../../../jquery/ui/ui.draggable.ext.js"></script>
+		<script type="text/javascript" src="../../../jquery/ui/ui.droppable.js"></script>
+		<script type="text/javascript" src="../../../jquery/ui/ui.droppable.ext.js"></script>
+		<script type="text/javascript" src="../../../jquery/ui/ui.sortable.js"></script>
+		<script type="text/javascript" src="../../../jquery/ui/ui.sortable.ext.js"></script>
+		<script type="text/javascript" src="../../../jquery/ui/ui.resizable.js"></script>
+		<script type="text/javascript" src="../../../jquery/ui/ui.resizable.ext.js"></script>
+		<script type="text/javascript" src="../../../jquery/ui/ui.slider.js"></script>
+	<script src="../../../jquery/fx/fx.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../../jquery/fx/fx.magnifier.js" type="text/javascript" charset="utf-8"></script>
+					
+		<script type="text/javascript" charset="utf-8">
+			$(document).ready(function() {
+
+
+				$("div.magnifyme").magnifier({
+					zIndex: 10,
+					opacity: {
+						min: 0.7,
+						max: 1
+					},
+					transformations: {
+						scale: function(d) {
+							return 1+(1-d);
+						},
+						rotate: function(d) {
+							return 45*((1-d))+"deg";
+						}
+						/* matrix: function(d) {
+							return "1,0,0,0.5,0,0";
+						},
+						rotate: function(d) {
+							return "45deg";
+						}*/
+					}
+				});
+
+			});
+			
+		</script>
+	</head>
+	<body>
+
+	<div class="magnifyme">
+		<div class="dwp">Slide 1</div>
+		<div class="dwp">Slide 2</div>
+		<div class="dwp">Slide 3</div>
+		<div class="dwp">Slide 1</div>
+		<div class="dwp">Slide 2</div>
+		<div class="dwp">Slide 3</div>
+	</div>
+	</body>
+</html>

@@ -313,6 +313,7 @@
 		start: function(e,el) {
 			
 			var o = this.options;
+			this.currentContainer = this;
 			this.refresh();
 
 			//Create and append the visible helper
@@ -388,9 +389,21 @@
 		},
 		stop: function(e) {
 
-			this.newPositionAt[this.direction == 'down' ? 'before' : 'after'](this.currentItem);		
+			if(this.options.addCondition.call(this.currentItem, this.newPositionAt)) {
+				if(this.newPositionAt.find("ul").length) {
+					this.newPositionAt.find("ul").append(this.currentItem); //Append to element to its new position
+				} else {
+					this.newPositionAt.append(this.currentItem); //Append to element to its new position
+				}
+				
+			} else {
+				this.newPositionAt[this.direction == 'down' ? 'before' : 'after'](this.currentItem); //Append to element to its new position
+			}
 			
+			this.options.sortIndication.remove.call(this.currentItem, this.newPositionAt); //remove sort indicator
+			this.options.addIndication.remove.call(this.currentItem, this.newPositionAt); //remove add indicator
 			this.propagate("stop", e); //Call plugins and trigger callbacks
+			
 			if(this.position.dom != this.currentItem.prev()[0]) this.propagate("update", e); //Trigger update callback if the DOM position has changed
 			if(!this.element[0].contains(this.currentItem[0])) { //Node was moved out of the current element
 				this.propagate("remove", e);
@@ -450,13 +463,26 @@
 			
 		},
 		rearrange: function(e, i, a) {
-			//a ? a.append(this.currentItem) : i.item[this.direction == 'down' ? 'before' : 'after'](this.currentItem);
-			//this.refreshPositions(true); //Precompute after each DOM insertion, NOT on mousemove
-			if(this.newPositionAt) this.newPositionAt.css("border-bottom", "0px").css("border-top", "0px");
-			this.newPositionAt = i.item;
-			this.newPositionAt.css("border-"+(this.direction == "down" ? "top" : "bottom"), "1px dotted black");
+			if(i) {
+				if(this.newPositionAt) {
+					this.options.sortIndication.remove.call(this.currentItem, this.newPositionAt);
+					this.options.addIndication.remove.call(this.currentItem, this.newPositionAt);
+				}
+				
+				if(this.options.addCondition.call(this.currentItem, i.item)) {
+					this.newPositionAt = i.item;
+					this.options.addIndication.add.call(this.currentItem, this.newPositionAt);
+
+				} else {
+					this.newPositionAt = i.item;
+					this.options.sortIndication[this.direction].call(this.currentItem, this.newPositionAt);
+				}
+			} else {
+				//Append
+			}
 			
-			if(this.placeholderElement) this.placeholder.css(this.placeholderElement.offset());
+			
+
 		}
 	});
 	

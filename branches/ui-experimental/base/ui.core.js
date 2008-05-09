@@ -76,9 +76,36 @@
 		};
 		
 		// add widget prototype
-		$[namespace][name].prototype = $.extend({}, widgetPrototype, prototype);
+		var proto = ($[namespace][name].prototype = widgetPrototype);
+		var extend = prototype.extend || [];
+		extend = (typeof extend == "string" ? extend.split(/,?\s+/) : extend);
+		$.each(extend, function(i, base) {
+			// TODO: add support for non-namespaced bases
+			var parts = base.split('.'),
+				baseNamespace = parts[0],
+				baseName = parts[1];
+			
+			// add methods from base object
+			proto[baseName] = {};
+			$.each($[baseNamespace][baseName], function(prop, val) {
+				proto[baseName][prop] = $.isFunction(val)
+					? function() {
+						val.apply(proto, arguments);
+					} : val;
+			});
+			
+			// add methods from plugin prototype
+			$.each(prototype[baseName], function(prop, val) {
+				proto[baseName][prop] = $.isFunction(val)
+					? function() {
+						val.apply(proto, arguments);
+					} : val;
+			});
+			//basePrototypes[baseName] = $[baseNamespace][baseName];
+		});
+		$.extend(true, proto, prototype);
 	};
-	
+	/*
 	$.widget.merge = function() {
 		var ret = {};
 		$.each(arguments, function() {
@@ -94,27 +121,75 @@
 		return ret;
 	};
 	
+	$.widget('ui.funky', {
+		extend: {
+			mouse: $.ui.mouse,
+			keyboard: $.ui.keybaord
+		},
+		
+		init: function() {
+			this.mouse.init();
+			this.keyboard.init();
+			
+			// funky specific init
+		},
+		destroy: function() {
+			this.mouse.destroy();
+			this.keyboard.destroy();
+			
+			// funky specific destroy
+		},
+		
+		foo: function() {
+			// something funky
+		},
+		
+		mouse: {
+			start: function() {
+				// funky stuff for $.ui.mouse to use on start
+			}
+		}
+	});
+	
+	$.widget('ui.draggable', {
+		init: function() {
+			this.mouse.init.apply(this, arguments);
+			// draggable specific stuff
+		},
+		
+		foo: function() {
+			// something draggable specific
+		},
+		
+		mouse: $.extend($.ui.mouse, {
+			// draggable specific functions for the mouse code to work with
+		})
+	});
+	*/
 	$.ui.color = {
 		init: function() {
 			var self = this;
 			this.element.bind('click', function() {
-				self.colorize();
+				self.color.colorize();
 			});
 		},
 		bg: function(color) {
 			this.element.css('background-color', color);
 		},
-		colorize: function() {
+		random: function() {
 			var r = Math.floor(Math.random() * 255),
 				g = Math.floor(Math.random() * 255),
 				b = Math.floor(Math.random() * 255);
-			this.bg('rgb(' + r + ', ' + g + ', ' + b + ')');
+			return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+		},
+		colorize: function() {
+			this.color.bg(this.color.random());
 		},
 		colorize2: function() {
-			this.bg(this.options.color.mainColor);
+			this.color.bg(this.options.color.mainColor);
 		},
 		colorize3: function() {
-			this.bg(this.color.color3.apply(this, arguments));
+			this.color.bg(this.color.red());
 		}
 	};
 })(jQuery);

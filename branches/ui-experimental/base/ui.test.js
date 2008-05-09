@@ -1,21 +1,23 @@
 ;(function($) {
-	$.widget('ui.test', $.widget.merge({}, $.ui.color, {
+	$.widget('ui.test', {
+		extend: 'ui.color',
+		
 		init: function() {
-			console.log('test initialized');
+			this.color.init();
 		},
 		black: function() {
 			this.bg('#000');
 		},
 		color: {
-			color3: function() {
-				return '#00f';
+			red: function() {
+				return '#f00';
 			}
 		}
-	}));
+	});
 	
 	$.ui.test.defaults = {
 		color: {
-			mainColor: '#f00'
+			mainColor: '#00f'
 		}
 	};
 })(jQuery);

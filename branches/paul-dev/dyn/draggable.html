@@ -13,35 +13,27 @@
 			}
 		
 			div.winamp {
-				width: 200px;
-				height: 100px;
 				background: #eee;
-				margin: 10px;
 				position: relative;
-				border: 2px solid #bbb;
+				top: 50px;
+				left: 50px;
 			}
 		</style>
-		<script type="text/javascript" src="../../../jquery/jquery/src/core.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/selector.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/event.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/ajax.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/fx.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/offset.js"></script>
-	
-		<script type="text/javascript" src="../../../jquery/ui/ui.base.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.draggable.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.droppable.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.sortable.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.resizable.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.slider.js"></script>
-	<script src="../../../jquery/fx/fx.js" type="text/javascript" charset="utf-8"></script>
+
+	<script src="../../../trunk/jquery/dist/jquery.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../../trunk/ui/ui.core.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../../trunk/ui/ui.draggable.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../../trunk/ui/ui.droppable.js" type="text/javascript" charset="utf-8"></script>
 					
 		<script type="text/javascript" charset="utf-8">
 			$(document).ready(function() {
 
 
 				$("div.winamp").draggable({
+					distance: 0,
 					snap: "div.winamp",
+					//snapMode: "outer", //This makes it total winamp-like
+					//snapTolerance: 10,
 					stack: {
 						group: "div.winamp",
 						min: 1
@@ -54,10 +46,9 @@
 	</head>
 	<body>
 
-
-		<div class="winamp one" style="z-index: 2;">One</div>
-		<div class="winamp three" style="z-index: 10;">Three</div>
-		<div class="winamp two" style="z-index: 5;">Two</div>
+		<div class="winamp one" style="height: 116px; width: 275px; background-image: url(main.png);"></div>
+		<div class="winamp three" style="height: 116px; width: 275px; background-image: url(eq.png);"></div>
+		<div class="winamp two" style="height: 145px; width: 275px; background-image: url(playlist.png);"></div>
 
 	</body>
 </html>

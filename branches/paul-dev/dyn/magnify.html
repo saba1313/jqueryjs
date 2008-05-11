@@ -19,35 +19,17 @@
 				padding: 100px;
 			}
 		
-			div.dwp {
-				width: 100px;
-				height: 100px;
-				background: #eee;
+			div.magnifyme img {
+				width: 64px;
+				height: 64px;
 				float: left;
-				margin: 10px;
+				margin: 5px;
 				position: relative;
-				border: 5px solid green;
 			}
 		</style>
-		<script type="text/javascript" src="../../../jquery/jquery/src/core.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/selector.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/event.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/ajax.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/fx.js"></script>
-		<script type="text/javascript" src="../../../jquery/jquery/src/offset.js"></script>
-	
-		<script type="text/javascript" src="../../../jquery/ui/ui.base.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.draggable.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.draggable.ext.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.droppable.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.droppable.ext.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.sortable.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.sortable.ext.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.resizable.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.resizable.ext.js"></script>
-		<script type="text/javascript" src="../../../jquery/ui/ui.slider.js"></script>
-	<script src="../../../jquery/fx/fx.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../../../jquery/fx/fx.magnifier.webkit.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../../trunk/jquery/dist/jquery.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../../trunk/fx/fx.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../../trunk/fx/fx.magnifier.webkit.js" type="text/javascript" charset="utf-8"></script>
 					
 		<script type="text/javascript" charset="utf-8">
 			$(document).ready(function() {
@@ -60,18 +42,9 @@
 						max: 1
 					},
 					transformations: {
-						scale: function(d) {
-							return 1+(1-d);
-						},
-						rotate: function(d) {
-							return 45*((1-d))+"deg";
-						}
-						/* matrix: function(d) {
-							return "1,0,0,0.5,0,0";
-						},
-						rotate: function(d) {
-							return "45deg";
-						}*/
+						//scale: function(d) { return 1+(1-d); },
+						//translate: function(d) { return (50 * (1-d))+"%"; },
+						//rotate: function(d) { return 45*((1-d))+"deg"; }
 					}
 				});
 
@@ -82,12 +55,16 @@
 	<body>
 
 	<div class="magnifyme">
-		<div class="dwp">Slide 1</div>
-		<div class="dwp">Slide 2</div>
-		<div class="dwp">Slide 3</div>
-		<div class="dwp">Slide 1</div>
-		<div class="dwp">Slide 2</div>
-		<div class="dwp">Slide 3</div>
+		<img src="icons/1.png" />
+		<img src="icons/2.png" />
+		<img src="icons/3.png" />
+		<img src="icons/4.png" />
+		<img src="icons/5.png" />
+		<img src="icons/6.png" />
+		<img src="icons/7.png" />
+		<img src="icons/8.png" />
+		<img src="icons/9.png" />
+		<img src="icons/10.png" />
 	</div>
 	</body>
 </html>

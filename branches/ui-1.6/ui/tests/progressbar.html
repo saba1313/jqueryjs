@@ -17,18 +17,12 @@
 <script type="text/javascript" src="../ui.draggable.js"></script>
 <script type="text/javascript" src="../ui.progressbar.js"></script>
 
-<script type="text/javascript" src="../../fx/fx.js"></script>
-<script type="text/javascript" src="../../fx/fx.bounce.js"></script>
-<script type="text/javascript" src="../../fx/fx.scale.js"></script>
-
-<link rel="stylesheet" href="../../themes/flora/flora.all.css" type="text/css" media="screen" title="Flora (Default)" />
 <style type="text/css" media="all">
 
 body
 {
 	background: #fff;
 	font-family: Arial;
-	font-size: 12px;
 }
 
 #log {
@@ -42,46 +36,21 @@ body
 	overflow:auto;
 }
 
+/* ProgressBar */
+
 .ui-progressbar {
-	padding: 1px;
-	width: 200px; line-height: 19px;
+	width: 400px; height: 20px;
 	border: 1px #ccc solid;
 	background:#E0E8F3 url(images/bg.gif) repeat-x scroll 0%;
 	position:relative;
 }
 
-
-.ui-hidden {
-	left:-10000px;
-	position:absolute;
-	top:-10000px;
-	visibility:hidden;
-}
-
 .ui-progressbar-wrap {
-	position:relative;
-	height: 20px;
-}
-
-.ui-progressbar-text {
-	color:#fff;
-	font-size:11px;
-	font-weight:bold;
-	left:0pt;
-	overflow:hidden;
-	padding:0px 5px;
-	text-align:left;
-	position: absolute;
-}
-
-.ui-progressbar-text.right-align {
-	text-align: right;
-	padding: 0 5px 0 0;
-}
-
-.ui-progressbar-text-back {
-	/*background:#E0E8F3 url(images/bg.gif) repeat-x scroll 0%;*/
-	color:#000;
+	position: relative;
+	height: auto;
+	width: auto;
+	line-height: 18px;
+	_line-height: 16px;
 }
 
 .ui-progressbar-bar {
@@ -89,9 +58,23 @@ body
 	border-bottom:1px solid #7FA9E4;
 	border-right:1px solid #7FA9E4;
 	border-top:1px solid #D1E4FD;
-	height:18px;
-	width:0pt;
 	position: absolute;
+}
+
+.ui-progressbar-text {
+	color:#fff;
+	overflow: hidden;
+	white-space: nowrap;
+	font-size: 11px;
+	font-weight: bold;
+	padding-left: 5px;
+}
+
+.ui-progressbar-text-back {
+	color:#000;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	padding-right: 1px;
 }
 
 .ui-progressbar-disabled {
@@ -101,12 +84,23 @@ body
 
 
 /* custom */
+.ui-progressbar-text.right-align {
+	text-align: right;
+	padding: 0 5px 0 0;
+}
 .ui-progressbar-inner-custom {
 	background: url(images/custom-bar.gif) repeat-x scroll left center;
 	border-bottom:1px solid #EFEFEF;
 	border-right:0pt none;
 	border-top:1px solid #BEBEBE;
 	height:15px;
+}
+
+.ui-hidden {
+	left:-10000px;
+	position:absolute;
+	top:-10000px;
+	visibility:hidden;
 }
 
 </style>
@@ -171,7 +165,7 @@ $(function() {
 		
 		$('#p1').progressbar({
 			
-			text: 'Waiting...',
+			text: 'jQuery ProgressBar waiting...',
 			
 			//addClass: 'ui-progressbar-inner-custom teste',
 			
@@ -183,7 +177,7 @@ $(function() {
 			
       duration: 2000,
 			
-      stepping: 5,
+      stepping: 3,
 			
 			progress: function(range, ui) {
 				//console.log(ui.pixelRange);

@@ -51,25 +51,19 @@
 		
 		var text = o.text ? o.text : (o.range ? '0%' : ''), elw = el.css('width'), elh = el.css('height');
 		
-		//el.css({overflow: 'hidden'});
-	
 		this.wrapper = $("<div class='ui-progressbar-wrap'></div>");
 		
 		this.bar = $("<div class='ui-progressbar-bar ui-hidden'></div>").css({
 			width: '0px', overflow: 'hidden', zIndex: 100
 		});
 		
-		this.textel = $("<div class='ui-progressbar-text'></div>").css({
+		this.textel = $("<div class='ui-progressbar-text'></div>").html(text).css({
 			width: '0px', overflow: 'hidden'
-		})
-		.append(
-			$('<div>').html(text)
-		);
+		});
 		
-		this.textBg = $("<div class='ui-progressbar-text ui-progressbar-text-back'></div>")
-		.append(
-			$('<div>').html(text).css({	width: elw })
-		);
+		this.textBg = $("<div class='ui-progressbar-text ui-progressbar-text-back'></div>").html(text).css({
+				width: elw
+		});
 		
 		this.wrapper.append(this.bar.append(this.textel), this.textBg).appendTo(el);
 		
@@ -125,26 +119,34 @@
 			
 			var frames = Math.ceil(100/o.stepping) || 0, ms = o.duration/frames || 0,
 			
-			render = function(step, t) { return function() {
-					clearInterval(t);
-					self.progress(o.stepping * step);
-					// on end
-					if (step >= frames) {
-						self.stop();
+			render = function(step, t) {
+				//clearInterval(t);
+				
+				console.log(step)
+				
+				self.progress(o.stepping * step);
+				// on end
+				if (step >= frames) {
+					self.stop();
 
-						if (self.waitThread || o.wait == 'loop') {
-							self._step = 0;
-							self.start();
-						}
+					if (self.waitThread || o.wait == 'loop') {
+						self._step = 0;
+						self.start();
 					}
-				};
+				}
 			};
-			var from = this._step;
+			var from = this._step, _step = (this._step - (from - 1));
 			
-			for(var step = from; step <= frames; step++) {
+			console.log(_step)
+			
+			/*for(var step = from; step <= frames; step++) {
 				var interval = (step - (from - 1)) * ms;
 				this.threads[step] = setTimeout(render(step, this.threads[step]), interval);
-			}
+			}*/
+			
+			this.threads[0] = setInterval(function() {
+				render(_step++);
+			}, ms);
 			
 			this.propagate('start');
 			return false;

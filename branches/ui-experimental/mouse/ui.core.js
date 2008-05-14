@@ -268,8 +268,8 @@
 			}
 			
 			var distance = Math.max(
-				Math.abs(self._MP.left - e.pageX),
-				Math.abs(self._MP.top - e.pageY));
+				Math.abs(this._MP.left - e.pageX),
+				Math.abs(this._MP.top - e.pageY));
 			if (!this.mouseInitialized && (distance > o.distance)) {
 				(o.mouseStart && o.mouseStart.call(this, e, this.element));
 				this.mouseInitialized = true;

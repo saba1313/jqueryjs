@@ -196,10 +196,8 @@
 		},
 		
 		mouseClick: function(e) {
-			// TODO: fix name of executor option
 			// TODO: fix name of mouseCondition option
-			var self = this,
-				context = this.options.executor || this;
+			var self = this;
 			
 			// bail if any of the following conditions are met:
 			// - not left click
@@ -209,7 +207,7 @@
 				|| ($.inArray(e.target.nodeName.toLowerCase(),
 					this.options.mouseDragPrevention || []) != -1)
 				|| (this.options.mouseCondition &&
-					!this.options.mouseCondition.apply(context, [e, this.element]))
+					!this.options.mouseCondition.apply(this, [e, this.element]))
 			) { return true; }
 			
 			this.mouseInitialized = false;
@@ -230,10 +228,10 @@
 					Math.abs(self._MP.top - e.pageY));
 				if (!self.mouseInitalized && distance > self.options.mouseDistance) {
 					(self.options.mouseStart
-						&& self.options.mouseStart.call(context, e, self.element));
+						&& self.options.mouseStart.call(self, e, self.element));
 					// Calling drag is actually not correct, but expected
 					(self.options.mouseDrag
-						&& self.options.mouseDrag.call(context, e, self.element));
+						&& self.options.mouseDrag.call(self, e, self.element));
 					
 					self.mouseInitialized = true;
 				}
@@ -255,16 +253,14 @@
 			}
 			
 			(this.options.mouseStop
-				&& this.options.mouseStop.call(
-					this.options.executor || this, e, this.element));
+				&& this.options.mouseStop.call(this, e, this.element));
 			
 			$(document).unbind('mouseup.mouse mousemove.mouse');
 			return false;
 		},
 		
 		drag: function(e) {
-			var o = this.options,
-				context = o.executor || this;
+			var o = this.options;
 			
 			// IE mouseup check
 			if ($.browser.msie && !e.button) {
@@ -275,13 +271,13 @@
 				Math.abs(self._MP.left - e.pageX),
 				Math.abs(self._MP.top - e.pageY));
 			if (!this.mouseInitialized && (distance > o.distance)) {
-				(o.mouseStart && o.mouseStart.call(context, e, this.element));
+				(o.mouseStart && o.mouseStart.call(this, e, this.element));
 				this.mouseInitialized = true;
 			} else {
 				if (!this.mouseInitialized) { return false; }
 			}
 			
-			(o.mouseDrag && o.mouseDrag.call(context, e, this.element));
+			(o.mouseDrag && o.mouseDrag.call(this, e, this.element));
 			return false;
 		}
 	};

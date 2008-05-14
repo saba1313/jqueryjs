@@ -226,7 +226,7 @@
 				var distance = Math.max(
 					Math.abs(self._MP.left - e.pageX),
 					Math.abs(self._MP.top - e.pageY));
-				if (!self.mouseInitalized && distance > self.options.mouseDistance) {
+				if (!self.mouseInitalized && (distance > self.options.mouseDistance)) {
 					(self.options.mouseStart
 						&& self.options.mouseStart.call(self, e, self.element));
 					// Calling drag is actually not correct, but expected
@@ -247,19 +247,19 @@
 			return false;
 		},
 		
-		stop: function(e) {
+		mouseStop: function(e) {
 			if (!this.mouseInitialized) {
-				return $(document).unbind('mouseup.mouse mousemove.mouse');
+				return $(document).unbind('.mouse');
 			}
 			
 			(this.options.mouseStop
 				&& this.options.mouseStop.call(this, e, this.element));
 			
-			$(document).unbind('mouseup.mouse mousemove.mouse');
+			$(document).unbind('.mouse');
 			return false;
 		},
 		
-		drag: function(e) {
+		mouseDrag: function(e) {
 			var o = this.options;
 			
 			// IE mouseup check

@@ -223,10 +223,7 @@
 						return self.mouseDrag.apply(self, arguments);
 					});
 				
-				var distance = Math.max(
-					Math.abs(self._MP.left - e.pageX),
-					Math.abs(self._MP.top - e.pageY));
-				if (!self.mouseInitalized && (distance > self.options.mouseDistance)) {
+				if (self.mouseStartDistance()) {
 					(self.options.mouseStart
 						&& self.options.mouseStart.call(self, e, self.element));
 					// Calling drag is actually not correct, but expected
@@ -264,13 +261,10 @@
 			
 			// IE mouseup check
 			if ($.browser.msie && !e.button) {
-				return this.mouseStop.call(this, e);
+				return this.mouseStop(e);
 			}
 			
-			var distance = Math.max(
-				Math.abs(this._MP.left - e.pageX),
-				Math.abs(this._MP.top - e.pageY));
-			if (!this.mouseInitialized && (distance > o.distance)) {
+			if (this.mouseStartDistance()) {
 				(o.mouseStart && o.mouseStart.call(this, e, this.element));
 				this.mouseInitialized = true;
 			} else {
@@ -279,6 +273,15 @@
 			
 			(o.mouseDrag && o.mouseDrag.call(this, e, this.element));
 			return false;
+		},
+		
+		// determines if element dragging needs to start, based on the distance
+		// the user has moved the mouse since mousedown
+		mouseStartDistance: function(e) {
+			return !this.mouseInitialized && Math.max(
+				Math.abs(this._MP.left - e.pageX),
+				Math.abs(this._MP.top - e.pageY)
+			) >= this.options.mouseDistance;
 		}
 	};
 })(jQuery);

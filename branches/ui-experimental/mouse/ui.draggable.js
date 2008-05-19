@@ -15,28 +15,14 @@
 
 ;(function($) {
 	
-	$.widget("ui.draggable", {
+	$.widget("ui.draggable", $.extend($.ui.mouse, {
 		init: function() {
 			
 			//Initialize needed constants
 			var o = this.options;
 
-			//Initialize mouse events for interaction
-			this.element.mouse({
-				executor: this,
-				delay: o.delay,
-				distance: o.distance,
-				dragPrevention: o.cancel,
-				start: this.start,
-				stop: this.stop,
-				drag: this.drag,
-				condition: function(e) {
-					var handle = !this.options.handle || !$(this.options.handle, this.element).length ? true : false;
-					if(!handle) $(this.options.handle, this.element).each(function() { if(this == e.target) handle = true; });
-					return !(e.target.className.indexOf("ui-resizable-handle") != -1 || this.options.disabled) && handle;
-				}
-			});
-			
+			this.mouseInit();
+
 			//Position the node
 			if(o.helper == 'original' && !(/(relative|absolute|fixed)/).test(this.element.css('position')))
 				this.element.css('position', 'relative');
@@ -250,9 +236,10 @@
 		},
 		destroy: function() {
 			if(!this.element.data('draggable')) return;
-			this.element.removeData("draggable").unbind(".draggable").mouse("destroy");
+			this.element.removeData("draggable").unbind(".draggable");
+			this.mouseDestroy();
 		}
-	});
+	}));
 	
 	$.ui.draggable.defaults = {
 		helper: "original",

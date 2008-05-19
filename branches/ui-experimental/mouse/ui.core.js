@@ -1,4 +1,4 @@
-/*
+﻿/*
  * jQuery UI @VERSION
  *
  * Copyright (c) 2008 Paul Bakaus (ui.jquery.com)
@@ -155,9 +155,106 @@
 	
 	
 	/** Mouse Interaction Plugin **/
+
+	$.ui.mouse = {
+		mouseInit: function() {
+			var self = this;
+
+			this.element
+				.bind('mousedown.mouse', function() {
+					return self.down.apply(self, arguments);
+				});
+
+			// Prevent text selection in IE
+			if ($.browser.msie) {
+				this.mouseUnselectable = this.element.attr('unselectable');
+				this.element.attr('unselectable', 'on');
+			}
+
+			this.started = false;
+		},
+
+		mouseDestroy: function() {
+			this.element.unbind('.mouse');
+
+			// Restore text selection in IE
+			($.browser.msie
+				&& this.element.attr('unselectable', this.mouseUnselectable));
+		},
+
+		down: function(e) {
+console.log('down');
+			var self = this;
+			self._downEvent = e;
+
+			// bail if any of the following conditions are met:
+			// - not left click
+			// - node type is defined in mouseDragPrevention option
+			// - mouseCondition option returns false
+			if (e.which != 1
+				|| ($.inArray(e.target.nodeName.toLowerCase(),
+					this.options.mouseDragPrevention || []) != -1)
+				|| (this.options.mouseCondition &&
+					!this.options.mouseCondition.apply(this, [e, this.element]))
+			) { return true; }
+
+
+				$(document)
+					.bind('mousemove.mouse', function() {
+						return self.move.apply(self, arguments);
+					})
+					.bind('mouseup.mouse', function() {
+						return self.up.apply(self, arguments);
+					});
+
+
+		},
+
+		move: function(e) {
+console.log('move');
+			var self = this;
+			self._moveEvent = e;
+
+			var o = this.options;
+			
+			if (!this.started) {
+				if (
+					Math.max(
+						Math.abs(this._downEvent.pageX - e.pageX),
+						Math.abs(this._downEvent.pageY - e.pageY)
+					) >= this.options.mouseDistance
+				)
+					this.start.apply(this, arguments);
+			} else {
+				// IE mouseup check
+				if ($.browser.msie && !e.button) {
+					return this.up(e);
+				}
+				this.drag.apply(this, arguments);
+
+			}
+		},
+		start: function(e) {
+console.log('start');
+			this.started = true;
+		},
+		drag: function(e) {
+console.log('drag');
+		},
+
+		up: function(e) {
+console.log('up');
+			$(document).unbind('.mouse');
+			this.stop.apply(this, arguments);
+		},
+		stop: function(e) {
+console.log('stop');
+			this.started = false;
+		}
+	}
 	
 	// TODO: should events be in the mouse namespace or the plugin's namespace?
-	$.ui.mouse = {
+	$.ui.oldmouse = {
 		mouseInit: function() {
 			var self = this;
 			
@@ -223,7 +320,7 @@
 						return self.mouseDrag.apply(self, arguments);
 					});
 				
-				if (self.mouseStartDistance()) {
+				if (self.mouseStartDistance(e)) {
 					(self.options.mouseStart
 						&& self.options.mouseStart.call(self, e, self.element));
 					// Calling drag is actually not correct, but expected
@@ -264,7 +361,7 @@
 				return this.mouseStop(e);
 			}
 			
-			if (this.mouseStartDistance()) {
+			if (this.mouseStartDistance(e)) {
 				(o.mouseStart && o.mouseStart.call(this, e, this.element));
 				this.mouseInitialized = true;
 			} else {

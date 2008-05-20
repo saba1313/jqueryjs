@@ -244,7 +244,7 @@ console.log('mouse.mouseDrag: override me');
 		},
 
 		mouseUp: function(e) {
-console.log('mouse.mouseUp: override me');
+console.log('mouse.mouseUp');
 			$(document).unbind('.mouse');
 			if (this.started) {
 				this.started = false;
@@ -252,7 +252,7 @@ console.log('mouse.mouseUp: override me');
 			}
 		},
 		mouseStop: function(e) {
-console.log('mouse.mouseStop');
+console.log('mouse.mouseStop: override me');
 		}
 	}
 	

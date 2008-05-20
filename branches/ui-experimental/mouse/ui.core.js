@@ -161,8 +161,8 @@
 			var self = this;
 
 			this.element
-				.bind('mousedown.mouse', function() {
-					return self.down.apply(self, arguments);
+				.bind('mousedown.mouse', function(e) {
+					return self.mouseDown(e);
 				});
 
 			// Prevent text selection in IE
@@ -182,8 +182,8 @@
 				&& this.element.attr('unselectable', this.mouseUnselectable));
 		},
 
-		down: function(e) {
-console.log('down');
+		mouseDown: function(e) {
+console.log('mouse.mouseDown');
 			var self = this;
 			self._downEvent = e;
 
@@ -200,18 +200,18 @@ console.log('down');
 
 
 				$(document)
-					.bind('mousemove.mouse', function() {
-						return self.move.apply(self, arguments);
+					.bind('mousemove.mouse', function(e) {
+						return self.mouseMove(e);
 					})
-					.bind('mouseup.mouse', function() {
-						return self.up.apply(self, arguments);
+					.bind('mouseup.mouse', function(e) {
+						return self.mouseUp(e);
 					});
 
 
 		},
 
-		move: function(e) {
-console.log('move');
+		mouseMove: function(e) {
+console.log('mouse.mouseMove');
 			var self = this;
 			self._moveEvent = e;
 
@@ -223,33 +223,36 @@ console.log('move');
 						Math.abs(this._downEvent.pageX - e.pageX),
 						Math.abs(this._downEvent.pageY - e.pageY)
 					) >= this.options.mouseDistance
-				)
-					this.start.apply(this, arguments);
+				) {
+					this.started = true;
+					this.mouseStart(e);
+				}
 			} else {
 				// IE mouseup check
 				if ($.browser.msie && !e.button) {
-					return this.up(e);
+					return this.mouseUp(e);
 				}
-				this.drag.apply(this, arguments);
+				this.mouseDrag(e);
 
 			}
 		},
-		start: function(e) {
-console.log('start');
-			this.started = true;
+		mouseStart: function(e) {
+console.log('mouse.mouseStart: override me');
 		},
-		drag: function(e) {
-console.log('drag');
+		mouseDrag: function(e) {
+console.log('mouse.mouseDrag: override me');
 		},
 
-		up: function(e) {
-console.log('up');
+		mouseUp: function(e) {
+console.log('mouse.mouseUp: override me');
 			$(document).unbind('.mouse');
-			this.stop.apply(this, arguments);
+			if (this.started) {
+				this.started = false;
+				this.mouseStop(e);
+			}
 		},
-		stop: function(e) {
-console.log('stop');
-			this.started = false;
+		mouseStop: function(e) {
+console.log('mouse.mouseStop');
 		}
 	}
 	

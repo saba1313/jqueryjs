@@ -28,7 +28,7 @@
 				this.element.css('position', 'relative');
 			
 		},
-		start: function(e) {
+		mouseStart: function(e) {
 
 			var o = this.options;
 			if($.ui.ddmanager) $.ui.ddmanager.current = this;
@@ -111,7 +111,7 @@
 			this.helperProportions = { width: this.helper.outerWidth(), height: this.helper.outerHeight() };//Recache the helper size
 			if ($.ui.ddmanager && !o.dropBehaviour) $.ui.ddmanager.prepareOffsets(this, e);
 
-			return false;
+			return true;
 
 		},
 		convertPositionTo: function(d, pos) {
@@ -178,7 +178,7 @@
 			
 			return position;
 		},
-		drag: function(e) {
+		mouseDrag: function(e) {
 
 			//Compute the helpers position
 			this.position = this.generatePosition(e);
@@ -193,7 +193,7 @@
 			return false;
 
 		},
-		stop: function(e) {
+		mouseStop: function(e) {
 		
 			//If we are using droppables, inform the manager about the drop
 			if ($.ui.ddmanager && !this.options.dropBehaviour)
@@ -222,7 +222,7 @@
 		
 		// From now on bulk stuff - mainly helpers
 		plugins: {},
-		ui: function(e) {
+		uiHash: function(e) {
 			return {
 				helper: this.helper,
 				position: this.position,
@@ -231,8 +231,8 @@
 			};
 		},
 		propagate: function(n,e) {
-			$.ui.plugin.call(this, n, [e, this.ui()]);
-			return this.element.triggerHandler(n == "drag" ? n : "drag"+n, [e, this.ui()], this.options[n]);
+			$.ui.plugin.call(this, n, [e, this.uiHash()]);
+			return this.element.triggerHandler(n == "drag" ? n : "drag"+n, [e, this.uiHash()], this.options[n]);
 		},
 		destroy: function() {
 			if(!this.element.data('draggable')) return;
@@ -245,7 +245,7 @@
 		helper: "original",
 		appendTo: "parent",
 		cancel: ['input','textarea','button','select','option'],
-		distance: 1,
+		distance: 0,
 		delay: 0
 	};
 	

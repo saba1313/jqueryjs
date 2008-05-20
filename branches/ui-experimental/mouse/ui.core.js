@@ -160,14 +160,13 @@
 		mouseInit: function() {
 			var self = this;
 
-			this.element
-				.bind('mousedown.mouse', function(e) {
-					return self.mouseDown(e);
-				});
+			this.element.bind('mousedown.mouse', function(e) {
+				return self.mouseDown(e);
+			});
 
 			// Prevent text selection in IE
 			if ($.browser.msie) {
-				this.mouseUnselectable = this.element.attr('unselectable');
+				this._mouseUnselectable = this.element.attr('unselectable');
 				this.element.attr('unselectable', 'on');
 			}
 
@@ -178,210 +177,87 @@
 			this.element.unbind('.mouse');
 
 			// Restore text selection in IE
-			($.browser.msie
-				&& this.element.attr('unselectable', this.mouseUnselectable));
+			if ($.browser.msie) {
+				this.element.attr('unselectable', this._mouseUnselectable);
+			}
 		},
+
+		// These are placeholder methods, to be overriden by extending plugin
+		mouseStart: function(e) {},
+		mouseDrag: function(e) {},
+		mouseStop: function(e) {},
 
 		mouseDown: function(e) {
-console.log('mouse.mouseDown');
 			var self = this;
-			self._downEvent = e;
+			self._mouseDownEvent = e;
 
 			// bail if any of the following conditions are met:
 			// - not left click
 			// - node type is defined in mouseDragPrevention option
-			// - mouseCondition option returns false
+
+			//TODO: cancel option
+
 			if (e.which != 1
 				|| ($.inArray(e.target.nodeName.toLowerCase(),
 					this.options.mouseDragPrevention || []) != -1)
-				|| (this.options.mouseCondition &&
-					!this.options.mouseCondition.apply(this, [e, this.element]))
 			) { return true; }
 
+			$(document)
+				.bind('mousemove.mouse', function(e) {
+					return self.mouseMove(e);
+				})
+				.bind('mouseup.mouse', function(e) {
+					return self.mouseUp(e);
+				});
 
-				$(document)
-					.bind('mousemove.mouse', function(e) {
-						return self.mouseMove(e);
-					})
-					.bind('mouseup.mouse', function(e) {
-						return self.mouseUp(e);
-					});
-
-
+			return false;
 		},
-
 		mouseMove: function(e) {
-console.log('mouse.mouseMove');
-			var self = this;
-			self._moveEvent = e;
+			// IE mouseup check - mouseup happened when mouse was out of window
+			if ($.browser.msie && !e.button)
+				return this.mouseUp(e);
 
-			var o = this.options;
-			
-			if (!this.started) {
-				if (
-					Math.max(
-						Math.abs(this._downEvent.pageX - e.pageX),
-						Math.abs(this._downEvent.pageY - e.pageY)
-					) >= this.options.mouseDistance
-				) {
-					this.started = true;
-					this.mouseStart(e);
-				}
-			} else {
-				// IE mouseup check
-				if ($.browser.msie && !e.button) {
-					return this.mouseUp(e);
-				}
+			if (this._mouseStarted) {
 				this.mouseDrag(e);
-
+				return false;
 			}
-		},
-		mouseStart: function(e) {
-console.log('mouse.mouseStart: override me');
-		},
-		mouseDrag: function(e) {
-console.log('mouse.mouseDrag: override me');
-		},
+			
+			if (this.mouseDistanceMet(e) && this.mouseDelayMet(e)) {
+				this._mouseStarted = (this.mouseStart(this._mouseDownEvent, e) !== false);
+				if (!this._mouseStarted)
+					this.mouseUp(e);
+			}
 
+			return !this._mouseStarted;
+		},
 		mouseUp: function(e) {
-console.log('mouse.mouseUp');
 			$(document).unbind('.mouse');
-			if (this.started) {
-				this.started = false;
+			if (this._mouseStarted) {
+				this._mouseStarted = false;
 				this.mouseStop(e);
 			}
+			return false;
 		},
-		mouseStop: function(e) {
-console.log('mouse.mouseStop: override me');
+		mouseDistanceMet: function(e) {
+			return (Math.max(
+					Math.abs(this._mouseDownEvent.pageX - e.pageX),
+					Math.abs(this._mouseDownEvent.pageY - e.pageY)
+				) >= this.options.distance
+			);
+		},
+		mouseDelayMet: function(e) {
+			//TODO: delay option
+			//this.mouseTimer = setTimeout(initialize, this.options.mouseDelay)
+			//this.mouseTimer && clearTimeout(this.mouseTimer)
+			return true;
 		}
 	}
-	
-	// TODO: should events be in the mouse namespace or the plugin's namespace?
-	$.ui.oldmouse = {
-		mouseInit: function() {
-			var self = this;
-			
-			this.element
-				.bind('mousedown.mouse', function() {
-					return self.mouseClick.apply(self, arguments);
-				})
-				.bind('mouseup.mouse', function() {
-					(self.mouseTimer && clearTimeout(self.mouseTimer));
-				})
-				.bind('click.mouse', function() {
-					if (self.mouseInitialized) {
-						self.mouseInitialized = false;
-						return false;
-					}
-				});
-			
-			// Prevent text selection in IE
-			if ($.browser.msie) {
-				this.mouseUnselectable = this.element.attr('unselectable');
-				this.element.attr('unselectable', 'on');
-			}
-		},
-		
-		mouseDestroy: function() {
-			this.element.unbind('.mouse');
-			
-			// Restore text selection in IE
-			($.browser.msie
-				&& this.element.attr('unselectable', this.mouseUnselectable));
-		},
-		
-		// TODO: does this belong here?
-		trigger: function() {
-			return this.mouseClick.apply(this, arguments);
-		},
-		
-		mouseClick: function(e) {
-			// TODO: fix name of mouseCondition option
-			var self = this;
-			
-			// bail if any of the following conditions are met:
-			// - not left click
-			// - node type is defined in mouseDragPrevention option
-			// - mouseCondition option returns false
-			if (e.which != 1
-				|| ($.inArray(e.target.nodeName.toLowerCase(),
-					this.options.mouseDragPrevention || []) != -1)
-				|| (this.options.mouseCondition &&
-					!this.options.mouseCondition.apply(this, [e, this.element]))
-			) { return true; }
-			
-			this.mouseInitialized = false;
-			var initialize = function() {
-				// Store the click mouse position
-				self._MP = { left: e.pageX, top: e.pageY };
-				
-				$(document)
-					.bind('mouseup.mouse', function() {
-						return self.mouseStop.apply(self, arguments);
-					})
-					.bind('mousemove.mouse', function() {
-						return self.mouseDrag.apply(self, arguments);
-					});
-				
-				if (self.mouseStartDistance(e)) {
-					(self.options.mouseStart
-						&& self.options.mouseStart.call(self, e, self.element));
-					// Calling drag is actually not correct, but expected
-					(self.options.mouseDrag
-						&& self.options.mouseDrag.call(self, e, self.element));
-					
-					self.mouseInitialized = true;
-				}
-			};
-			
-			if (this.options.mouseDelay) {
-				(this.mouseTimer && clearTimeout(this.mouseTimer));
-				this.mouseTimer = setTimeout(initialize, this.options.mouseDelay);
-			} else {
-				initialize();
-			}
-			
-			return false;
-		},
-		
-		mouseStop: function(e) {
-			if (!this.mouseInitialized) {
-				return $(document).unbind('.mouse');
-			}
-			
-			(this.options.mouseStop
-				&& this.options.mouseStop.call(this, e, this.element));
-			
-			$(document).unbind('.mouse');
-			return false;
-		},
-		
-		mouseDrag: function(e) {
-			var o = this.options;
-			
-			// IE mouseup check
-			if ($.browser.msie && !e.button) {
-				return this.mouseStop(e);
-			}
-			
-			if (this.mouseStartDistance(e)) {
-				(o.mouseStart && o.mouseStart.call(this, e, this.element));
-				this.mouseInitialized = true;
-			} else {
-				if (!this.mouseInitialized) { return false; }
-			}
-			
-			(o.mouseDrag && o.mouseDrag.call(this, e, this.element));
-			return false;
-		},
-		
-		// determines if element dragging needs to start, based on the distance
-		// the user has moved the mouse since mousedown
-		mouseStartDistance: function(e) {
-			return !this.mouseInitialized && Math.max(
-				Math.abs(this._MP.left - e.pageX),
-				Math.abs(this._MP.top - e.pageY)
-			) >= this.options.mouseDistance;
-		}
+
+	$.ui.mouse.defaults = {
+		cancel: [],
+		condition: function() { return true; },
+		distance: 0,
+		delay: 0
 	};
+	
 })(jQuery);

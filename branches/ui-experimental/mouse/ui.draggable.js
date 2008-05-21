@@ -111,7 +111,7 @@
 			this.helperProportions = { width: this.helper.outerWidth(), height: this.helper.outerHeight() };//Recache the helper size
 			if ($.ui.ddmanager && !o.dropBehaviour) $.ui.ddmanager.prepareOffsets(this, e);
 
-			return true;
+			return !o.disabled;
 
 		},
 		convertPositionTo: function(d, pos) {
@@ -244,7 +244,7 @@
 	$.ui.draggable.defaults = {
 		helper: "original",
 		appendTo: "parent",
-		cancel: ['input','textarea','button','select','option'],
+		cancel: ":input,button",
 		distance: 0,
 		delay: 0
 	};

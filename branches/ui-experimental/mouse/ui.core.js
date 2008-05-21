@@ -191,24 +191,17 @@
 			var self = this;
 			self._mouseDownEvent = e;
 
-			// bail if any of the following conditions are met:
-			// - not left click
-			// - node type is defined in mouseDragPrevention option
+			var btnIsLeft = (e.which == 1);
+			var elIsCancel = ($(e.target).is(this.options.cancel));
+			if (!btnIsLeft || elIsCancel)
+				return true;
 
-			//TODO: cancel option
-
-			if (e.which != 1
-				|| ($.inArray(e.target.nodeName.toLowerCase(),
-					this.options.mouseDragPrevention || []) != -1)
-			) { return true; }
+			this._mouseDelayMet = false;
+			this._mouseDelayTimer = setTimeout(function() { self._mouseDelayMet = true; } , this.options.delay)
 
 			$(document)
-				.bind('mousemove.mouse', function(e) {
-					return self.mouseMove(e);
-				})
-				.bind('mouseup.mouse', function(e) {
-					return self.mouseUp(e);
-				});
+				.bind('mousemove.mouse', function(e) { return self.mouseMove(e); })
+				.bind('mouseup.mouse', function(e) { return self.mouseUp(e); });
 
 			return false;
 		},
@@ -246,16 +239,12 @@
 			);
 		},
 		mouseDelayMet: function(e) {
-			//TODO: delay option
-			//this.mouseTimer = setTimeout(initialize, this.options.mouseDelay)
-			//this.mouseTimer && clearTimeout(this.mouseTimer)
-			return true;
+			return this._mouseDelayMet;
 		}
 	}
 
 	$.ui.mouse.defaults = {
-		cancel: [],
-		condition: function() { return true; },
+		cancel: "",
 		distance: 0,
 		delay: 0
 	};

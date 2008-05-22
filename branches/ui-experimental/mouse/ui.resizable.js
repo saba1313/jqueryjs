@@ -14,11 +14,11 @@
  */
 ;(function($) {
 	
-	$.widget("ui.resizable", {
+	$.widget("ui.resizable", $.extend($.ui.mouse, {
 		init: function() {
 
 			var self = this, o = this.options;
-			
+
 			var elpos = this.element.css('position');
 			
 			// simulate .ui-resizable { position: relative; }
@@ -209,23 +209,7 @@
 				});
 			}
 		
-			//Initialize mouse events for interaction
-			this.element.mouse({
-				executor: this,
-				delay: 0,
-				distance: 0,
-				dragPrevention: ['input','textarea','button','select','option'],
-				start: this.start,
-				stop: this.stop,
-				drag: this.drag,
-				condition: function(e) {
-					if(this.disabled) return false;
-					for(var i in this.options.handles) {
-						if($(this.options.handles[i])[0] == e.target) return true;
-					}
-					return false;
-				}
-			});
+			this.mouseInit();
 			
 		},
 		plugins: {},
@@ -241,11 +225,14 @@
 			this.element.triggerHandler(n == "resize" ? n : ["resize", n].join(""), [e, this.ui()], this.options[n]);
 		},
 		destroy: function() {
-			var el = this.element, wrapped = el.children(".ui-resizable").get(0),
+			var el = this.element, wrapped = el.children(".ui-resizable").get(0);
 			
-			_destroy = function(exp) {
+			this.mouseDestroy();
+
+			var _destroy = function(exp) {
 				$(exp).removeClass("ui-resizable ui-resizable-disabled")
-					.mouse("destroy").removeData("resizable").unbind(".resizable").find('.ui-resizable-handle').remove();
+					.removeData("resizable").unbind(".resizable").find('.ui-resizable-handle').remove();
+
 			};
 			
 			_destroy(el);
@@ -272,7 +259,9 @@
 			this.element.addClass("ui-resizable-disabled");
 			this.disabled = true;
 		},
-		start: function(e) {
+		mouseStart: function(e) {
+			if(this.disabled) return false;
+
 			var o = this.options, iniPos = this.element.position(), el = this.element, 
 				num = function(v) { return parseInt(v, 10) || 0; }, ie6 = $.browser.msie && $.browser.version < 7;
 			o.resizing = true;
@@ -312,35 +301,12 @@
 				$('body').css('cursor', this.axis + '-resize');
 				
 			this.propagate("start", e);
-			return false;
-		},
-		stop: function(e) {
-			this.options.resizing = false;
-			var o = this.options, num = function(v) { return parseInt(v, 10) || 0; }, self = this;
-	
-			if(o.proxy) {
-				var pr = o.proportionallyResize, ista = pr && (/textarea/i).test(pr.get(0).nodeName), 
-							soffseth = ista && $.ui.hasScroll(pr.get(0), 'left') /* TODO - jump height */ ? 0 : self.sizeDiff.height,
-								soffsetw = ista ? 0 : self.sizeDiff.width;
-			
-				var s = { width: (self.size.width - soffsetw), height: (self.size.height - soffseth) },
-					left = (parseInt(self.element.css('left'), 10) + (self.position.left - self.originalPosition.left)) || null, 
-					top = (parseInt(self.element.css('top'), 10) + (self.position.top - self.originalPosition.top)) || null;
-				
-				if (!o.animate)
-					this.element.css($.extend(s, { top: top, left: left }));
-				
-				if (o.proxy && !o.animate) this._proportionallyResize();
-				this.helper.remove();
+			for(var i in this.options.handles) {
+				if($(this.options.handles[i])[0] == e.target) return true;
 			}
-
-			if (o.preserveCursor)
-			$('body').css('cursor', 'auto');
-	
-			this.propagate("stop", e);	
 			return false;
 		},
-		drag: function(e) {
+		mouseDrag: function(e) {
 			//Increase performance, avoid regex
 			var el = this.helper, o = this.options, props = {},
 				self = this, smp = this.originalMousePosition, a = this.axis;
@@ -369,6 +335,32 @@
 			
 			this._updateCache(data);
 			
+			return false;
+		},
+		mouseStop: function(e) {
+			this.options.resizing = false;
+			var o = this.options, num = function(v) { return parseInt(v, 10) || 0; }, self = this;
+	
+			if(o.proxy) {
+				var pr = o.proportionallyResize, ista = pr && (/textarea/i).test(pr.get(0).nodeName), 
+							soffseth = ista && $.ui.hasScroll(pr.get(0), 'left') /* TODO - jump height */ ? 0 : self.sizeDiff.height,
+								soffsetw = ista ? 0 : self.sizeDiff.width;
+			
+				var s = { width: (self.size.width - soffsetw), height: (self.size.height - soffseth) },
+					left = (parseInt(self.element.css('left'), 10) + (self.position.left - self.originalPosition.left)) || null, 
+					top = (parseInt(self.element.css('top'), 10) + (self.position.top - self.originalPosition.top)) || null;
+				
+				if (!o.animate)
+					this.element.css($.extend(s, { top: top, left: left }));
+				
+				if (o.proxy && !o.animate) this._proportionallyResize();
+				this.helper.remove();
+			}
+
+			if (o.preserveCursor)
+			$('body').css('cursor', 'auto');
+	
+			this.propagate("stop", e);	
 			return false;
 		},
 		_updateCache: function(data) {
@@ -498,10 +490,14 @@
 				return $.extend(this._change.n.apply(this, arguments), this._change.w.apply(this, [e, dx, dy]));
 			}
 		}
-	});
+	}));
 	
 	$.extend($.ui.resizable, {
 		defaults: {
+			cancel: ":input,button",
+			distance: 0,
+			delay: 0,
+
 			preventDefault: true,
 			transparent: false,
 			minWidth: 10,

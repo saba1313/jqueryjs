@@ -257,7 +257,7 @@
 	};
 	
 	$.ui.mouse.defaults = {
-		cancel: "",
+		cancel: null,
 		distance: 0,
 		delay: 0
 	};

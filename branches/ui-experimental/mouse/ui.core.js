@@ -182,6 +182,11 @@
 		},
 		
 		mouseDown: function(e) {
+			
+			// we may have missed mouseup (out of window)
+			(this._mouseStarted
+				&& this.mouseUp(e));
+			
 			this._mouseDownEvent = e;
 			
 			var self = this,
@@ -191,23 +196,29 @@
 				return true;
 			}
 			
-			this._mouseDelayMet = false;
-			this._mouseDelayTimer = setTimeout(function() {
-				self._mouseDelayMet = true;
-			} , this.options.delay);
+			this._mouseDelayMet = (this.options.delay == 0);
+			if (!this._mouseDelayMet) {
+				this._mouseDelayTimer = setTimeout(function() {
+					self._mouseDelayMet = true;
+				}, this.options.delay);
+			}
 			
+			// these delegates are required to keep context
+			this._mouseMoveDelegate = function(e) {
+				return self.mouseMove(e);
+			}
+			this._mouseUpDelegate = function(e) {
+				return self.mouseUp(e);
+			}
 			$(document)
-				.bind('mousemove.mouse', function(e) {
-					return self.mouseMove(e);
-				})
-				.bind('mouseup.mouse', function(e) {
-					return self.mouseUp(e);
-				});
+				.bind('mousemove.mouse', this._mouseMoveDelegate)
+				.bind('mouseup.mouse', this._mouseUpDelegate);
 			
 			return false;
 		},
 		
 		mouseMove: function(e) {
+			
 			// IE mouseup check - mouseup happened when mouse was out of window
 			if ($.browser.msie && !e.button) {
 				return this.mouseUp(e);
@@ -228,7 +239,10 @@
 		},
 		
 		mouseUp: function(e) {
-			$(document).unbind('.mouse');
+			
+			$(document)
+				.unbind('mousemove.mouse', this._mouseMoveDelegate)
+				.unbind('mouseup.mouse', this._mouseUpDelegate);
 			
 			if (this._mouseStarted) {
 				this._mouseStarted = false;

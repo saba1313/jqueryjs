@@ -29,8 +29,16 @@
 			
 		},
 		mouseStart: function(e) {
-			
 			var o = this.options;
+			
+			if (o.disabled) return false;
+			
+			var handle = !this.options.handle || !$(this.options.handle, this.element).length ? true : false;
+			if(!handle) $(this.options.handle, this.element).each(function() {
+				if(this == e.target) handle = true;
+			});
+			if (!handle) return false;
+			
 			if($.ui.ddmanager) $.ui.ddmanager.current = this;
 			
 			//Create and append the visible helper
@@ -110,7 +118,7 @@
 			this.helperProportions = { width: this.helper.outerWidth(), height: this.helper.outerHeight() };//Recache the helper size
 			if ($.ui.ddmanager && !o.dropBehaviour) $.ui.ddmanager.prepareOffsets(this, e);
 			
-			return !o.disabled;
+			return true;
 		},
 		convertPositionTo: function(d, pos) {
 			if(!pos) pos = this.position;
@@ -191,7 +199,7 @@
 			return false;
 		},
 		mouseStop: function(e) {
-		
+			
 			//If we are using droppables, inform the manager about the drop
 			if ($.ui.ddmanager && !this.options.dropBehaviour)
 				$.ui.ddmanager.drop(this, e);

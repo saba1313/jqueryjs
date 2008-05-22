@@ -20,16 +20,16 @@
 			
 			//Initialize needed constants
 			var o = this.options;
-
+			
 			this.mouseInit();
-
+			
 			//Position the node
 			if(o.helper == 'original' && !(/(relative|absolute|fixed)/).test(this.element.css('position')))
 				this.element.css('position', 'relative');
 			
 		},
 		mouseStart: function(e) {
-
+			
 			var o = this.options;
 			if($.ui.ddmanager) $.ui.ddmanager.current = this;
 			
@@ -37,7 +37,7 @@
 			this.helper = $.isFunction(o.helper) ? $(o.helper.apply(this.element[0], [e])) : (o.helper == 'clone' ? this.element.clone() : this.element);
 			if(!this.helper.parents('body').length) this.helper.appendTo((o.appendTo == 'parent' ? this.element[0].parentNode : o.appendTo));
 			if(this.helper[0] != this.element[0] && !(/(fixed|absolute)/).test(this.helper.css("position"))) this.helper.css("position", "absolute");
-
+			
 			/*
 			 * - Position generation -
 			 * This block generates everything position related - it's the core of draggables.
@@ -47,42 +47,42 @@
 				left: (parseInt(this.element.css("marginLeft"),10) || 0),
 				top: (parseInt(this.element.css("marginTop"),10) || 0)
 			};		
-
+			
 			this.cssPosition = this.helper.css("position");													//Store the helper's css position
 			this.offset = this.element.offset();															//The element's absolute position on the page
 			this.offset = {																					//Substract the margins from the element's absolute offset
 				top: this.offset.top - this.margins.top,
 				left: this.offset.left - this.margins.left
 			};
-
+			
 			this.offset.click = {																			//Where the click happened, relative to the element
 				left: e.pageX - this.offset.left,
 				top: e.pageY - this.offset.top
 			};
-	
+			
 			this.offsetParent = this.helper.offsetParent(); var po = this.offsetParent.offset();			//Get the offsetParent and cache its position
 			this.offset.parent = {																			//Store its position plus border
 				top: po.top + (parseInt(this.offsetParent.css("borderTopWidth"),10) || 0),
 				left: po.left + (parseInt(this.offsetParent.css("borderLeftWidth"),10) || 0)
 			};
-	
+			
 			var p = this.element.position();																//This is a relative to absolute position minus the actual position calculation - only used for relative positioned helpers
 			this.offset.relative = this.cssPosition == "relative" ? {
 				top: p.top - (parseInt(this.helper.css("top"),10) || 0) + this.offsetParent[0].scrollTop,
 				left: p.left - (parseInt(this.helper.css("left"),10) || 0) + this.offsetParent[0].scrollLeft
 			} : { top: 0, left: 0 };
-		
+			
 			this.originalPosition = this.generatePosition(e);												//Generate the original position
 			this.helperProportions = { width: this.helper.outerWidth(), height: this.helper.outerHeight() };//Cache the helper size
-
+			
 			if(o.cursorAt) {
 				if(o.cursorAt.left != undefined) this.offset.click.left = o.cursorAt.left;
 				if(o.cursorAt.right != undefined) this.offset.click.left = this.helperProportions.width - o.cursorAt.right;
 				if(o.cursorAt.top != undefined) this.offset.click.top = o.cursorAt.top;
 				if(o.cursorAt.bottom != undefined) this.offset.click.top = this.helperProportions.height - o.cursorAt.bottom;
 			}
-
-
+			
+			
 			/*
 			 * - Position constraining -
 			 * Here we prepare position constraining like grid and containment.
@@ -94,7 +94,7 @@
 				if(!(/^(document|window|parent)$/).test(o.containment)) {
 					var ce = $(o.containment)[0];
 					var co = $(o.containment).offset();
-
+					
 					this.containment = [
 						co.left + (parseInt($(ce).css("borderLeftWidth"),10) || 0) - this.offset.relative.left - this.offset.parent.left,
 						co.top + (parseInt($(ce).css("borderTopWidth"),10) || 0) - this.offset.relative.top - this.offset.parent.top,
@@ -103,16 +103,14 @@
 					];
 				}
 			}
-
-
+			
 			//Call plugins and callbacks
 			this.propagate("start", e);
-
+			
 			this.helperProportions = { width: this.helper.outerWidth(), height: this.helper.outerHeight() };//Recache the helper size
 			if ($.ui.ddmanager && !o.dropBehaviour) $.ui.ddmanager.prepareOffsets(this, e);
-
+			
 			return !o.disabled;
-
 		},
 		convertPositionTo: function(d, pos) {
 			if(!pos) pos = this.position;
@@ -153,9 +151,8 @@
 					+ (this.cssPosition == "fixed" ? 0 : this.offsetParent[0].scrollLeft)	// The offsetParent's scroll position, not if the element is fixed
 				)
 			};
-
-			if(!this.originalPosition) return position;										//If we are not dragging yet, we won't check for options
 			
+			if(!this.originalPosition) return position;										//If we are not dragging yet, we won't check for options
 			
 			/*
 			 * - Position constraining -
@@ -171,7 +168,7 @@
 			if(o.grid) {
 				var top = this.originalPosition.top + Math.round((position.top - this.originalPosition.top) / o.grid[1]) * o.grid[1];
 				position.top = this.containment ? (!(top < this.containment[1] || top > this.containment[3]) ? top : (!(top < this.containment[1]) ? top - o.grid[1] : top + o.grid[1])) : top;
-
+				
 				var left = this.originalPosition.left + Math.round((position.left - this.originalPosition.left) / o.grid[0]) * o.grid[0];
 				position.left = this.containment ? (!(left < this.containment[0] || left > this.containment[2]) ? left : (!(left < this.containment[0]) ? left - o.grid[0] : left + o.grid[0])) : left;
 			}
@@ -179,19 +176,19 @@
 			return position;
 		},
 		mouseDrag: function(e) {
-
+			
 			//Compute the helpers position
 			this.position = this.generatePosition(e);
 			this.positionAbs = this.convertPositionTo("absolute");
-
+			
 			//Call plugins and callbacks and use the resulting position if something is returned		
 			this.position = this.propagate("drag", e) || this.position;
 			
 			if(!this.options.axis || this.options.axis == "x") this.helper[0].style.left = this.position.left+'px';
 			if(!this.options.axis || this.options.axis == "y") this.helper[0].style.top = this.position.top+'px';
 			if($.ui.ddmanager) $.ui.ddmanager.drag(this, e);
+			
 			return false;
-
 		},
 		mouseStop: function(e) {
 		
@@ -209,9 +206,8 @@
 				this.propagate("stop", e);
 				this.clear();
 			}
-
-			return false;
 			
+			return false;
 		},
 		clear: function() {
 			if(this.options.helper != 'original' && !this.cancelHelperRemoval) this.helper.remove();
@@ -260,7 +256,7 @@
 			if (ui.options._cursor) $('body').css("cursor", ui.options._cursor);
 		}
 	});
-
+	
 	$.ui.plugin.add("draggable", "zIndex", {
 		start: function(e, ui) {
 			var t = $(ui.helper);
@@ -271,7 +267,7 @@
 			if(ui.options._zIndex) $(ui.helper).css('zIndex', ui.options._zIndex);
 		}
 	});
-
+	
 	$.ui.plugin.add("draggable", "opacity", {
 		start: function(e, ui) {
 			var t = $(ui.helper);
@@ -306,7 +302,7 @@
 			var i = $(this).data("draggable");
 			o.scrollSensitivity	= o.scrollSensitivity || 20;
 			o.scrollSpeed		= o.scrollSpeed || 20;
-
+			
 			i.overflowY = function(el) {
 				do { if(/auto|scroll/.test(el.css('overflow')) || (/auto|scroll/).test(el.css('overflow-y'))) return el; el = el.parent(); } while (el[0].parentNode);
 				return $(document);
@@ -324,7 +320,7 @@
 			
 			var o = ui.options;
 			var i = $(this).data("draggable");
-
+			
 			if(i.overflowY[0] != document && i.overflowY[0].tagName != 'HTML') {
 				if((i.overflowYOffset.top + i.overflowY[0].offsetHeight) - e.pageY < o.scrollSensitivity)
 					i.overflowY[0].scrollTop = i.overflowY[0].scrollTop + o.scrollSpeed;
@@ -349,7 +345,7 @@
 				if($(window).width() - (e.pageX - $(document).scrollLeft()) < o.scrollSensitivity)
 					$(document).scrollLeft($(document).scrollLeft() + o.scrollSpeed);
 			}
-
+			
 		}
 	});
 	
@@ -369,20 +365,20 @@
 			
 		},
 		drag: function(e, ui) {
-
+			
 			var inst = $(this).data("draggable");
 			var d = ui.options.snapTolerance || 20;
 			var x1 = ui.absolutePosition.left, x2 = x1 + inst.helperProportions.width,
 				y1 = ui.absolutePosition.top, y2 = y1 + inst.helperProportions.height;
-
+			
 			for (var i = inst.snapElements.length - 1; i >= 0; i--){
-
+				
 				var l = inst.snapElements[i].left, r = l + inst.snapElements[i].width, 
 					t = inst.snapElements[i].top, b = t + inst.snapElements[i].height;
-
+				
 				//Yes, I know, this is insane ;)
 				if(!((l-d < x1 && x1 < r+d && t-d < y1 && y1 < b+d) || (l-d < x1 && x1 < r+d && t-d < y2 && y2 < b+d) || (l-d < x2 && x2 < r+d && t-d < y1 && y1 < b+d) || (l-d < x2 && x2 < r+d && t-d < y2 && y2 < b+d))) continue;
-
+				
 				if(ui.options.snapMode != 'inner') {
 					var ts = Math.abs(t - y2) <= 20;
 					var bs = Math.abs(b - y1) <= 20;
@@ -404,7 +400,7 @@
 					if(ls) ui.position.left = inst.convertPositionTo("relative", { top: 0, left: l }).left;
 					if(rs) ui.position.left = inst.convertPositionTo("relative", { top: 0, left: r - inst.helperProportions.width }).left;
 				}
-
+				
 			};
 		}
 	});
@@ -450,7 +446,7 @@
 					//Cache the width/height of the new helper
 					var height = inst.options.placeholderElement ? $(inst.options.placeholderElement, $(inst.options.items, inst.element)).innerHeight() : $(inst.options.items, inst.element).innerHeight();
 					var width = inst.options.placeholderElement ? $(inst.options.placeholderElement, $(inst.options.items, inst.element)).innerWidth() : $(inst.options.items, inst.element).innerWidth();
-
+					
 					//Now we fake the start of dragging for the sortable instance,
 					//by cloning the list group item, appending it to the sortable and using it as inst.currentItem
 					//We can then fire the start event of the sortable with our passed browser event, and our own helper (so it doesn't create a new one)
@@ -470,7 +466,7 @@
 					instDraggable.propagate("toSortable", e);
 				
 				}
-
+				
 				//Provided we did all the previous steps, we can fire the drag event of the sortable on every draggable drag, when it intersects with the sortable
 				if(inst.currentItem) inst.drag(e);
 				

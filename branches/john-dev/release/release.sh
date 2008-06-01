@@ -31,3 +31,8 @@ cp -f jquery-$1.js jquery-latest.js
 cp -f jquery-$1.js jquery.js
 
 perl ../../upload.pl jquery-latest* jquery.js
+
+python ../../googlecode_upload.py -s "jQuery $1" -p jqueryjs -u jeresig -l Type-Source,Featured jquery-$1.js
+python ../../googlecode_upload.py -s "jQuery $1 (Minifed)" -p jqueryjs -u jeresig -l Type-Source,Featured jquery-$1.min.js
+python ../../googlecode_upload.py -s "jQuery $1 (Packed)" -p jqueryjs -u jeresig -l Type-Source,Featured jquery-$1.pack.js
+python ../../googlecode_upload.py -s "jQuery $1 (Source Code, Test Suite)" -p jqueryjs -u jeresig -l Type-Archive,Featured jquery-$1-release.zip

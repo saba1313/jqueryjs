@@ -18,6 +18,7 @@ make all
 zip -r jquery-$1-build.zip GPL-LICENSE.txt MIT-LICENSE.txt Makefile README build build.xml src version.txt -x \*.svn\*
 zip -r jquery-$1-release.zip dist docs test -x \*.svn\*
 cp -f dist/jquery.pack.js jquery-$1.pack.js
+cp -f dist/jquery.min.js jquery-$1.min.js
 cp -f dist/jquery.lite.js jquery-$1.js
 
 perl ../../upload.pl jquery-$1*
@@ -25,6 +26,7 @@ perl ../../upload.pl jquery-$1*
 cp -f jquery-$1-build.zip jquery-latest-build.js
 cp -f jquery-$1-release.zip jquery-latest-release.js
 cp -f jquery-$1.pack.js jquery-latest.pack.js
+cp -f jquery-$1.min.js jquery-latest.min.js
 cp -f jquery-$1.js jquery-latest.js
 cp -f jquery-$1.js jquery.js
 

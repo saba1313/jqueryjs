@@ -10,76 +10,79 @@
  * Depends:
  *	ui.core.js
  *
- * Marc Grabanski (m@marcgrabanski.com) and Keith Wood (kbwood@virginbroadband.com.au).
+ * Authors:
+ *   Marc Grabanski	(m@marcgrabanski.com) - http://marcgrabanski.com
+ *   Keith Wood (kbwood@virginbroadband.com.au) - http://keith-wood.name
  */
 (function($) {
 	
 $.ui.datepicker.regional[''] = { // Default regional settings
-	clearText: 'Clear', // Display text for clear link
-	clearStatus: 'Erase the current date', // Status text for clear link
-	closeText: 'Close', // Display text for close link
-	closeStatus: 'Close without change', // Status text for close link
-	currentText: 'Today', // Display text for current month link
-	currentStatus: 'Show the current month', // Status text for current month link
-	dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], // For formatting
-	dayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], // For formatting
-	dayNamesMin: ['Su','Mo','Tu','We','Th','Fr','Sa'], // Column headings for days starting at Sunday
-	dayStatus: 'Set DD as first week day', // Status text for the day of the week selection
-	dateStatus: 'Select DD, M d', // Status text for the date selection
-	dateFormat: 'mm/dd/yy', // See format options on parseDate
-	firstDay: 0, // The first day of the week, Sun = 0, Mon = 1, ...
-	initStatus: 'Select a date', // Initial Status text on opening
-	isRTL: false // True if right-to-left language, false if left-to-right
-	nextText: 'Next&#x3e;', // Display text for next month link
-	nextStatus: 'Show the next month', // Status text for next month link
-	prevText: '&#x3c;Prev', // Display text for previous month link
-	prevStatus: 'Show the previous month', // Status text for previous month link
-	monthNames: ['January','February','March','April','May','June',
-		'July','August','September','October','November','December'], // Names of months for drop-down and formatting
-	monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], // For formatting
-	monthStatus: 'Show a different month', // Status text for selecting a month
-	weekHeader: 'Wk', // Header for the week of the year column
-	weekStatus: 'Week of the year', // Status text for the week of the year column
-	yearStatus: 'Show a different year', // Status text for selecting a year
+	clearText: 		'Clear', // Display text for clear link
+	clearStatus: 	'Erase the current date', // Status text for clear link
+	closeText: 		'Close', // Display text for close link
+	closeStatus: 	'Close without change', // Status text for close link
+	currentText: 	'Today', // Display text for current month link
+	currentStatus: 	'Show the current month', // Status text for current month link
+	dayNames: 		['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+	dayNamesShort: 	['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], // For formatting
+	dayNamesMin: 	['Su','Mo','Tu','We','Th','Fr','Sa'], // Column headings for days starting at Sunday
+	dayStatus: 		'Set DD as first week day', // Status text for the day of the week selection
+	dateStatus: 	'Select DD, M d', // Status text for the date selection
+	dateFormat: 	'mm/dd/yy', // See format options on parseDate
+	firstDay: 		0, // The first day of the week, Sun = 0, Mon = 1, ...
+	initStatus: 	'Select a date', // Initial Status text on opening
+	isRTL: 			false // True if right-to-left language, false if left-to-right
+	nextText: 		'Next&#x3e;', // Display text for next month link
+	nextStatus: 	'Show the next month', // Status text for next month link
+	prevText: 		'&#x3c;Prev', // Display text for previous month link
+	prevStatus: 	'Show the previous month', // Status text for previous month link
+	monthNames: 	['January','February','March','April','May','June',
+		'July','August','September','October','November','December'], // month names for drop-down list
+	monthNamesShort:['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+	monthStatus: 	'Show a different month', // Status text for selecting a month
+	weekHeader: 	'Wk', // Header for the week of the year column
+	weekStatus: 	'Week of the year', // Status text for the week of the year column
+	yearStatus: 	'Show a different year', // Status text for selecting a year
 }
 
 $.ui.datepicker.defaults = {
-	altField: '', // Selector for an alternate field to store selected dates into
-	altFormat: '', // The date format to use for the alternate field
-	appendText: '', // Display text following the input box, e.g. showing the format
-	buttonText: '...', // Text for trigger button
-	buttonImage: '', // URL for trigger button image
-	buttonImageOnly: false, // True if the image appears alone, false if it appears on a button
-	calculateWeek: this.iso8601Week, // How to calculate the week of the year,
-		// takes a Date and returns the number of the week for it
-	changeFirstDay: true, // True to click on day name to change, false to remain as set
-	changeMonth: true, // True if month can be selected directly, false if only prev/next
-	changeYear: true, // True if year can be selected directly, false if only prev/next
-	defaultDate: null, // Used when field is blank: actual date,
-		// +/-number for offset from today, null for today
-	highlightWeek: false, // True to highlight the selected week
-	layout: ["control","links","header","calendar"],
-	maxDate: null, // The latest selectable date, or null for no limit
-	minDate: null, // The earliest selectable date, or null for no limit
+	altField: 		'', 	// Selector for an alternate field to store selected dates into
+	altFormat: 		'', 	// The date format to use for the alternate field
+	appendText: 	'', 	// Display text following the input box, e.g. showing the format
+	buttonText: 	'...', 	// Text for trigger button
+	buttonImage: 	'', 	// URL for trigger button image
+	buttonImageOnly:false, 	// True if the image appears alone, false if it appears on a button
+	calculateWeek: 	this.iso8601Week, 
+							/* How to calculate the week of the year,
+								takes a Date and returns the number of the week for it */
+	changeFirstDay: true, 	// True to click on day name to change, false to remain as set
+	changeMonth: 	true, 	// True if month can be selected directly, false if only prev/next
+	changeYear: 	true, 	// True if year can be selected directly, false if only prev/next
+	defaultDate: 	null, 	/* Used when field is blank: actual date,
+							 	+/-number for offset from today, null for today */
+	highlightWeek: 	false, 	// True to highlight the selected week
+	layout: 		["control","links","header","calendar"],
+	maxDate: 		null, 	// The latest selectable date, or null for no limit
+	minDate: 		null, 	// The earliest selectable date, or null for no limit
 	navigationAsDateFormat: false, // True if date formatting applied to prev/today/next links
-	numberOfMonths: 1, // Number of months to show at a time
-	rangeSelect: false, // Allows for selecting a date range on one date picker
-	rangeSeparator: ' - ', // Text between two dates in a range
-	shortYearCutoff: '+10', // Short year values < this are in the current century,
-		// > this are in the previous century, 
-		// string value starting with '+' for current year + value
-	showOtherMonths: false, // True to show dates in other months, false to leave blank
-	showWeeks: false, // True to show week of the year, false to omit
-	showStatus: false, // True to show status bar at bottom, false to not show it
-	showOn: 'focus', // 'focus' for popup on focus,
-		// 'button' for trigger button, or 'both' for either
-	showAnim: 'show', // Name of jQuery animation for popup
-	speed: 'normal', // Speed of display/closure
-	statusForDate: this.dateStatus, // Function to provide status text for a date -
-		// takes date and instance as parameters, returns display text
-	stepMonths: 1, // Number of months to step back/forward
-	yearRange: '-10:+10' // Range of years to display in drop-down,
-		// either relative to current year (-nn:+nn) or absolute (nnnn:nnnn)
+	numberOfMonths: 1, 		// Number of months to show at a time
+	rangeSelect: 	false, 	// Allows for selecting a date range on one date picker
+	rangeSeparator: ' - ', 	// Text between two dates in a range
+	shortYearCutoff:'+10', 	/* Short year values < this are in the current century,
+								> this are in the previous century, 
+								string value starting with '+' for current year + value */
+	showOtherMonths:false, 	// True to show dates in other months, false to leave blank
+	showWeeks: 		false, 	// True to show week of the year, false to omit
+	showStatus: 	false, 	// True to show status bar at bottom, false to not show it
+	showOn: 		'focus', /* 'focus' for popup on focus,
+							// 'button' for trigger button, or 'both' for either */
+	showAnim: 		'show', // Name of jQuery animation for popup
+	speed: 			'normal', // Speed of display/closure
+	statusForDate: 	this.dateStatus, // Function to provide status text for a date -
+							// takes date and instance as parameters, returns display text
+	stepMonths: 	1, 		// Number of months to step back/forward
+	yearRange: 		'-10:+10' // Range of years to display in drop-down,
+							// either relative to current year (-nn:+nn) or absolute (nnnn:nnnn)
 };
 
 var pre = 'ui-datepicker-';
@@ -139,10 +142,10 @@ $.widget("ui.datepicker", {
 			new Date(this._currentYear, this._currentMonth, this._currentDay));
 		return formatDate(this._get('dateFormat'), date, this._getFormatConfig());
 	},
-	beforeShowDay: function(e){}, // Function that takes a date and returns an array with
-		// [0] = true if selectable, false if not 
-		// [1] = custom CSS class name(s) or ''
-		// [2] = cell title (optional), e.g. $.datepicker.noWeekends
+	beforeShowDay: function(e){}, /* Function that takes a date and returns an array:
+			[0] = true if selectable, false if not 
+			[1] = custom CSS class name(s) or ''
+			[2] = cell title (optional), e.g. $.datepicker.noWeekends */
 	beforeShow: function(e){}, // Function that takes an input field and
 		// returns a set of custom settings for the date picker
 	onSelect: function(e){}, // Define a callback function when a date is selected

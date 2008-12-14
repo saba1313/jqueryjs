@@ -1,6 +1,6 @@
 ﻿/*
  * jQuery blockUI plugin
- * Version 2.10 (10/22/2008)
+ * Version 2.11 (12/13/2008)
  * @requires jQuery v1.2.3 or later
  *
  * Examples at: http://malsup.com/jquery/block/
@@ -41,7 +41,7 @@ $.fn.unblock = function(opts) {
     });
 };
 
-$.blockUI.version = 2.09; // 2nd generation blocking at no extra cost!
+$.blockUI.version = 2.11; // 2nd generation blocking at no extra cost!
 
 // override these in your code to change the default behavior and style
 $.blockUI.defaults = {
@@ -241,12 +241,14 @@ function reset(els,data,opts,el) {
         if (this.parentNode) 
             this.parentNode.removeChild(this);
     });
+
     if (data && data.el) {
         data.el.style.display = data.display;
         data.el.style.position = data.position;
         data.parent.appendChild(data.el);
         $(data.el).removeData('blockUI.history');
     }
+
     if (typeof opts.onUnblock == 'function')
         opts.onUnblock(el,opts);
 };
@@ -262,7 +264,7 @@ function bind(b, el, opts) {
         $el.data('blockUI.isBlocked', b);
         
     // bind anchors and inputs for mouse and key events
-    var events = 'mousedown mouseup keydown keypress click';
+    var events = 'mousedown mouseup keydown keypress';
     b ? $(document).bind(events, opts, handler) : $(document).unbind(events, handler);
 
 // former impl...

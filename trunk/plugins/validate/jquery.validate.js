@@ -935,17 +935,17 @@ $.extend($.validator, {
 
 		// http://docs.jquery.com/Plugins/Validation/Methods/minlength
 		minlength: function(value, element, param) {
-			return this.optional(element) || this.getLength(value, element) >= param;
+			return this.optional(element) || this.getLength($.trim(value), element) >= param;
 		},
 		
 		// http://docs.jquery.com/Plugins/Validation/Methods/maxlength
 		maxlength: function(value, element, param) {
-			return this.optional(element) || this.getLength(value, element) <= param;
+			return this.optional(element) || this.getLength($.trim(value), element) <= param;
 		},
 		
 		// http://docs.jquery.com/Plugins/Validation/Methods/rangelength
 		rangelength: function(value, element, param) {
-			var length = this.getLength(value, element);
+			var length = this.getLength($.trim(value), element);
 			return this.optional(element) || ( length >= param[0] && length <= param[1] );
 		},
 		

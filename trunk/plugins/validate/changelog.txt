@@ -3,6 +3,7 @@
 * Updated marketo demo to use invalidHandler option instead of binding invalid-form event
 * Added TinyMCE integration example
 * Added ukrainian (ua) localization
+* Fixed length validation to work with trimmed value (regression from 1.5 where general trimming before validation was removed)
 
 1.5
 ---

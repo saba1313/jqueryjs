@@ -83,7 +83,7 @@ test("serialize: pseudo form", function() {
 
 // test resetForm
 test("resetForm (text input)", function() {
-    var $el = $('#form1 input[@name=Name]');
+    var $el = $('#form1 input[name=Name]');
     var val = $el.val();
     ok( 'MyName1' == val, 'beforeSubmit: ' + val);
     $el.val("test");
@@ -96,7 +96,7 @@ test("resetForm (text input)", function() {
 
 // test resetForm
 test("resetForm (select)", function() {
-    var $el = $('#form1 select[@name=Single]');
+    var $el = $('#form1 select[name=Single]');
     var val = $el.val();
     ok( 'one' == val, 'beforeSubmit: ' + val);
     $el.val("two");
@@ -145,7 +145,7 @@ test("resetForm (radio)", function() {
 
 // test clearForm
 test("clearForm (text input)", function() {
-    var $el = $('#form1 input[@name=Name]');
+    var $el = $('#form1 input[name=Name]');
     var val = $el.val();
     ok( 'MyName1' == val, 'beforeSubmit: ' + val);
     $('#form1').clearForm();
@@ -155,7 +155,7 @@ test("clearForm (text input)", function() {
 
 // test resetForm
 test("clearForm (select)", function() {
-    var $el = $('#form1 select[@name=Single]');
+    var $el = $('#form1 select[name=Single]');
     var val = $el.val();
     ok( 'one' == val, 'beforeSubmit: ' + val);
     $('#form1').clearForm();
@@ -626,7 +626,7 @@ test("fieldValue(true)", function() {
         ok ( result[i] == expected[i], expected[i] );
 
     expected = ['3','4'];
-    result = $('#fieldTest [@name=B]').fieldValue(true);
+    result = $('#fieldTest [name=B]').fieldValue(true);
     ok (result.length == expected.length, 'result size check (select-multiple): ' + result.length + '=' + expected.length);
     for (var i=0; i < result.length; i++)
         ok ( result[i] == expected[i], expected[i] );
@@ -652,7 +652,7 @@ test("fieldValue(false)", function() {
         ok ( result[i] == expected[i], expected[i] );
 
     expected = ['3','4'];
-    result = $('#fieldTest [@name=B]').fieldValue(false);
+    result = $('#fieldTest [name=B]').fieldValue(false);
     ok (result.length == expected.length, 'result size check (select-multiple): ' + result.length + '=' + expected.length);
     for (var i=0; i < result.length; i++)
         ok ( result[i] == expected[i], expected[i] );
@@ -694,7 +694,7 @@ test("fieldSerialize(false) :input", function() {
 test("fieldSerialize(true) select-mulitple", function() {
     var expected = ['B=3','B=4'];
 
-    var result = $('#fieldTest [@name=B]').fieldSerialize(true);
+    var result = $('#fieldTest [name=B]').fieldSerialize(true);
     result = result.split('&');
 
     ok (result.length == expected.length, 'result size check: ' + result.length + '=' + expected.length);

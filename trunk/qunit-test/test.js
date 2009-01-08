@@ -34,3 +34,21 @@ test("module without setup/teardown", function() {
 	expect(1);
 	ok(true);
 });
+
+var state;
+
+module("teardown and stop", {
+	teardown: function() {
+		ok(state == "done");
+	}
+});
+
+test("teardown must be called after test ended", function() {
+	
+	expect(1);
+	stop();
+	setTimeout(function() {
+		state = "done";
+		start();
+	}, 0);
+});

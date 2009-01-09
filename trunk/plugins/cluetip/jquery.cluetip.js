@@ -1,6 +1,6 @@
 /*
  * jQuery clueTip plugin
- * Version 0.9.9pre1  (07/05/2008)
+ * Version 0.9.9pre2  (01/09/2008)
  * @requires jQuery v1.1.4+
  * @requires Dimensions plugin (for jQuery versions < 1.2.5)
  *
@@ -88,17 +88,17 @@
         $cluetipOuter.css({position: 'relative', zIndex: cluezIndex+1});
         $cluetipArrows = $('<div id="cluetip-arrows" class="cluetip-arrows"></div>').css({zIndex: cluezIndex+1}).appendTo('#cluetip');
       }
-      var dropShadowSteps = opts.dropShadow ? +opts.dropShadowSteps : 0;
+      var dropShadowSteps = (opts.dropShadow) ? +opts.dropShadowSteps : 0;
       if (!$dropShadow) {
         $dropShadow = $([]);
         for (var i=0; i < dropShadowSteps; i++) {
           $dropShadow = $dropShadow.add($('<div></div>').css({zIndex: cluezIndex-i-1, opacity:.1, top: 1+i, left: 1+i}));
-        }
-        $dropShadow.css({position: 'absolute', backgroundColor: opts.dropShadowColor})
+        };
+        $dropShadow.css({position: 'absolute', backgroundColor: '#000'})
         .prependTo($cluetip);
       }
       var tipAttribute = $this.attr(opts.attribute), ctClass = opts.cluetipClass;
-      if (!tipAttribute && !opts.splitTitle && !js) {return true;}
+      if (!tipAttribute && !opts.splitTitle && !js) return true;
       // if hideLocal is set to true, on DOM ready hide the local content that will be displayed in the clueTip
       if (opts.local && opts.localPrefix) {tipAttribute = opts.localPrefix + tipAttribute;}
       if (opts.local && opts.hideLocal) { $(tipAttribute + ':first').hide(); }
@@ -121,7 +121,7 @@
         tipParts = tipTitle.split(opts.splitTitle);
         tipTitle = tipParts.shift();
       }
-      var localContent, wrapped = false;
+      var localContent;
 
 /***************************************      
 * ACTIVATION
@@ -187,19 +187,19 @@
       else if (tipParts) {
         var tpl = tipParts.length;
         for (var i=0; i < tpl; i++){
-          if (i === 0) {
+          if (i == 0) {
             $cluetipInner.html(tipParts[i]);
           } else { 
             $cluetipInner.append('<div class="split-body">' + tipParts[i] + '</div>');
           }            
-        }
+        };
         cluetipShow(pY);
       }
 /***************************************
 * load external file via ajax          
 ***************************************/
 
-      else if (!opts.local && tipAttribute.indexOf('#') !== 0) {
+      else if (!opts.local && tipAttribute.indexOf('#') != 0) {
         if (cluetipContents && opts.ajaxCache) {
           $cluetipInner.html(cluetipContents);
           cluetipShow(pY);
@@ -227,19 +227,19 @@
             }
           };
           ajaxSettings.complete = function() {
-          	imgCount = $('#cluetip-inner img').length;
-        		if (imgCount && !$.browser.opera) {
-        		  $('#cluetip-inner img').load(function() {
-          			imgCount--;
-          			if (imgCount<1) {
-          				$('#cluetip-waitimage').hide();
-          			  if (isActive) cluetipShow(pY);
-          			}
-        		  }); 
-        		} else {
-      				$('#cluetip-waitimage').hide();
-        		  if (isActive) {cluetipShow(pY);}    
-        		} 
+            imgCount = $('#cluetip-inner img').length;
+            if (imgCount && !$.browser.opera) {
+              $('#cluetip-inner img').load(function() {
+                imgCount--;
+                if (imgCount<1) {
+                  $('#cluetip-waitimage').hide();
+                  if (isActive) cluetipShow(pY);
+                }
+              }); 
+            } else {
+              $('#cluetip-waitimage').hide();
+              if (isActive) cluetipShow(pY);    
+            } 
           };
           $.ajax(ajaxSettings);
         }
@@ -248,17 +248,9 @@
 * load an element from the same page
 ***************************************/
       } else if (opts.local){
-        var $localContent = $(tipAttribute + ':first');
-        if (typeof $.fn.wrapInner  != 'undefined') {
-          if (wrapped === false) {
-            $localContent.wrapInner('<div></div>');
-          }
-          wrapped = true;
-          var $localCluetip = $localContent.children().clone(true);
-          $cluetipInner.empty().append($localCluetip);
-        } else {
-          $cluetipInner.html($localContent.html());
-        }
+        var $localContent = $(tipAttribute + ':eq(' + index + ')');
+        var localCluetip = $.fn.wrapInner ? $localContent.wrapInner('<div></div>').children().clone(true) : $localContent.html();
+        $.fn.wrapInner ? $cluetipInner.empty().append(localCluetip) : $cluetipInner.html(localCluetip);
         cluetipShow(pY);
       }
     };
@@ -267,7 +259,7 @@
     var cluetipShow = function(bpY) {
       $cluetip.addClass('cluetip-' + ctClass);
       
-      if (opts.truncate && (+opts.truncate < $cluetipInner.text().length)) { 
+      if (opts.truncate) { 
         var $truncloaded = $cluetipInner.text().slice(0,opts.truncate) + '...';
         $cluetipInner.html($truncloaded);
       }
@@ -339,6 +331,7 @@
         closeOnDelay = setTimeout(cluetipClose, opts.delayedClose);
       }
       opts.onShow($cluetip, $cluetipInner);
+      
     };
 
 /***************************************
@@ -472,7 +465,6 @@ clearTimeout(closeOnDelay);
     cursor:           'help',
     arrows:           false,    // if true, displays arrow on appropriate side of clueTip
     dropShadow:       true,     // set to false if you don't want the drop-shadow effect on the clueTip
-    dropShadowColor:  '#000',
     dropShadowSteps:  6,        // adjusts the size of the drop shadow
     sticky:           false,    // keep visible until manually closed
     mouseOutClose:    false,    // close when clueTip is moused out

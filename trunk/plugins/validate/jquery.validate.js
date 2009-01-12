@@ -92,9 +92,9 @@ $.extend($.fn, {
 	removeAttrs: function(attributes) {
 		var result = {},
 			$element = this;
-		$.each(attributes.split(/\s/), function() {
-			result[this] = $element.attr(this);
-			$element.removeAttr(this);
+		$.each(attributes.split(/\s/), function(index, value) {
+			result[value] = $element.attr(value);
+			$element.removeAttr(value);
 		});
 		return result;
 	},
@@ -144,10 +144,6 @@ $.extend($.fn, {
 		}
 		
 		return data;
-	},
-	// destructive add
-	push: function( t ) {
-		return this.setArray( this.add(t).get() );
 	}
 });
 
@@ -331,7 +327,7 @@ $.extend($.validator, {
 			}
 			if ( !this.numberOfInvalids() ) {
 				// Hide error containers on last error
-				this.toHide.push( this.containers );
+				this.toHide = this.toHide.add( this.containers );
 			}
 			this.showErrors();
 			return result;
@@ -451,7 +447,7 @@ $.extend($.validator, {
 		
 		prepareForm: function() {
 			this.reset();
-			this.toHide = this.errors().push( this.containers );
+			this.toHide = this.errors().add( this.containers );
 		},
 		
 		prepareElement: function( element ) {
@@ -559,7 +555,7 @@ $.extend($.validator, {
 		
 		addWrapper: function(toToggle) {
 			if ( this.settings.wrapper )
-				toToggle.push( toToggle.parents( this.settings.wrapper ) );
+				toToggle = toToggle.add( toToggle.parents( this.settings.wrapper ) );
 			return toToggle;
 		},
 		
@@ -570,7 +566,7 @@ $.extend($.validator, {
 				this.showLabel( error.element, error.message );
 			}
 			if( this.errorList.length ) {
-				this.toShow.push( this.containers );
+				this.toShow = this.toShow.add( this.containers );
 			}
 			if (this.settings.success) {
 				for ( var i = 0; this.successList[i]; i++ ) {
@@ -614,7 +610,8 @@ $.extend($.validator, {
 				if ( this.settings.wrapper ) {
 					// make sure the element is visible, even in IE
 					// actually showing the wrapped element is handled elsewhere
-					label = label.hide().show().wrap("<" + this.settings.wrapper + ">").parent();
+					// TODO remove appendTo once http://dev.jquery.com/ticket/3828 is fixed
+					label = label.hide().show().appendTo(document).wrap("<" + this.settings.wrapper + "/>").parent();
 				}
 				if ( !this.labelContainer.append(label).length )
 					this.settings.errorPlacement
@@ -627,7 +624,7 @@ $.extend($.validator, {
 					? label.addClass( this.settings.success )
 					: this.settings.success( label );
 			}
-			this.toShow.push(label);
+			this.toShow = this.toShow.add(label);
 		},
 		
 		errorsFor: function(element) {

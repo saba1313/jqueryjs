@@ -411,7 +411,7 @@ test("error containers, simple", function() {
 	v.errorList = [{message:"bar", element: {name:"foo"}}, {message: "necessary", element: {name:"required"}}];
 	ok( !v.valid(), "form is not valid after adding errors manually" );
 	v.showErrors();
-	equals( 2, container.find("label").length, "There should be two error labels" );
+	equals( container.find("label").length, 2, "There should be two error labels" );
 	ok( container.is(":visible"), "Check that the container is visible" );
 	container.find("label").each(function() {
 		ok( $(this).is(":visible"), "Check that each label is visible" );
@@ -421,7 +421,7 @@ test("error containers, simple", function() {
 	v.prepareForm();
 	ok( v.valid(), "form is valid after a reset" );
 	v.showErrors();
-	equals( 2, container.find("label").length, "There should still be two error labels" );
+	equals( container.find("label").length, 2, "There should still be two error labels" );
 	ok( container.is(":hidden"), "Check that the container is hidden" );
 	container.find("label").each(function() {
 		ok( $(this).is(":hidden"), "Check that each label is hidden" );
@@ -829,7 +829,7 @@ test("validate on blur", function() {
 		equals(v.errors().filter(":visible").size(), expected);
 	}
 	function blur(target) {
-		$("#testForm1").triggerEvent("focusout", target[0]);
+		target.trigger("focusout");
 	}
 	var e = $("#firstname");
 	var v = $("#testForm1").validate();
@@ -867,7 +867,7 @@ test("validate on keyup", function() {
 		equals(expected, v.size(), message );
 	}
 	function keyup(target) {
-		$("#testForm1").triggerEvent("keyup", target[0]);
+		target.trigger("keyup");
 	}
 	var e = $("#firstname");
 	var v = $("#testForm1").validate();
@@ -902,10 +902,10 @@ test("validate on not keyup, only blur", function() {
 	});
 	errors(0);
 	e.val("a");
-	$("#testForm1").triggerEvent("keyup", e[0]);
+	e.trigger("keyup");
 	e.keyup();
 	errors(0);
-	$("#testForm1").triggerEvent("focusout", e[0]);
+	e.trigger("focusout");
 	errors(1);
 });
 
@@ -917,9 +917,9 @@ test("validate on keyup and blur", function() {
 	var v = $("#testForm1").validate();
 	errors(0);
 	e.val("a");
-	$("#testForm1").triggerEvent("keyup", e[0]);
+	e.trigger("keyup");
 	errors(0);
-	$("#testForm1").triggerEvent("focusout", e[0]);
+	e.trigger("focusout");
 	errors(1);
 });
 
@@ -932,10 +932,10 @@ test("validate email on keyup and blur", function() {
 	v.form();
 	errors(2);
 	e.val("a");
-	$("#testForm1").triggerEvent("keyup", e[0]);
+	e.trigger("keyup");
 	errors(1);
 	e.val("aa");
-	$("#testForm1").triggerEvent("keyup", e[0]);
+	e.trigger("keyup");
 	errors(0);
 });
 
@@ -944,8 +944,7 @@ test("validate checkbox on click", function() {
 		equals(expected, v.size(), message );
 	}
 	function trigger(element) {
-		element[0].click();
-		$("#form").triggerEvent("click", element[0]);
+		element.click();
 	}
 	var e = $("#check2");
 	var v = $("#form").validate({
@@ -969,8 +968,7 @@ test("validate multiple checkbox on click", function() {
 		equals(expected, v.size(), message );
 	}
 	function trigger(element) {
-		element[0].click();
-		$("#form").triggerEvent("click", element[0]);
+		element.click();
 	}
 	var e1 = $("#check1").attr("checked", false);
 	var e2 = $("#check1b");
@@ -1000,8 +998,7 @@ test("validate radio on click", function() {
 		equals(expected, v.size(), message );
 	}
 	function trigger(element) {
-		element[0].click();
-		$("#form").triggerEvent("click", element[0]);
+		element.click();
 	}
 	var e1 = $("#radio1");
 	var e2 = $("#radio1a");

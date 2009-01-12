@@ -610,8 +610,7 @@ $.extend($.validator, {
 				if ( this.settings.wrapper ) {
 					// make sure the element is visible, even in IE
 					// actually showing the wrapped element is handled elsewhere
-					// TODO remove appendTo once http://dev.jquery.com/ticket/3828 is fixed
-					label = label.hide().show().appendTo(document).wrap("<" + this.settings.wrapper + "/>").parent();
+					label = label.hide().show().wrap("<" + this.settings.wrapper + "/>").parent();
 				}
 				if ( !this.labelContainer.append(label).length )
 					this.settings.errorPlacement

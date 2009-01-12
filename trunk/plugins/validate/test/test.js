@@ -201,10 +201,10 @@ test("showErrors()", function() {
 	var element = $('#firstname')[0];
 	var v = $('#testForm1').validate();
 	ok( errorLabel.is(":hidden") );
-	equals( 0, $("label.error[@for=lastname]").size() );
+	equals( 0, $("label.error[for=lastname]").size() );
 	v.showErrors({"firstname": "required", "lastname": "bla"});
 	equals( true, errorLabel.is(":visible") );
-	equals( true, $("label.error[@for=lastname]").is(":visible") );
+	equals( true, $("label.error[for=lastname]").is(":visible") );
 });
 
 test("showErrors(), allow empty string and null as default message", function() {
@@ -223,15 +223,15 @@ test("showErrors(), allow empty string and null as default message", function() 
 		}
 	});
 	ok( !$("#username").valid() );
-	equals( "", $("label.error[@for=username]").text() );
+	equals( "", $("label.error[for=username]").text() );
 	
 	$("#username").val("ab");
 	ok( !$("#username").valid() );
-	equals( "too short", $("label.error[@for=username]").text() );
+	equals( "too short", $("label.error[for=username]").text() );
 	
 	$("#username").val("abc");
 	ok( $("#username").valid() );
-	ok( $("label.error[@for=username]").is(":hidden") );
+	ok( $("label.error[for=username]").is(":hidden") );
 });
 
 test("showErrors() - external messages", function() {
@@ -240,8 +240,8 @@ test("showErrors() - external messages", function() {
 	var messages = $.extend({}, $.validator.messages);
 	$.validator.addMethod("foo", function() { return false; });
 	$.validator.addMethod("bar", function() { return false; });
-	equals( 0, $("#testForm4 label.error[@for=f1]").size() );
-	equals( 0, $("#testForm4 label.error[@for=f2]").size() );
+	equals( 0, $("#testForm4 label.error[for=f1]").size() );
+	equals( 0, $("#testForm4 label.error[for=f2]").size() );
 	var form = $('#testForm4')[0];
 	var v = $(form).validate({
 		messages: {
@@ -250,8 +250,8 @@ test("showErrors() - external messages", function() {
 		}
 	});
 	v.form();
-	equals( "Please!", $("#testForm4 label.error[@for=f1]").text() );
-	equals( "Wohoo!", $("#testForm4 label.error[@for=f2]").text() );
+	equals( "Please!", $("#testForm4 label.error[for=f1]").text() );
+	equals( "Wohoo!", $("#testForm4 label.error[for=f2]").text() );
 	
 	$.validator.methods = methods;
 	$.validator.messages = messages;
@@ -539,7 +539,7 @@ test("findLastActive()", function() {
 
 test("validating multiple checkboxes with 'required'", function() {
 	expect(3);
-	var checkboxes = $("#form input[@name=check3]").attr("checked", false);
+	var checkboxes = $("#form input[name=check3]").attr("checked", false);
 	equals(5, checkboxes.size());
 	var v = $("#form").validate({
 		rules: {
@@ -570,13 +570,13 @@ test("refresh()", function() {
 	add();
 	v.form();
 	errors(3);
-	$("#testForm2 input[@name=list1]").remove();
+	$("#testForm2 input[name=list1]").remove();
 	v.form();
 	errors(2);
 	add();
 	v.form();
 	errors(3);
-	$("#testForm2 input[@name^=list]").remove();
+	$("#testForm2 input[name^=list]").remove();
 	v.form();
 	errors(1);
 	$("#agb").attr("disabled", true);
@@ -763,7 +763,7 @@ test("jQuery.format", function() {
 
 test("option: ignore", function() {
 	var v = $("#testForm1").validate({
-		ignore: "[@name=lastname]"
+		ignore: "[name=lastname]"
 	});
 	v.form();
 	equals( 1, v.size() );

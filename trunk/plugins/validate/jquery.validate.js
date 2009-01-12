@@ -631,7 +631,7 @@ $.extend($.validator, {
 		},
 		
 		errorsFor: function(element) {
-			return this.errors().filter("[@for='" + this.idOrName(element) + "']");
+			return this.errors().filter("[for='" + this.idOrName(element) + "']");
 		},
 		
 		idOrName: function(element) {

@@ -161,10 +161,9 @@ test("hide(): errorWrapper", function() {
 });
 
 test("hide(): container", function() {
-	expect(5);
+	expect(4);
 	var errorLabel = $('#errorContainer');
 	var element = $('#testForm3')[0];
-	ok( errorLabel.is(":hidden"), "Error label not visible at start" );
 	var v = $('#testForm3').validate({ errorWrapper: "li", errorContainer: $("#errorContainer") });
 	v.form();
 	ok( errorLabel.is(":visible"), "Error label visible after validation" );
@@ -250,8 +249,8 @@ test("showErrors() - external messages", function() {
 		}
 	});
 	v.form();
-	equals( "Please!", $("#testForm4 label.error[for=f1]").text() );
-	equals( "Wohoo!", $("#testForm4 label.error[for=f2]").text() );
+	equals( $("#testForm4 label.error[for=f1]").text(), "Please!" );
+	equals( $("#testForm4 label.error[for=f2]").text(), "Wohoo!" );
 	
 	$.validator.methods = methods;
 	$.validator.messages = messages;
@@ -529,7 +528,8 @@ test("findLastActive()", function() {
 	v.focusInvalid();
 	ok( !v.findLastActive() );
 	try {
-		$("#testForm1").triggerEvent("focusin", $("#testForm1 input:last")[0]);
+		$("#testForm1 input:last").trigger("focusin");
+		//$("#testForm1").triggerEvent("focusin", $("#testForm1 input:last")[0]);
 		v.focusInvalid();
 		equals( lastInput, v.findLastActive() );
 	} catch(e) {
@@ -553,7 +553,7 @@ test("validating multiple checkboxes with 'required'", function() {
 	equals(0, v.size());
 });
 
-test("refresh()", function() {
+test("dynamic form", function() {
 	var counter = 0;
 	function add() {
 		$("<input class='{required:true}' name='list" + counter++ + "' />").appendTo("#testForm2");
@@ -831,6 +831,7 @@ test("validate on blur", function() {
 	function blur(target) {
 		target.trigger("focusout");
 	}
+	$("#errorFirstname").hide();
 	var e = $("#firstname");
 	var v = $("#testForm1").validate();
 	$("#something").val("");

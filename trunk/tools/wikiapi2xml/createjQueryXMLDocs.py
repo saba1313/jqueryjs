@@ -345,6 +345,10 @@ class Method(Node):
     length = self.parseParts("option")
     return length
 
+  def handleAPIOptionExample(self):
+    length = self.parseParts("example")
+    return length
+
   def findLink(self, str):
     # search for [[Ajax_Events|Ajax Events]] type wiki links (they were normalized on initial parsing)
     m = re.search(r"\[\[(?P<link>.+?)\|(?P<name>.+?)]\]", str)

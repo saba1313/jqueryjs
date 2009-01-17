@@ -1,6 +1,6 @@
 ﻿/*
  * jQuery blockUI plugin
- * Version 2.12 (17-JAN-2009)
+ * Version 2.13 (17-JAN-2009)
  * @requires jQuery v1.2.3 or later
  *
  * Examples at: http://malsup.com/jquery/block/
@@ -23,6 +23,18 @@ if (/1\.(0|1|2)\.(0|1|2)/.test($.fn.jquery) || /^1.1/.test($.fn.jquery)) {
 $.blockUI   = function(opts) { install(window, opts); };
 $.unblockUI = function(opts) { remove(window, opts); };
 
+// convenience method for quick growl-like notifications  (http://www.google.com/search?q=growl)
+$.growlUI = function(title, message, timeout) {
+	var $m = $('<div class="growlUI">');
+	if (title) $m.append('<h1>'+title+'</h1>');
+	if (message) $m.append('<h2>'+message+'</h2>');
+    $.blockUI({ 
+		message: $m, fadeIn: 700, fadeOut: 700, centerY: false,
+		timeout: timeout || 3000, showOverlay: false,
+		css: $.blockUI.defaults.growlCSS
+    });	
+};
+
 // plugin method for blocking element content
 $.fn.block = function(opts) {
     return this.each(function() {
@@ -41,7 +53,7 @@ $.fn.unblock = function(opts) {
     });
 };
 
-$.blockUI.version = 2.12; // 2nd generation blocking at no extra cost!
+$.blockUI.version = 2.13; // 2nd generation blocking at no extra cost!
 
 // override these in your code to change the default behavior and style
 $.blockUI.defaults = {
@@ -66,9 +78,23 @@ $.blockUI.defaults = {
     
     // styles for the overlay
     overlayCSS:  { 
-        backgroundColor:'#000', 
-        opacity:        '0.6' 
+        backgroundColor: '#000', 
+        opacity:         '0.6' 
     },
+
+	growlCSS: { 
+		width:    '350px',
+		top:      '10px', 
+		left:     '', 
+		right:    '10px', 
+	    border:   'none',
+	    padding:  '5px',
+	    opacity:  '0.6',
+	    color:    '#fff',
+	    backgroundColor: '#000',
+	    '-webkit-border-radius': '10px',
+	    '-moz-border-radius':    '10px'
+	},
     
     // z-index for the blocking overlay
     baseZ: 1000,

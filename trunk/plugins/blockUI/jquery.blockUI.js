@@ -1,6 +1,6 @@
 ﻿/*
  * jQuery blockUI plugin
- * Version 2.11 (12/13/2008)
+ * Version 2.12 (17-JAN-2009)
  * @requires jQuery v1.2.3 or later
  *
  * Examples at: http://malsup.com/jquery/block/
@@ -41,7 +41,7 @@ $.fn.unblock = function(opts) {
     });
 };
 
-$.blockUI.version = 2.11; // 2nd generation blocking at no extra cost!
+$.blockUI.version = 2.12; // 2nd generation blocking at no extra cost!
 
 // override these in your code to change the default behavior and style
 $.blockUI.defaults = {
@@ -84,9 +84,18 @@ $.blockUI.defaults = {
     // be default blockUI will supress tab navigation from leaving blocking content;
     constrainTabKey: true,
     
-    // fadeOut time in millis; set to 0 to disable fadeout on unblock
+    // fadeIn time in millis; set to 0 to disable fadeIn on block
+    fadeIn:  200,
+
+    // fadeOut time in millis; set to 0 to disable fadeOut on unblock
     fadeOut:  400,
     
+	// time in millis to wait before auto-unblocking; set to 0 to disable auto-unblock
+	timeout: 0,
+
+	// disable if you don't want to show the overlay
+	showOverlay: true,
+
     // if true, focus will be placed in the first available input field when
     // page blocking
     focusInput: true,
@@ -100,7 +109,7 @@ $.blockUI.defaults = {
     //     onUnblock(element, options)
     onUnblock: null,
     
-    // don't ask (if you really must know: http://groups.google.com/group/jquery-en/browse_thread/thread/36640a8730503595/2f6a79a77a78e493#2f6a79a77a78e493)
+    // don't ask; if you really must know: http://groups.google.com/group/jquery-en/browse_thread/thread/36640a8730503595/2f6a79a77a78e493#2f6a79a77a78e493
     quirksmodeOffsetHack: 4
 };
 
@@ -133,7 +142,8 @@ function install(el, opts) {
         data.parent = node.parentNode;
         data.display = node.style.display;
         data.position = node.style.position;
-        data.parent.removeChild(node);
+		if (data.parent)
+			data.parent.removeChild(node);
     }
     
     var z = opts.baseZ;
@@ -143,10 +153,10 @@ function install(el, opts) {
     // layer2 is the overlay layer which has opacity and a wait cursor
     // layer3 is the message content that is displayed while blocking
     
-    var lyr1 = ($.browser.msie) ? $('<iframe class="blockUI" style="z-index:'+ z++ +';border:none;margin:0;padding:0;position:absolute;width:100%;height:100%;top:0;left:0" src="javascript:false;"></iframe>')
+    var lyr1 = ($.browser.msie) ? $('<iframe class="blockUI" style="z-index:'+ z++ +';display:none;border:none;margin:0;padding:0;position:absolute;width:100%;height:100%;top:0;left:0" src="javascript:false;"></iframe>')
                                 : $('<div class="blockUI" style="display:none"></div>');
-    var lyr2 = $('<div class="blockUI blockOverlay" style="z-index:'+ z++ +';cursor:wait;border:none;margin:0;padding:0;width:100%;height:100%;top:0;left:0"></div>');
-    var lyr3 = full ? $('<div class="blockUI blockMsg blockPage" style="z-index:'+z+';position:fixed"></div>')
+    var lyr2 = $('<div class="blockUI blockOverlay" style="z-index:'+ z++ +';display:none;cursor:wait;border:none;margin:0;padding:0;width:100%;height:100%;top:0;left:0"></div>');
+    var lyr3 = full ? $('<div class="blockUI blockMsg blockPage" style="z-index:'+z+';display:none;position:fixed"></div>')
                     : $('<div class="blockUI blockMsg blockElement" style="z-index:'+z+';display:none;position:absolute"></div>');
 
     // if we have a message, style it
@@ -194,13 +204,33 @@ function install(el, opts) {
                 if (full) s.setExpression('top','(document.documentElement.clientHeight || document.body.clientHeight) / 2 - (this.offsetHeight / 2) + (blah = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "px"');
                 s.marginTop = 0;
             }
+			else if (!opts.centerY && full) {
+				var top = (opts.css && opts.css.top) ? parseInt(opts.css.top) : 0;
+				var expression = '((document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + '+top+') + "px"';
+                s.setExpression('top',expression);
+			}
         });
     }
     
     // show the message
-    lyr3.append(msg).show();
+    lyr3.append(msg);//.show();
     if (msg && (msg.jquery || msg.nodeType))
         $(msg).show();
+
+	if (opts.fadeIn) {
+		if ($.browser.msie && opts.showOverlay)
+			lyr1.fadeIn(opts.fadeIn);
+		if (opts.showOverlay)
+			lyr2.fadeIn(opts.fadeIn);
+		lyr3.fadeIn(opts.fadeIn);
+	}
+	else {
+		if ($.browser.msie && opts.showOverlay)
+			lyr1.show();
+		if (opts.showOverlay)
+			lyr2.show();
+		lyr3.show();
+	}
 
     // bind key and mouse events
     bind(1, el, opts);
@@ -213,6 +243,13 @@ function install(el, opts) {
     }
     else
         center(lyr3[0], opts.centerX, opts.centerY);
+
+	if (opts.timeout) {
+		// auto-unblock
+		setTimeout(function() {
+			full ? $.unblockUI() : $(el).unblock();
+		}, opts.timeout);
+	}
 };
 
 // remove the block
@@ -245,7 +282,8 @@ function reset(els,data,opts,el) {
     if (data && data.el) {
         data.el.style.display = data.display;
         data.el.style.position = data.position;
-        data.parent.appendChild(data.el);
+		if (data.parent)
+			data.parent.appendChild(data.el);
         $(data.el).removeData('blockUI.history');
     }
 
@@ -262,7 +300,10 @@ function bind(b, el, opts) {
         return;
     if (!full) 
         $el.data('blockUI.isBlocked', b);
-        
+
+    if (b && !opts.showOverlay) // don't prevent events when overlay not in use
+		return;
+
     // bind anchors and inputs for mouse and key events
     var events = 'mousedown mouseup keydown keypress';
     b ? $(document).bind(events, opts, handler) : $(document).unbind(events, handler);

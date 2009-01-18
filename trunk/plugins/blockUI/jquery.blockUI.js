@@ -1,6 +1,6 @@
 ﻿/*
  * jQuery blockUI plugin
- * Version 2.13 (17-JAN-2009)
+ * Version 2.14 (18-JAN-2009)
  * @requires jQuery v1.2.3 or later
  *
  * Examples at: http://malsup.com/jquery/block/
@@ -25,12 +25,13 @@ $.unblockUI = function(opts) { remove(window, opts); };
 
 // convenience method for quick growl-like notifications  (http://www.google.com/search?q=growl)
 $.growlUI = function(title, message, timeout) {
-	var $m = $('<div class="growlUI">');
+	var $m = $('<div class="growlUI"></div>');
 	if (title) $m.append('<h1>'+title+'</h1>');
 	if (message) $m.append('<h2>'+message+'</h2>');
+	if (timeout == undefined) timeout = 3000;
     $.blockUI({ 
-		message: $m, fadeIn: 700, fadeOut: 700, centerY: false,
-		timeout: timeout || 3000, showOverlay: false,
+		message: $m, fadeIn: 700, fadeOut: 1000, centerY: false,
+		timeout: timeout, showOverlay: false,
 		css: $.blockUI.defaults.growlCSS
     });	
 };
@@ -53,7 +54,7 @@ $.fn.unblock = function(opts) {
     });
 };
 
-$.blockUI.version = 2.13; // 2nd generation blocking at no extra cost!
+$.blockUI.version = 2.14; // 2nd generation blocking at no extra cost!
 
 // override these in your code to change the default behavior and style
 $.blockUI.defaults = {
@@ -82,6 +83,7 @@ $.blockUI.defaults = {
         opacity:         '0.6' 
     },
 
+	// styles applied when using $.growlUI
 	growlCSS: { 
 		width:    '350px',
 		top:      '10px', 
@@ -90,6 +92,7 @@ $.blockUI.defaults = {
 	    border:   'none',
 	    padding:  '5px',
 	    opacity:  '0.6',
+		cursor:    null,
 	    color:    '#fff',
 	    backgroundColor: '#000',
 	    '-webkit-border-radius': '10px',
@@ -273,7 +276,7 @@ function install(el, opts) {
 	if (opts.timeout) {
 		// auto-unblock
 		setTimeout(function() {
-			full ? $.unblockUI() : $(el).unblock();
+			full ? $.unblockUI(opts) : $(el).unblock(opts);
 		}, opts.timeout);
 	}
 };

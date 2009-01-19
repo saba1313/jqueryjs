@@ -8,7 +8,10 @@ body {
     font-size: 100%; 
     position: relative;
     color: #fff;
-    cursor: default;
+}
+
+body.air {
+  cursor: default;
 }
 
 a {
@@ -98,11 +101,15 @@ dt {
   cursor: pointer;
 }
 
-dt:hover {
+dt:hover,
+#categories a:hover,
+ul.subcategories li:hover {
   background-color: #67788B;
 }
 
-dt.active {
+
+dt.active,
+li.active h2 {
   background: #0066A0 url(/assets/images/close-ui.png) no-repeat 97%;
 }
 
@@ -114,12 +121,50 @@ dt.active {
   border-bottom: 2px solid #ccc;
 }
 
-dt.active:hover {
-  background-color: #0066A0;
+dt.active:hover,
+li.active a:hover {
+  background: #0066A0 url(/assets/images/close-ui.png) no-repeat 97%;
+}
+
+li.active li a:hover {
+  background: #0066A0;
 }
 
 #functions dt.active {
   background: #0066A0 url(/assets/images/open-ui.png) no-repeat 97%;
+}
+
+#categories,
+ul.subcategories {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.subcategories {
+  border: 1px solid #0066A0;
+  border-top: 0;
+  background-color: #1F242B;
+}
+
+#categories a {
+  cursor: pointer;
+  color: #fff;
+  text-decoration: none;
+  outline: 0;
+  display: block;
+  padding: 5px;
+}
+
+#categories ul.subcategories li a {
+  padding: 2px;
+  padding-left: 5px;
+}
+
+#categories h2 {
+  margin: 0;
+  font-size: 100%;
+  font-weight: normal;
 }
 
 /*#subcategories dt.active:hover:after,

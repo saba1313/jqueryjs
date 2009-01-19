@@ -117,7 +117,18 @@ function apiBrowserMain() {
     }
     
     if (!window.jquerydocs.initialised) {
-        loadDocs('/lib/docs/api-docs.xml'); // from api-loader.js and triggers api-load-complete
+    	var l = $('#categories > li > h2 a').click(function(e) {
+    	    if ($(e.target).parent('h2').length) {
+    	        console.log('here');
+        		$(this).parents('li:first').toggleClass('active').find('> ul').slideToggle('fast');
+    	    } else {
+    	        // show function
+    	        console.log('showing function');
+    	    }
+    		return false;
+    	}).parents('li').find('ul').hide().length;
+    	
+        // loadDocs('/lib/docs/api-docs.xml'); // from api-loader.js and triggers api-load-complete
     } else {
         init();
     }

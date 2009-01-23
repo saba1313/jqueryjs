@@ -6,6 +6,7 @@ $html = ob_get_contents();
 ob_end_clean();
 
 // $index = file_get_contents('index.html');
+$guid = 1;
 
 $categories = getcategories('api-docs.xml');
 
@@ -14,6 +15,7 @@ $html = preg_replace('@<p class="loading"><img src="/assets/images/spinner.gif" 
 echo $html;
 
 function getcategories($filename) {
+    global $guid;
     $dom= new DOMDocument(); 
     $dom->load('lib/docs/' . $filename); 
     $cats = $dom->getElementsByTagName('cat');
@@ -23,7 +25,7 @@ function getcategories($filename) {
     for ($i = 0; $i < $cats->length; $i++) {
         $cat = $cats->item($i);
         $catval = $cat->getAttribute('value');
-        $html .= '<li class="heading"><h2><a id="' . $i . '" href="#/' . $catval . '">' . $catval . "</a></h2>\n";
+        $html .= '<li class="heading"><h2><a id="' . $i . '" href="/' . $catval . '">' . $catval . "</a></h2>\n";
         $html .= '<ul class="subcategories">' . "\n";
     
         $subcats = $cat->getElementsByTagName('subcat');
@@ -31,16 +33,63 @@ function getcategories($filename) {
             $subcat = $subcats->item($j);
             $subcatval = $subcat->getAttribute('value');
         
-            $html .= "\t" . '<li id="subcategory' . $j . '"><a href="#/' . $catval . '/' . $subcatval . '">' . $subcatval . "</a></li>\n";
+            $html .= "\t" . '<li id="subcategory' . $j . '"><a href="/' . $catval . '/' . $subcatval . '">' . $subcatval . "</a>\n";
+
+            $html .= "\t" . '<ul class="functions">' . "\n";
             
-            $functions = $subcat->getElementsByTagName('function');
-            for ($k = 0; $k < )
+            getFunctions($subcat);
+            
+            $html .= "</ul></li>\n";
         }
     
-        $html .= "</ul></li>";
+        $html .= "</ul></li>\n";
     }
 
     return $html;    
+}
+
+function getFunctions($subcat) {
+    $html = '';
+    global $guid;
+    
+    var_dump($subcat->getElementsByTagName('function'));
+    
+    $functions = getOrderedElements($subcat, 'function');
+    for ($k = 0; $k < count($functions); $k++) {
+        $function = $functions[$k];
+        $functionval = preg_replace('/^jquery\./i', '$.', $function->getAttribute('name'));
+        $id = strtolower(trim($functionval)) . $guid;
+        
+        // TODO include params here.
+        $params = $function->getElementsByTagName('params');
+        $all_params = array();
+        for ($l = 0; $l < $params->length; $l++) {
+            array_push($all_params, $params->item($l)->getAttribute('name'));
+        }
+        
+        $params_str = count($all_params) ? '(' . join($all_params, ', ') . ')' : '';
+        
+        $html .= "\t\t" . '<li id="' . $id . '"><a href="/' . $catval . '/' . $id . '">' . $functionval . $params_str . '</a></li>';
+        $guid++;
+    }
+    
+    return $html;
+}
+
+function getOrderedElements($context, $tag) {
+    var_dump($context);
+    // var $elements = $context->getElementsByTagName($tag);
+    // var $ordered = array();
+    //     
+    //     for ($i = 0; $i < $elements->length; $i++) {
+    //         array_push($ordered, $elements->item($i));
+    //     }
+    //     
+    //     return uksort($ordered, 'elOrder');
+}
+
+function elOrder($a, $b) {
+    return strcasecmp($a->getAttribute('value'), $b->getAttribute('value'));
 }
 
 // source: http://uk2.php.net/manual/en/function.xml-parse.php#87920

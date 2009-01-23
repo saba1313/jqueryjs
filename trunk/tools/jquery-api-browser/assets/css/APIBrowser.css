@@ -135,10 +135,15 @@ li.active li a:hover {
 }
 
 #categories,
-ul.subcategories {
+#categories ul {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+#categories ul.functions {
+  padding: 10px;
+  background: #1F242B;
 }
 
 ul.subcategories {

@@ -117,14 +117,16 @@ function apiBrowserMain() {
     }
     
     if (!window.jquerydocs.initialised) {
-    	var l = $('#categories > li > h2 a').click(function(e) {
-    	    if ($(e.target).parent('h2').length) {
-    	        console.log('here');
-        		$(this).parents('li:first').toggleClass('active').find('> ul').slideToggle('fast');
-    	    } else {
-    	        // show function
-    	        console.log('showing function');
+    	var l = $('#categories a').click(function(e) {
+    	    var $link = $(this);
+    	    var $cats = $link.parents('li:first').find('> ul');
+    	    if ($cats.length) {
+    	        $cats.slideToggle('fast');
+    	        $link.parents('li:first').toggleClass('active');
     	    }
+    	    
+    	    console.log($cats.length);
+    	    
     		return false;
     	}).parents('li').find('ul').hide().length;
     	

@@ -1,23 +1,25 @@
 <?php
 
+// is file_get_contents faster? 
 ob_start();
 include('index.html');
 $html = ob_get_contents();
 ob_end_clean();
 
-// $index = file_get_contents('index.html');
-$guid = 1;
+// get the URL request path so we find the right page to display
+$request = split('/', preg_replace('/^\/(.*?)(\/|)$/', '$1', $_SERVER['REQUEST_URI']));
 
-$categories = getcategories('api-docs.xml');
+// Should this perhaps be cached?
+$categories = getcategories('lib/docs/api-docs.xml', $request);
 
+// strip out the AIR loader and replace it with the categories
 $html = preg_replace('@<p class="loading"><img src="/assets/images/spinner.gif" /> Loading jQuery API database</p>@', $categories, $html);
 
 echo $html;
 
-function getcategories($filename) {
-    global $guid;
+function getcategories($filename, $request) {
     $dom= new DOMDocument(); 
-    $dom->load('lib/docs/' . $filename); 
+    $dom->load($filename); 
     $cats = $dom->getElementsByTagName('cat');
 
     $html = "<ul id=\"categories\">\n";
@@ -25,71 +27,98 @@ function getcategories($filename) {
     for ($i = 0; $i < $cats->length; $i++) {
         $cat = $cats->item($i);
         $catval = $cat->getAttribute('value');
-        $html .= '<li class="heading"><h2><a id="' . $i . '" href="/' . $catval . '">' . $catval . "</a></h2>\n";
-        $html .= '<ul class="subcategories">' . "\n";
+        $catkey = stripspace($catval);
+        
+        $selected = $catkey == $request[0] ? ' active' : '';
+        
+        $html .= "\t" . '<li class="apiheading' . $selected . '"><h2><a id="' . $i . '" href="/' . $catkey . '">' . $catval . "</a></h2>\n";
+        $html .= "\t" . '<ul class="subcategories">' . "\n";
     
         $subcats = $cat->getElementsByTagName('subcat');
         for ($j = 0; $j < $subcats->length; $j++) {
             $subcat = $subcats->item($j);
             $subcatval = $subcat->getAttribute('value');
-        
-            $html .= "\t" . '<li id="subcategory' . $j . '"><a href="/' . $catval . '/' . $subcatval . '">' . $subcatval . "</a>\n";
+            $subcatkey = stripspace($subcatval);
 
-            $html .= "\t" . '<ul class="functions">' . "\n";
+            list($fn_html, $fn_selected) = getElements($catval, $subcat, $request, 'function');
+            list($sel_html, $sel_selected) = getElements($catval, $subcat, $request, 'selector');
+            list($prop_html, $prop_selected) = getElements($catval, $subcat, $request, 'property');
             
-            getFunctions($subcat);
+            $selected = ($subcatkey == $request[1] || $fn_selected || $sel_selected || $prop_selected) ? ' class="active"' : '';
             
-            $html .= "</ul></li>\n";
+            $html .= "\t\t" . '<li id="subcategory' . $j . '"' . $selected . '><a href="/' . $catkey . '/' . $subcatkey . '">' . $subcatval . "</a>\n";
+            
+            $html .= "\t\t" . '<ul class="functions">' . "\n";
+            $html .= $fn_html;
+            $html .= $sel_html;
+            $html .= $prop_html;
+            
+            $html .= "\t\t</ul></li>\n";
         }
     
-        $html .= "</ul></li>\n";
+        $html .= "\t</ul></li>\n";
     }
 
     return $html;    
 }
 
-function getFunctions($subcat) {
+function getElements($catval, $subcat, $request, $tag) {
     $html = '';
-    global $guid;
     
-    var_dump($subcat->getElementsByTagName('function'));
+    $catkey = stripspace($catval);
     
-    $functions = getOrderedElements($subcat, 'function');
+    $element_found = false;
+    
+    $functions = getOrderedElements($subcat, $tag);
     for ($k = 0; $k < count($functions); $k++) {
         $function = $functions[$k];
-        $functionval = preg_replace('/^jquery\./i', '$.', $function->getAttribute('name'));
-        $id = strtolower(trim($functionval)) . $guid;
         
-        // TODO include params here.
+        $functionval = preg_replace('/^jquery\./i', '$.', $function->getAttribute('name'));
+
         $params = $function->getElementsByTagName('params');
         $all_params = array();
         for ($l = 0; $l < $params->length; $l++) {
             array_push($all_params, $params->item($l)->getAttribute('name'));
         }
         
-        $params_str = count($all_params) ? '(' . join($all_params, ', ') . ')' : '';
+        if (count($all_params)) {
+            $id = strtolower(trim($functionval) . '_' . join($all_params, '_'));
+            $params_str = count($all_params) ? '(' . join($all_params, ', ') . ')' : '';
+        } else {
+            $id = strtolower(trim($functionval));
+            $params_str = '';
+        }
         
-        $html .= "\t\t" . '<li id="' . $id . '"><a href="/' . $catval . '/' . $id . '">' . $functionval . $params_str . '</a></li>';
-        $guid++;
+        $selected = '';
+        if ($id == $request[1]) {
+            $element_found = true;
+            $selected = ' class="active"';
+        }
+                
+        $html .= "\t\t\t" . '<li' . $selected . '"><a href="/' . $catkey . '/' . $id . '">' . $functionval . $params_str . '</a></li>' . "\n";
     }
     
-    return $html;
+    return array($html, $element_found);
 }
 
 function getOrderedElements($context, $tag) {
-    var_dump($context);
-    // var $elements = $context->getElementsByTagName($tag);
-    // var $ordered = array();
-    //     
-    //     for ($i = 0; $i < $elements->length; $i++) {
-    //         array_push($ordered, $elements->item($i));
-    //     }
-    //     
-    //     return uksort($ordered, 'elOrder');
+    $elements = $context->getElementsByTagName($tag);
+    $ordered = array();
+    
+    for ($i = 0; $i < $elements->length; $i++) {
+        array_push($ordered, $elements->item($i));
+    }
+    
+    usort($ordered, 'elOrder');
+    return $ordered;
 }
 
 function elOrder($a, $b) {
-    return strcasecmp($a->getAttribute('value'), $b->getAttribute('value'));
+    return strcasecmp($a->getAttribute('name'), $b->getAttribute('name'));
+}
+
+function stripspace($s) {
+    return preg_replace('/\s+/', '_', $s);
 }
 
 // source: http://uk2.php.net/manual/en/function.xml-parse.php#87920

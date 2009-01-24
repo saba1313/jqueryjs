@@ -16,6 +16,8 @@ $.fn.textDropShadow = function() {
 };
 
 function apiBrowserMain() {
+    // return;
+    
     $('#navigation a').textDropShadow();
     $('#navigation label').prepend('<span class="jq-shadow">Filter</span>');
     

@@ -6,6 +6,8 @@ include('index.html');
 $html = ob_get_contents();
 ob_end_clean();
 
+$requested_page = null;
+
 // get the URL request path so we find the right page to display
 $request = split('/', preg_replace('/^\/(.*?)(\/|)$/', '$1', $_SERVER['REQUEST_URI']));
 
@@ -15,7 +17,105 @@ $categories = getcategories('lib/docs/api-docs.xml', $request);
 // strip out the AIR loader and replace it with the categories
 $html = preg_replace('@<p class="loading"><img src="/assets/images/spinner.gif" /> Loading jQuery API database</p>@', $categories, $html);
 
+if ($requested_page) {
+    ob_start();
+    show_api_page($requested_page);
+    $fn = ob_get_contents();
+    ob_end_clean();
+    
+    $html = preg_replace('@<div id="detail">.*</div>@s', '<div id="detail"><div class="inner">' . $fn . '</div></div>', $html);
+}
+
 echo $html;
+
+function show_api_page($el) {
+    $functionval = preg_replace('/^jquery\./i', '$.', $el->getAttribute('name'));
+    $params = $el->getElementsByTagName('params');
+    $all_params = array();
+    for ($i = 0; $i < $params->length; $i++) {
+        array_push($all_params, $params->item($i)->getAttribute('name'));
+    }
+    
+    if (count($all_params)) {
+        $id = strtolower(trim($functionval) . '_' . join($all_params, '_'));
+        $params_str = count($all_params) ? '(' . join($all_params, ', ') . ')' : '';
+    } else {
+        $id = strtolower(trim($functionval));
+        $params_str = '';
+    }
+    
+    $b = "\n          ";
+    $cat = $el->getAttribute('cat');
+    $catkey = stripspace($cat);
+    $subcat = $el->parentNode->getAttribute('value');
+    $subcatkey = stripspace($subcat);
+
+    $added = $el->getElementsByTagName('added')->item(0)->nodeValue;
+    $desc = $el->getElementsByTagName('longdesc')->item(0)->nodeValue;
+    
+    $returns = $el->getAttribute('return');
+    
+    $examples = $el->getElementsByTagName('example');
+
+    echo '<h1>';
+    echo '<a href="/' . $cat . '/' . $id . '">' . $el->getAttribute('name') . $params_str . '</a> ';
+    echo '<span class="type">' . strtolower($el->nodeName) . '</span> ';
+    echo '<span class="fav" id="' . $id . '"></span>';
+    echo '</h1>';
+    echo $b;
+    
+    echo '<p class="meta">Category: <a href="/' . $catkey . '">' . $cat . '</a>/<a href="/' . $catkey . '/' . $subcatkey . '">' . $subcat . '</a> (added ' . $added . ')</p>';
+    echo $b;
+    
+    
+    // TODO clean up markup quirks
+    echo $desc;
+    echo $b;
+    
+    echo '<h2>Returns</h2>';
+    echo '<p>' . $returns . '</p>';
+    echo $b;
+    
+    if (count($params)) {
+        echo '<h2>Parameters</h2>';
+        echo $b;
+        echo '<ul class="options">';
+        echo $b;
+        
+        for ($i = 0; $i < $params->length; $i++) {
+            $p = $params->item($i);
+            echo '<li><strong>' . $p->getAttribute('name') . '</strong> ';            
+            echo '(' . $p->getAttribute('type') . ')';
+            
+            if ($p->getAttribute('optional')) {
+                echo ' <em>optional</em>';
+            }
+            
+            echo ': ' . $p->getElementsByTagName('desc')->item(0)->nodeValue . '</li>';
+            echo $b;
+        }        
+        
+        echo '</ul>';
+        echo $b;
+    }
+    
+    if (count($examples)) {
+        for ($i = 0; $i < $examples->length; $i++) {
+            $e = $examples->item($i);
+            echo '<h2>Example</h2>';
+            echo $b;
+            
+            echo '<p>' . $e->getElementsByTagName('desc')->item(0)->nodeValue . '</p>';
+            
+            $code = $e->getElementsByTagName('code');
+            if ($code->length) {
+                echo '<h3>jQuery Code</h3>';
+                echo '<pre>' . htmlentities($code->item(0)->nodeValue) . '</pre>';
+                echo $b;
+            }
+        }
+    }
+}
 
 function getcategories($filename, $request) {
     $dom= new DOMDocument(); 
@@ -63,6 +163,7 @@ function getcategories($filename, $request) {
 }
 
 function getElements($catval, $subcat, $request, $tag) {
+    global $requested_page;
     $html = '';
     
     $catkey = stripspace($catval);
@@ -91,6 +192,7 @@ function getElements($catval, $subcat, $request, $tag) {
         
         $selected = '';
         if ($id == $request[1]) {
+            $requested_page = $function;
             $element_found = true;
             $selected = ' class="active"';
         }

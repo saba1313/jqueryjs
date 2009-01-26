@@ -198,6 +198,15 @@ h1 {
   margin: 0;
 }
 
+h1 a {
+  text-decoration: none;
+  color: #000;
+}
+
+h1 a:hover {
+  text-decoration: underline;
+}
+
 pre {
   padding: 10px;
   background-color: #eee;
@@ -257,6 +266,14 @@ h1 .type {
   font-size: 80%;
 }
 
+.meta a {
+  text-decoration: none;
+  color: #aaa;
+}
+
+.meta a:hover {
+  text-decoration: underline;
+}
 
 ul.options {
     padding: 0;

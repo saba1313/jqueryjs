@@ -127,10 +127,10 @@ function apiBrowserMain() {
     	        $link.parents('li:first').toggleClass('active');
     	    }
     	    
-    	    console.log($cats.length);
+            // console.log($cats.length);
     	    
     		return false;
-    	}).parents('li').find('ul').hide().length;
+    	}).parents('li:not(.active)').find('ul').hide().length;
     	
         // loadDocs('/lib/docs/api-docs.xml'); // from api-loader.js and triggers api-load-complete
     } else {

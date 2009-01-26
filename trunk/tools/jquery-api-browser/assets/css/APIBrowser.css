@@ -23,7 +23,7 @@ pre,code {
 }
 
 body {
-    background: #2A3139 url(/assets/images/bg_home_tile_sml.jpg) repeat-x scroll 0 -40px;
+  background: #2A3139 url(/assets/images/bg_home_tile_sml.jpg) repeat-x scroll 0 -40px;
 }
 
 code,pre {
@@ -38,13 +38,14 @@ code,pre {
 }
 
 #browser {
-    position: absolute;
-    width: 300px;
-    top: 0;
-    right: 60em;
-    left: 0;
-    overflow-y: auto;
-    background-color: #2A3139;
+  overflow-x: hidden;
+  position: absolute;
+  width: 300px;
+  top: 0;
+  right: 60em;
+  left: 0;
+  overflow-y: auto;
+  background-color: #2A3139;
 }
 
 #detail {

@@ -91,18 +91,13 @@ window.parse = function(xml) {
                 guid++;
                 
                 // some function names have spaces around them - so trim
-                var name = this.getAttribute('name').replace( /^\s+|\s+$/g, '');
+                var id = this.getAttribute('name');
+                var name = id.replace( /^\s+|\s+$/g, '');
                 
-                var searchName = name.toLowerCase().replace(/^jquery\./, '');
                 letters.push(name.toLowerCase().substr(0,1));
 
                 name = name.replace(/^jquery\./i, '$.');
                 
-                jquerydocs.searchNames.push(searchName + guid);
-                subcategory.functions.push(searchName + guid);
-                
-                data['id'] = guid;
-                data['searchname'] = searchName;
                 data['name'] = name;
                 data['type'] = this.nodeName.toLowerCase();
                 data['category'] = this.getAttribute('cat');
@@ -130,6 +125,7 @@ window.parse = function(xml) {
                 
                 /** params - we'll also search for Options to decide whether we need to parse */
                 var readOptions = false;
+                var idParams = [];
                 data.params = [];
                 $('params', this).each(function (i) {
                     var type = escapeHTML(this.getAttribute('type'));
@@ -141,6 +137,10 @@ window.parse = function(xml) {
                         readOptions = true;
                     }
                     
+                    if (name) {
+                        idParams.push(name);                        
+                    }
+                    
                     data.params.push({
                         optional : (/true/i).test(opt), // bool
                         name : name,
@@ -148,6 +148,13 @@ window.parse = function(xml) {
                         desc : desc
                     });
                 });
+                
+                // ID requires the params
+                data['id'] = $.trim(id);
+                if (idParams.length) {
+                    data['id'] += '_' + idParams.join('_');
+                }
+                data['id'] = data['id'].toLowerCase();
                 
                 if (readOptions) {
                     data.options = [];
@@ -194,7 +201,12 @@ window.parse = function(xml) {
                     data.examples.push(example);
                 });
 
-                jquerydocs.data[searchName + data.id] = data;
+                var searchName = id.replace(/^jquery\./, '').toLowerCase();
+                data['searchname'] = searchName;
+                
+                jquerydocs.searchNames.push(searchName);
+                subcategory.functions.push(searchName);
+                jquerydocs.data[data.id] = data;
             });
 
             category.subcategories.push(subcategory);

@@ -23,13 +23,13 @@ if ($requested_page) {
     $fn = ob_get_contents();
     ob_end_clean();
     
-    $html = preg_replace('@<div id="detail">.*</div>@s', '<div id="detail"><div class="inner">' . $fn . '</div></div>', $html);
+    $html = preg_replace('@<div id="detail">.*?</div>@s', '<div id="detail"><div class="inner">' . $fn . '</div>', $html);
 }
 
 echo $html;
 
 function show_api_page($el) {
-    $functionval = preg_replace('/^jquery\./i', '$.', $el->getAttribute('name'));
+    $functionval = $el->getAttribute('name'); //preg_replace('/^jquery\./i', '$.', $el->getAttribute('name'));
     $params = $el->getElementsByTagName('params');
     $all_params = array();
     for ($i = 0; $i < $params->length; $i++) {
@@ -53,12 +53,16 @@ function show_api_page($el) {
     $added = $el->getElementsByTagName('added')->item(0)->nodeValue;
     $desc = $el->getElementsByTagName('longdesc')->item(0)->nodeValue;
     
-    $returns = $el->getAttribute('return');
+    if (!$desc) {
+        $desc = $el->getElementsByTagName('desc')->item(0)->nodeValue;
+    }
+    
+    $returns = htmlentities($el->getAttribute('return'));
     
     $examples = $el->getElementsByTagName('example');
 
     echo '<h1>';
-    echo '<a href="/' . $cat . '/' . $id . '">' . $el->getAttribute('name') . $params_str . '</a> ';
+    echo '<a href="/' . $cat . '/' . $subcat . '/' . $id . '">' . $el->getAttribute('name') . $params_str . '</a> ';
     echo '<span class="type">' . strtolower($el->nodeName) . '</span> ';
     echo '<span class="fav" id="' . $id . '"></span>';
     echo '</h1>';
@@ -72,11 +76,13 @@ function show_api_page($el) {
     echo $desc;
     echo $b;
     
+    // TODO detailed options
+    
     echo '<h2>Returns</h2>';
     echo '<p>' . $returns . '</p>';
     echo $b;
     
-    if (count($params)) {
+    if ($params->length) {
         echo '<h2>Parameters</h2>';
         echo $b;
         echo '<ul class="options">';
@@ -167,6 +173,7 @@ function getElements($catval, $subcat, $request, $tag) {
     $html = '';
     
     $catkey = stripspace($catval);
+    $subcatkey = stripspace($subcat->getAttribute('value'));
     
     $element_found = false;
     
@@ -174,7 +181,7 @@ function getElements($catval, $subcat, $request, $tag) {
     for ($k = 0; $k < count($functions); $k++) {
         $function = $functions[$k];
         
-        $functionval = preg_replace('/^jquery\./i', '$.', $function->getAttribute('name'));
+        $functionval = $function->getAttribute('name'); // preg_replace('/^jquery\./i', '$.', 
 
         $params = $function->getElementsByTagName('params');
         $all_params = array();
@@ -191,13 +198,13 @@ function getElements($catval, $subcat, $request, $tag) {
         }
         
         $selected = '';
-        if ($id == $request[1]) {
+        if ($catkey == $request[0] && $subcatkey == $request[1] && $id == $request[2]) {
             $requested_page = $function;
             $element_found = true;
             $selected = ' class="active"';
         }
                 
-        $html .= "\t\t\t" . '<li' . $selected . '"><a href="/' . $catkey . '/' . $id . '">' . $functionval . $params_str . '</a></li>' . "\n";
+        $html .= "\t\t\t" . '<li><a href="/' . $catkey . '/' . $subcatkey . '/' . $id . '"' . $selected . '>' . $functionval . $params_str . '</a></li>' . "\n";
     }
     
     return array($html, $element_found);

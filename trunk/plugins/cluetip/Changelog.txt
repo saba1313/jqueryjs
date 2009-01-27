@@ -1,6 +1,16 @@
 
 == New and Noteworthy ==
 
+NOTE: AS OF JANUARY 27, 2009, ALL UPDATES TO THIS PLUGIN WILL APPEAR at:
+http://github.com/kswedberg/jquery-cluetip/tree/master
+
+== 0.9.9 ==
+* allowed passing an image url so that it wouldn't have to do an ajax call
+* changed local option to display contents of elements based on element index
+* fixed ellipses bug with truncate (http://plugins.jquery.com/node/3770)
+* fixed inserting multiple divs when loading local content (http://plugins.jquery.com/node/3925)
+* little jsLint cleanup; added an option for dropShadowColor (thx, David Enete)
+
 == 0.9.8 ==
 
 * fixed problem with metadata plugin compatibility; 

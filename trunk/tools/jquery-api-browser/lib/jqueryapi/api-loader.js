@@ -129,7 +129,7 @@ window.parse = function(xml) {
                 data.params = [];
                 $('params', this).each(function (i) {
                     var type = escapeHTML(this.getAttribute('type'));
-                    var name = this.getAttribute('name');
+                    var name = $.trim(this.getAttribute('name'));
                     var opt = this.getAttribute('optional') || "";
                     var desc = $('desc', this).text();
                     
@@ -138,7 +138,7 @@ window.parse = function(xml) {
                     }
                     
                     if (name) {
-                        idParams.push(name);                        
+                        idParams.push(name);
                     }
                     
                     data.params.push({

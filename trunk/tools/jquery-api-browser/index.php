@@ -33,7 +33,7 @@ function show_api_page($el) {
     $params = $el->getElementsByTagName('params');
     $all_params = array();
     for ($i = 0; $i < $params->length; $i++) {
-        array_push($all_params, $params->item($i)->getAttribute('name'));
+        array_push($all_params, trim($params->item($i)->getAttribute('name')));
     }
     
     if (count($all_params)) {
@@ -186,7 +186,7 @@ function getElements($catval, $subcat, $request, $tag) {
         $params = $function->getElementsByTagName('params');
         $all_params = array();
         for ($l = 0; $l < $params->length; $l++) {
-            array_push($all_params, $params->item($l)->getAttribute('name'));
+            array_push($all_params, trim($params->item($l)->getAttribute('name')));
         }
         
         if (count($all_params)) {

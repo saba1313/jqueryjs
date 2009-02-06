@@ -74,5 +74,14 @@ jQuery.fn.searchField = function(mark){
 				} 
 			}
 		});
+		
+		// make sure that when the form is submitted, the watermark is
+		// replaced with the empty string, which is usually the expected behavior.
+       $(this).parents("form:first").submit(function(){
+           if ($(target).hasClass("watermark")) {
+               $(target).attr("value", "");
+               $(target).removeClass("watermark");
+           }
+       });
 	});
 };

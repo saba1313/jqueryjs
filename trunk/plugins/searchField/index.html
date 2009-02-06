@@ -15,19 +15,22 @@
 	</head>
 	
 	<body>
-		<h1>searchField Demo</h1>
-		<p>
-			<label for="plain">Plain Example</label>
-			<input id="plain" title="Search This Site" />
-		</p>
-		<p>
-			<label for="inital">With Initial Value</label>
-			<input id="inital" title="Search Other Site" value="Initial Value" />
-		</p>
-		<p>
-			<label for="password">Password Field</label>
-			<input id="password" type="password" title="Your password here" />
-		</p>
+		<form method="get" action="">
+			<h1>searchField Demo</h1>
+			<p>
+				<label for="plain">Plain Example</label>
+				<input id="plain" title="Search This Site" name="search1" />
+			</p>
+			<p>
+				<label for="inital">With Initial Value</label>
+				<input id="inital" title="Search Other Site" value="Initial Value" name="search2" />
+			</p>
+			<p>
+				<label for="password">Password Field</label>
+				<input id="password" type="password" title="Your password here" name="password" />
+			</p>
+			<input type="submit"/>
+		</form>
 	</body>
 </html>
 

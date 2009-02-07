@@ -4,13 +4,14 @@
  * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
  * and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses.
  * 
- * Version 2.0.1
+ * Version 2.1
  * Demo: http://www.texotela.co.uk/code/jquery/checkboxes/
  *
  * $LastChangedDate$
  * $Rev$
  */
 
+;(function($) {
  
 /*
  * Toggle all checkboxes contained within a form
@@ -25,15 +26,15 @@
  * @example  $("#myform").toggleCheckboxes("*", true);
  *
  */
-jQuery.fn.toggleCheckboxes = function(filter, returnChecked)
+$.fn.toggleCheckboxes = function(filter, returnChecked)
 {
 	filter = filter || "*";
 	returnChecked = returnChecked || false;
-	var returnWhat = jQuery([]);
+	var returnWhat = $([]);
 	this.each(
 		function()
 		{
-			var checked = jQuery("input[@type=checkbox]", this).filter(filter).each(
+			var checked = $("input[type=checkbox]", this).filter(filter).each(
 				function()
 				{
 					this.checked = !this.checked;
@@ -62,15 +63,15 @@ jQuery.fn.toggleCheckboxes = function(filter, returnChecked)
  * @example  $("#myform").checkCheckboxes("*", true);
  *
  */
-jQuery.fn.checkCheckboxes = function(filter, returnChecked)
+$.fn.checkCheckboxes = function(filter, returnChecked)
 {
 	filter = filter || "*";
 	returnChecked = returnChecked || false;
-	var returnWhat = jQuery([]);
+	var returnWhat = $([]);
 	this.each(
 		function()
 		{
-			var checked = jQuery("input[@type=checkbox]", this).filter(filter).each(
+			var checked = $("input[type=checkbox]", this).filter(filter).each(
 				function()
 				{
 					this.checked = true;
@@ -99,15 +100,15 @@ jQuery.fn.checkCheckboxes = function(filter, returnChecked)
  * @example  $("#myform").unCheckCheckboxes("*", true);
  *
  */
-jQuery.fn.unCheckCheckboxes = function(filter, returnUnChecked)
+$.fn.unCheckCheckboxes = function(filter, returnUnChecked)
 {
 	filter = filter || "*";
 	returnUnChecked = returnUnChecked || false;
-	var returnWhat = jQuery([]);
+	var returnWhat = $([]);
 	this.each(
 		function()
 		{
-			var unChecked = jQuery("input[@type=checkbox]", this).filter(filter).each(
+			var unChecked = $("input[type=checkbox]", this).filter(filter).each(
 				function()
 				{
 					this.checked = false;
@@ -136,15 +137,15 @@ jQuery.fn.unCheckCheckboxes = function(filter, returnUnChecked)
  * @example  $.radioCheckboxGroup("", ".myclass");
  *
  */
-jQuery.radioCheckboxGroup = function(name, filter)
+$.radioCheckboxGroup = function(name, filter)
 {
 	filter = filter || "*";
-	var expression = "input[@type=checkbox]";
+	var expression = "input[type=checkbox]";
 	if(name)
 	{
-		expression += "[@name=" + name + "]"
+		expression += "[name=" + name + "]"
 	}
-	var x = jQuery(expression).filter(filter);
+	var x = $(expression).filter(filter);
 	x.click(
 		function()
 		{
@@ -158,3 +159,5 @@ jQuery.radioCheckboxGroup = function(name, filter)
 		}
 	);
 };
+
+})(jQuery);

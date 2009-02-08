@@ -1,5 +1,8 @@
 Select box manipulation ChangeLog
 
+8 February 2009
+ Sorting no longer has the wrong options selected. selectOptions now takes an array. New selectedTexts (like selectedValues)
+
 6 October 2008
   ajaxAddOption documentation (in source) update. removeOption can take an array. new selectedOptions
   minified version

@@ -1,10 +1,10 @@
 /*
  *
- * Copyright (c) 2006-2008 Sam Collett (http://www.texotela.co.uk)
+ * Copyright (c) 2006-2009 Sam Collett (http://www.texotela.co.uk)
  * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
  * and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses.
  *
- * Version 2.2.3
+ * Version 2.2.4
  * Demo: http://www.texotela.co.uk/code/jquery/select/
  *
  * $LastChangedDate$
@@ -255,6 +255,8 @@ $.fn.removeOption = function()
  */
 $.fn.sortOptions = function(ascending)
 {
+	// get selected values first
+	var sel = $(this).selectedValues();
 	var a = typeof(ascending) == "undefined" ? true : !!ascending;
 	this.each(
 		function()
@@ -299,7 +301,7 @@ $.fn.sortOptions = function(ascending)
 				o[i].value = sA[i].v;
 			}
 		}
-	);
+	).selectOptions(sel, true); // select values, clearing existing ones
 	return this;
 };
 /**
@@ -309,10 +311,11 @@ $.fn.sortOptions = function(ascending)
  * @author   Mathias Bank (http://www.mathias-bank.de), original function
  * @author   Sam Collett (http://www.texotela.co.uk), addition of regular expression matching
  * @type     jQuery
- * @param    String|RegExp value  Which options should be selected
- * can be a string or regular expression
+ * @param    String|RegExp|Array value  Which options should be selected
+ * can be a string or regular expression, or an array of strings / regular expressions
  * @param    Boolean clear  Clear existing selected options, default false
  * @example  $("#myselect").selectOptions("val1"); // with the value 'val1'
+ * @example  $("#myselect").selectOptions(["val1","val2","val3"]); // with the values 'val1' 'val2' 'val3'
  * @example  $("#myselect").selectOptions(/^val/i); // with the value starting with 'val', case insensitive
  *
  */
@@ -320,6 +323,16 @@ $.fn.selectOptions = function(value, clear)
 {
 	var v = value;
 	var vT = typeof(value);
+	// handle arrays
+	if(vT == "object" && v.constructor == Array)
+	{
+		var $this = this;
+		$.each(v, function()
+			{
+      				$this.selectOptions(this, clear);
+    			}
+		);
+	};
 	var c = clear || false;
 	// has to be a string or regular expression (object in IE, function in Firefox)
 	if(vT != "string" && vT != "function" && vT != "object") return this;
@@ -388,7 +401,7 @@ $.fn.copyOptions = function(to, which)
 			var oL = o.length;
 			for(var i = 0; i<oL; i++)
 			{
-				if(w == "all" ||	(w == "selected" && o[i].selected))
+				if(w == "all" || (w == "selected" && o[i].selected))
 				{
 					$(to).addOption(o[i].value, o[i].text);
 				}
@@ -466,13 +479,34 @@ $.fn.containsOption = function(value, fn)
 $.fn.selectedValues = function()
 {
 	var v = [];
-	this.find("option:selected").each(
+	this.selectedOptions().each(
 		function()
 		{
 			v[v.length] = this.value;
 		}
 	);
 	return v;
+};
+
+/**
+ * Returns text which has been selected
+ *
+ * @name     selectedTexts
+ * @author   Sam Collett (http://www.texotela.co.uk)
+ * @type     Array
+ * @example  $("#myselect").selectedTexts();
+ *
+ */
+$.fn.selectedTexts = function()
+{
+	var t = [];
+	this.selectedOptions().each(
+		function()
+		{
+			t[t.length] = this.text;
+		}
+	);
+	return t;
 };
 
 /**

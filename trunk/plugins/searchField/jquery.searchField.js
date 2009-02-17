@@ -42,7 +42,11 @@ jQuery.fn.searchField = function(mark){
 				.attr("title", this.title)
 				.attr("class", this.className)
 				.addClass("watermark")[0];
-			$(this).hide();
+			if (!this.value) {
+				$(this).hide();
+			} else {
+				$(target).hide();
+			}
 		}
 		
 		if(!target.value || mark == this.value) {
@@ -50,16 +54,16 @@ jQuery.fn.searchField = function(mark){
 		}
 		
 		// setup initial value
-		if (!this.value) {
+		if (!this.value || target != this) {
 			target.value = mark;
 		}
 		
 		$(target).focus(function() {
-			if (target != original[0]) {
+				if (target != original[0]) {
 				$(this).hide();
 				original.show().focus();
 			} else if (this.value == mark) {
-				this.value='';
+				this.value = '';
 				$(this).removeClass("watermark");
 			}
 		});

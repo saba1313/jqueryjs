@@ -6,6 +6,8 @@
 		<script src="jquery.searchField.js" type="text/javascript"></script>
 		<script type="text/javascript">
 		$(function(){
+			// simulae browser autocomplete
+			$("#password2").val("secret");
 			$('input').searchField();
 		});
 		</script>
@@ -28,6 +30,10 @@
 			<p>
 				<label for="password">Password Field</label>
 				<input id="password" type="password" title="Your password here" name="password" />
+			</p>
+			<p>
+				<label for="password2">Password Field (with value, due to browser complete)</label>
+				<input id="password2" type="password" title="Your password here" name="password2" />
 			</p>
 			<input type="submit"/>
 		</form>

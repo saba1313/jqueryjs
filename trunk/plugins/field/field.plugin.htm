@@ -3,7 +3,9 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 	<title>jQuery Field Plug-in</title>
-	<script type="text/javascript" src="./jquery-1.2.1.js"></script>
+
+	<!---// load jQuery v1.3.1 from the GoogleAPIs CDN //--->
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js"></script>
 
 	<!--// load jQuery Plug-ins //-->
 	<script type="text/javascript" src="./jquery.field.js"></script>
@@ -20,9 +22,9 @@
 			setLimitSelection();
 
 			// create the checkbox range selector, with a callback function
-			$('input[@name="chkRange"]').createCheckboxRange(function(bChecked){
+			$('input[name="chkRange"]').createCheckboxRange(function(bChecked){
 				// set the background color on the label
-				$("label[@for=" + this.id + "]").css("background-color", (bChecked) ? "#ffcccc" : "");
+				$("label[for=" + this.id + "]").css("background-color", (bChecked) ? "#ffcccc" : "");
 			});
 
 			/* 
@@ -60,7 +62,7 @@
 	}
 
 	function setLimitSelection(){
-		$('input[@name="chkLimit"]').limitSelection(
+		$('input[name="chkLimit"]').limitSelection(
 			{
 				// number of items to limit to
 				limit: 3,
@@ -78,15 +80,15 @@
 				}
 			}
 		);
-		$('select[@name="selLimit"]').limitSelection(2);
+		$('select[name="selLimit"]').limitSelection(2);
 	}
 
 	function setByArray(){
-		$('select[@name="select_multiple"]').fieldArray([1,3,5]);
+		$('select[name="select_multiple"]').fieldArray([1,3,5]);
 	}
 
 	function getByArray(){
-		alert($('select[@name="select_multiple"]').fieldArray());
+		alert($('select[name="select_multiple"]').fieldArray());
 	}
 
 	var bRunOnce = false;
@@ -162,7 +164,7 @@
 	This plugin greatly expands the ability to retrieve and set values in forms beyond
 	jQuery's standard <code>val()</code> method (and Mike Alsup's Form Plug-in's
 	<code>fieldArray()</code> method) by allowing you to interact with all types of
-	form field elements (except <code>input[@type="file"]</code>, which is a
+	form field elements (except <code>input[type="file"]</code>, which is a
 	read-only element.) It works the same way for text elements as it does for
 	radio, checkbox and select elements.
 </p>
@@ -171,7 +173,7 @@
 	The plug-in was built on the concept that you want to manipulate the fields
 	like their traditional variables. Selectors should be written to query a specific
 	field object (i.e. elements that would be linked together via a common name
-	attribute, for example <code>$("input[@name='myRadioButton']")</code>.)
+	attribute, for example <code>$("input[name='myRadioButton']")</code>.)
 </p>
 
 <p>
@@ -209,23 +211,23 @@
 <p>
 	jQuery selector:
 	<select id="selector">
-		<option value='input[@name="input_text"]'>input[@type="text"]</option>
-		<option value='input[@name="input_password"]'>input[@type="password"]</option>
-		<option value='input[@name="input_hidden"]'>input[@type="hidden"]</option>
-		<option value='input[@name="input_radio"]'>input[@type="radio"]</option>
-		<option value='input[@name="input_checkbox"]'>input[@type="checkbox"]</option>
-		<option value='select[@name="select_one"]'>select[@type="select-one"]</option>
-		<option value='select[@name="select_multiple"]'>select[@type="select-multiple"]</option>
-		<option value='textarea[@name="textarea_input"]'>textarea</option>
-		<option value='input[@name="input_button"]'>input[@type="button"]</option>
-		<option value='input[@name="input_submit"]'>input[@type="submit"]</option>
-		<option value='input[@name="input_reset"]'>input[@type="reset"]</option>
+		<option value='input[name="input_text"]'>input[type="text"]</option>
+		<option value='input[name="input_password"]'>input[type="password"]</option>
+		<option value='input[name="input_hidden"]'>input[type="hidden"]</option>
+		<option value='input[name="input_radio"]'>input[type="radio"]</option>
+		<option value='input[name="input_checkbox"]'>input[type="checkbox"]</option>
+		<option value='select[name="select_one"]'>select[type="select-one"]</option>
+		<option value='select[name="select_multiple"]'>select[type="select-multiple"]</option>
+		<option value='textarea[name="textarea_input"]'>textarea</option>
+		<option value='input[name="input_button"]'>input[type="button"]</option>
+		<option value='input[name="input_submit"]'>input[type="submit"]</option>
+		<option value='input[name="input_reset"]'>input[type="reset"]</option>
 	</select>
 	<input type="button" value="getValue()" onclick="getValue()" />
 	<input type="button" value="setValue()" onclick="setValue()" />
 	<br />
-	<input type="button" value="getByArray(select[@name='select_multiple'])" onclick="getByArray()" />
-	<input type="button" value="setByArray(select[@name='select_multiple'])" onclick="setByArray()" />
+	<input type="button" value="getByArray(select[name='select_multiple'])" onclick="getByArray()" />
+	<input type="button" value="setByArray(select[name='select_multiple'])" onclick="setByArray()" />
 	<br />
 	<input type="button" value='$("#frmTest").formHash()' onclick="formHashGet()" />
 	<input type="button" value='$("#frmTest").formHash({ ... hash table ... })' onclick="formHashSet()" />
@@ -239,22 +241,22 @@
 		<div id="formContent">
 
 			<p>
-				<code>input[@type="text"]</code>
+				<code>input[type="text"]</code>
 				<input type="text" name="input_text" value="text field" />
 			</p>
 
 			<p>
-				<code>input[@type="password"]</code>
+				<code>input[type="password"]</code>
 				<input type="password" name="input_password" value="password" />
 			</p>
 
 			<p>
-				<code>input[@type="hidden"]</code>
+				<code>input[type="hidden"]</code>
 				<input type="hidden" name="input_hidden" value="I'm a hidden field hidden" />
 			</p>
 
 			<p>
-				<code>input[@type="radio"]</code>
+				<code>input[type="radio"]</code>
 				<input type="radio" name="input_radio" id="input_radio_1" value="1" />
 				<label for="input_radio_1">Option 1</label>
 				<input type="radio" name="input_radio" id="input_radio_2" value="2" />
@@ -268,7 +270,7 @@
 			</p>
 
 			<p>
-				<code>input[@type="checkbox"]</code>
+				<code>input[type="checkbox"]</code>
 				<input type="checkbox" name="input_checkbox" id="input_checkbox_1" value="1" />
 				<label for="input_checkbox_1">Option 1</label>
 				<input type="checkbox" name="input_checkbox" id="input_checkbox_2" value="2" />
@@ -282,7 +284,7 @@
 			</p>
 
 			<p>
-				<code>select[@type="select-one"]</code>
+				<code>select[type="select-one"]</code>
 				<select name="select_one">
 					<option value=""></option>
 					<option value="1">Option Value: 1</option>
@@ -294,7 +296,7 @@
 			</p>
 
 			<p>
-				<code>select[@type="select-multiple"]</code>
+				<code>select[type="select-multiple"]</code>
 				<select name="select_multiple" multiple="true" size="5">
 					<option value="1">Option Value: 1</option>
 					<option value="2">Option Value: 2</option>
@@ -310,17 +312,17 @@
 			</p>
 
 			<p>
-				<code>input[@type="button"]</code>
+				<code>input[type="button"]</code>
 				<input type="button" name="input_button" value="Button" />
 			</p>
 
 			<p>
-				<code>input[@type="submit"]</code>
+				<code>input[type="submit"]</code>
 				<input type="submit" name="input_submit" value="Submit" />
 			</p>
 
 			<p>
-				<code>input[@type="reset"]</code>
+				<code>input[type="reset"]</code>
 				<input type="reset" name="input_reset" value="Reset" />
 			</p>
 
@@ -477,22 +479,22 @@
 
 <ul>
 	<li>
-		<code>$(&quot;input[@name=&#039;users&#039;]&quot;).fieldArray();</code><br />
+		<code>$(&quot;input[name=&#039;users&#039;]&quot;).fieldArray();</code><br />
 		Returns an array of all values selected or entered for the selector. If the selector was a checkbox or select element, the array would contain the value of each item selected/checked.
 	</li>
 
 	<li>
-		<code>$(&quot;input[@name=&#039;users&#039;]&quot;).fieldArray([&quot;dan&quot;, &quot;joern&quot;, &quot;karl&quot;, &quot;john&quot;]);</code><br />
+		<code>$(&quot;input[name=&#039;users&#039;]&quot;).fieldArray([&quot;dan&quot;, &quot;joern&quot;, &quot;karl&quot;, &quot;john&quot;]);</code><br />
 		Sets the value of the field to "dan,joern,karl,john". If the selector was a checkbox or select element, then the options with the values of "dan", "joern", "karl" and "john" would be selected--all other options would be unselected.
 	</li>
 
 	<li>
-		<code>$(&quot;input[@name=&#039;users&#039;]&quot;).getValue();</code><br />
+		<code>$(&quot;input[name=&#039;users&#039;]&quot;).getValue();</code><br />
 		Returns a comma delimited string of all values selected or entered for the selector. If the selector was a checkbox or select element, the string would contain the value of each item selected/checked as a separate item in the list.
 	</li>
 
 	<li>
-		<code>$(&quot;input[@name=&#039;users&#039;]&quot;).setValue(&quot;dan,joern,karl,john&quot;);</code><br />
+		<code>$(&quot;input[name=&#039;users&#039;]&quot;).setValue(&quot;dan,joern,karl,john&quot;);</code><br />
 		Sets the value of the field to "dan,joern,karl,john". If the selector was a checkbox or select element, then the options with the	values of "dan", "joern", "karl" and "john" would be selected--all other options would be unselected.
 	</li>
 
@@ -556,28 +558,28 @@
 	</li>
 
 	<li>
-		<code>$(&quot;input[@name=&#039;users&#039;]&quot;).moveNext();</code>*<br />
+		<code>$(&quot;input[name=&#039;users&#039;]&quot;).moveNext();</code>*<br />
 		This would move the focus to the next field in the tabIndex array from
 		the "users" field. If the next tabItem is outside of the form's context,
 		the first element in the form will be selected.
 	</li>
 
 	<li>
-		<code>$(&quot;input[@name=&#039;users&#039;]&quot;).movePrev();</code>*<br />
+		<code>$(&quot;input[name=&#039;users&#039;]&quot;).movePrev();</code>*<br />
 		This would move the focus to the previous field in the tabIndex array from
 		the "users" field. If the previous tabItem is outside of the form's context,
 		the last element in the form will be selected.
 	</li>
 
 	<li>
-		<code>$(&quot;input[@name=&#039;users&#039;]&quot;).moveIndex(3);</code>*<br />
+		<code>$(&quot;input[name=&#039;users&#039;]&quot;).moveIndex(3);</code>*<br />
 		This would move the focus to the third element in the tabIndex array. If the
 		value "3" is outside the tabIndex array for the current form, then the
 		last field would be selected.
 	</li>
 
 	<li>
-		<code>$(&quot;input[@name=&#039;users&#039;]&quot;).getTabIndex();</code>*<br />
+		<code>$(&quot;input[name=&#039;users&#039;]&quot;).getTabIndex();</code>*<br />
 		This returns the tabIndex for the current field as it relates to the parent
 		form object.
 	</li>

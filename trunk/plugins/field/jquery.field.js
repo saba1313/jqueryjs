@@ -7,8 +7,8 @@
  *   http://www.opensource.org/licenses/mit-license.php
  *   http://www.gnu.org/licenses/gpl.html
  *
- * Revision: 13
- * Version: 0.9.1
+ * Revision: 14
+ * Version: 0.9.2
  *
  * NOTES: The getValue() and setValue() methods are designed to be
  * executed on single field (i.e. any field that would share the same
@@ -16,6 +16,13 @@
  * elements, etc.)
  *
  * Revision History
+ * v0.9.2
+ * - Fixed code for jQuery v1.3.x support
+ * - Fixed bug #6333 - setValue when value is typeof "number" and it is 0 (zero)
+ * - Fixed bug in autoAdvance where it wasn't correctly advancing to the next field
+ * - Fixed bug in createCheckboxRange where it where the high value wouldn't always
+ *   be unchecked/checked
+ * 
  * v0.9.1
  * - Optimized the createCheckboxRange to reduced complexity and code size.
  *   Functionality has not changed.
@@ -83,7 +90,7 @@
 
 	// set default options
 	$.Field = {
-		version: "0.9.1",
+		version: "0.9.2",
 		setDefaults: function(options){
 			$.extend(defaults, options);
 		},
@@ -104,16 +111,16 @@
 	 * NOTE: This *MAY* break the jQuery chain
 	 *
 	 * Examples:
-	 * $("input[@name='name']").fieldArray();
+	 * $("input[name='name']").fieldArray();
 	 * > Gets the current value of the name text element
 	 *
-	 * $("input[@name='name']").fieldArray(["Dan G. Switzer, II"]);
+	 * $("input[name='name']").fieldArray(["Dan G. Switzer, II"]);
 	 * > Sets the value of the name text element to "Dan G. Switzer, II"
 	 *
-	 * $("select[@name='state']").fieldArray();
+	 * $("select[name='state']").fieldArray();
 	 * > Gets the current value of the state text element
 	 *
-	 * $("select[@name='state']").setValue(["OH","NY","CA"]);
+	 * $("select[name='state']").setValue(["OH","NY","CA"]);
 	 * > Sets the selected value of the "state" select element to OH, NY and CA
 	 *
 	 */
@@ -145,10 +152,10 @@
 	 * NOTE: Breaks the jQuery chain, since it returns a string.
 	 *
 	 * Examples:
-	 * $("input[@name='name']").getValue();
+	 * $("input[name='name']").getValue();
 	 * > This would return the value of the name text element
 	 *
-	 * $("select[@name='state']").getValue();
+	 * $("select[name='state']").getValue();
 	 * > This would return the currently selected value of the "state" select element
 	 *
 	 */
@@ -213,17 +220,17 @@
 	 * NOTE: This does *NOT* break the jQuery chain
 	 *
 	 * Examples:
-	 * $("input[@name='name']").setValue("Dan G. Switzer, II");
+	 * $("input[name='name']").setValue("Dan G. Switzer, II");
 	 * > Sets the value of the name text element to "Dan G. Switzer, II"
 	 *
-	 * $("select[@name='state']").setValue("OH");
+	 * $("select[name='state']").setValue("OH");
 	 * > Sets the selected value of the "state" select element to "OH"
 	 *
 	 */
 	// the setValue() method -- does *not* break the chain
 	$.fn.setValue = function(v){
 		// f no value, set to empty string
-		return setValue(this, (!v ? [""] : v.toString().split(defaults.delimiter)));
+		return setValue(this, ((!v && (v !== 0)) ? [""] : v.toString().split(defaults.delimiter)));
 	};
 
 	/*
@@ -234,7 +241,6 @@
 	 */
 	// the setValue() method -- does *not* break the chain
 	var setValue = function(jq, v){
-
 		jq.each(
 			function (lc){
 				var t = getType(this), x;
@@ -317,7 +323,7 @@
 					if( !n || stProcessed[n] ) continue;
 
 					// create a jquery object to the current named form elements
-					var jel = $(el.tagName.toLowerCase() + "[@name='"+n+"']", this);
+					var jel = $(el.tagName.toLowerCase() + "[name='"+n+"']", this);
 
 					// if we're getting the values, get them now
 					if( bGetHash ){
@@ -356,7 +362,7 @@
 	// the autoAdvance() method
 	$.fn.autoAdvance = function(callback){
 		return this.find(":text,:password,textarea").bind(
-			"keyup",
+			"keyup.autoAdvance",
 			function (e){
 				var
 					// get the field
@@ -472,7 +478,7 @@
 	var getFieldPosition = function (jq){
 		var
 			// get the first matching field
-			$field = jq.filter("input select textarea").get(0),
+			$field = jq.filter("input, select, textarea").get(0),
 			// store items with a tabindex
 			aTabIndex = [],
 			// store items with no tabindex
@@ -557,7 +563,7 @@
 		};
 
 		return this.bind(
-			(!!self[0] && self[0].type == "select-multiple") ? "change" : "click",
+			(!!self[0] && self[0].type == "select-multiple") ? "change.limitSelection" : "click.limitSelection",
 			function (){
 				if( getCount(this) > opt.limit ){
 					// run callback, it must return false to prevent action
@@ -585,11 +591,19 @@
 	 *
 	 */
 	$.fn.createCheckboxRange = function(callback){
-		var iLastSelection = 0, self = this, bCallback = $.isFunction(callback);
+		// get the options to use
+		var opt = jQuery.extend(
+			(callback && callback.constructor == Object ? callback : {
+					bind: defaults.checkboxRangeKeyBinding
+				, onclick: callback
+			})
+			, callback);
+
+		var iLastSelection = 0, self = this, bCallback = $.isFunction(opt.onclick);
 
 		// if there's a call back, bind it now and run it
 		if( bCallback ) 
-			this.each(function (){callback.apply(this, [$(this).is(":checked")])});
+			this.each(function (){opt.onclick.apply(this, [$(this).is(":checked")])});
 		
 		// loop through each checkbox and return the jQuery object
 		return this.each(
@@ -603,18 +617,18 @@
 				};
 
 				var checkboxClicked = function (e){
-					var bSetChecked = this.checked, current = self.index(e.target), low = Math.min(iLastSelection, current), high = Math.max(iLastSelection, current);
+					var bSetChecked = this.checked, current = self.index(e.target), low = Math.min(iLastSelection, current), high = Math.max(iLastSelection+1, current);
 					// run the callback for the clicked item
-					if( bCallback ) $(this).each(function (){callback.apply(this, [bSetChecked])});
+					if( bCallback ) $(this).each(function (){opt.onclick.apply(this, [bSetChecked])});
 					// if we don't detect the keypress, exit function
-					if( !e[defaults.checkboxRangeKeyBinding] ) return;
-
+					if( !e[opt.bind] ) return;
+					
 					// loop through the items in the selected range
 					for( var i=low; i < high; i++ ){
 						// make sure to correctly set the checked status
 						var item = self.eq(i).attr("checked", bSetChecked ? "checked" : "");
 						// run the callback
-						if( bCallback ) callback.apply(item[0], [bSetChecked]);
+						if( bCallback ) opt.onclick.apply(item[0], [bSetChecked]);
 					}
 					
 					return true;
@@ -622,12 +636,11 @@
 				
 				$(this)
 					// unbind the events so we can re-run the createCheckboxRange() plug-in for dynamically created elements
-					.unbind("blur", updateLastCheckbox)
-					.unbind("click", checkboxClicked)
+					.unbind("click.createCheckboxRange")
 
 					// bind the functions, we bind on blur for keyboard selected items
-					.bind("blur", updateLastCheckbox)
-					.bind("click", checkboxClicked)
+					.bind("click.createCheckboxRange", checkboxClicked)
+					.bind("click.createCheckboxRange", updateLastCheckbox)
 					;
 
 				return true;

@@ -8,7 +8,7 @@
  *   http://www.gnu.org/licenses/gpl.html
  *
  * Revision: 7
- * Version: 0.4.02
+ * Version: 0.4.03
  *
  * Revision History
  * v0.4.02
@@ -65,7 +65,7 @@
 	
 	// set default options
 	$.Calculation = {
-		version: "0.4.02",
+		version: "0.4.03",
 		setDefaults: function(options){
 			$.extend(defaults, options);
 		}
@@ -82,7 +82,7 @@
 	 * NOTE: Breaks the jQuery chain, since it returns a Number.
 	 *
 	 * Examples:
-	 * $("input[@name^='price']").parseNumber();
+	 * $("input[name^='price']").parseNumber();
 	 * > This would return an array of potential number for every match in the selector
 	 *
 	 */
@@ -132,7 +132,7 @@
 	 * returns Number - performance a calculation and updates the field
 	 *
 	 * Examples:
-	 * $("input[@name='price']").calc();
+	 * $("input[name='price']").calc();
 	 * > This would return the sum of all the fields named price
 	 *
 	 */
@@ -152,12 +152,14 @@
 			// the current method to use for updating the value
 			sMethod,
 			// a hash to store the local variables
-			hVars,
+			_,
 			// track whether an error occured in the calculation
 			bIsError = false;
 
 		// look for any jQuery objects and parse the results into numbers			
 		for( var k in vars ){
+			// replace the keys in the expression
+			expr = expr.replace( (new RegExp("(" + k + ")", "g")), "_.$1");
 			if( !!vars[k] && !!vars[k].jquery ){
 				parsedVars[k] = vars[k].parseNumber();
 			} else {
@@ -173,27 +175,27 @@
 				sMethod = ($el.is(":input") ? (defaults.useFieldPlugin ? "setValue" : "val") : "text");
 
 				// initialize the hash vars
-				hVars = {};
+				_ = {};
 				for( var k in parsedVars ){
 					if( typeof parsedVars[k] == "number" ){
-						hVars[k] = parsedVars[k];
+						_[k] = parsedVars[k];
 					} else if( typeof parsedVars[k] == "string" ){
-						hVars[k] = parseFloat(parsedVars[k], 10);
+						_[k] = parseFloat(parsedVars[k], 10);
 					} else if( !!parsedVars[k] && (parsedVars[k] instanceof Array) ) {
 						// if the length of the array is the same as number of objects in the jQuery
 						// object we're attaching to, use the matching array value, otherwise use the
 						// value from the first array item
 						tmp = (parsedVars[k].length == $this.length) ? i : 0;
-						hVars[k] = parsedVars[k][tmp];
+						_[k] = parsedVars[k][tmp];
 					}
 					
 					// if we're not a number, make it 0
-					if( isNaN(hVars[k]) ) hVars[k] = 0;
+					if( isNaN(_[k]) ) _[k] = 0;
 				}
 
 				// try the calculation
 				try {
-					exprValue = eval( expr.replace(/([A-Za-z]+)/g, "hVars.$1") );
+					exprValue = eval( expr );
 					
 					// if there's a format callback, call it now
 					if( !!cbFormat ) exprValue = cbFormat(exprValue);
@@ -241,13 +243,13 @@
 	 * returns Number - the maximum value in the field
 	 * 
 	 * Examples:
-	 * $("input[@name='price']").sum();
+	 * $("input[name='price']").sum();
 	 * > This would return the sum of all the fields named price
 	 *
-	 * $("input[@name='price1'], input[@name='price2'], input[@name='price3']").sum();
+	 * $("input[name='price1'], input[name='price2'], input[name='price3']").sum();
 	 * > This would return the sum of all the fields named price1, price2 or price3
 	 *
-	 * $("input[@name^=sum]").sum("keyup", "#totalSum");
+	 * $("input[name^=sum]").sum("keyup", "#totalSum");
 	 * > This would update the element with the id "totalSum" with the sum of all the 
 	 * > fields whose name started with "sum" anytime the keyup event is triggered on
 	 * > those field.

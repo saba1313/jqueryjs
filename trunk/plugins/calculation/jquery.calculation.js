@@ -7,10 +7,14 @@
  *   http://www.opensource.org/licenses/mit-license.php
  *   http://www.gnu.org/licenses/gpl.html
  *
- * Revision: 7
- * Version: 0.4.03
+ * Revision: 8
+ * Version: 0.4.04
  *
  * Revision History
+ * v0.4.04
+ * - Fixed bug #5420 by adding the defaults.cleanseNumber handler; you can
+ *   override this function to handle stripping number of extra digits
+ * 
  * v0.4.02
  * - Fixed bug where bind parameter was not being detecting if you specified
  *   a string in method like sum(), avg(), etc.
@@ -55,6 +59,14 @@
 		// numbers, you can add a ^ to the beginning or $ to the end of the regex to force the
 		// the regex to match the entire string: /^(-|-\$)?(\d+(,\d{3})*(\.\d{1,})?|\.\d{1,})$/g
 		reNumbers: /(-|-\$)?(\d+(,\d{3})*(\.\d{1,})?|\.\d{1,})/g
+		// this function is used in the parseNumber() to cleanse up any found numbers
+		// the function is intended to remove extra information found in a number such
+		// as extra commas and dollar signs. override this function to strip European values
+		, cleanseNumber: function (v){
+			// cleanse the number one more time to remove extra data (like commas and dollar signs)
+			// use this for European numbers: v.replace(/,/g, ".").replace(/[^0-9.\-]/g, "")
+			return v.replace(/[^0-9.\-]/g, "");
+		}
 		// should the Field plug-in be used for getting values of :input elements?
 		, useFieldPlugin: (!!$.fn.getValue)
 		// a callback function to run when an parsing error occurs
@@ -65,7 +77,7 @@
 	
 	// set default options
 	$.Calculation = {
-		version: "0.4.03",
+		version: "0.4.04",
 		setDefaults: function(options){
 			$.extend(defaults, options);
 		}
@@ -110,7 +122,7 @@
 				// otherwise we take the number we found and remove any commas
 				} else {
 					// clense the number one more time to remove extra data (like commas and dollar signs)
-					v = v[0].replace(/[^0-9.\-]/g, "");
+					v = options.cleanseNumber.apply(this, [v[0]]);
 					// if there's a clear callback, execute it
 					if( $.data($el[0], "calcParseError") && jQuery.isFunction(options.onParseClear) ){
 						options.onParseClear.apply($el, [sMethod]);

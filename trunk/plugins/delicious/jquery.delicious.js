@@ -13,11 +13,11 @@
 (function($){
 
 /**
- * Load a list of bookmarks, tags, network members, and/or fans from del.icio.us for
- * a specific user using the del.icio.us JSON feeds (http://del.icio.us/help/json/), 
+ * Load a list of bookmarks, tags, network members, and/or fans from delicious.com for
+ * a specific user using the delicious.com JSON feeds (http://delicious.com/help/feeds/),
  * and without need for any server-side component.
  *
- * @param String user The del.icio.us user who's bookmarks you want to load.
+ * @param String user The delicious.com user who's bookmarks you want to load.
  * @param Map options key/value pairs of optional settings for the list display.
  * @option String type (posts|tags|network|fans) The type of information you wish to retrieve. Default: 'posts'
  * @option String itemTag The type of HTML element you wish to surround every item in the list. Default: 'li'
@@ -30,8 +30,8 @@
  * @option String sort (alpha|count) Available for type 'tags'. Sort the list alphanumerically or by number of posts respectively.
  *
  * @type jQuery
- * @name Del.icio.us
- * @cat Plugins/Del.icio.us
+ * @name Delicious.com
+ * @cat Plugins/Delicious.com
  *
  */
 $.fn.delicious = function(user,options,tOptions,cbFnc){
@@ -39,7 +39,7 @@ $.fn.delicious = function(user,options,tOptions,cbFnc){
 	var opts = $.extend({'user':user},$.delicious.opts,options),
 		$self = this,
 		fn = cbFnc || jQuery.delicious.parsers[opts.type],
-		url = 'http://del.icio.us/feeds/json/' + (opts.type=='posts'?'':opts.type+'/') + user
+		url = 'http://feeds.delicious.com/v2/json/' + (opts.type=='posts'?'':opts.type+'/') + user
 			+ (opts.type=='posts' && opts.tag? '/'+opts.tag : '') + '?',
 		rOpts = $.extend({raw:'true',callback:name(fn)},$.delicious.types[opts.type],tOptions);
 
@@ -52,17 +52,17 @@ $.fn.delicious = function(user,options,tOptions,cbFnc){
 	//$('head').append($.SCRIPT({src:url,type:'text/javascript'}));
 	document.getElementsByTagName('head')[0].appendChild($.SCRIPT({src:url,type:'text/javascript'}));
 	return $self;
-	
+
 	// Ingenious name() closure function from Michael Geary
 	// http://mg.to/2006/01/25/json-for-jquery
 	function name( callback ) {
 		var i = $.delicious.callbacks.length;
-		
+
 		$.delicious.callbacks[i] = function( json ) {
 			delete $.delicious.callbacks[i];
 			$self.each( function() { callback.apply(this,[json,opts]); } );
 		};
-		
+
 		return 'jQuery.delicious.callbacks['+i+']';
 	};
 };
@@ -70,15 +70,16 @@ $.fn.delicious = function(user,options,tOptions,cbFnc){
 $.delicious = {
 
 	callbacks : [],
-	
+
 	opts : {
 		type : 'posts', // possible values = posts, tags, url, network, or fans
 		itemTag : 'li',
 		wrapTag : 'ul',
 		append : false,
-		favicon : true
+		favicon : true,
+		popopen : false
 	},
-	
+
 	types : {
 		posts : {
 			count : 20
@@ -91,17 +92,19 @@ $.delicious = {
 		network : {},
 		fans : {}
 	},
-	
+
 	// Prebuilt Callback Functions
-	parsers : { 
+	parsers : {
 		posts : function(data,opts){
 			var lis = [];
 			$.each(data,function(i,oPost){
 				var fIcon, oSpan;
 				if(opts.favicon)
 					fIcon = $.IMG({src:oPost.u.split('/').splice(0,3).join('/')+'/favicon.ico',height:16,width:16,border:0})
+				var a_opts = {href:oPost.u}
+				if(opts.popopen) a_opts['target'] = '_blank';
 				lis[lis.length] = $[opts.itemTag]({},
-					$.A({href:oPost.u}, opts.favicon ? fIcon : '',
+					$.A(a_opts, opts.favicon ? fIcon : '',
 						oSpan = $.SPAN({},oPost.d)
 					)
 				);
@@ -122,10 +125,10 @@ $.delicious = {
 			var lis = [];
 			$.each(data,function(tName,tCount){
 				var fIcon, oSpan;
+				var a_opts = {href:'http://delicious.com/'+opts.user+'/'+tName};
+				if(opts.popopen) a_opts['target'] = '_blank';
 				lis[lis.length] = $[opts.itemTag]({},
-					$.A({href:'http://del.icio.us/'+opts.user+'/'+tName}, 
-						tName + ' ('+tCount+')'
-					)
+					$.A(a_opts, tName + ' ('+tCount+')')
 				);
 			});
 			if(!lis.length){
@@ -138,8 +141,10 @@ $.delicious = {
 		network : function(data,opts){
 			var lis = [];
 			$.each(data,function(i,name){
+				var a_opts = {href:'http://delicious.com/'+name};
+				if(opts.popopen) a_opts['target'] = '_blank';
 				lis[lis.length] = $[opts.itemTag]({},
-					$.A({href:'http://del.icio.us/'+name}, name)
+					$.A(a_opts, name)
 				);
 			});
 			if(!lis.length){
@@ -152,8 +157,10 @@ $.delicious = {
 		fans : function(data,opts){
 			var lis = [];
 			$.each(data,function(i,name){
+				var a_opts = {href:'http://delicious.com/'+name};
+				if(opts.popopen) a_opts['target'] = '_blank';
 				lis[lis.length] = $[opts.itemTag]({},
-					$.A({href:'http://del.icio.us/'+name}, name)
+					$.A(a_opts, name)
 				);
 			});
 			if(!lis.length){
@@ -164,16 +171,16 @@ $.delicious = {
 			$.delicious.add(this,$[opts.wrapTag]({},lis),opts);
 		}
 	},
-	
+
 	add : function(elm,obj,opts){
 		$(elm)[opts.append?'append':'html'](obj);
 	}
-	
+
 };
 
 /*
  * Code below by Michael Geary
- * Included for convenience 
+ * Included for convenience
  */
 
 // DOM element creator for jQuery and Prototype by Michael Geary
@@ -224,7 +231,7 @@ $._createNode = function( tag, args ) {
 			args.toSource() + '\n' + args );
 		e = null;
 	}
-	
+
 	function append( arg ) {
 		if( arg == null ) return;
 		var c = arg.constructor;
@@ -234,9 +241,8 @@ $._createNode = function( tag, args ) {
 		}
 		e.appendChild( arg );
 	}
-	
+
 	return e;
 };
 
 })(jQuery);
-

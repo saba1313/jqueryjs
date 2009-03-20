@@ -3,6 +3,7 @@
 * Fixed messages in additional-methods.js for maxWords, minWords, and rangeWords to include call to $.format 
 * Fixed value passed to methods to exclude carriage return (\r), same as jQuery's val() does
 * Added slovak (sk) localization
+* Added demo for intergration with jQuery UI tabs
 
 1.5.1
 ---

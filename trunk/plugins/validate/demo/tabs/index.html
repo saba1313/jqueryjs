@@ -13,7 +13,23 @@
 <script id="demo" type="text/javascript">
 $(document).ready(function() {
 	var tabs = $("#tabs").tabs();
-	var validator = $("#signupform").validate();
+	var validator = $("#signupform").validate({
+		groups: {
+			birthdate: "birthdateDay birthdateMonth birthdateYear"
+		},
+		errorPlacement: function(label, element) {
+			if (/^birthdate/.test(element[0].name)) {
+				label.insertAfter("#birthdateYear");
+			} else {
+				label.insertAfter(element);
+			}
+		}
+	});
+	
+	// validate the other two selects when one changes to update the whole group
+	var birthdaySelects = $("#birthdateGroup select").click(function() {
+		birthdaySelects.not(this).valid();
+	})
 	
 	// overwrite focusInvalid to activate tab with invalid elements
 	validator.focusInvalid = function() {
@@ -73,6 +89,41 @@ $(document).ready(function() {
 			<p>
 				<label for="city">City</label>
 				<input id="city" name="city" class="required" minlength="3" maxlength="50" type="text" />
+			</p>
+			<p id="birthdateGroup">
+				<label for="birthdateDay">Birthdate</label>
+				<select id="birthdateDay" name="birthdateDay" class="required">
+					<option value="">Day</option>
+					<option>1</option>
+					<option>2</option>
+					<option>3</option>
+					<option>...</option>
+				</select>
+				<select id="birthdateMonth" name="birthdateMonth" class="required">
+					<option value="">Month</option>
+					<option>1</option>
+					<option>2</option>
+					<option>3</option>
+					<option>4</option>
+					<option>5</option>
+					<option>6</option>
+					<option>7</option>
+					<option>8</option>
+					<option>9</option>
+					<option>10</option>
+					<option>11</option>
+					<option>12</option>
+				</select>
+				<select id="birthdateYear" name="birthdateYear" class="required">
+					<option value="">Year</option>
+					<option>1950</option>
+					<option>1951</option>
+					<option>1952</option>
+					<option>1953</option>
+					<option>1954</option>
+					<option>1955</option>
+					<option>...</option>
+				</select>
 			</p>
 		</div>
 		<div id="subscriptions">

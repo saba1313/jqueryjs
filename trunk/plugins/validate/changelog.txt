@@ -4,6 +4,7 @@
 * Fixed value passed to methods to exclude carriage return (\r), same as jQuery's val() does
 * Added slovak (sk) localization
 * Added demo for intergration with jQuery UI tabs
+* Added selects-grouping example to tabs demo (see second tab, birthdate field)
 
 1.5.1
 ---

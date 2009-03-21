@@ -1,3 +1,7 @@
+1.5.3
+---
+* Fixed a bug related to the wrapper-option, where all ancestor-elements that matched the wrapper-option where selected
+
 1.5.2
 ---
 * Fixed messages in additional-methods.js for maxWords, minWords, and rangeWords to include call to $.format 

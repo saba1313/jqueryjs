@@ -9,8 +9,8 @@
 <script type="text/javascript" src="../../lib/jquery.js"></script>
 <script type="text/javascript" src="../../jquery.validate.js"></script>
 <script type="text/javascript" src="js/jquery.maskedinput-1.0.js"></script>
-<script type="text/javascript" src="js/jquery.dimensions.js"></script>
-<script type="text/javascript" src="js/jquery.accordion.js"></script>
+<script type="text/javascript" src="js/ui.core.js"></script>
+<script type="text/javascript" src="js/ui.accordion.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function(){
@@ -25,9 +25,7 @@ $(document).ready(function(){
 	$('label.required').append('&nbsp;<strong>*</strong>&nbsp;');
 
 	// accordion functions
-	var accordion = $("#stepForm").accordion({
-		autoheight: true 
-	}); 
+	var accordion = $("#stepForm").accordion(); 
 	var current = 0;
 	
 	$.validator.addMethod("pageRequired", function(value, element) {
@@ -52,29 +50,29 @@ $(document).ready(function(){
 	
 	// back buttons do not need to run validation
 	$("#sf2 .prevbutton").click(function(){
-		accordion.activate(0);
+		accordion.accordion("activate", 0);
 		current = 0;
 	}); 
 	$("#sf3 .prevbutton").click(function(){
-		accordion.activate(1);
+		accordion.accordion("activate", 1);
 		current = 1;
 	}); 
 	// these buttons all run the validation, overridden by specific targets above
 	$(".open2").click(function() {
 	  if (v.form()) {
-	    accordion.activate(2);
+	    accordion.accordion("activate", 2);
 	    current = 2;
 	  }
 	});
 	$(".open1").click(function() {
 	  if (v.form()) {
-	    accordion.activate(1);
+	    accordion.accordion("activate", 1);
 	    current = 1;
 	  }
 	});
 	$(".open0").click(function() {
 	  if (v.form()) {
-	    accordion.activate(0);
+	    accordion.accordion("activate", 0);
 	    current = 0;
 	  }
 	});
@@ -197,9 +195,7 @@ $(document).ready(function(){
 	</div>
 	</li>
 	<li id="sf2">
-	<div class="ui-accordion-left"></div>
 	<a href='#' class="ui-accordion-link">
-	<div class="ui-accordion-right"></div>
 	</a>
 	<div>
 	<fieldset><legend> Step 2 of 3 </legend>
@@ -330,9 +326,7 @@ $(document).ready(function(){
 	</div>
 	</li>
 	<li id="sf3">
-	<div class="ui-accordion-left"></div>
 	<a href='#' class="ui-accordion-link">
-	<div class="ui-accordion-right"></div>
 	</a>
 	<div>
 	<fieldset><legend> Step 3 of 3 </legend>

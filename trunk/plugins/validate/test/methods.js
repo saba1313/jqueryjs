@@ -451,3 +451,13 @@ test("dateITA", function() {
 	ok(!method( "01/13/1990" ), "Invalid date ITA" );
 	ok(!method( "01.01.1900" ), "Invalid date ITA" );
 });
+
+test("time", function() {
+	var method = methodTest("time");
+	ok( method("00:00"), "Valid time, lower bound" );
+	ok( method("23:59"), "Valid time, upper bound" );
+	ok( !method("24:60"), "Invalid time" );
+	ok( !method("24:00"), "Invalid time" );
+	ok( !method("29:59"), "Invalid time" );
+	ok( !method("30:00"), "Invalid time" );
+});

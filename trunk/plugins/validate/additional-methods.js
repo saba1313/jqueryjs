@@ -125,20 +125,14 @@ jQuery.validator.addMethod(
 	"Please enter a correct date"
 );
 
-jQuery.validator.addMethod(
-	"dateNL",
-	function(value, element) {
+jQuery.validator.addMethod("dateNL", function(value, element) {
 		return this.optional(element) || /^\d\d?[\.\/-]\d\d?[\.\/-]\d\d\d?\d?$/.test(value);
-	}, 
-	"Vul hier een geldige datum in."
+	}, "Vul hier een geldige datum in."
 );
 
-jQuery.validator.addMethod(
-	"time",
-	function(value, element) {
-		return this.optional(element) || /^([0-2])[0-9]:([0-5])([0-9])$/.test(value);
-	}, 
-	"Please enter a valid time, between 00:00 and 23:59"
+jQuery.validator.addMethod("time", function(value, element) {
+		return this.optional(element) || /^([01][0-9])|(2[0123]):([0-5])([0-9])$/.test(value);
+	}, "Please enter a valid time, between 00:00 and 23:59"
 );
 
 /**

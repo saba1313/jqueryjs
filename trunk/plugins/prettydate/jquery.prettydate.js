@@ -61,7 +61,7 @@ $.prettyDate = {
 			day_diff == 1 && messages.yesterday ||
 			day_diff < 7 && messages.days(day_diff) ||
 			day_diff < 31 && messages.weeks(Math.ceil( day_diff / 7 ));
-	},
+	}
 	
 };
 
@@ -76,22 +76,24 @@ $.prettyDate.messages = {
 	weeks: $.prettyDate.template("{0} weeks ago")
 };
 	
-jQuery.fn.prettyDate = function(options) {
+$.fn.prettyDate = function(options) {
 	options = $.extend({
 		value: function() {
 			return $(this).attr("title");
-		}
+		},
+		interval: 10000
 	}, options);
 	var elements = this;
 	function format() {
 		elements.each(function() {
 			var date = $.prettyDate.format(options.value.apply(this));
-			if ( date )
-				jQuery(this).text( date );
+			if ( date && $(this).text() != date )
+				$(this).text( date );
 		});
 	}
 	format();
-	setInterval(format, 10000);
+	if (options.interval)
+		setInterval(format, options.interval);
 	return this;
 };
 

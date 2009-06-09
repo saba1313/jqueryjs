@@ -1,6 +1,6 @@
 1.5.3
 ---
-* Fixed a bug related to the wrapper-option, where all ancestor-elements that matched the wrapper-option where selected
+* Fixed a bug related to the wrapper-option, where all ancestor-elements that matched the wrapper-option where selected (http://plugins.jquery.com/node/7624)
 * Updated multipart demo to use latest jQuery UI accordion
 * Added dateNL and time methods to additionalMethods.js
 * Added Traditional Chinese (Taiwan, tw) localization

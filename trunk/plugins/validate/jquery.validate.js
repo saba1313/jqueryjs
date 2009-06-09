@@ -157,13 +157,19 @@ $.extend($.expr[":"], {
 	unchecked: function(a) {return !a.checked;}
 });
 
+// constructor for validator
+$.validator = function( options, form ) {
+	this.settings = $.extend( {}, $.validator.defaults, options );
+	this.currentForm = form;
+	this.init();
+};
 
-$.format = function(source, params) {
+$.validator.format = function(source, params) {
 	if ( arguments.length == 1 ) 
 		return function() {
 			var args = $.makeArray(arguments);
 			args.unshift(source);
-			return $.format.apply( this, args );
+			return $.validator.format.apply( this, args );
 		};
 	if ( arguments.length > 2 && params.constructor != Array  ) {
 		params = $.makeArray(arguments).slice(1);
@@ -175,17 +181,10 @@ $.format = function(source, params) {
 		source = source.replace(new RegExp("\\{" + i + "\\}", "g"), n);
 	});
 	return source;
-};
-
-// constructor for validator
-$.validator = function( options, form ) {
-	this.settings = $.extend( {}, $.validator.defaults, options );
-	this.currentForm = form;
-	this.init();
-};
+}
 
 $.extend($.validator, {
-
+	
 	defaults: {
 		messages: {},
 		groups: {},
@@ -248,12 +247,12 @@ $.extend($.validator, {
 		creditcard: "Please enter a valid credit card number.",
 		equalTo: "Please enter the same value again.",
 		accept: "Please enter a value with a valid extension.",
-		maxlength: $.format("Please enter no more than {0} characters."),
-		minlength: $.format("Please enter at least {0} characters."),
-		rangelength: $.format("Please enter a value between {0} and {1} characters long."),
-		range: $.format("Please enter a value between {0} and {1}."),
-		max: $.format("Please enter a value less than or equal to {0}."),
-		min: $.format("Please enter a value greater than or equal to {0}.")
+		maxlength: $.validator.format("Please enter no more than {0} characters."),
+		minlength: $.validator.format("Please enter at least {0} characters."),
+		rangelength: $.validator.format("Please enter a value between {0} and {1} characters long."),
+		range: $.validator.format("Please enter a value between {0} and {1}."),
+		max: $.validator.format("Please enter a value less than or equal to {0}."),
+		min: $.validator.format("Please enter a value greater than or equal to {0}.")
 	},
 	
 	autoCreateRanges: false,
@@ -1044,6 +1043,9 @@ $.extend($.validator, {
 	}
 	
 });
+
+// deprecated, use $.validator.format instead
+$.format = $.validator.format;
 
 })(jQuery);
 

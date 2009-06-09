@@ -350,7 +350,7 @@ test("remote", function() {
 		messages: {
 			username: {
 				required: "Please",
-				remote: jQuery.format("{0} in use")
+				remote: jQuery.validator.format("{0} in use")
 			}
 		},
 		submitHandler: function() {

@@ -396,7 +396,7 @@ test("error containers, simple", function() {
 	var v = $("#form").validate({
 		errorLabelContainer: container,
 		showErrors: function() {
-			container.find("h3").html( jQuery.format("There are {0} errors in your form.", this.size()) );
+			container.find("h3").html( jQuery.validator.format("There are {0} errors in your form.", this.size()) );
 			this.defaultShowErrors();
 		}
 	});
@@ -467,7 +467,7 @@ test("errorcontainer, show/hide only on submit", function() {
 		errorContainer: container,
 		errorLabelContainer: labelContainer,
 		showErrors: function() {
-			container.html( jQuery.format("There are {0} errors in your form.", this.numberOfInvalids()) );
+			container.html( jQuery.validator.format("There are {0} errors in your form.", this.numberOfInvalids()) );
 			ok( true, "showErrors called" );
 			this.defaultShowErrors();
 		}
@@ -752,12 +752,12 @@ test("messages", function() {
 	equals( "Please enter a value between 1 and 2.", m.range([1, 2]) );
 });
 
-test("jQuery.format", function() {
-	equals( "Please enter a value between 0 and 1.", jQuery.format("Please enter a value between {0} and {1}.", 0, 1) );
-	equals( "0 is too fast! Enter a value smaller then 0 and at least -15", jQuery.format("{0} is too fast! Enter a value smaller then {0} and at least {1}", 0, -15) );
-	var template = jQuery.format("{0} is too fast! Enter a value smaller then {0} and at least {1}");
+test("jQuery.validator.format", function() {
+	equals( "Please enter a value between 0 and 1.", jQuery.validator.format("Please enter a value between {0} and {1}.", 0, 1) );
+	equals( "0 is too fast! Enter a value smaller then 0 and at least -15", jQuery.validator.format("{0} is too fast! Enter a value smaller then {0} and at least {1}", 0, -15) );
+	var template = jQuery.validator.format("{0} is too fast! Enter a value smaller then {0} and at least {1}");
 	equals( "0 is too fast! Enter a value smaller then 0 and at least -15", template(0, -15) );
-	template = jQuery.format("Please enter a value between {0} and {1}.");
+	template = jQuery.validator.format("Please enter a value between {0} and {1}.");
 	equals( "Please enter a value between 1 and 2.", template([1, 2]) );
 });
 

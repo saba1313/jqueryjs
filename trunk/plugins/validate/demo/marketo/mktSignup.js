@@ -52,7 +52,7 @@
 			email: {
 				required: " ",
 				email: "Please enter a valid email address, example: you@yourdomain.com",
-				remote: jQuery.format("{0} is already taken, please enter a different address.")	
+				remote: jQuery.validator.format("{0} is already taken, please enter a different address.")	
 			}
 		},
 		debug:true

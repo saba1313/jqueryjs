@@ -1,14 +1,14 @@
 jQuery.validator.addMethod("maxWords", function(value, element, params) { 
     return this.optional(element) || value.match(/\b\w+\b/g).length < params; 
-}, $.format("Please enter {0} words or less.")); 
+}, jQuery.validator.format("Please enter {0} words or less.")); 
  
 jQuery.validator.addMethod("minWords", function(value, element, params) { 
     return this.optional(element) || value.match(/\b\w+\b/g).length >= params; 
-}, $.format("Please enter at least {0} words.")); 
+}, jQuery.validator.format("Please enter at least {0} words.")); 
  
 jQuery.validator.addMethod("rangeWords", function(value, element, params) { 
     return this.optional(element) || value.match(/\b\w+\b/g).length >= params[0] && value.match(/bw+b/g).length < params[1]; 
-}, $.format("Please enter between {0} and {1} words."));
+}, jQuery.validator.format("Please enter between {0} and {1} words."));
 
 
 jQuery.validator.addMethod("letterswithbasicpunc", function(value, element) {
@@ -162,7 +162,7 @@ jQuery.validator.addMethod("phone", function(phone_number, element) {
 // TODO check if value starts with <, otherwise don't try stripping anything
 jQuery.validator.addMethod("strippedminlength", function(value, element, param) {
 	return jQuery(value).text().length >= param;
-}, jQuery.format("Please enter at least {0} characters"));
+}, jQuery.validator.format("Please enter at least {0} characters"));
 
 // same as email, but TLD is optional
 jQuery.validator.addMethod("email2", function(value, element, param) {

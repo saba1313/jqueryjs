@@ -24,6 +24,17 @@ test("valid() plugin method", function() {
 	ok ( input.valid(), "Input is valid, too" );
 });
 
+test("valid() plugin method", function() {
+	var form = $("#testForm1");
+	form.validate();
+	var inputs = form.find("input");
+	ok( !inputs.valid(), "all invalid" );
+	inputs.not(":first").val("ok");
+	ok( !inputs.valid(), "just one invalid" );
+	inputs.val("ok");
+	ok( inputs.valid(), "all valid" );
+});
+
 test("valid() plugin method, special handling for checkable groups", function() {
 	// rule is defined on first checkbox, must apply to others, too
 	var checkable = $("#checkable2");

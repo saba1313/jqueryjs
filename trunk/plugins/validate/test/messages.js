@@ -1,5 +1,14 @@
 module("messages");
 
+test("predefined message not overwritten by addMethod(a, b, undefined)", function() {
+	var message = "my custom message";
+	$.validator.messages.custom = message;
+	$.validator.addMethod("custom", function() {});
+	same(message, $.validator.messages.custom);
+	delete $.validator.messages.custom;
+	delete $.validator.methods.custom;
+});
+
 test("group error messages", function() {
 	$.validator.addClassRules({
 		requiredDateRange: {required:true, date:true, dateRange:true}

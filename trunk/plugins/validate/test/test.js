@@ -205,6 +205,22 @@ test("valid()", function() {
 	ok( !v.valid(), "One error, must be invalid, no call to submit handler" );
 });
 
+test("submitHandler keeps submitting button", function() {
+	$("#userForm").validate({
+		debug: true,
+		submitHandler: function(form) {
+			// dunno how to test this better; this tests the implementation that uses a hidden input
+			var hidden = $(form).find("input:hidden")[0];
+			same(hidden.value, button.value)
+			same(hidden.name, button.name)
+		}
+	});
+	$("#username").val("bla");
+	var button = $("#userForm :submit")[0]
+	$(button).triggerHandler("click");
+	$("#userForm").submit();
+});
+
 test("showErrors()", function() {
 	expect( 4 );
 	var errorLabel = $('#errorFirstname').hide();

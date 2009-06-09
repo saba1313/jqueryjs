@@ -40,6 +40,13 @@ $.extend($.fn, {
 			this.find("input, button").filter(".cancel").click(function() {
 				validator.cancelSubmit = true;
 			});
+			
+			// when a submitHandler is used, capture the submitting button
+			if (validator.settings.submitHandler) {
+				this.find("input, button").filter(":submit").click(function() {
+					validator.submitButton = this;
+				});
+			}
 		
 			// validate the form on submit
 			this.submit( function( event ) {
@@ -49,7 +56,15 @@ $.extend($.fn, {
 					
 				function handle() {
 					if ( validator.settings.submitHandler ) {
+						if (validator.submitButton) {
+							// insert a hidden input as a replacement for the missing submit button
+							var hidden = $("<input type='hidden'/>").attr("name", validator.submitButton.name).val(validator.submitButton.value).appendTo(validator.currentForm);
+						}
 						validator.settings.submitHandler.call( validator, validator.currentForm );
+						if (validator.submitButton) {
+							// and clean up afterwards; thanks to no-block-scope, hidden can be referenced
+							hidden.remove();
+						}
 						return false;
 					}
 					return true;

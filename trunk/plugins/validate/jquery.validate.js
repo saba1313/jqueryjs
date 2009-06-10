@@ -205,6 +205,7 @@ $.extend($.validator, {
 		groups: {},
 		rules: {},
 		errorClass: "error",
+		validClass: "valid",
 		errorElement: "label",
 		focusInvalid: true,
 		errorContainer: $( [] ),
@@ -217,7 +218,7 @@ $.extend($.validator, {
 				
 			// hide error label and remove error class on focus if enabled
 			if ( this.settings.focusCleanup && !this.blockFocusCleanup ) {
-				this.settings.unhighlight && this.settings.unhighlight.call( this, element, this.settings.errorClass );
+				this.settings.unhighlight && this.settings.unhighlight.call( this, element, this.settings.errorClass, this.settings.validClass );
 				this.errorsFor(element).hide();
 			}
 		},
@@ -235,11 +236,11 @@ $.extend($.validator, {
 			if ( element.name in this.submitted )
 				this.element(element);
 		},
-		highlight: function( element, errorClass ) {
-			$( element ).addClass( errorClass );
+		highlight: function( element, errorClass, validClass ) {
+			$(element).addClass(errorClass).removeClass(validClass);
 		},
-		unhighlight: function( element, errorClass ) {
-			$( element ).removeClass( errorClass );
+		unhighlight: function( element, errorClass, validClass ) {
+			$(element).removeClass(errorClass).addClass(validClass);
 		}
 	},
 
@@ -576,7 +577,7 @@ $.extend($.validator, {
 		defaultShowErrors: function() {
 			for ( var i = 0; this.errorList[i]; i++ ) {
 				var error = this.errorList[i];
-				this.settings.highlight && this.settings.highlight.call( this, error.element, this.settings.errorClass );
+				this.settings.highlight && this.settings.highlight.call( this, error.element, this.settings.errorClass, this.settings.validClass );
 				this.showLabel( error.element, error.message );
 			}
 			if( this.errorList.length ) {
@@ -589,7 +590,7 @@ $.extend($.validator, {
 			}
 			if (this.settings.unhighlight) {
 				for ( var i = 0, elements = this.validElements(); elements[i]; i++ ) {
-					this.settings.unhighlight.call( this, elements[i], this.settings.errorClass );
+					this.settings.unhighlight.call( this, elements[i], this.settings.errorClass, this.settings.validClass );
 				}
 			}
 			this.toHide = this.toHide.not( this.toShow );

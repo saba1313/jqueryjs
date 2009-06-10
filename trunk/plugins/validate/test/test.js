@@ -298,14 +298,16 @@ test("showErrors() - custom handler", function() {
 });
 
 test("option: (un)highlight, default", function() {
-	expect(3);
 	$("#testForm1").validate();
 	var e = $("#firstname")
 	ok( !e.hasClass("error") );
+	ok( !e.hasClass("valid") );
 	e.valid()
 	ok( e.hasClass("error") );
+	ok( !e.hasClass("valid") );
 	e.val("hithere").valid()
 	ok( !e.hasClass("error") );
+	ok( e.hasClass("valid") );
 });
 
 test("option: (un)highlight, nothing", function() {

@@ -173,3 +173,64 @@ jQuery.validator.addMethod("email2", function(value, element, param) {
 jQuery.validator.addMethod("url2", function(value, element, param) {
 	return this.optional(element) || /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)*(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(value); 
 }, jQuery.validator.messages.url);
+
+// NOTICE: Modified version of Castle.Components.Validator.CreditCardValidator
+// Redistributed under the the Apache License 2.0 at http://www.apache.org/licenses/LICENSE-2.0
+// Valid Types: mastercard, visa, amex, dinersclub, enroute, discover, jcb, unknown, all (overrides all other settings)
+jQuery.validator.addMethod("creditcardtypes", function(value, element, param) {
+
+	if (/[^0-9-]+/.test(value)) 
+		return false;
+	
+	value = value.replace(/\D/g, "");
+	
+	var validTypes = 0x0000;
+	
+	if (param.mastercard) 
+		validTypes |= 0x0001;
+	if (param.visa) 
+		validTypes |= 0x0002;
+	if (param.amex) 
+		validTypes |= 0x0004;
+	if (param.dinersclub) 
+		validTypes |= 0x0008;
+	if (param.enroute) 
+		validTypes |= 0x0010;
+	if (param.discover) 
+		validTypes |= 0x0020;
+	if (param.jcb) 
+		validTypes |= 0x0040;
+	if (param.unknown) 
+		validTypes |= 0x0080;
+	if (param.all) 
+		validTypes = 0x0001 | 0x0002 | 0x0004 | 0x0008 | 0x0010 | 0x0020 | 0x0040 | 0x0080;
+	
+	if (validTypes & 0x0001 && /^(51|52|53|54|55)/.test(value)) { //mastercard
+		return value.length == 16;
+	}
+	if (validTypes & 0x0002 && /^(4)/.test(value)) { //visa
+		return value.length == 16;
+	}
+	if (validTypes & 0x0004 && /^(34|37)/.test(value)) { //amex
+		return value.length == 15;
+	}
+	if (validTypes & 0x0008 && /^(300|301|302|303|304|305|36|38)/.test(value)) { //dinersclub
+		return value.length == 14;
+	}
+	if (validTypes & 0x0010 && /^(2014|2149)/.test(value)) { //enroute
+		return value.length == 15;
+	}
+	if (validTypes & 0x0020 && /^(6011)/.test(value)) { //discover
+		return value.length == 16;
+	}
+	if (validTypes & 0x0040 && /^(3)/.test(value)) { //jcb
+		return value.length == 16;
+	}
+	if (validTypes & 0x0040 && /^(2131|1800)/.test(value)) { //jcb
+		return value.length == 15;
+	}
+	if (validTypes & 0x0080) { //unknown
+		return true;
+	}
+	return false;
+}, "Please enter a valid credit card number.");

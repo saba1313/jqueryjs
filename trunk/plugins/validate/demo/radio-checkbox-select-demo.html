@@ -76,22 +76,22 @@ form.cmxform label.error { display: none; }
 		</fieldset>
 		<p>
 			<label for="agree">Please agree to our policy</label>
-			<input type="checkbox" id="agree" name="agree" validate="required:true" />
+			<input type="checkbox" class="checkbox" id="agree" name="agree" validate="required:true" />
 			<br/>
 			<label for="agree" class="error block">Please agree to our policy!</label>
 		</p>
 		<fieldset>
 			<legend>Spam</legend>
 			<label for="spam_email">
-				<input type="checkbox" id="spam_email" value="email" name="spam[]" validate="required:true, minlength:2" />
+				<input type="checkbox" class="checkbox" id="spam_email" value="email" name="spam[]" validate="required:true, minlength:2" />
 				Spam via E-Mail
 			</label>
 			<label for="spam_phone">
-				<input type="checkbox" id="spam_phone" value="phone" name="spam[]" />
+				<input type="checkbox" class="checkbox" id="spam_phone" value="phone" name="spam[]" />
 				Spam via Phone
 			</label>
 			<label for="spam_mail">
-				<input type="checkbox" id="spam_mail" value="mail" name="spam[]" />
+				<input type="checkbox" class="checkbox" id="spam_mail" value="mail" name="spam[]" />
 				Spam via Mail
 			</label>
 			<label for="spam[]" class="error">Please select at least two types of spam.</label>

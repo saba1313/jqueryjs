@@ -399,8 +399,7 @@ test("remote, customized ajax options", function() {
 	$("#userForm").valid();
 });
 
-/*
-// deferred
+
 test("remote extensions", function() {
 	expect(5);
 	stop();
@@ -432,7 +431,7 @@ test("remote extensions", function() {
 	e.val("asdf");
 	ok( !v.element(e), "still invalid, because remote validation must block until it returns" );
 });
-*/
+
 
 module("additional methods");
 

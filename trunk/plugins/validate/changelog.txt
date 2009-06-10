@@ -11,6 +11,7 @@
 * Enhancement to submitHandler option: When used, click events on submit buttons are captured and the submitting button is inserted into the form before calling submitHandler, and removed afterwards; keeps submit buttons intact (http://plugins.jquery.com/node/7183#comment-3585)
 * Added option validClass, default "valid", which adds that class to all valid elements, after validation (http://dev.jquery.com/ticket/2205)
 * Added creditcardtypes method to additionalMethods.js, including tests (via http://dev.jquery.com/ticket/3635)
+* Improved remote method to allow serverside message as a string, or true for valid, or false for invalid using the clientside defined message (http://dev.jquery.com/ticket/3807)
 
 1.5.2
 ---

@@ -922,7 +922,7 @@ $.extend($.validator, {
 					dataType: "json",
 					data: data,
 					success: function(response) {
-						if ( response ) {
+						if ( response === true ) {
 							var submitted = validator.formSubmitted;
 							validator.prepareElement(element);
 							validator.formSubmitted = submitted;

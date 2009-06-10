@@ -4,7 +4,7 @@ $emails = array('glen@marketo.com', 'george@bush.gov', 'me@god.com', 'aboutface@
 $valid = 'true';
 foreach($emails as $email) {
 	if( strtolower($email) == $request )
-		$valid = "false";
+		$valid = '"Thats already taken."';
 }
 echo $valid;
 ?>

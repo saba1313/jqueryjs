@@ -12,6 +12,7 @@
 * Added option validClass, default "valid", which adds that class to all valid elements, after validation (http://dev.jquery.com/ticket/2205)
 * Added creditcardtypes method to additionalMethods.js, including tests (via http://dev.jquery.com/ticket/3635)
 * Improved remote method to allow serverside message as a string, or true for valid, or false for invalid using the clientside defined message (http://dev.jquery.com/ticket/3807)
+* Improved accept method to also accept a Drupal-style comma-seperated list of values (http://plugins.jquery.com/node/8580)
 
 1.5.2
 ---

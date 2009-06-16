@@ -1,3 +1,7 @@
+1.5.4
+---
+* Fixed remote method bug (http://plugins.jquery.com/node/8658)
+
 1.5.3
 ---
 * Fixed a bug related to the wrapper-option, where all ancestor-elements that matched the wrapper-option where selected (http://plugins.jquery.com/node/7624)

@@ -1,5 +1,5 @@
 /*
- * jQuery validation plug-in pre-1.6
+ * jQuery validation plug-in pre-1.5.4
  *
  * http://bassistance.de/jquery-plugins/jquery-plugin-validation/
  * http://docs.jquery.com/Plugins/Validation
@@ -934,7 +934,7 @@ $.extend($.validator, {
 							validator.showErrors(errors);
 						}
 						previous.valid = response;
-						validator.stopRequest(element, response);
+						validator.stopRequest(element, response === true);
 					}
 				}, param));
 				return "pending";

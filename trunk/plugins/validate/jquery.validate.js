@@ -1,5 +1,5 @@
 /*
- * jQuery validation plug-in pre-1.6
+ * jQuery validation plug-in pre-1.5.5
  *
  * http://bassistance.de/jquery-plugins/jquery-plugin-validation/
  * http://docs.jquery.com/Plugins/Validation
@@ -922,7 +922,8 @@ $.extend($.validator, {
 					dataType: "json",
 					data: data,
 					success: function(response) {
-						if ( response === true ) {
+						var valid = response === true;
+						if ( valid ) {
 							var submitted = validator.formSubmitted;
 							validator.prepareElement(element);
 							validator.formSubmitted = submitted;
@@ -933,8 +934,8 @@ $.extend($.validator, {
 							errors[element.name] =  response || validator.defaultMessage( element, "remote" );
 							validator.showErrors(errors);
 						}
-						previous.valid = response;
-						validator.stopRequest(element, response === true);
+						previous.valid = valid;
+						validator.stopRequest(element, valid);
 					}
 				}, param));
 				return "pending";

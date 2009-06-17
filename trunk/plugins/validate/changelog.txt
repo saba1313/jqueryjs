@@ -1,6 +1,7 @@
 1.5.5
 ---
 * Fix for http://plugins.jquery.com/node/8659
+* Fixed trailing comma in messages_cs.js
 
 1.5.4
 ---

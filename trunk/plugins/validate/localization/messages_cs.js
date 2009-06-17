@@ -19,5 +19,5 @@ jQuery.extend(jQuery.validator.messages, {
 	rangelength: jQuery.validator.format("Prosím, zadejte od {0} do {1} znaků."),
 	range: jQuery.validator.format("Prosím, zadejte hodnotu od {0} do {1}."),
 	max: jQuery.validator.format("Prosím, zadejte hodnotu menší nebo rovnu {0}."),
-	min: jQuery.validator.format("Prosím, zadejte hodnotu větší nebo rovnu {0}."),
+	min: jQuery.validator.format("Prosím, zadejte hodnotu větší nebo rovnu {0}.")
 });

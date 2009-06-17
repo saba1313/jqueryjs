@@ -931,7 +931,7 @@ $.extend($.validator, {
 							validator.showErrors();
 						} else {
 							var errors = {};
-							errors[element.name] =  response || validator.defaultMessage( element, "remote" );
+							errors[element.name] = previous.message = response || validator.defaultMessage( element, "remote" );
 							validator.showErrors(errors);
 						}
 						previous.valid = valid;

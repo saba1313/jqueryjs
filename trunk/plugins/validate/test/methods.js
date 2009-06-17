@@ -424,7 +424,7 @@ test("remote, customized ajax options", function() {
 
 
 test("remote extensions", function() {
-	expect(5);
+	expect(6);
 	stop();
 	var e = $("#username");
 	var v = $("#userForm").validate({
@@ -444,10 +444,12 @@ test("remote extensions", function() {
 		}
 	});
 	$().ajaxStop(function() {
+		$().unbind("ajaxStop");
 		ok( true, "There needs to be exactly one request." );
 		equals( 1, v.size(), "There must be one error" );
-		equals( "asdf is already taken, please try something else", v.errorList[0].message );
-		$().unbind("ajaxStop");
+		equals( v.errorList[0].message, "asdf is already taken, please try something else" );
+		v.element(e);
+		equals( v.errorList[0].message, "asdf is already taken, please try something else", "message doesn't change on revalidation" );
 		start();
 	});
 	ok( !v.element(e), "invalid element, nothing entered yet" );

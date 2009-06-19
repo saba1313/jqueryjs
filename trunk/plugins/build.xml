@@ -180,5 +180,11 @@
             <param name="name" value="xhr" />
         </antcall>
     </target>
+	
+	<target name="message" description="Build message plugin.">
+        <antcall target="generic">
+            <param name="name" value="message" />
+        </antcall>
+    </target>
 
 </project>

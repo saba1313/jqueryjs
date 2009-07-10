@@ -52,3 +52,16 @@ test("teardown must be called after test ended", function() {
 		start();
 	}, 0);
 });
+
+module("save scope", {
+	setup: function() {
+		this.foo = "bar";
+	},
+	teardown: function() {
+		same(this.foo, "bar");
+	}
+});
+test("scope check", function() {
+	expect(2);
+	same(this.foo, "bar");
+});

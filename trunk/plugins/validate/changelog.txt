@@ -1,3 +1,7 @@
+next
+---
+* Added Finnish (FI) and Bulgarian (BR) localization
+
 1.5.5
 ---
 * Fix for http://plugins.jquery.com/node/8659

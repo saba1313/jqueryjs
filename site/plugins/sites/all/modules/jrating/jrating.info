@@ -1,8 +1,0 @@
-name = jRating
-description = Rate nodes.
-dependencies = votingapi
-package = Voting
-; Information added by drupal.org packaging script on 2007-04-07
-version = "5.x-1.0"
-project = "jrating"
-

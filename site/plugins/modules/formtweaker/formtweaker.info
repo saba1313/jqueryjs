@@ -1,8 +1,0 @@
-name = Form Tweaker
-description = Renders taxonomy selects as checkboxes or radio buttons
-dependencies = taxonomy
-
-; Information added by drupal.org packaging script on 2007-02-16
-version = "5.x-1.0"
-project = "formtweaker"
-

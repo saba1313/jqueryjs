@@ -1,1 +1,0 @@
-alert("I was loaded via $.ajax");

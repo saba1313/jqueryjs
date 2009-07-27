@@ -1,1 +1,0 @@
-../../jquery/dist/jquery.pack.js

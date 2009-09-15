@@ -16,9 +16,11 @@ test("module with setup", function() {
 
 module("setup/teardown test", {
 	setup: function() {
+		window.fail = true;
 		ok(true);
 	},
 	teardown: function() {
+		delete window.fail;
 		ok(true);
 	}
 });

@@ -1,3 +1,0 @@
-Array.prototype.grep = function() {
-
-}
